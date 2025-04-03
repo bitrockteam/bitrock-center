@@ -1,0 +1,2 @@
+const SERVERL_BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+export { SERVERL_BASE_URL };
