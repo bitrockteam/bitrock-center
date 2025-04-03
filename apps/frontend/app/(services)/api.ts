@@ -1,9 +1,6 @@
+import { REDIRECT_URL, SERVERL_BASE_URL } from "@/config";
 import { IUser } from "@bitrock/types";
 import { supabase } from "../(config)/supabase";
-
-const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL;
-const REDIRECT_URL =
-  process.env.NEXT_PUBLIC_REDIRECT_URL ?? "http://localhost:8080/";
 
 // *** AUTH
 
@@ -32,7 +29,7 @@ export async function logoutUser() {
 }
 
 export async function getUserInfo({ token }: { token: string }) {
-  const res = await fetch(`${BASE_URL}/user`, {
+  const res = await fetch(`${SERVERL_BASE_URL}/user`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
