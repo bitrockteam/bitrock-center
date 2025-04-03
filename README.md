@@ -7,5 +7,5 @@ Modularized platform for Bitrock internal use.
 - `yarn`
 - `yarn build`
 - `yarn dev`:
-  - frontend on `localhost:8080`
+  - frontend on `localhost:3001`
   - backend on `localhost:3000`

@@ -13,7 +13,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-const allowedOrigins = ["https://center.bitrock.town", "http://localhost:8080"];
+const allowedOrigins = ["https://center.bitrock.town", "http://localhost:3001"];
 
 const options = {
   failOnErrors: true, // Whether or not to throw when parsing errors. Defaults to false.
