@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { useAuth } from "../(auth)/AuthProvider";
 import { loginUser } from "../(services)/api";
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const router = useRouter();
   const { session, loading } = useAuth();
 

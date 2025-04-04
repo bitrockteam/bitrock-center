@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { getUserInfo, loginUser } from "../(services)/api";
 import { api } from "../(config)/client";
+import { Loader } from "@/components/custom/Loader";
 
 const AuthContext = createContext({
   user: undefined as IUser | undefined,
@@ -86,7 +87,11 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     [loading, session, user],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {loading ? <Loader /> : children}
+    </AuthContext.Provider>
+  );
 }
 
 export const useAuth = () => {
