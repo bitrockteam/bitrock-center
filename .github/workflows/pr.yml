@@ -1,10 +1,11 @@
-name: Build
+name: PR Validation
 on:
-  push:
+  pull_request:
     branches:
       - main
+
 jobs:
-  Deploy-Production:
+  Build-Frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,3 +13,5 @@ jobs:
         run: yarn
       - name: Build
         run: yarn build
+      - name: Lint
+        run: yarn lint
