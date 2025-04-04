@@ -15,14 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Build with Turbo
-        run: yarn turbo run build --filter=@bitrock-center/frontend
-
-      - name: Deploy to Vercel
-        run: |
-          yarn global add vercel
-          vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd apps/frontend
+      - name: Install
+        run: yarn
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
