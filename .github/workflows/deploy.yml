@@ -20,7 +20,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Build with Turbo
-        run: yarn turbo run build --filter=frontend
+        run: yarn turbo run build --filter=@bitrock-center/frontend
 
       - name: Deploy to Vercel
         run: |
