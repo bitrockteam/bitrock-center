@@ -11,6 +11,8 @@ export function AuthenticatedPage({
   const router = useRouter();
 
   useEffect(() => {
+    console.log({ isLogged, user });
+
     if (loading) return;
     if (!isLogged) router.push("/login");
     else if (isLogged && !user) {

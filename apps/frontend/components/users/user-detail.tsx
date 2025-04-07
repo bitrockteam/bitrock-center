@@ -1,5 +1,7 @@
 "use client";
 
+import { useGetUserById } from "@/api/useGetUserById";
+import { useSessionContext } from "@/app/utenti/SessionData";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +25,6 @@ import {
   getLeaveRequestsByUser,
   getProjectsByUser,
   getTimeEntriesByUser,
-  getUserById,
 } from "@/lib/mock-data";
 import { motion } from "framer-motion";
 import {
@@ -33,7 +34,6 @@ import {
   Clock,
   Edit,
   Mail,
-  Phone,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -43,7 +43,10 @@ export default function UserDetail({ id }: { id: string }) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const user = getUserById(id);
+  const { user } = useGetUserById(id);
+  const { roles } = useSessionContext();
+  console.log({ user });
+
   const timeEntries = getTimeEntriesByUser(id);
   const leaveRequests = getLeaveRequestsByUser(id);
   const projects = getProjectsByUser(id);
@@ -103,24 +106,27 @@ export default function UserDetail({ id }: { id: string }) {
           </Button>
           <Avatar className="h-16 w-16">
             <AvatarImage
-              src={user.avatar || "/placeholder.svg?height=64&width=64"}
+              src={user?.avatar_url || "/placeholder.svg?height=64&width=64"}
             />
             <AvatarFallback>
-              {user.name.charAt(0)}
-              {user.surname.charAt(0)}
+              {user?.name.charAt(0)}
+              {user.name.split(" ")?.[1].charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {user.name} {user.surname}
+              {user.name} {user.name.split(" ")?.[1]}
             </h1>
             <div className="flex items-center space-x-2">
-              {getRoleBadge(user.role)}
+              {getRoleBadge(
+                roles.find((role) => role.id === user.role_id)?.label ?? "",
+              )}
+              {/* Mock Data */}
               <Badge
-                variant={user.active ? "outline" : "secondary"}
-                className={user.active ? "border-green-500 text-green-500" : ""}
+                variant={true ? "outline" : "secondary"}
+                className={true ? "border-green-500 text-green-500" : ""}
               >
-                {user.active ? "Attivo" : "Inattivo"}
+                {true ? "Attivo" : "Inattivo"}
               </Badge>
             </div>
           </div>
@@ -149,15 +155,15 @@ export default function UserDetail({ id }: { id: string }) {
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium">Telefono:</p>
-                <p className="text-sm text-muted-foreground flex items-center">
+                {/* <p className="text-sm text-muted-foreground flex items-center">
                   <Phone className="mr-1 h-3 w-3" />{" "}
                   {user.phone || "Non disponibile"}
-                </p>
+                </p> */}
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium">Ruolo:</p>
                 <p className="text-sm text-muted-foreground capitalize">
-                  {user.role}
+                  {roles.find((role) => role.id === user.role_id)?.label}
                 </p>
               </div>
               <div className="space-y-1">

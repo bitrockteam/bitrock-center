@@ -9,6 +9,11 @@ export async function getUserByAuthId(id: string): Promise<IUser | null> {
   return res[0] as IUser;
 }
 
+export async function getUserByEmail(email: string): Promise<IUser | null> {
+  const res = await sql`SELECT * FROM public."USERS" WHERE email = ${email}`;
+  if (!res) return null;
+  return res[0] as IUser;
+}
 export async function getUserById(id: string): Promise<IUser | null> {
   const res = await sql`SELECT * FROM public."USERS" WHERE id = ${id}`;
   if (!res) return null;

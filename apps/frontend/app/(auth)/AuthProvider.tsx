@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { getUserInfo, loginUser } from "../(services)/api";
+import { getUserInfo, loginUser, verifyBitrockToken } from "../(services)/api";
 import { api } from "../(config)/client";
 import { Loader } from "@/components/custom/Loader";
 
@@ -39,6 +39,10 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
       setSession(session ?? undefined);
       try {
         if (session && !user) {
+          console.log({ token: session.access_token });
+          if (verifyBitrockToken({ token: session.access_token })) {
+            console.log("Autenticato");
+          }
           await getUserInfo({ token: session.access_token })
             .then((res) => setUser(res))
             .catch(() => setUser(undefined));

@@ -6,6 +6,8 @@ import {
   createUserFromAuth,
   createUserManually,
   getUserByAuthId,
+  getUserByEmail,
+  getUserById,
   getUsers,
 } from "../repository/user.repository";
 
@@ -38,16 +40,41 @@ export const createUserController = (app: Express) => {
       const user = await extractInfoFromToken(req);
       if (!user) return res.status(403).send("Unauthorized");
 
-      const userFromDb = await getUserByAuthId(user.id);
-      if (!userFromDb) return res.status(404).send("User not found");
-      if (userFromDb.auth_id !== user.id)
+      // const userFromDbByAuthId = await getUserByAuthId(user.id);
+      if (!user.email) return res.status(403).send("Unauthorized");
+
+      const userFromDbByEmail = await getUserByEmail(user.email);
+
+      if (!userFromDbByEmail) return res.status(404).send("User not found");
+      if (userFromDbByEmail.auth_id && userFromDbByEmail.auth_id !== user.id)
         return res.status(403).send("Unauthorized");
 
-      return res.status(200).send(userFromDb);
+      return res.status(200).send(userFromDbByEmail);
     } catch (error) {
       return res.status(500).json({ error: "Error performing the request" });
     }
   });
+
+  app.get(
+    "/user/:id",
+    authenticateToken,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = req.params.id;
+
+        // const userFromDbByAuthId = await getUserByAuthId(user.id);
+        if (!userId) return res.status(400).send("User ID not provided");
+
+        const userFromDbByEmail = await getUserById(userId);
+
+        if (!userFromDbByEmail) return res.status(404).send("User not found");
+
+        return res.status(200).send(userFromDbByEmail);
+      } catch (error) {
+        return res.status(500).json({ error: "Error performing the request" });
+      }
+    },
+  );
 
   /**
    * @swagger
@@ -96,11 +123,13 @@ export const createUserController = (app: Express) => {
       const user = await extractInfoFromToken(req);
       if (!user) return res.status(403).send("Unauthorized");
 
-      const userAlreadyExists = Boolean(await getUserByAuthId(user.id));
-      if (userAlreadyExists) return res.status(409).send("User already exists");
-
       const userRequest = req.body as ICreateUser;
       if (!userRequest) return res.status(400).send("User not provided");
+
+      const userAlreadyExists = Boolean(
+        await getUserByEmail(userRequest.email),
+      );
+      if (userAlreadyExists) return res.status(409).send("User already exists");
 
       const newUser = await createUserManually(userRequest);
 

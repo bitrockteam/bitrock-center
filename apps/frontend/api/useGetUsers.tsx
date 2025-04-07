@@ -2,7 +2,7 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
 import { IUser } from "@bitrock/types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export const useGetUsers = () => {
   const [users, setUsers] = useState<IUser[]>([]);
@@ -10,7 +10,7 @@ export const useGetUsers = () => {
 
   const { session } = useAuth();
 
-  useEffect(() => {
+  const refetch = useCallback(() => {
     setLoading(true);
     fetch(`${SERVERL_BASE_URL}/users`, {
       method: "GET",
@@ -22,7 +22,11 @@ export const useGetUsers = () => {
       .then((res) => res.json())
       .then((data) => setUsers(data))
       .finally(() => setLoading(false));
-  }, [session?.access_token]);
+  }, [session]);
 
-  return { users, loading };
+  useEffect(() => {
+    refetch();
+  }, [refetch, session?.access_token]);
+
+  return { users, loading, refetch };
 };

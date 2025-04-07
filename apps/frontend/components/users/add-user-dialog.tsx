@@ -2,6 +2,8 @@
 
 import { FormDescription } from "@/components/ui/form";
 
+import { useCreateUser } from "@/api/useCreateUser";
+import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,6 +33,7 @@ import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 interface AddUserDialogProps {
   open: boolean;
@@ -43,7 +46,10 @@ export default function AddUserDialog({
   open,
   onOpenChange,
   editData,
-}: AddUserDialogProps) {
+}: Readonly<AddUserDialogProps>) {
+  const { createUser } = useCreateUser();
+  const { refetch } = useSessionContext();
+
   const form = useForm({
     defaultValues: {
       name: "",
@@ -71,8 +77,18 @@ export default function AddUserDialog({
   const onSubmit = (data: any) => {
     console.log(data);
     // Here you would normally save the data
-    onOpenChange(false);
-    form.reset();
+    createUser({
+      user: {
+        name: `${form.getValues().name} ${form.getValues().surname}`,
+        email: form.getValues().email,
+      },
+    })
+      .then(() => toast.success("Utente creato con successo"))
+      .finally(() => {
+        onOpenChange(false);
+        form.reset();
+        refetch();
+      });
   };
 
   return (

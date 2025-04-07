@@ -1,6 +1,18 @@
 import { REDIRECT_URL, SERVERL_BASE_URL } from "@/config";
 import { IUser } from "@bitrock/types";
 import { supabase } from "../(config)/supabase";
+import { jwtDecode } from "jwt-decode";
+
+interface IToken {
+  user_metadata: {
+    custom_claims: {
+      hd: string;
+    };
+  };
+  user: {
+    email: string;
+  };
+}
 
 // *** AUTH
 
@@ -35,6 +47,20 @@ export async function getUserInfo({ token }: { token: string }) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-  }).then((res) => res.json());
+  }).then((res) => {
+    if (res.status !== 200) throw Error("Error fetching user info");
+    return res.json();
+  });
   return res as IUser;
+}
+
+export function verifyBitrockToken({ token }: { token: string }) {
+  const tokenInfo: IToken = jwtDecode(token);
+  console.log({ tokenInfo });
+
+  if (tokenInfo.user_metadata.custom_claims.hd === "bitrock.it") return true;
+
+  if (tokenInfo.user.email.endsWith("@bitrock.it")) return true;
+
+  return false;
 }

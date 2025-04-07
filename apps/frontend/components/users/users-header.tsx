@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { PlusCircle, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { useState } from "react"
-import AddUserDialog from "./add-user-dialog"
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { PlusCircle, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import AddUserDialog from "./add-user-dialog";
 
 export default function UsersHeader() {
-  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   return (
     <motion.div
@@ -24,7 +24,11 @@ export default function UsersHeader() {
       <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input type="search" placeholder="Cerca utenti..." className="w-full pl-8 sm:w-[300px]" />
+          <Input
+            type="search"
+            placeholder="Cerca utenti..."
+            className="w-full pl-8 sm:w-[300px]"
+          />
         </div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button onClick={() => setShowAddDialog(true)}>
@@ -36,6 +40,5 @@ export default function UsersHeader() {
 
       <AddUserDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
     </motion.div>
-  )
+  );
 }
-

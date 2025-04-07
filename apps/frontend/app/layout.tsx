@@ -6,6 +6,7 @@ import type React from "react";
 import { Suspense } from "react";
 import "../styles/globals.css";
 import { AuthProvider } from "./(auth)/AuthProvider";
+import { SessionDataProvider } from "./utenti/SessionData";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,14 +36,16 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <AuthProvider>
-              <div className="flex h-screen">
-                <Sidebar />
-                <div className="flex-1 overflow-auto">
-                  <main className="container py-4 mx-auto px-4">
-                    {children}
-                  </main>
+              <SessionDataProvider>
+                <div className="flex h-screen">
+                  <Sidebar />
+                  <div className="flex-1 overflow-auto">
+                    <main className="container py-4 mx-auto px-4">
+                      {children}
+                    </main>
+                  </div>
                 </div>
-              </div>
+              </SessionDataProvider>
             </AuthProvider>
           </ThemeProvider>
         </Suspense>

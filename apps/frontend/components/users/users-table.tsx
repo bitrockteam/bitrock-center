@@ -31,7 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { useGetUsers } from "@/api/useGetUsers";
+import { useSessionContext } from "@/app/utenti/SessionData";
 import { motion } from "framer-motion";
 import { Edit, MoreHorizontal, Trash2, User } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -45,7 +45,7 @@ export default function UsersTable() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [deleteUser, setDeleteUser] = useState<any>(null);
 
-  const { users } = useGetUsers();
+  const { users, roles } = useSessionContext();
 
   const getRoleBadge = (role?: string) => {
     switch (role) {
@@ -116,14 +116,18 @@ export default function UsersTable() {
                           />
                           <AvatarFallback>
                             {user.name.split(" ")?.[0].charAt(0)}
-                            {user.name.split(" ")?.[1].charAt(0)}
+                            {user.name.split(" ")?.[1]?.charAt(0) ?? ""}
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-medium">{user.name}</span>
                       </div>
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell>{getRoleBadge(user.role_id)}</TableCell>
+                    <TableCell>
+                      {getRoleBadge(
+                        roles?.find((role) => role.id === user.role_id)?.label,
+                      )}
+                    </TableCell>
                     <TableCell>{0}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
