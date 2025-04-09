@@ -6,7 +6,6 @@ export const createRolesController = (app: Express) => {
   app.get("/roles", authenticateToken, async (req: Request, res: Response) => {
     try {
       const roles = await getRoles();
-      console.log({ roles });
 
       if (!roles) return res.status(404).send("Roles not found");
 

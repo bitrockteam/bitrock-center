@@ -45,7 +45,6 @@ export default function UserDetail({ id }: { id: string }) {
 
   const { user } = useGetUserById(id);
   const { roles } = useSessionContext();
-  console.log({ user });
 
   const timeEntries = getTimeEntriesByUser(id);
   const leaveRequests = getLeaveRequestsByUser(id);

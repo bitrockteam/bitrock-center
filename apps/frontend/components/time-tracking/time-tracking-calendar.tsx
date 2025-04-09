@@ -44,8 +44,6 @@ export default function TimeTrackingCalendar() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editEntry, setEditEntry] = useState<TimeEntry | null>(null);
 
-  console.log({ selectedDate });
-
   const projects = getProjects();
   const timeEntries = getTimeEntries();
 
@@ -80,11 +78,6 @@ export default function TimeTrackingCalendar() {
   const adjustedFirstDay = useMemo(() => {
     return firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
   }, [firstDayOfWeek]);
-
-  console.log({
-    firstDayOfMonth,
-    adjustedFirstDay,
-  });
 
   // Organizza le voci per data
   const entriesByDate = useMemo(() => {
@@ -192,8 +185,6 @@ export default function TimeTrackingCalendar() {
     setShowAddDialog(true);
   };
 
-  console.log({ adjustedFirstDay, daysInMonth });
-
   // Genera i giorni del calendario
   const calendarDays = useMemo(() => {
     const days = [];
@@ -210,8 +201,6 @@ export default function TimeTrackingCalendar() {
 
     return days;
   }, [adjustedFirstDay, daysInMonth]);
-
-  console.log({ calendarDays });
 
   // Nomi dei giorni della settimana
   const weekDays = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
@@ -306,8 +295,6 @@ export default function TimeTrackingCalendar() {
                   currentDate.getMonth(),
                   day,
                 ).getDay() === 6;
-
-              console.log({ entries });
 
               return (
                 <div
