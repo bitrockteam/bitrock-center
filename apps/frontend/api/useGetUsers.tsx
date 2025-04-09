@@ -12,7 +12,10 @@ export const useGetUsers = () => {
 
   const refetch = useCallback(() => {
     setLoading(true);
-    fetch(`${SERVERL_BASE_URL}/users`, {
+    const searchParams = new URLSearchParams(window.location.search);
+    const search = searchParams.get("params");
+
+    fetch(`${SERVERL_BASE_URL}/users${search ? `?params=${search}` : ""}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -21,6 +24,9 @@ export const useGetUsers = () => {
     })
       .then((res) => res.json())
       .then((data) => setUsers(data))
+      .catch((err) => {
+        console.error(err);
+      })
       .finally(() => setLoading(false));
   }, [session]);
 

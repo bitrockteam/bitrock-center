@@ -40,6 +40,7 @@ export default function UsersTable() {
   const router = useRouter();
 
   const { users, roles } = useSessionContext();
+  console.log({ users });
 
   const handleViewUser = (id: string) => {
     router.push(`/utenti/${id}`);
@@ -73,7 +74,7 @@ export default function UsersTable() {
                   </TableCell>
                 </TableRow>
               ) : (
-                users?.map((user) => (
+                (Array.isArray(users) ? users : [])?.map((user) => (
                   <TableRow
                     key={user.id}
                     className="cursor-pointer hover:bg-muted/50"

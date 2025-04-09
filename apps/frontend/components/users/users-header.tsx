@@ -4,11 +4,37 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import AddUserDialog from "./add-user-dialog";
+import { useSessionContext } from "@/app/utenti/SessionData";
 
 export default function UsersHeader() {
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [textSearch, setTextSearch] = useState("");
+  const deferredTextSearch = useDeferredValue(textSearch);
+
+  const { refetch } = useSessionContext();
+
+  useEffect(() => {
+    if (deferredTextSearch !== "") {
+      const serachParams = new URLSearchParams(window.location.search);
+      serachParams.set("params", deferredTextSearch);
+      history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${serachParams.toString()}`,
+      );
+    } else {
+      const serachParams = new URLSearchParams(window.location.search);
+      serachParams.delete("params");
+      history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${serachParams.toString()}`,
+      );
+    }
+    refetch();
+  }, [deferredTextSearch, refetch]);
 
   return (
     <motion.div
@@ -28,6 +54,8 @@ export default function UsersHeader() {
             type="search"
             placeholder="Cerca utenti..."
             className="w-full pl-8 sm:w-[300px]"
+            value={textSearch}
+            onChange={(e) => setTextSearch(e.target.value)}
           />
         </div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

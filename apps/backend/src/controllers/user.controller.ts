@@ -90,11 +90,15 @@ export const createUserController = (app: Express) => {
    *       500:
    *         description: Error performing the request
    */
-  app.get("/users", authenticateToken, async (_req: Request, res: Response) => {
+  app.get("/users", authenticateToken, async (req: Request, res: Response) => {
     try {
-      const users = await getUsers();
+      const { params } = req.query;
+      console.log({ params });
+
+      const users = await getUsers(params as string);
       return res.status(200).send(users);
     } catch (error) {
+      console.error(error);
       return res.status(500).json({ error: "Error performing the request" });
     }
   });

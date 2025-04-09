@@ -26,7 +26,17 @@ export async function getUserById(id: string): Promise<IUser | null> {
   return res[0] as IUser;
 }
 
-export async function getUsers(): Promise<IUser[]> {
+export async function getUsers(params?: string): Promise<IUser[]> {
+  console.log("params", params);
+
+  if (params) {
+    const res =
+      await sql`SELECT * FROM public."USERS" WHERE name LIKE '%' || ${params} || '%' OR email LIKE '%' || ${params} || '%'`;
+    if (!res) return [];
+    return [...res] as IUser[];
+  }
+  console.log("here");
+
   const res = await sql`SELECT * FROM public."USERS"`;
   return [...res] as IUser[];
 }
