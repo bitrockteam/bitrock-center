@@ -26,6 +26,7 @@ import {
   getProjectsByUser,
   getTimeEntriesByUser,
 } from "@/lib/mock-data";
+import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -39,11 +40,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
 
-export default function UserDetail({ id }: { id: string }) {
+export default function UserDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const { user } = useGetUserById(id);
+  const { user, refetch } = useGetUserById(id);
   const { roles } = useSessionContext();
 
   const timeEntries = getTimeEntriesByUser(id);
@@ -108,13 +109,12 @@ export default function UserDetail({ id }: { id: string }) {
               src={user?.avatar_url || "/placeholder.svg?height=64&width=64"}
             />
             <AvatarFallback>
-              {user?.name.charAt(0)}
-              {user.name.split(" ")?.[1].charAt(0)}
+              {formatDisplayName({ name: user.name, initials: true })}
             </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {user.name} {user.name.split(" ")?.[1]}
+              {formatDisplayName({ name: user.name })}
             </h1>
             <div className="flex items-center space-x-2">
               {getRoleBadge(
@@ -387,7 +387,10 @@ export default function UserDetail({ id }: { id: string }) {
       {/* Dialog per modificare l'utente */}
       <AddUserDialog
         open={showEditDialog}
-        onOpenChange={setShowEditDialog}
+        onComplete={(isOpen, options) => {
+          setShowEditDialog(isOpen);
+          if (options?.shouldRefetch) refetch();
+        }}
         editData={user}
       />
     </motion.div>

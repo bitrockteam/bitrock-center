@@ -1,4 +1,4 @@
-import { ICreateUser } from "@bitrock/types";
+import { ICreateUser, IUpdateUser } from "@bitrock/types";
 import { type Express, type Request, type Response } from "express";
 import { authenticateToken } from "../middleware/authMiddleware";
 import { extractInfoFromToken } from "../middleware/extractInfoFromToken";
@@ -9,6 +9,7 @@ import {
   getUserByEmail,
   getUserById,
   getUsers,
+  updateUser,
 } from "../repository/user.repository";
 
 export const createUserController = (app: Express) => {
@@ -183,6 +184,62 @@ export const createUserController = (app: Express) => {
 
         return res.status(200).send({ user: newUser });
       } catch (error) {
+        return res.status(500).json({ error: "Error performing the request" });
+      }
+    },
+  );
+
+  /**
+   * @swagger
+   * /user/{id}:
+   *  patch:
+   *    summary: Update user by ID
+   *    security:
+   *      - bearerAuth: []
+   *    parameters:
+   *      - name: id
+   *        in: path
+   *        required: true
+   *        description: ID of the user to update
+   *    requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            $ref: "#/components/schemas/ICreateUser"
+   *    responses:
+   *      200:
+   *        description: User updated successfully
+   *      400:
+   *        description: User not provided
+   *      403:
+   *        description: Unauthorized
+   *      404:
+   *        description: User not found
+   *      500:
+   *        description: Error performing the request
+   */
+  app.patch(
+    "/user/:id",
+    authenticateToken,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = req.params.id;
+        if (!userId) return res.status(400).send("User ID not provided");
+
+        const userRequest = req.body as IUpdateUser;
+        console.log({ userRequest });
+
+        if (!userRequest) return res.status(400).send("User not provided");
+
+        const userAlreadyExists = Boolean(await getUserById(userId));
+        if (!userAlreadyExists) return res.status(404).send("User not found");
+
+        const updatedUser = await updateUser(userId, userRequest);
+
+        return res.status(200).send({ user: updatedUser });
+      } catch (error) {
+        console.error(error);
         return res.status(500).json({ error: "Error performing the request" });
       }
     },

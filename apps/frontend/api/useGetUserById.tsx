@@ -31,5 +31,5 @@ export function useGetUserById(userId: string) {
     getUserById();
   }, [getUserById, session]);
 
-  return { user, isLoading };
+  return { user, isLoading, refetch: getUserById };
 }

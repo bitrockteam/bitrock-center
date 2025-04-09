@@ -1,6 +1,7 @@
 "use client";
 
 import { useCreateUser } from "@/api/useCreateUser";
+import { useUpdateUser } from "@/api/useUpdateUser";
 import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,24 +22,32 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { getFirstnameAndLastname } from "@/services/users/utils";
-import { ICreateUser } from "@bitrock/types";
+import { IUser } from "@bitrock/types";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 interface AddUserDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  editData?: ICreateUser;
+  onComplete: (
+    open: boolean,
+    options?: {
+      shouldRefetch?: boolean;
+    },
+  ) => void;
+  editData?: IUser;
+  onRefetch?: () => void;
 }
 
 export default function AddUserDialog({
   open,
-  onOpenChange,
+  onComplete,
   editData,
 }: Readonly<AddUserDialogProps>) {
-  const { createUser } = useCreateUser();
+  const { createUser, isLoading: isLoadingCreateUser } = useCreateUser();
+  const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
   const { refetch } = useSessionContext();
 
   const form = useForm({
@@ -61,22 +70,34 @@ export default function AddUserDialog({
   }, [editData, form]);
 
   const onSubmit = () => {
-    createUser({
-      user: {
-        name: `${form.getValues().name} ${form.getValues().surname}`,
-        email: form.getValues().email,
-      },
-    })
-      .then(() => toast.success("Utente creato con successo"))
-      .finally(() => {
-        onOpenChange(false);
-        form.reset();
-        refetch();
-      });
+    if (editData) {
+      updateUser({
+        id: editData.id,
+        user: { name: `${form.getValues().name} ${form.getValues().surname}` },
+      })
+        .then(() => toast.success("Utente aggiornato con successo"))
+        .finally(() => {
+          onComplete(false, { shouldRefetch: true });
+          form.reset();
+          refetch();
+        });
+    } else
+      createUser({
+        user: {
+          name: `${form.getValues().name} ${form.getValues().surname}`,
+          email: form.getValues().email,
+        },
+      })
+        .then(() => toast.success("Utente creato con successo"))
+        .finally(() => {
+          onComplete(false, { shouldRefetch: true });
+          form.reset();
+          refetch();
+        });
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onComplete}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
@@ -143,7 +164,7 @@ export default function AddUserDialog({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={() => onComplete(false)}
               >
                 Annulla
               </Button>
@@ -151,7 +172,11 @@ export default function AddUserDialog({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button type="submit">
+                <Button
+                  type="submit"
+                  disabled={isLoadingUpdateUser || isLoadingCreateUser}
+                >
+                  {isLoadingUpdateUser || (isLoadingCreateUser && <Loader2 />)}
                   {editData ? "Aggiorna" : "Crea Utente"}
                 </Button>
               </motion.div>
