@@ -31,7 +31,7 @@ export const useGetUsers = () => {
   }, [session]);
 
   useEffect(() => {
-    refetch();
+    if (session?.access_token) refetch();
   }, [refetch, session?.access_token]);
 
   return { users, loading, refetch };

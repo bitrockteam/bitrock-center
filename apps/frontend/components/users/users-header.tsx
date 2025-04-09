@@ -1,40 +1,58 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { PlusCircle, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { useDeferredValue, useEffect, useState } from "react";
-import AddUserDialog from "./add-user-dialog";
 import { useSessionContext } from "@/app/utenti/SessionData";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { motion } from "framer-motion";
+import { PlusCircle, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import AddUserDialog from "./add-user-dialog";
 
 export default function UsersHeader() {
+  const serachParams = new URLSearchParams(window.location.search);
+
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [textSearch, setTextSearch] = useState("");
-  const deferredTextSearch = useDeferredValue(textSearch);
+  const [textSearch, setTextSearch] = useState(
+    serachParams.get("params") ?? "",
+  );
+  const [debouncedInput, setDebouncedInput] = useState("");
 
   const { refetch } = useSessionContext();
 
-  useEffect(() => {
-    if (deferredTextSearch !== "") {
-      const serachParams = new URLSearchParams(window.location.search);
-      serachParams.set("params", deferredTextSearch);
-      history.pushState(
-        {},
-        "",
-        `${window.location.pathname}?${serachParams.toString()}`,
-      );
-    } else {
-      const serachParams = new URLSearchParams(window.location.search);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTextSearch(e.target.value);
+
+    if (e.target.value === "") {
       serachParams.delete("params");
       history.pushState(
         {},
         "",
         `${window.location.pathname}?${serachParams.toString()}`,
       );
+      refetch();
     }
-    refetch();
-  }, [deferredTextSearch, refetch]);
+  };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedInput(textSearch);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [textSearch]);
+
+  useEffect(() => {
+    if (debouncedInput !== "") {
+      serachParams.set("params", debouncedInput);
+      history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${serachParams.toString()}`,
+      );
+
+      refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refetch, debouncedInput]);
 
   return (
     <motion.div
@@ -55,7 +73,7 @@ export default function UsersHeader() {
             placeholder="Cerca utenti..."
             className="w-full pl-8 sm:w-[300px]"
             value={textSearch}
-            onChange={(e) => setTextSearch(e.target.value)}
+            onChange={handleChange}
           />
         </div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

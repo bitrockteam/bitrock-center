@@ -231,7 +231,6 @@ export const createUserController = (app: Express) => {
         if (!userId) return res.status(400).send("User ID not provided");
 
         const userRequest = req.body as IUpdateUser;
-        console.log({ userRequest });
 
         if (!userRequest) return res.status(400).send("User not provided");
 

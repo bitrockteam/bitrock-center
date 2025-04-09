@@ -85,9 +85,7 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
-            <AvatarImage
-              src={user?.avatar_url ?? "/placeholder.svg?height=64&width=64"}
-            />
+            <AvatarImage src={user?.avatar_url} />
             <AvatarFallback>
               {formatDisplayName({ name: user.name, initials: true })}
             </AvatarFallback>
