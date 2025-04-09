@@ -19,17 +19,25 @@ import { ArrowLeft, Briefcase, Clock, Edit, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
+import { Loader } from "../custom/Loader";
 
 export default function UserDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const { user, refetch } = useGetUserById(id);
+  const { user, refetch, isLoading } = useGetUserById(id);
   const { roles } = useSessionContext();
 
   const timeEntries = getTimeEntriesByUser(id);
   // const leaveRequests = getLeaveRequestsByUser(id);
   const projects = getProjectsByUser(id);
+
+  if (isLoading)
+    return (
+      <div className="w-full h-full flex flex-row justify-center items-center">
+        <Loader transparent color="black" />
+      </div>
+    );
 
   if (!user) {
     return (
