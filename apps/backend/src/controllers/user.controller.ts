@@ -93,7 +93,6 @@ export const createUserController = (app: Express) => {
   app.get("/users", authenticateToken, async (req: Request, res: Response) => {
     try {
       const { params } = req.query;
-      console.log({ params });
 
       const users = await getUsers(params as string);
       return res.status(200).send(users);
