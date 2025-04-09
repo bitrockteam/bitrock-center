@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 
 import { useSessionContext } from "@/app/utenti/SessionData";
+import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
@@ -83,8 +84,10 @@ export default function UsersTable() {
                         <Avatar className="h-8 w-8">
                           <AvatarImage src={user.avatar_url} />
                           <AvatarFallback>
-                            {user.name.split(" ")?.[0].charAt(0)}
-                            {user.name.split(" ")?.[1]?.charAt(0) ?? ""}
+                            {formatDisplayName({
+                              name: user.name,
+                              initials: true,
+                            })}
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-medium">{user.name}</span>

@@ -1,7 +1,5 @@
 "use client";
 
-import { FormDescription } from "@/components/ui/form";
-
 import { useCreateUser } from "@/api/useCreateUser";
 import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
@@ -22,14 +20,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { getFirstnameAndLastname } from "@/services/users/utils";
+import { ICreateUser } from "@bitrock/types";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -38,8 +30,7 @@ import { toast } from "sonner";
 interface AddUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editData?: any;
+  editData?: ICreateUser;
 }
 
 export default function AddUserDialog({
@@ -55,8 +46,6 @@ export default function AddUserDialog({
       name: "",
       surname: "",
       email: "",
-      role: "developer",
-      active: true,
     },
   });
 
@@ -64,19 +53,14 @@ export default function AddUserDialog({
   useEffect(() => {
     if (editData) {
       form.reset({
-        name: editData.name,
-        surname: editData.surname,
+        name: getFirstnameAndLastname(editData.name).firstName,
+        surname: getFirstnameAndLastname(editData.name).lastName,
         email: editData.email,
-        role: editData.role,
-        active: editData.active,
       });
     }
   }, [editData, form]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = (data: any) => {
-    console.log(data);
-    // Here you would normally save the data
+  const onSubmit = () => {
     createUser({
       user: {
         name: `${form.getValues().name} ${form.getValues().surname}`,
@@ -154,57 +138,6 @@ export default function AddUserDialog({
                 </FormItem>
               )}
             />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ruolo</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona ruolo" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="admin">Amministratore</SelectItem>
-                        <SelectItem value="manager">Manager</SelectItem>
-                        <SelectItem value="developer">Sviluppatore</SelectItem>
-                        <SelectItem value="designer">Designer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Stato Utente</FormLabel>
-                      <FormDescription>
-                        {field.value ? "Utente attivo" : "Utente inattivo"}
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <DialogFooter>
               <Button

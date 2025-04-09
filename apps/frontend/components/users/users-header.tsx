@@ -31,7 +31,10 @@ export default function UsersHeader() {
           />
         </div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button
+            onClick={() => setShowAddDialog(true)}
+            className="cursor-pointer	"
+          >
             <PlusCircle className="mr-2 h-4 w-4" />
             Nuovo Utente
           </Button>
