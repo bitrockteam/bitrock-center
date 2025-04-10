@@ -28,6 +28,8 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { FileUploader } from "../custom/FileUploader";
+import { useUploadFile } from "@/api/useUploadFile";
 
 interface AddUserDialogProps {
   open: boolean;
@@ -48,6 +50,7 @@ export default function AddUserDialog({
 }: Readonly<AddUserDialogProps>) {
   const { createUser, isLoading: isLoadingCreateUser } = useCreateUser();
   const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
+  const { uploadFile, isLoading: isLoadingUploadFile } = useUploadFile();
   const { refetch } = useSessionContext();
 
   const form = useForm({
@@ -55,6 +58,7 @@ export default function AddUserDialog({
       name: "",
       surname: "",
       email: "",
+      file: undefined as File | undefined,
     },
   });
 
@@ -71,16 +75,41 @@ export default function AddUserDialog({
 
   const onSubmit = () => {
     if (editData) {
-      updateUser({
-        id: editData.id,
-        user: { name: `${form.getValues().name} ${form.getValues().surname}` },
-      })
-        .then(() => toast.success("Utente aggiornato con successo"))
-        .finally(() => {
-          onComplete(false, { shouldRefetch: true });
-          form.reset();
-          refetch();
+      const file = form.getValues().file;
+      if (file) {
+        const fileFormData = new FormData();
+        fileFormData.append("file", file);
+        console.log({ file });
+
+        uploadFile({ file: fileFormData }).then((res) => {
+          updateUser({
+            id: editData.id,
+            user: {
+              name: `${form.getValues().name} ${form.getValues().surname}`,
+              avatar_url: res.data.fullPath,
+            },
+          })
+            .then(() => toast.success("Utente aggiornato con successo"))
+            .finally(() => {
+              onComplete(false, { shouldRefetch: true });
+              form.reset();
+              refetch();
+            });
         });
+      } else {
+        updateUser({
+          id: editData.id,
+          user: {
+            name: `${form.getValues().name} ${form.getValues().surname}`,
+          },
+        })
+          .then(() => toast.success("Utente aggiornato con successo"))
+          .finally(() => {
+            onComplete(false, { shouldRefetch: true });
+            form.reset();
+            refetch();
+          });
+      }
     } else
       createUser({
         user: {
@@ -153,12 +182,15 @@ export default function AddUserDialog({
                       type="email"
                       placeholder="email@bitrock.it"
                       {...field}
+                      disabled={!!editData}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <FileUploader onChange={(file) => form.setValue("file", file)} />
 
             <DialogFooter>
               <Button
@@ -174,9 +206,15 @@ export default function AddUserDialog({
               >
                 <Button
                   type="submit"
-                  disabled={isLoadingUpdateUser || isLoadingCreateUser}
+                  disabled={
+                    isLoadingUpdateUser ||
+                    isLoadingCreateUser ||
+                    isLoadingUploadFile
+                  }
                 >
-                  {isLoadingUpdateUser || (isLoadingCreateUser && <Loader2 />)}
+                  {isLoadingUpdateUser ||
+                    isLoadingCreateUser ||
+                    (isLoadingUploadFile && <Loader2 />)}
                   {editData ? "Aggiorna" : "Crea Utente"}
                 </Button>
               </motion.div>

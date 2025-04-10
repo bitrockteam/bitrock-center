@@ -1,5 +1,7 @@
 import { ICreateUser, IUpdateUser, IUser } from "@bitrock/types";
 import { sql } from "../config/postgres";
+import { uuid } from "uuidv4";
+import { supabase } from "../config/supabase";
 
 // GET
 
@@ -54,6 +56,29 @@ export async function createUserManually(user: ICreateUser): Promise<IUser> {
   const res =
     await sql`INSERT INTO public."USERS" (name, email) VALUES (${user.name}, ${user.email}) RETURNING *`;
   return res[0] as IUser;
+}
+
+export async function uploadFileAvatar(
+  userId: string,
+  mimetype: string,
+  buffer: Buffer,
+) {
+  const avatarId = uuid();
+  // Generate a unique file name
+  const filePath = `${userId}/${avatarId}`;
+
+  // Upload file to Supabase Storage
+  const { error, data } = await supabase.storage
+    .from("chat-audio") // Storage bucket name
+    .upload(filePath, buffer, {
+      contentType: mimetype || "audio/webm",
+      upsert: true,
+    });
+  console.log({ data });
+
+  if (error) throw error;
+
+  return data;
 }
 
 // PATCH

@@ -1,5 +1,6 @@
 import { ICreateUser, IUpdateUser } from "@bitrock/types";
-import { type Express, type Request, type Response } from "express";
+import express, { type Express, type Request, type Response } from "express";
+import multer from "multer";
 import { authenticateToken } from "../middleware/authMiddleware";
 import { extractInfoFromToken } from "../middleware/extractInfoFromToken";
 import {
@@ -10,9 +11,13 @@ import {
   getUserById,
   getUsers,
   updateUser,
+  uploadFileAvatar,
 } from "../repository/user.repository";
+const upload = multer();
 
 export const createUserController = (app: Express) => {
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
   /**
    * @swagger
    *
@@ -186,6 +191,79 @@ export const createUserController = (app: Express) => {
         const newUser = await createUserFromAuth(user.id, userRequest);
 
         return res.status(200).send({ user: newUser });
+      } catch (error) {
+        return res.status(500).json({ error: "Error performing the request" });
+      }
+    },
+  );
+
+  /**
+   * @swagger
+   * /user/provider:
+   *   post:
+   *     summary: Create a new user from provider
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: "#/components/schemas/ICreateUser"
+   *     responses:
+   *       200:
+   *         description: User created successfully
+   *       400:
+   *         description: User not provided
+   *       403:
+   *         description: Unauthorized
+   *       409:
+   *         description: User already exists
+   *       500:
+   *         description: Error performing the request
+   */
+  app.post(
+    "/user/avatar",
+    authenticateToken,
+    upload.single("file") as any,
+    async (req: Request, res: Response) => {
+      try {
+        const user = await extractInfoFromToken(req);
+        if (!user) return res.status(403).send("Unauthorized");
+
+        if (!(req as any).file) {
+          return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const { mimetype, buffer } = (req as any).file;
+        if (!buffer) {
+          console.error("Invalid file data", {
+            mimetype,
+            buffer,
+          });
+          return res.status(400).json({ error: "Invalid file data" });
+        }
+        // Check if the file is a valid image format
+        const validImageTypes = ["image/png", "image/jpeg", "image/jpg"];
+        if (!validImageTypes.includes(mimetype)) {
+          console.warn(
+            "Invalid audio format",
+            mimetype,
+            "Valid formats are",
+            validImageTypes,
+            "using default",
+            "audio/webm",
+          );
+        }
+        // Check if the file size is less than 5MB
+        const maxSize = 10 * 1024 * 1024; // 5MB
+        if (buffer.length > maxSize) {
+          return res.status(400).json({ error: "File size exceeds 5MB" });
+        }
+
+        const newAvatar = await uploadFileAvatar(user.id, mimetype, buffer);
+
+        return res.status(200).send({ avatar: newAvatar });
       } catch (error) {
         return res.status(500).json({ error: "Error performing the request" });
       }
