@@ -77,7 +77,11 @@ export async function uploadFileAvatar(
 
   if (error) throw error;
 
-  return avatarId;
+  const avatarPublicUrl = supabase.storage
+    .from("avatars")
+    .getPublicUrl(filePath).data.publicUrl;
+
+  return avatarPublicUrl;
 }
 
 // PATCH
