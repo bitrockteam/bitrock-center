@@ -81,12 +81,14 @@ export default function AddUserDialog({
         fileFormData.append("file", file);
         console.log({ file });
 
-        uploadFile({ file: fileFormData }).then((res) => {
+        uploadFile({ file: fileFormData }).then((data) => {
+          console.log({ data });
+
           updateUser({
             id: editData.id,
             user: {
               name: `${form.getValues().name} ${form.getValues().surname}`,
-              avatar_url: res.data.fullPath,
+              avatar_url: data.avatar,
             },
           })
             .then(() => toast.success("Utente aggiornato con successo"))

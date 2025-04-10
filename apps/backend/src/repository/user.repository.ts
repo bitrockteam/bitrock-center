@@ -68,17 +68,16 @@ export async function uploadFileAvatar(
   const filePath = `${userId}/${avatarId}`;
 
   // Upload file to Supabase Storage
-  const { error, data } = await supabase.storage
-    .from("chat-audio") // Storage bucket name
+  const { error } = await supabase.storage
+    .from("avatars") // Storage bucket name
     .upload(filePath, buffer, {
-      contentType: mimetype || "audio/webm",
+      contentType: mimetype || "image/png",
       upsert: true,
     });
-  console.log({ data });
 
   if (error) throw error;
 
-  return data;
+  return avatarId;
 }
 
 // PATCH
