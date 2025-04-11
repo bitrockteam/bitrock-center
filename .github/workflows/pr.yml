@@ -1,4 +1,4 @@
-name: PR Validation
+name: 🚧 PR Validation
 on:
   pull_request:
     branches:
@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Corepack
+        run: corepack enable
       - name: Install
         run: yarn
       - name: Build
