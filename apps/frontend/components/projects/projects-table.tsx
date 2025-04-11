@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,12 +30,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getProjectsDetailed } from "@/lib/mock-data";
 import { motion } from "framer-motion";
 import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
+import { useSessionContext } from "@/app/utenti/SessionData";
 
 export default function ProjectsTable() {
   const router = useRouter();
@@ -44,7 +44,7 @@ export default function ProjectsTable() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [deleteProject, setDeleteProject] = useState<any>(null);
 
-  const projects = getProjectsDetailed();
+  const { projects } = useSessionContext();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -84,7 +84,6 @@ export default function ProjectsTable() {
                   <TableHead>Nome</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead>Stato</TableHead>
-                  <TableHead>Team</TableHead>
                   <TableHead>Data Inizio</TableHead>
                   <TableHead>Data Fine</TableHead>
                   <TableHead className="text-right">Azioni</TableHead>
@@ -108,38 +107,15 @@ export default function ProjectsTable() {
                       onClick={() => handleViewProject(project.id)}
                     >
                       <TableCell className="font-medium">
-                        {project.name}
+                        {project?.name}
                       </TableCell>
-                      <TableCell>{project.client}</TableCell>
-                      <TableCell>{getStatusBadge(project.status)}</TableCell>
+                      <TableCell>{project?.client}</TableCell>
                       <TableCell>
-                        <div className="flex -space-x-2">
-                          {project.team.slice(0, 3).map((member, index) => (
-                            <Avatar
-                              key={index}
-                              className="h-8 w-8 border-2 border-background"
-                            >
-                              <AvatarImage
-                                src={
-                                  member.avatar ||
-                                  "/placeholder.svg?height=32&width=32"
-                                }
-                              />
-                              <AvatarFallback>
-                                {member.name.charAt(0)}
-                                {member.surname.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                          ))}
-                          {project.team.length > 3 && (
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium">
-                              +{project.team.length - 3}
-                            </div>
-                          )}
-                        </div>
+                        {getStatusBadge(project?.status_id)}
                       </TableCell>
-                      <TableCell>{project.startDate}</TableCell>
-                      <TableCell>{project.endDate || "-"}</TableCell>
+
+                      <TableCell>{project?.startDate}</TableCell>
+                      <TableCell>{project?.endDate || "-"}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger
