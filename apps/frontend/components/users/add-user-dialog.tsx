@@ -30,6 +30,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FileUploader } from "../custom/FileUploader";
 import { useUploadFile } from "@/api/useUploadFile";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 
 interface AddUserDialogProps {
   open: boolean;
@@ -52,6 +53,7 @@ export default function AddUserDialog({
   const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
   const { uploadFile, isLoading: isLoadingUploadFile } = useUploadFile();
   const { refetch } = useSessionContext();
+  const { user } = useAuth();
 
   const form = useForm({
     defaultValues: {
@@ -73,43 +75,40 @@ export default function AddUserDialog({
     }
   }, [editData, form]);
 
+  const handleUpdateUser = (avatar_url?: string) =>
+    updateUser({
+      id: editData!.id,
+      user: {
+        name: `${form.getValues().name} ${form.getValues().surname}`,
+        ...(avatar_url && { avatar_url }),
+      },
+    });
+
+  const handleComplete = (open: boolean) => {
+    onComplete(open, { shouldRefetch: true });
+    form.reset();
+    refetch();
+  };
+
   const onSubmit = () => {
     if (editData) {
       const file = form.getValues().file;
       if (file) {
         const fileFormData = new FormData();
         fileFormData.append("file", file);
-        console.log({ file });
 
         uploadFile({ file: fileFormData }).then((data) => {
-          console.log({ data });
-
-          updateUser({
-            id: editData.id,
-            user: {
-              name: `${form.getValues().name} ${form.getValues().surname}`,
-              avatar_url: data.avatar,
-            },
-          })
+          handleUpdateUser(data.avatar_url)
             .then(() => toast.success("Utente aggiornato con successo"))
             .finally(() => {
-              onComplete(false, { shouldRefetch: true });
-              form.reset();
-              refetch();
+              handleComplete(false);
             });
         });
       } else {
-        updateUser({
-          id: editData.id,
-          user: {
-            name: `${form.getValues().name} ${form.getValues().surname}`,
-          },
-        })
+        handleUpdateUser()
           .then(() => toast.success("Utente aggiornato con successo"))
           .finally(() => {
-            onComplete(false, { shouldRefetch: true });
-            form.reset();
-            refetch();
+            handleComplete(false);
           });
       }
     } else
@@ -192,7 +191,9 @@ export default function AddUserDialog({
               )}
             />
 
-            <FileUploader onChange={(file) => form.setValue("file", file)} />
+            {editData && user?.id === editData.id && (
+              <FileUploader onChange={(file) => form.setValue("file", file)} />
+            )}
 
             <DialogFooter>
               <Button

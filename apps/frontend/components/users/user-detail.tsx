@@ -111,7 +111,10 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
             )}
           </div>
         </div>
-        <Button onClick={() => setShowEditDialog(true)}>
+        <Button
+          className="cursor-pointer"
+          onClick={() => setShowEditDialog(true)}
+        >
           <Edit className="mr-2 h-4 w-4" />
           Modifica Utente
         </Button>

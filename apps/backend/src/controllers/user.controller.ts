@@ -255,10 +255,10 @@ export const createUserController = (app: Express) => {
             "audio/webm",
           );
         }
-        // Check if the file size is less than 5MB
-        const maxSize = 10 * 1024 * 1024; // 5MB
+        // Check if the file size is less than 10MB
+        const maxSize = 10 * 1024 * 1024; // 10MB
         if (buffer.length > maxSize) {
-          return res.status(400).json({ error: "File size exceeds 5MB" });
+          return res.status(400).json({ error: "File size exceeds 10MB" });
         }
 
         const newAvatar = await uploadFileAvatar(user.id, mimetype, buffer);
