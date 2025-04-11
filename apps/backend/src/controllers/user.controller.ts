@@ -1,5 +1,5 @@
 import { ICreateUser, IUpdateUser } from "@bitrock/types";
-import express, { type Express, type Request, type Response } from "express";
+import { type Express, type Request, type Response } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/authMiddleware";
 import { extractInfoFromToken } from "../middleware/extractInfoFromToken";
@@ -16,8 +16,6 @@ import {
 const upload = multer();
 
 export const createUserController = (app: Express) => {
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
   /**
    * @swagger
    *
