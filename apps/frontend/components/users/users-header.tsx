@@ -1,14 +1,58 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { motion } from "framer-motion";
+import { PlusCircle, Search } from "lucide-react";
+import { useEffect, useState } from "react";
 import AddUserDialog from "./add-user-dialog";
 
 export default function UsersHeader() {
+  const serachParams = new URLSearchParams(window.location.search);
+
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [textSearch, setTextSearch] = useState(
+    serachParams.get("params") ?? "",
+  );
+  const [debouncedInput, setDebouncedInput] = useState("");
+
+  const { refetch } = useSessionContext();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTextSearch(e.target.value);
+
+    if (e.target.value === "") {
+      serachParams.delete("params");
+      history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${serachParams.toString()}`,
+      );
+      refetch();
+    }
+  };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedInput(textSearch);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [textSearch]);
+
+  useEffect(() => {
+    if (debouncedInput !== "") {
+      serachParams.set("params", debouncedInput);
+      history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${serachParams.toString()}`,
+      );
+
+      refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refetch, debouncedInput]);
 
   return (
     <motion.div
@@ -28,17 +72,25 @@ export default function UsersHeader() {
             type="search"
             placeholder="Cerca utenti..."
             className="w-full pl-8 sm:w-[300px]"
+            value={textSearch}
+            onChange={handleChange}
           />
         </div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button
+            onClick={() => setShowAddDialog(true)}
+            className="cursor-pointer	"
+          >
             <PlusCircle className="mr-2 h-4 w-4" />
             Nuovo Utente
           </Button>
         </motion.div>
       </div>
 
-      <AddUserDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
+      <AddUserDialog
+        open={showAddDialog}
+        onComplete={(isOpen) => setShowAddDialog(isOpen)}
+      />
     </motion.div>
   );
 }

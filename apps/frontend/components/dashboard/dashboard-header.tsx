@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/app/(auth)/AuthProvider";
+import { getFirstnameAndLastname } from "@/services/users/utils";
 import { motion } from "framer-motion";
 
 export default function DashboardHeader() {
@@ -25,7 +26,8 @@ export default function DashboardHeader() {
     >
       <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
       <p className="text-muted-foreground">
-        Benvenuto, {user?.name.split(" ")?.[0]}. {capitalizedDate}
+        Benvenuto, {getFirstnameAndLastname(user?.name).firstName}.
+        {capitalizedDate}
       </p>
     </motion.div>
   );

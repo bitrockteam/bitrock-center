@@ -1,5 +1,7 @@
 import { ICreateUser, IUpdateUser, IUser } from "@bitrock/types";
 import { sql } from "../config/postgres";
+import { uuid } from "uuidv4";
+import { supabase } from "../config/supabase";
 
 // GET
 
@@ -26,7 +28,14 @@ export async function getUserById(id: string): Promise<IUser | null> {
   return res[0] as IUser;
 }
 
-export async function getUsers(): Promise<IUser[]> {
+export async function getUsers(params?: string): Promise<IUser[]> {
+  if (params) {
+    const res =
+      await sql`SELECT * FROM public."USERS" WHERE name LIKE '%' || ${params} || '%' OR email LIKE '%' || ${params} || '%'`;
+    if (!res) return [];
+    return [...res] as IUser[];
+  }
+
   const res = await sql`SELECT * FROM public."USERS"`;
   return [...res] as IUser[];
 }
@@ -47,6 +56,32 @@ export async function createUserManually(user: ICreateUser): Promise<IUser> {
   const res =
     await sql`INSERT INTO public."USERS" (name, email) VALUES (${user.name}, ${user.email}) RETURNING *`;
   return res[0] as IUser;
+}
+
+export async function uploadFileAvatar(
+  userId: string,
+  mimetype: string,
+  buffer: Buffer,
+) {
+  const avatarId = uuid();
+  // Generate a unique file name
+  const filePath = `${userId}/${avatarId}`;
+
+  // Upload file to Supabase Storage
+  const { error } = await supabase.storage
+    .from("avatars") // Storage bucket name
+    .upload(filePath, buffer, {
+      contentType: mimetype || "image/png",
+      upsert: true,
+    });
+
+  if (error) throw error;
+
+  const avatarPublicUrl = supabase.storage
+    .from("avatars")
+    .getPublicUrl(filePath).data.publicUrl;
+
+  return avatarPublicUrl;
 }
 
 // PATCH

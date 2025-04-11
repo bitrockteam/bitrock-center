@@ -1,27 +1,8 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -32,39 +13,33 @@ import {
 } from "@/components/ui/table";
 
 import { useSessionContext } from "@/app/utenti/SessionData";
+import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
-import { Edit, MoreHorizontal, Trash2, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import AddUserDialog from "./add-user-dialog";
+
+const getRoleBadge = (role?: string) => {
+  switch (role) {
+    case "admin":
+      return <Badge className="bg-purple-500">Amministratore</Badge>;
+    case "manager":
+      return <Badge className="bg-blue-500">Manager</Badge>;
+    case "developer":
+      return <Badge variant="outline">Sviluppatore</Badge>;
+    case "designer":
+      return (
+        <Badge variant="outline" className="border-pink-500 text-pink-500">
+          Designer
+        </Badge>
+      );
+    default:
+      return <Badge variant="secondary">{role}</Badge>;
+  }
+};
 
 export default function UsersTable() {
   const router = useRouter();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [editUser, setEditUser] = useState<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [deleteUser, setDeleteUser] = useState<any>(null);
 
   const { users, roles } = useSessionContext();
-
-  const getRoleBadge = (role?: string) => {
-    switch (role) {
-      case "admin":
-        return <Badge className="bg-purple-500">Amministratore</Badge>;
-      case "manager":
-        return <Badge className="bg-blue-500">Manager</Badge>;
-      case "developer":
-        return <Badge variant="outline">Sviluppatore</Badge>;
-      case "designer":
-        return (
-          <Badge variant="outline" className="border-pink-500 text-pink-500">
-            Designer
-          </Badge>
-        );
-      default:
-        return <Badge variant="secondary">{role}</Badge>;
-    }
-  };
 
   const handleViewUser = (id: string) => {
     router.push(`/utenti/${id}`);
@@ -85,7 +60,6 @@ export default function UsersTable() {
                 <TableHead>Email</TableHead>
                 <TableHead>Ruolo</TableHead>
                 <TableHead>Progetti</TableHead>
-                <TableHead className="text-right">Azioni</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -108,15 +82,12 @@ export default function UsersTable() {
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage
-                            src={
-                              user.avatar_url ||
-                              "/placeholder.svg?height=32&width=32"
-                            }
-                          />
+                          <AvatarImage src={user.avatar_url} />
                           <AvatarFallback>
-                            {user.name.split(" ")?.[0].charAt(0)}
-                            {user.name.split(" ")?.[1]?.charAt(0) ?? ""}
+                            {formatDisplayName({
+                              name: user.name,
+                              initials: true,
+                            })}
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-medium">{user.name}</span>
@@ -129,50 +100,6 @@ export default function UsersTable() {
                       )}
                     </TableCell>
                     <TableCell>{0}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger
-                          asChild
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Azioni</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewUser(user.id);
-                            }}
-                          >
-                            <User className="mr-2 h-4 w-4" />
-                            <span>Visualizza</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditUser(user);
-                            }}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>Modifica</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteUser(user);
-                            }}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            <span>Elimina</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -180,39 +107,6 @@ export default function UsersTable() {
           </Table>
         </CardContent>
       </Card>
-
-      {/* Dialog per modificare un utente */}
-      {editUser && (
-        <AddUserDialog
-          open={!!editUser}
-          onOpenChange={(open) => !open && setEditUser(null)}
-          editData={editUser}
-        />
-      )}
-
-      {/* Dialog di conferma eliminazione */}
-      <AlertDialog
-        open={!!deleteUser}
-        onOpenChange={(open) => !open && setDeleteUser(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Sei sicuro di voler eliminare questo utente?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Questa azione non può essere annullata. L&apos;utente verrà
-              eliminato permanentemente dal sistema.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground">
-              Elimina
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </motion.div>
   );
 }

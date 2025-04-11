@@ -13,7 +13,7 @@ export default async function UserDetailPage({
 }) {
   const { id } = await params;
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-full w-full">
       <UserDetail id={id} />
     </div>
   );

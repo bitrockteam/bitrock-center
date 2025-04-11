@@ -1,27 +1,25 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { ICreateUser, IUser } from "@bitrock/types";
 import { useState } from "react";
 
-export function useCreateUser() {
+export function useUploadFile() {
   const { session } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const createUser = ({ user }: { user: ICreateUser }) => {
+  const uploadFile = ({ file }: { file: FormData }) => {
     setIsLoading(true);
-    return fetch(`${SERVERL_BASE_URL}/user`, {
+    return fetch(`${SERVERL_BASE_URL}/user/avatar`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${session?.access_token}`,
       },
-      body: JSON.stringify(user),
+      body: file,
     })
       .then((res) => res.json())
-      .then((data) => data as IUser)
+      .then((data) => data)
       .finally(() => {
         setIsLoading(false);
       });
   };
 
-  return { createUser, isLoading };
+  return { uploadFile, isLoading };
 }

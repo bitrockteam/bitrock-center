@@ -1,8 +1,7 @@
 "use client";
 
-import { FormDescription } from "@/components/ui/form";
-
 import { useCreateUser } from "@/api/useCreateUser";
+import { useUpdateUser } from "@/api/useUpdateUser";
 import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,41 +21,46 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { getFirstnameAndLastname } from "@/services/users/utils";
+import { IUser } from "@bitrock/types";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { FileUploader } from "../custom/FileUploader";
+import { useUploadFile } from "@/api/useUploadFile";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 
 interface AddUserDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editData?: any;
+  onComplete: (
+    open: boolean,
+    options?: {
+      shouldRefetch?: boolean;
+    },
+  ) => void;
+  editData?: IUser;
+  onRefetch?: () => void;
 }
 
 export default function AddUserDialog({
   open,
-  onOpenChange,
+  onComplete,
   editData,
 }: Readonly<AddUserDialogProps>) {
-  const { createUser } = useCreateUser();
+  const { createUser, isLoading: isLoadingCreateUser } = useCreateUser();
+  const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
+  const { uploadFile, isLoading: isLoadingUploadFile } = useUploadFile();
   const { refetch } = useSessionContext();
+  const { user } = useAuth();
 
   const form = useForm({
     defaultValues: {
       name: "",
       surname: "",
       email: "",
-      role: "developer",
-      active: true,
+      file: undefined as File | undefined,
     },
   });
 
@@ -64,35 +68,66 @@ export default function AddUserDialog({
   useEffect(() => {
     if (editData) {
       form.reset({
-        name: editData.name,
-        surname: editData.surname,
+        name: getFirstnameAndLastname(editData.name).firstName,
+        surname: getFirstnameAndLastname(editData.name).lastName,
         email: editData.email,
-        role: editData.role,
-        active: editData.active,
       });
     }
   }, [editData, form]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = (data: any) => {
-    console.log(data);
-    // Here you would normally save the data
-    createUser({
+  const handleUpdateUser = (avatar_url?: string) =>
+    updateUser({
+      id: editData!.id,
       user: {
         name: `${form.getValues().name} ${form.getValues().surname}`,
-        email: form.getValues().email,
+        ...(avatar_url && { avatar_url }),
       },
-    })
-      .then(() => toast.success("Utente creato con successo"))
-      .finally(() => {
-        onOpenChange(false);
-        form.reset();
-        refetch();
-      });
+    });
+
+  const handleComplete = (open: boolean) => {
+    onComplete(open, { shouldRefetch: true });
+    form.reset();
+    refetch();
+  };
+
+  const onSubmit = () => {
+    if (editData) {
+      const file = form.getValues().file;
+      if (file) {
+        const fileFormData = new FormData();
+        fileFormData.append("file", file);
+
+        uploadFile({ file: fileFormData }).then((data) => {
+          handleUpdateUser(data.avatar_url)
+            .then(() => toast.success("Utente aggiornato con successo"))
+            .finally(() => {
+              handleComplete(false);
+            });
+        });
+      } else {
+        handleUpdateUser()
+          .then(() => toast.success("Utente aggiornato con successo"))
+          .finally(() => {
+            handleComplete(false);
+          });
+      }
+    } else
+      createUser({
+        user: {
+          name: `${form.getValues().name} ${form.getValues().surname}`,
+          email: form.getValues().email,
+        },
+      })
+        .then(() => toast.success("Utente creato con successo"))
+        .finally(() => {
+          onComplete(false, { shouldRefetch: true });
+          form.reset();
+          refetch();
+        });
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onComplete}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
@@ -148,6 +183,7 @@ export default function AddUserDialog({
                       type="email"
                       placeholder="email@bitrock.it"
                       {...field}
+                      disabled={!!editData}
                     />
                   </FormControl>
                   <FormMessage />
@@ -155,62 +191,15 @@ export default function AddUserDialog({
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ruolo</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona ruolo" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="admin">Amministratore</SelectItem>
-                        <SelectItem value="manager">Manager</SelectItem>
-                        <SelectItem value="developer">Sviluppatore</SelectItem>
-                        <SelectItem value="designer">Designer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Stato Utente</FormLabel>
-                      <FormDescription>
-                        {field.value ? "Utente attivo" : "Utente inattivo"}
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+            {editData && user?.id === editData.id && (
+              <FileUploader onChange={(file) => form.setValue("file", file)} />
+            )}
 
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={() => onComplete(false)}
               >
                 Annulla
               </Button>
@@ -218,7 +207,17 @@ export default function AddUserDialog({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button type="submit">
+                <Button
+                  type="submit"
+                  disabled={
+                    isLoadingUpdateUser ||
+                    isLoadingCreateUser ||
+                    isLoadingUploadFile
+                  }
+                >
+                  {isLoadingUpdateUser ||
+                    isLoadingCreateUser ||
+                    (isLoadingUploadFile && <Loader2 />)}
                   {editData ? "Aggiorna" : "Crea Utente"}
                 </Button>
               </motion.div>

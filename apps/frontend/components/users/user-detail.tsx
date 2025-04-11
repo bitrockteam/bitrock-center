@@ -12,44 +12,32 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  getLeaveRequestsByUser,
-  getProjectsByUser,
-  getTimeEntriesByUser,
-} from "@/lib/mock-data";
+import { getProjectsByUser, getTimeEntriesByUser } from "@/lib/mock-data";
+import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Briefcase,
-  Calendar,
-  Clock,
-  Edit,
-  Mail,
-} from "lucide-react";
+import { ArrowLeft, Briefcase, Clock, Edit, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
+import { Loader } from "../custom/Loader";
 
-export default function UserDetail({ id }: { id: string }) {
+export default function UserDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const { user } = useGetUserById(id);
+  const { user, refetch, isLoading } = useGetUserById(id);
   const { roles } = useSessionContext();
-  console.log({ user });
 
   const timeEntries = getTimeEntriesByUser(id);
-  const leaveRequests = getLeaveRequestsByUser(id);
+  // const leaveRequests = getLeaveRequestsByUser(id);
   const projects = getProjectsByUser(id);
+
+  if (isLoading)
+    return (
+      <div className="w-full h-full flex flex-row justify-center items-center">
+        <Loader transparent color="black" />
+      </div>
+    );
 
   if (!user) {
     return (
@@ -105,40 +93,35 @@ export default function UserDetail({ id }: { id: string }) {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
-            <AvatarImage
-              src={user?.avatar_url || "/placeholder.svg?height=64&width=64"}
-            />
+            <AvatarImage src={user?.avatar_url} />
             <AvatarFallback>
-              {user?.name.charAt(0)}
-              {user.name.split(" ")?.[1].charAt(0)}
+              {formatDisplayName({ name: user.name, initials: true })}
             </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {user.name} {user.name.split(" ")?.[1]}
+              {formatDisplayName({ name: user.name })}
             </h1>
-            <div className="flex items-center space-x-2">
-              {getRoleBadge(
-                roles.find((role) => role.id === user.role_id)?.label ?? "",
-              )}
-              {/* Mock Data */}
-              <Badge
-                variant={true ? "outline" : "secondary"}
-                className={true ? "border-green-500 text-green-500" : ""}
-              >
-                {true ? "Attivo" : "Inattivo"}
-              </Badge>
-            </div>
+            {user.role_id && (
+              <div className="flex items-center space-x-2">
+                {getRoleBadge(
+                  roles.find((role) => role.id === user.role_id)?.label ?? "",
+                )}
+              </div>
+            )}
           </div>
         </div>
-        <Button onClick={() => setShowEditDialog(true)}>
+        <Button
+          className="cursor-pointer"
+          onClick={() => setShowEditDialog(true)}
+        >
           <Edit className="mr-2 h-4 w-4" />
           Modifica Utente
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
+        <Card className="col-span-3">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
               Informazioni Contatto
@@ -182,7 +165,7 @@ export default function UserDetail({ id }: { id: string }) {
           </CardContent>
         </Card>
 
-        <Card className="md:col-span-2">
+        {/* <Card className="md:col-span-2">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
               Progetti Assegnati
@@ -247,10 +230,10 @@ export default function UserDetail({ id }: { id: string }) {
               </div>
             )}
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
-      <Tabs defaultValue="timesheet" className="w-full">
+      {/* <Tabs defaultValue="timesheet" className="w-full">
         <TabsList>
           <TabsTrigger value="timesheet">Timesheet</TabsTrigger>
           <TabsTrigger value="leave">Ferie e Permessi</TabsTrigger>
@@ -383,12 +366,15 @@ export default function UserDetail({ id }: { id: string }) {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
 
       {/* Dialog per modificare l'utente */}
       <AddUserDialog
         open={showEditDialog}
-        onOpenChange={setShowEditDialog}
+        onComplete={(isOpen, options) => {
+          setShowEditDialog(isOpen);
+          if (options?.shouldRefetch) refetch();
+        }}
         editData={user}
       />
     </motion.div>
