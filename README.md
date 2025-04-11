@@ -4,6 +4,7 @@ Modularized platform for Bitrock internal use.
 
 ## Setup
 
+- `corepack enable`
 - `yarn`
 - `yarn build`
 - `yarn dev`:
