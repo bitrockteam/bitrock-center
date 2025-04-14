@@ -36,6 +36,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 import { useSessionContext } from "@/app/utenti/SessionData";
+import { format } from "date-fns";
 
 export default function ProjectsTable() {
   const router = useRouter();
@@ -111,11 +112,17 @@ export default function ProjectsTable() {
                       </TableCell>
                       <TableCell>{project?.client}</TableCell>
                       <TableCell>
-                        {getStatusBadge(project?.status_id)}
+                        {getStatusBadge(project?.status.id)}
                       </TableCell>
 
-                      <TableCell>{project?.startDate}</TableCell>
-                      <TableCell>{project?.endDate || "-"}</TableCell>
+                      <TableCell>
+                        {format(project?.start_date, "MM DD yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        {project?.end_date
+                          ? format(project?.end_date, "MM DD yyyy")
+                          : "-"}
+                      </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger
