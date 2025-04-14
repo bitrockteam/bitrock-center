@@ -116,11 +116,11 @@ export default function ProjectsTable() {
                       </TableCell>
 
                       <TableCell>
-                        {format(project?.start_date, "MM DD yyyy")}
+                        {format(project?.start_date, "MM dd yyyy")}
                       </TableCell>
                       <TableCell>
                         {project?.end_date
-                          ? format(project?.end_date, "MM DD yyyy")
+                          ? format(project?.end_date, "MM dd yyyy")
                           : "-"}
                       </TableCell>
                       <TableCell className="text-right">
