@@ -35,6 +35,6 @@ Issue states:
 - Conventional Commit: check commit message format with [standard format](https://www.conventionalcommits.org/en/v1.0.0/)
 - Pre-commit checks with [husky](https://www.npmjs.com/package/husky): check linting & commit message format
 
-### Versioning
+### Branch protection
 
-We are going to use changeset cli for the first phase.
+We cannot merge directly in `main` and we will require the pipelines to pass.
