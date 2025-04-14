@@ -3,15 +3,14 @@ import { SERVERL_BASE_URL } from "@/config";
 import { IProject } from "@bitrock/types";
 import { useEffect, useState } from "react";
 
-export const useGetProjects = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [projects, setProjects] = useState<IProject[]>([]);
+export const useGetProjectById = (id: string) => {
+const [project, setProject] = useState<IProject | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const { session } = useAuth();
 
   useEffect(() => {
-    fetch(`${SERVERL_BASE_URL}/projects`, {
+    fetch(`${SERVERL_BASE_URL}/projects/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -20,12 +19,12 @@ export const useGetProjects = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        setProjects(data);
+        setProject(data);
       })
       .finally(() => {
         setIsLoading(false);
       });
-  }, [session?.access_token]);
+  }, [session?.access_token, id]);
 
-  return { projects, isLoading };
+  return { project, isLoading };
 };

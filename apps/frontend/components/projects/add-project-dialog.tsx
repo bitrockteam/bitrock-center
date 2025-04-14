@@ -44,7 +44,7 @@ export default function AddProjectDialog({
   onOpenChange,
   editData,
 }: AddProjectDialogProps) {
-  const {users} = useGetUsers();
+  const { users } = useGetUsers();
 
   const form = useForm({
     defaultValues: {
@@ -69,7 +69,7 @@ export default function AddProjectDialog({
         startDate: editData.startDate,
         endDate: editData.endDate || "",
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        team: editData.team.map((member: any) => member.id),
+        // team: editData.team.map((member: any) => member.id),
       });
     }
   }, [editData, form]);
