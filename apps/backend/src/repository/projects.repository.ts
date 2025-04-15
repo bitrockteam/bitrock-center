@@ -1,5 +1,7 @@
 import { sql } from "../config/postgres";
-import { IProject } from "@bitrock/types";
+import { IProject, IProjectUpsert } from "@bitrock/types";
+import { Request, Response } from "express";
+import { v4 as uuidv4 } from "uuid";
 
 export async function getProjects(): Promise<IProject[]> {
   const res = await sql`
@@ -70,3 +72,119 @@ export async function getProjectById(id: string): Promise<IProject | null> {
     },
   };
 }
+
+export const createProject = async (
+  input: IProjectUpsert,
+): Promise<IProject> => {
+  const { name, client, status_id, description, start_date, end_date } = input;
+
+  const id = uuidv4();
+
+  await sql`
+    INSERT INTO public."PROJECTS" (
+      id, name, client, status_id, description, start_date, end_date, created_at
+    ) VALUES (
+      ${id}, ${name}, ${client}, ${status_id}, ${description}, ${start_date}, ${end_date || null}, NOW()
+    )
+  `;
+
+  const [row] = await sql`
+    SELECT 
+      p.id AS project_id,
+      p.created_at AS project_created_at,
+      p.name AS project_name,
+      p.client,
+      p.description,
+      p.start_date,
+      p.end_date,
+      s.id AS status_id,
+      s.name AS status_name
+    FROM public."PROJECTS" p
+    JOIN public."STATUSES" s ON p.status_id = s.id
+    WHERE p.id = ${id}
+    LIMIT 1
+  `;
+
+  return {
+    id: row.project_id,
+    created_at: new Date(row.project_created_at),
+    name: row.project_name,
+    client: row.client,
+    description: row.description,
+    start_date: new Date(row.start_date),
+    end_date: row.end_date ? new Date(row.end_date) : undefined,
+    status: {
+      id: row.status_id,
+      name: row.status_name,
+    },
+  };
+};
+
+interface UpdateProjectInput {
+  id: string;
+  name: string;
+  client: string;
+  status_id: string;
+  description: string;
+  start_date: string;
+  end_date?: string;
+}
+
+export const updateProject = async (
+  input: UpdateProjectInput,
+): Promise<IProject | null> => {
+  const { id, name, client, status_id, description, start_date, end_date } =
+    input;
+
+  await sql`
+    UPDATE public."PROJECTS"
+    SET name = ${name},
+        client = ${client},
+        status_id = ${status_id},
+        description = ${description},
+        start_date = ${start_date},
+        end_date = ${end_date || null}
+    WHERE id = ${id}
+  `;
+
+  const [row] = await sql`
+    SELECT 
+      p.id AS project_id,
+      p.created_at AS project_created_at,
+      p.name AS project_name,
+      p.client,
+      p.description,
+      p.start_date,
+      p.end_date,
+      s.id AS status_id,
+      s.name AS status_name
+    FROM public."PROJECTS" p
+    JOIN public."STATUSES" s ON p.status_id = s.id
+    WHERE p.id = ${id}
+    LIMIT 1
+  `;
+
+  if (!row) return null;
+
+  return {
+    id: row.project_id,
+    created_at: new Date(row.project_created_at),
+    name: row.project_name,
+    client: row.client,
+    description: row.description,
+    start_date: new Date(row.start_date),
+    end_date: row.end_date ? new Date(row.end_date) : undefined,
+    status: {
+      id: row.status_id,
+      name: row.status_name,
+    },
+  };
+};
+
+export const deleteProject = async (id: string): Promise<boolean> => {
+  const result = await sql`
+    DELETE FROM public."PROJECTS" WHERE id = ${id}
+  `;
+
+  return result.count > 0;
+};
