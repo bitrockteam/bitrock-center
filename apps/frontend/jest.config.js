@@ -1,12 +1,20 @@
 /** @type {import('jest').Config} */
+
+require("dotenv").config({ path: ".env" });
+
 module.exports = {
   preset: "ts-jest",
-  testEnvironment: "node",
+  testEnvironment: "jsdom",
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
   },
   moduleNameMapper: {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+    "^@/app/\\(auth\\)/(.*)$": "<rootDir>/app/(auth)/$1",
+    "^@/app/\\(config\\)/(.*)$": "<rootDir>/app/(config)/$1",
+    "^@/config$": "<rootDir>/config",
+    "^@/config/(.*)$": "<rootDir>/config/$1",
+    "^@/components/(.*)$": "<rootDir>/components/$1",
   },
   transformIgnorePatterns: ["<rootDir>/node_modules/"],
   collectCoverage: true,
