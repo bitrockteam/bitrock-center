@@ -8,10 +8,10 @@ jobs:
   Build-Frontend:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      NEXT_PUBLIC_SERVER_URL: ${{ secrets.NEXT_PUBLIC_SERVER_URL }}
-      NEXT_PUBLIC_REDIRECT_URL: ${{ secrets.NEXT_PUBLIC_REDIRECT_URL }}
+      VITE_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      VITE_SERVER_URL: ${{ secrets.NEXT_PUBLIC_SERVER_URL }}
+      VITE_REDIRECT_URL: ${{ secrets.NEXT_PUBLIC_REDIRECT_URL }}
     steps:
       - uses: actions/checkout@v2
       - name: Corepack
