@@ -307,6 +307,7 @@ export default function ProjectDetail({ id }: { id: string }) {
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
         editData={project}
+        projectId={id}
       />
     </motion.div>
   );

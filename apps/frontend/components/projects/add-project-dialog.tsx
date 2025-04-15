@@ -1,8 +1,9 @@
 "use client";
 
-import { useGetUsers } from "@/api/useGetUsers";
+import { useCreateProject } from "@/api/useCreateProject";
+import { useGetStatuses } from "@/api/useGetStatuses";
+// import { useGetUsers } from "@/api/useGetUsers";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -28,33 +29,40 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { IProjectUpsert } from "@bitrock/types";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { addProjectSchema } from "./schema";
+import { useEditProject } from "@/api/useEditProject";
 
 interface AddProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editData?: any;
+  projectId?: string;
 }
 
 export default function AddProjectDialog({
   open,
   onOpenChange,
   editData,
+  projectId,
 }: AddProjectDialogProps) {
-  const { users } = useGetUsers();
+  const { statuses } = useGetStatuses();
+  const { createProject } = useCreateProject();
+  const { editProject } = useEditProject();
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof addProjectSchema>>({
     defaultValues: {
       name: "",
       client: "",
       description: "",
-      status: "planned",
-      startDate: new Date().toISOString().split("T")[0],
-      endDate: "",
-      team: [] as string[],
+      status_id: "planned",
+      start_date: new Date().toISOString().split("T")[0],
+      // team: [] as string[],
     },
   });
 
@@ -65,21 +73,40 @@ export default function AddProjectDialog({
         name: editData.name,
         client: editData.client,
         description: editData.description,
-        status: editData.status,
-        startDate: editData.startDate,
-        endDate: editData.endDate || "",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        status_id: editData.status_id,
+        start_date: editData.start_date,
+        end_date: editData.end_date,
         // team: editData.team.map((member: any) => member.id),
       });
     }
   }, [editData, form]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = (data: any) => {
-    console.log(data);
-    // Here you would normally save the data
-    onOpenChange(false);
-    form.reset();
+  const onSubmit = (data: z.infer<typeof addProjectSchema>) => {
+    const formattedData: IProjectUpsert = {
+      ...data,
+      start_date: new Date(data.start_date),
+      end_date: data.end_date ? new Date(data.end_date) : undefined,
+    };
+
+    if (editData && projectId) {
+      editProject(formattedData, projectId)
+        .then(() => {
+          onOpenChange(false);
+          form.reset();
+        })
+        .catch((error) => {
+          console.error("Failed to create project:", error);
+        });
+      return;
+    }
+    createProject(formattedData)
+      .then(() => {
+        onOpenChange(false);
+        form.reset();
+      })
+      .catch((error) => {
+        console.error("Failed to create project:", error);
+      });
   };
 
   return (
@@ -97,7 +124,13 @@ export default function AddProjectDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -148,7 +181,7 @@ export default function AddProjectDialog({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
-                name="status"
+                name="status_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Stato</FormLabel>
@@ -163,10 +196,11 @@ export default function AddProjectDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="planned">Pianificato</SelectItem>
-                        <SelectItem value="active">Attivo</SelectItem>
-                        <SelectItem value="on-hold">In Pausa</SelectItem>
-                        <SelectItem value="completed">Completato</SelectItem>
+                        {statuses.map((s) => (
+                          <SelectItem value={s.id} key={s.id}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -176,7 +210,7 @@ export default function AddProjectDialog({
 
               <FormField
                 control={form.control}
-                name="startDate"
+                name="start_date"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Data Inizio</FormLabel>
@@ -190,7 +224,7 @@ export default function AddProjectDialog({
 
               <FormField
                 control={form.control}
-                name="endDate"
+                name="end_date"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Data Fine (opzionale)</FormLabel>
@@ -203,7 +237,7 @@ export default function AddProjectDialog({
               />
             </div>
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="team"
               render={() => (
@@ -252,7 +286,7 @@ export default function AddProjectDialog({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <DialogFooter>
               <Button
