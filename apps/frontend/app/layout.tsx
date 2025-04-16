@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import "../styles/globals.css";
 import { AuthProvider } from "./(auth)/AuthProvider";
 import { SessionDataProvider } from "./utenti/SessionData";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -40,11 +41,12 @@ export default function RootLayout({
                 <div className="flex h-screen">
                   <Sidebar />
                   <div className="flex-1 overflow-auto">
-                    <main className="container py-4 mx-auto px-4">
+                    <main className="container py-4 mx-auto px-4 h-full">
                       {children}
                     </main>
                   </div>
                 </div>
+                <Toaster />
               </SessionDataProvider>
             </AuthProvider>
           </ThemeProvider>

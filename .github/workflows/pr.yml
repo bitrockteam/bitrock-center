@@ -1,4 +1,4 @@
-name: PR Validation
+name: 🚧 PR Validation
 on:
   pull_request:
     branches:
@@ -7,8 +7,15 @@ on:
 jobs:
   Build-Frontend:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_SERVER_URL: ${{ secrets.NEXT_PUBLIC_SERVER_URL }}
+      NEXT_PUBLIC_REDIRECT_URL: ${{ secrets.NEXT_PUBLIC_REDIRECT_URL }}
     steps:
       - uses: actions/checkout@v2
+      - name: Corepack
+        run: corepack enable
       - name: Install
         run: yarn
       - name: Build

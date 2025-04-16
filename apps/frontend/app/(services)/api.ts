@@ -56,7 +56,6 @@ export async function getUserInfo({ token }: { token: string }) {
 
 export function verifyBitrockToken({ token }: { token: string }) {
   const tokenInfo: IToken = jwtDecode(token);
-  console.log({ tokenInfo });
 
   if (tokenInfo.user_metadata.custom_claims.hd === "bitrock.it") return true;
 

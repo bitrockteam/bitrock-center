@@ -1,4 +1,10 @@
-export function Loader({ transparent = false }: { transparent?: boolean }) {
+export function Loader({
+  transparent = false,
+  color = "#FFF",
+}: {
+  transparent?: boolean;
+  color?: string;
+}) {
   return (
     <div
       className={`flex justify-center items-center h-screen w-screen bg-gray-800 ${transparent ? "bg-transparent" : ""}`}
@@ -8,7 +14,7 @@ export function Loader({ transparent = false }: { transparent?: boolean }) {
         .loader {
           width: 48px;
           height: 48px;
-          border: 5px solid #FFF;
+          border: 5px solid ${color};
           border-radius: 50%;
           display: inline-block;
           box-sizing: border-box;
@@ -20,7 +26,7 @@ export function Loader({ transparent = false }: { transparent?: boolean }) {
           position: absolute;
           width: 48px;
           height: 48px;
-          border: 5px solid #FFF;
+          border: 5px solid ${color};
           border-radius: 50%;
           display: inline-block;
           box-sizing: border-box;

@@ -39,7 +39,6 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
       setSession(session ?? undefined);
       try {
         if (session && !user) {
-          console.log({ token: session.access_token });
           if (verifyBitrockToken({ token: session.access_token })) {
             console.log("Autenticato");
           }
