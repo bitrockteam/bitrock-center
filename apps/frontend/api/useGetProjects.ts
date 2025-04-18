@@ -1,17 +1,21 @@
+"use client";
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
 import { IProject } from "@bitrock/types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export const useGetProjects = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [projects, setProjects] = useState<IProject[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const { session } = useAuth();
 
-  useEffect(() => {
-    fetch(`${SERVERL_BASE_URL}/projects`, {
+  const refetch = useCallback(() => {
+    setIsLoading(true);
+    const searchParams = new URLSearchParams(window.location.search);
+    const search = searchParams.get("params");
+
+    fetch(`${SERVERL_BASE_URL}/projects${search ? `?params=${search}` : ""}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -19,13 +23,16 @@ export const useGetProjects = () => {
       },
     })
       .then((res) => res.json())
-      .then((data) => {
-        setProjects(data);
+      .then((data) => setProjects(data))
+      .catch((err) => {
+        console.error(err);
       })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [session?.access_token]);
+      .finally(() => setIsLoading(false));
+  }, [session]);
 
-  return { projects, isLoading };
+  useEffect(() => {
+    if (session?.access_token) refetch();
+  }, [refetch, session?.access_token]);
+
+  return { projects, isLoading, refetch };
 };

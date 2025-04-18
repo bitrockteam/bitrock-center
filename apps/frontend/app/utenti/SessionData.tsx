@@ -11,7 +11,8 @@ const SessionDataContext = createContext({
   roles: [] as IRole[],
   projects: [] as IProject[],
   isLoading: false as boolean,
-  refetch: () => {},
+  refetchUsers: () => {},
+  refetchProjects: () => {},
 });
 
 export function SessionDataProvider({
@@ -22,9 +23,13 @@ export function SessionDataProvider({
 
   const [projectsList, setProjectsList] = useState<IProject[]>([]);
 
-  const { users, refetch, loading } = useGetUsers();
+  const { users, refetch: refetchUsers, loading } = useGetUsers();
   const { roles, isLoading: isLoadingRoles } = useGetRoles();
-  const { projects, isLoading: isLoadingProjects } = useGetProjects();
+  const {
+    projects,
+    refetch: refetchProjects,
+    isLoading: isLoadingProjects,
+  } = useGetProjects();
 
   useMemo(() => {
     setUsersList(users);
@@ -38,13 +43,15 @@ export function SessionDataProvider({
       roles: rolesList,
       projects: projectsList,
       isLoading: loading || isLoadingRoles || isLoadingProjects,
-      refetch,
+      refetchUsers,
+      refetchProjects,
     }),
     [
       isLoadingProjects,
       isLoadingRoles,
       loading,
-      refetch,
+      refetchUsers,
+      refetchProjects,
       rolesList,
       usersList,
       projectsList,
