@@ -125,7 +125,7 @@ export default function ProjectDetail({ id }: { id: string }) {
                   <p className="text-sm font-medium">Data Inizio:</p>
                   <p className="text-sm text-muted-foreground flex items-center">
                     <Calendar className="mr-1 h-3 w-3" />{" "}
-                    {format(project?.end_date, "MM dd yyyy")}
+                    {format(project?.start_date, "MM dd yyyy")}
                   </p>
                 </div>
                 <div className="space-y-1">
