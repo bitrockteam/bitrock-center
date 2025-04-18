@@ -3,8 +3,8 @@ import { IProject, IProjectUpsert } from "@bitrock/types";
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 
-export async function getProjects(): Promise<IProject[]> {
-  const res = await sql`
+export async function getProjects(params?: string): Promise<IProject[]> {
+  const baseQuery = sql`
     SELECT 
       p.id AS project_id,
       p.created_at AS project_created_at,
@@ -19,6 +19,12 @@ export async function getProjects(): Promise<IProject[]> {
     JOIN public."STATUSES" s ON p.status_id = s.id
     WHERE s.name IS DISTINCT FROM p.name
   `;
+
+  const searchFilter = params
+    ? sql`AND (p.name ILIKE '%' || ${params} || '%' OR p.client ILIKE '%' || ${params} || '%')`
+    : sql``;
+
+  const res = await sql`${baseQuery} ${searchFilter}`;
 
   return res.map((row) => ({
     id: row.project_id,

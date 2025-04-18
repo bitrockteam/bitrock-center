@@ -14,8 +14,9 @@ export const createProjectsController = (app: Express) => {
     "/projects",
     authenticateToken,
     async (req: Request, res: Response) => {
+      const { params } = req.query;
       try {
-        const projects = await getProjects();
+        const projects = await getProjects(params as string);
 
         if (!projects) return res.status(404).send("projects not found");
 
