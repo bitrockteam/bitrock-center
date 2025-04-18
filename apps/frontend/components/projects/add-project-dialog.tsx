@@ -40,8 +40,7 @@ import { useEditProject } from "@/api/useEditProject";
 interface AddProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editData?: any;
+  editData?: IProjectUpsert;
   projectId?: string;
 }
 
@@ -74,8 +73,8 @@ export default function AddProjectDialog({
         client: editData.client,
         description: editData.description,
         status_id: editData.status_id,
-        start_date: editData.start_date,
-        end_date: editData.end_date,
+        start_date: editData.start_date.toISOString().split("T")[0],
+        end_date: editData.end_date?.toISOString().split("T")[0],
         // team: editData.team.map((member: any) => member.id),
       });
     }
