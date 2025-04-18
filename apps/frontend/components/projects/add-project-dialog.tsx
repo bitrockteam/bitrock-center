@@ -3,6 +3,7 @@
 import { useCreateProject } from "@/api/useCreateProject";
 import { useGetStatuses } from "@/api/useGetStatuses";
 // import { useGetUsers } from "@/api/useGetUsers";
+import { useEditProject } from "@/api/useEditProject";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,18 +30,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { IProjectUpsert } from "@bitrock/types";
+import { IProject, IProjectUpsert } from "@bitrock/types";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { addProjectSchema } from "./schema";
-import { useEditProject } from "@/api/useEditProject";
 
 interface AddProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editData?: IProjectUpsert;
+  editData?: IProject;
   projectId?: string;
 }
 
@@ -72,7 +72,7 @@ export default function AddProjectDialog({
         name: editData.name,
         client: editData.client,
         description: editData.description,
-        status_id: editData.status_id,
+        status_id: editData.status.id,
         start_date: editData.start_date.toISOString().split("T")[0],
         end_date: editData.end_date?.toISOString().split("T")[0],
         // team: editData.team.map((member: any) => member.id),
