@@ -17,7 +17,8 @@ export async function getUserByEmail(email: string): Promise<IUser | null> {
   return res[0] as IUser;
 }
 export async function getUserById(id: string): Promise<IUser | null> {
-  const res = await sql`SELECT * FROM public."USERS" WHERE id = ${id}`;
+  const res =
+    await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."USERS" u LEFT OUTER JOIN public."ROLES" r ON u.role_id = r.id WHERE u.id = ${id}`;
   if (!res) return null;
   if (res.length === 0) return null;
   if (res.length > 1) {
@@ -25,19 +26,41 @@ export async function getUserById(id: string): Promise<IUser | null> {
     console.error(res);
     throw new Error("More than one user found with the same id");
   }
-  return res[0] as IUser;
+  return res.map((row) => ({
+    id: row.id,
+    auth_id: row.auth_id,
+    name: row.name,
+    email: row.email,
+    avatar_url: row.avatar_url,
+    role: {
+      id: row.role_id,
+      label: row.label,
+    },
+  }))[0];
 }
 
 export async function getUsers(params?: string): Promise<IUser[]> {
   if (params) {
     const res =
-      await sql`SELECT * FROM public."USERS" WHERE name LIKE '%' || ${params} || '%' OR email LIKE '%' || ${params} || '%'`;
+      await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."USERS" u LEFT OUTER JOIN public."ROLES" r ON u.role_id = r.id WHERE u.name LIKE '%' || ${params} || '%' OR u.email LIKE '%' || ${params} || '%'`;
     if (!res) return [];
     return [...res] as IUser[];
   }
 
-  const res = await sql`SELECT * FROM public."USERS"`;
-  return [...res] as IUser[];
+  const res =
+    await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."USERS" u LEFT OUTER JOIN public."ROLES" r ON u.role_id = r.id`;
+
+  return res.map((row) => ({
+    id: row.id,
+    auth_id: row.auth_id,
+    name: row.name,
+    email: row.email,
+    avatar_url: row.avatar_url,
+    role: {
+      id: row.role_id,
+      label: row.label,
+    },
+  }));
 }
 
 // POST

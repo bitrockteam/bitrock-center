@@ -44,7 +44,7 @@ export default function AddProjectDialog({
   onOpenChange,
   editData,
 }: AddProjectDialogProps) {
-  const {users} = useGetUsers();
+  const { users } = useGetUsers();
 
   const form = useForm({
     defaultValues: {
@@ -241,7 +241,7 @@ export default function AddProjectDialog({
                                 />
                               </FormControl>
                               <FormLabel className="font-normal">
-                                {user.name} ({user.role_id})
+                                {user.name} ({user.role?.id})
                               </FormLabel>
                             </FormItem>
                           );
