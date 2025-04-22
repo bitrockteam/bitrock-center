@@ -36,6 +36,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { addProjectSchema } from "./schema";
+import { useSessionContext } from "@/app/utenti/SessionData";
 
 interface AddProjectDialogProps {
   open: boolean;
@@ -50,6 +51,7 @@ export default function AddProjectDialog({
   editData,
   projectId,
 }: AddProjectDialogProps) {
+  const { refetchProjects } = useSessionContext();
   const { statuses } = useGetStatuses();
   const { createProject } = useCreateProject();
   const { editProject } = useEditProject();
@@ -59,7 +61,7 @@ export default function AddProjectDialog({
       name: "",
       client: "",
       description: "",
-      status_id: "planned",
+      status_id: "",
       start_date: new Date().toISOString().split("T")[0],
       // team: [] as string[],
     },
@@ -67,14 +69,17 @@ export default function AddProjectDialog({
 
   // Update form when editing a project
   useEffect(() => {
+    console.log(editData?.start_date);
     if (editData) {
       form.reset({
         name: editData.name,
         client: editData.client,
         description: editData.description,
         status_id: editData.status.id,
-        start_date: editData.start_date.toISOString().split("T")[0],
-        end_date: editData.end_date?.toISOString().split("T")[0],
+        start_date: String(editData.start_date).slice(0, 10),
+        end_date: editData.end_date
+          ? String(editData.end_date).slice(0, 10)
+          : "",
         // team: editData.team.map((member: any) => member.id),
       });
     }
@@ -102,6 +107,7 @@ export default function AddProjectDialog({
       .then(() => {
         onOpenChange(false);
         form.reset();
+        refetchProjects();
       })
       .catch((error) => {
         console.error("Failed to create project:", error);
