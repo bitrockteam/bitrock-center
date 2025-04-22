@@ -27,13 +27,21 @@ import {
 } from "@/components/ui/table";
 import { useGetProjectById } from "@/api/useGetProjectsById";
 import { format } from "date-fns";
+import { Loader } from "../custom/Loader";
 
 export default function ProjectDetail({ id }: { id: string }) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const { project } = useGetProjectById(id);
+  const { project, isLoading } = useGetProjectById(id);
   const timeEntries = getTimeEntriesByProject("project-1");
+
+  if (isLoading)
+    return (
+      <div className="w-full h-full flex flex-row justify-center items-center">
+        <Loader transparent color="black" />
+      </div>
+    );
 
   if (!project) {
     return (

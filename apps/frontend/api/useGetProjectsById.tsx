@@ -4,8 +4,8 @@ import { IProject } from "@bitrock/types";
 import { useEffect, useState } from "react";
 
 export const useGetProjectById = (id: string) => {
-const [project, setProject] = useState<IProject | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [project, setProject] = useState<IProject | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { session } = useAuth();
 

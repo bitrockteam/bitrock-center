@@ -37,15 +37,22 @@ import { useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 import { useSessionContext } from "@/app/utenti/SessionData";
 import { format } from "date-fns";
+import { useDeleteProject } from "@/api/useDeleteProject";
+import { IProject } from "@bitrock/types";
 
 export default function ProjectsTable() {
   const router = useRouter();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [editProject, setEditProject] = useState<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [deleteProject, setDeleteProject] = useState<any>(null);
+  const [editProjectDialog, setEditProjectDialog] = useState<IProject | null>(
+    null,
+  );
+  const [deleteProjectDialog, setDeleteProjectDialog] =
+    useState<IProject | null>(null);
+
+  const { refetchProjects } = useSessionContext();
 
   const { projects } = useSessionContext();
+
+  const { deleteProject } = useDeleteProject();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -68,6 +75,13 @@ export default function ProjectsTable() {
 
   const handleViewProject = (id: string) => {
     router.push(`/progetti/${id}`);
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    const success = await deleteProject(id);
+    if (success) {
+      refetchProjects();
+    }
   };
 
   return (
@@ -148,7 +162,7 @@ export default function ProjectsTable() {
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setEditProject(project);
+                                setEditProjectDialog(project);
                               }}
                             >
                               <Edit className="mr-2 h-4 w-4" />
@@ -158,7 +172,7 @@ export default function ProjectsTable() {
                               className="text-destructive focus:text-destructive"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setDeleteProject(project);
+                                setDeleteProjectDialog(project);
                               }}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
@@ -177,18 +191,18 @@ export default function ProjectsTable() {
       </Card>
 
       {/* Dialog per modificare un progetto */}
-      {editProject && (
+      {editProjectDialog && (
         <AddProjectDialog
-          open={!!editProject}
-          onOpenChange={(open) => !open && setEditProject(null)}
-          editData={editProject}
+          open={!!editProjectDialog}
+          onOpenChange={(open) => !open && setEditProjectDialog(null)}
+          editData={editProjectDialog}
         />
       )}
 
       {/* Dialog di conferma eliminazione */}
       <AlertDialog
-        open={!!deleteProject}
-        onOpenChange={(open) => !open && setDeleteProject(null)}
+        open={!!deleteProjectDialog}
+        onOpenChange={(open) => !open && setDeleteProjectDialog(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -202,7 +216,10 @@ export default function ProjectsTable() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground">
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground"
+              onClick={() => handleDeleteProject(deleteProjectDialog!.id)}
+            >
               Elimina
             </AlertDialogAction>
           </AlertDialogFooter>
