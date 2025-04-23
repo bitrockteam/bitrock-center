@@ -44,7 +44,17 @@ export async function getUsers(params?: string): Promise<IUser[]> {
     const res =
       await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."USERS" u LEFT OUTER JOIN public."ROLES" r ON u.role_id = r.id WHERE u.name LIKE '%' || ${params} || '%' OR u.email LIKE '%' || ${params} || '%'`;
     if (!res) return [];
-    return [...res] as IUser[];
+    return res.map((row) => ({
+      id: row.id,
+      auth_id: row.auth_id,
+      name: row.name,
+      email: row.email,
+      avatar_url: row.avatar_url,
+      role: {
+        id: row.role_id,
+        label: row.label,
+      },
+    }));
   }
 
   const res =
