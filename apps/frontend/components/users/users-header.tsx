@@ -17,7 +17,7 @@ export default function UsersHeader() {
   );
   const [debouncedInput, setDebouncedInput] = useState("");
 
-  const { refetch } = useSessionContext();
+  const { refetchUsers } = useSessionContext();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextSearch(e.target.value);
@@ -29,7 +29,7 @@ export default function UsersHeader() {
         "",
         `${window.location.pathname}?${serachParams.toString()}`,
       );
-      refetch();
+      refetchUsers();
     }
   };
 
@@ -49,10 +49,10 @@ export default function UsersHeader() {
         `${window.location.pathname}?${serachParams.toString()}`,
       );
 
-      refetch();
+      refetchUsers();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refetch, debouncedInput]);
+  }, [refetchUsers, debouncedInput]);
 
   return (
     <motion.div

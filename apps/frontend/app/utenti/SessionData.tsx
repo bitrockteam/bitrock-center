@@ -1,15 +1,18 @@
 "use client";
 
+import { useGetProjects } from "@/api/useGetProjects";
 import { useGetRoles } from "@/api/useGetRoles";
 import { useGetUsers } from "@/api/useGetUsers";
-import { IRole, IUser } from "@bitrock/types";
+import { IProject, IRole, IUser } from "@bitrock/types";
 import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 
 const SessionDataContext = createContext({
   users: [] as IUser[],
   roles: [] as IRole[],
+  projects: [] as IProject[],
   isLoading: false as boolean,
-  refetch: () => {},
+  refetchUsers: () => {},
+  refetchProjects: () => {},
 });
 
 export function SessionDataProvider({
@@ -18,22 +21,41 @@ export function SessionDataProvider({
   const [usersList, setUsersList] = useState<IUser[]>([]);
   const [rolesList, setRolesList] = useState<IRole[]>([]);
 
-  const { users, refetch, loading } = useGetUsers();
+  const [projectsList, setProjectsList] = useState<IProject[]>([]);
+
+  const { users, refetch: refetchUsers, loading } = useGetUsers();
   const { roles, isLoading: isLoadingRoles } = useGetRoles();
+  const {
+    projects,
+    refetch: refetchProjects,
+    isLoading: isLoadingProjects,
+  } = useGetProjects();
 
   useMemo(() => {
     setUsersList(users);
     setRolesList(roles);
-  }, [roles, users]);
+    setProjectsList(projects);
+  }, [roles, users, projects]);
 
   const value = useMemo(
     () => ({
       users: usersList,
       roles: rolesList,
-      isLoading: loading || isLoadingRoles,
-      refetch,
+      projects: projectsList,
+      isLoading: loading || isLoadingRoles || isLoadingProjects,
+      refetchUsers,
+      refetchProjects,
     }),
-    [isLoadingRoles, loading, refetch, rolesList, usersList],
+    [
+      isLoadingProjects,
+      isLoadingRoles,
+      loading,
+      refetchUsers,
+      refetchProjects,
+      rolesList,
+      usersList,
+      projectsList,
+    ],
   );
 
   return (
