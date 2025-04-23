@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,21 +30,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getProjectsDetailed } from "@/lib/mock-data";
 import { motion } from "framer-motion";
 import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
+import { useSessionContext } from "@/app/utenti/SessionData";
+import { format } from "date-fns";
+import { useDeleteProject } from "@/api/useDeleteProject";
+import { IProject } from "@bitrock/types";
 
 export default function ProjectsTable() {
   const router = useRouter();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [editProject, setEditProject] = useState<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [deleteProject, setDeleteProject] = useState<any>(null);
+  const [editProjectDialog, setEditProjectDialog] = useState<IProject | null>(
+    null,
+  );
+  const [deleteProjectDialog, setDeleteProjectDialog] =
+    useState<IProject | null>(null);
 
-  const projects = getProjectsDetailed();
+  const { refetchProjects } = useSessionContext();
+
+  const { projects } = useSessionContext();
+
+  const { deleteProject } = useDeleteProject();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -69,6 +77,13 @@ export default function ProjectsTable() {
     router.push(`/progetti/${id}`);
   };
 
+  const handleDeleteProject = async (id: string) => {
+    const success = await deleteProject(id);
+    if (success) {
+      refetchProjects();
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -84,7 +99,6 @@ export default function ProjectsTable() {
                   <TableHead>Nome</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead>Stato</TableHead>
-                  <TableHead>Team</TableHead>
                   <TableHead>Data Inizio</TableHead>
                   <TableHead>Data Fine</TableHead>
                   <TableHead className="text-right">Azioni</TableHead>
@@ -108,38 +122,21 @@ export default function ProjectsTable() {
                       onClick={() => handleViewProject(project.id)}
                     >
                       <TableCell className="font-medium">
-                        {project.name}
+                        {project?.name}
                       </TableCell>
-                      <TableCell>{project.client}</TableCell>
-                      <TableCell>{getStatusBadge(project.status)}</TableCell>
+                      <TableCell>{project?.client}</TableCell>
                       <TableCell>
-                        <div className="flex -space-x-2">
-                          {project.team.slice(0, 3).map((member, index) => (
-                            <Avatar
-                              key={index}
-                              className="h-8 w-8 border-2 border-background"
-                            >
-                              <AvatarImage
-                                src={
-                                  member.avatar ||
-                                  "/placeholder.svg?height=32&width=32"
-                                }
-                              />
-                              <AvatarFallback>
-                                {member.name.charAt(0)}
-                                {member.surname.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                          ))}
-                          {project.team.length > 3 && (
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium">
-                              +{project.team.length - 3}
-                            </div>
-                          )}
-                        </div>
+                        {getStatusBadge(project?.status.id)}
                       </TableCell>
-                      <TableCell>{project.startDate}</TableCell>
-                      <TableCell>{project.endDate || "-"}</TableCell>
+
+                      <TableCell>
+                        {format(project?.start_date, "MM dd yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        {project?.end_date
+                          ? format(project?.end_date, "MM dd yyyy")
+                          : "-"}
+                      </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger
@@ -165,7 +162,7 @@ export default function ProjectsTable() {
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setEditProject(project);
+                                setEditProjectDialog(project);
                               }}
                             >
                               <Edit className="mr-2 h-4 w-4" />
@@ -175,7 +172,7 @@ export default function ProjectsTable() {
                               className="text-destructive focus:text-destructive"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setDeleteProject(project);
+                                setDeleteProjectDialog(project);
                               }}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
@@ -194,18 +191,18 @@ export default function ProjectsTable() {
       </Card>
 
       {/* Dialog per modificare un progetto */}
-      {editProject && (
+      {editProjectDialog && (
         <AddProjectDialog
-          open={!!editProject}
-          onOpenChange={(open) => !open && setEditProject(null)}
-          editData={editProject}
+          open={!!editProjectDialog}
+          onOpenChange={(open) => !open && setEditProjectDialog(null)}
+          editData={editProjectDialog}
         />
       )}
 
       {/* Dialog di conferma eliminazione */}
       <AlertDialog
-        open={!!deleteProject}
-        onOpenChange={(open) => !open && setDeleteProject(null)}
+        open={!!deleteProjectDialog}
+        onOpenChange={(open) => !open && setDeleteProjectDialog(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -219,7 +216,10 @@ export default function ProjectsTable() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground">
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground"
+              onClick={() => handleDeleteProject(deleteProjectDialog!.id)}
+            >
               Elimina
             </AlertDialogAction>
           </AlertDialogFooter>
