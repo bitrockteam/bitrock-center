@@ -280,7 +280,7 @@ export default function AddProjectDialog({
                                 />
                               </FormControl>
                               <FormLabel className="font-normal">
-                                {user.name} ({user.role_id})
+                                {user.name} ({user.role?.label})
                               </FormLabel>
                             </FormItem>
                           );

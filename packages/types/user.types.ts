@@ -1,10 +1,12 @@
+import { IRole } from "./roles.types";
+
 export interface IUser {
   id: string;
   auth_id?: string; // authenticator provider ID
   name: string;
   email: string;
   avatar_url?: string;
-  role_id?: string;
+  role?: IRole;
 }
 
 export interface ICreateUser {

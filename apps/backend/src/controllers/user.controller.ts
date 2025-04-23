@@ -55,6 +55,7 @@ export const createUserController = (app: Express) => {
 
       return res.status(200).send(userFromDbByEmail);
     } catch (error) {
+      console.error(error);
       return res.status(500).json({ error: "Error performing the request" });
     }
   });
@@ -75,6 +76,7 @@ export const createUserController = (app: Express) => {
 
         return res.status(200).send(userFromDbByEmail);
       } catch (error) {
+        console.error(error);
         return res.status(500).json({ error: "Error performing the request" });
       }
     },
@@ -142,6 +144,7 @@ export const createUserController = (app: Express) => {
 
       return res.status(200).send({ user: newUser });
     } catch (error) {
+      console.error(error);
       return res.status(500).json({ error: "Error performing the request" });
     }
   });
@@ -190,6 +193,7 @@ export const createUserController = (app: Express) => {
 
         return res.status(200).send({ user: newUser });
       } catch (error) {
+        console.error(error);
         return res.status(500).json({ error: "Error performing the request" });
       }
     },
@@ -263,6 +267,7 @@ export const createUserController = (app: Express) => {
 
         return res.status(200).send({ avatar: newAvatar });
       } catch (error) {
+        console.error(error);
         return res.status(500).json({ error: "Error performing the request" });
       }
     },
