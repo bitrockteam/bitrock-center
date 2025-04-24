@@ -1,9 +1,7 @@
 "use client";
 
 import { useGetUserById } from "@/api/useGetUserById";
-import { useSessionContext } from "@/app/utenti/SessionData";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,15 +16,14 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Briefcase, Clock, Edit, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import AddUserDialog from "./add-user-dialog";
 import { Loader } from "../custom/Loader";
+import AddUserDialog from "./add-user-dialog";
 
 export default function UserDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const { user, refetch, isLoading } = useGetUserById(id);
-  const { roles } = useSessionContext();
 
   const timeEntries = getTimeEntriesByUser(id);
   // const leaveRequests = getLeaveRequestsByUser(id);
@@ -53,25 +50,6 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
       </div>
     );
   }
-
-  const getRoleBadge = (role: string) => {
-    switch (role) {
-      case "admin":
-        return <Badge className="bg-purple-500">Amministratore</Badge>;
-      case "manager":
-        return <Badge className="bg-blue-500">Manager</Badge>;
-      case "developer":
-        return <Badge variant="outline">Sviluppatore</Badge>;
-      case "designer":
-        return (
-          <Badge variant="outline" className="border-pink-500 text-pink-500">
-            Designer
-          </Badge>
-        );
-      default:
-        return <Badge variant="secondary">{role}</Badge>;
-    }
-  };
 
   // Calcola il totale delle ore lavorate
   const totalHours = timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
@@ -102,11 +80,9 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
             <h1 className="text-3xl font-bold tracking-tight">
               {formatDisplayName({ name: user.name })}
             </h1>
-            {user.role_id && (
+            {user.role?.id && (
               <div className="flex items-center space-x-2">
-                {getRoleBadge(
-                  roles.find((role) => role.id === user.role_id)?.label ?? "",
-                )}
+                {user.role.label}
               </div>
             )}
           </div>
@@ -146,7 +122,7 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
               <div className="space-y-1">
                 <p className="text-sm font-medium">Ruolo:</p>
                 <p className="text-sm text-muted-foreground capitalize">
-                  {roles.find((role) => role.id === user.role_id)?.label}
+                  {user.role?.label}
                 </p>
               </div>
               <div className="space-y-1">
