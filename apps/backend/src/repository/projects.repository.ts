@@ -1,7 +1,5 @@
-import { sql } from "../config/postgres";
 import { IProject, IProjectUpsert } from "@bitrock/types";
-import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
+import { sql } from "../config/postgres";
 
 export async function getProjects(params?: string): Promise<IProject[]> {
   const baseQuery = sql`
@@ -84,15 +82,16 @@ export const createProject = async (
 ): Promise<IProject> => {
   const { name, client, status_id, description, start_date, end_date } = input;
 
-  const id = uuidv4();
-
-  await sql`
+  const res = await sql`
     INSERT INTO public."PROJECTS" (
-      id, name, client, status_id, description, start_date, end_date, created_at
+      name, client, status_id, description, start_date, end_date, created_at
     ) VALUES (
-      ${id}, ${name}, ${client}, ${status_id}, ${description}, ${start_date}, ${end_date || null}, NOW()
-    )
+      ${name}, ${client}, ${status_id}, ${description}, ${start_date}, ${end_date || null}, NOW()
+    ) RETURNING id
   `;
+
+  const id = res[0].id;
+  if (!id) throw new Error("Failed to create project");
 
   const [row] = await sql`
     SELECT 
