@@ -3,15 +3,14 @@ export const getFirstnameAndLastname = (name?: string) => {
     return { firstName: "", lastName: "" };
   }
 
-  const nameParts = name.split(" ");
+  const nameParts = name.trim().split(" ");
   const firstName = nameParts[0];
 
-  const lastName =
-    nameParts
-      .map((n) => n.trim())
-      .filter(Boolean)
-      .slice(1)
-      .join(" ") ?? "";
+  const lastName = nameParts
+    .map((n) => n.trim())
+    .filter(Boolean)
+    .slice(1)
+    .join(" ");
 
   return { firstName, lastName };
 };
