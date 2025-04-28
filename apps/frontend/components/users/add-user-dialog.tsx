@@ -2,6 +2,8 @@
 
 import { useCreateUser } from "@/api/useCreateUser";
 import { useUpdateUser } from "@/api/useUpdateUser";
+import { useUploadFile } from "@/api/useUploadFile";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +31,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FileUploader } from "../custom/FileUploader";
-import { useUploadFile } from "@/api/useUploadFile";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 
 interface AddUserDialogProps {
   open: boolean;
@@ -52,7 +52,7 @@ export default function AddUserDialog({
   const { createUser, isLoading: isLoadingCreateUser } = useCreateUser();
   const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
   const { uploadFile, isLoading: isLoadingUploadFile } = useUploadFile();
-  const { refetch } = useSessionContext();
+  const { refetchUsers } = useSessionContext();
   const { user } = useAuth();
 
   const form = useForm({
@@ -87,7 +87,7 @@ export default function AddUserDialog({
   const handleComplete = (open: boolean) => {
     onComplete(open, { shouldRefetch: true });
     form.reset();
-    refetch();
+    refetchUsers();
   };
 
   const onSubmit = () => {
@@ -122,7 +122,7 @@ export default function AddUserDialog({
         .finally(() => {
           onComplete(false, { shouldRefetch: true });
           form.reset();
-          refetch();
+          refetchUsers();
         });
   };
 
