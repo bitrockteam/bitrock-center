@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@/app/(auth)/AuthProvider";
-import { loginUser, logoutUser } from "@/app/(services)/api";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navItems = [
@@ -121,57 +120,46 @@ export default function Sidebar() {
           </ul>
         </nav>
 
-        {session?.access_token ? (
-          <div className="p-4 border-t">
-            <div className="flex items-center justify-between">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="p-1.5">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                      <AvatarFallback>
-                        {session.user.user_metadata.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    {!collapsed && (
-                      <span className="ml-2 text-sm font-medium">
-                        {session.user.user_metadata.name}
-                      </span>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Il mio account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profilo</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Impostazioni</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => logoutUser()}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Logout</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+        <div className="p-4 border-t">
+          <div className="flex items-center justify-between">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="p-1.5">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="/placeholder.svg?height=32&width=32" />
+                    <AvatarFallback>
+                      {session.user.user_metadata.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {!collapsed && (
+                    <span className="ml-2 text-sm font-medium">
+                      {session.user.user_metadata.name}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Il mio account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profilo</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Impostazioni</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => redirect("/private")}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-              {!collapsed && <ModeToggle />}
-            </div>
+            {!collapsed && <ModeToggle />}
           </div>
-        ) : (
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={() => loginUser()}
-          >
-            <LogOut className="h-5 w-5 mr-2" />
-            {!collapsed && <span>Login</span>}
-          </Button>
-        )}
+        </div>
       </motion.div>
     </div>
   );
