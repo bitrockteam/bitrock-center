@@ -1,12 +1,16 @@
 /** @type {import('jest').Config} */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("dotenv").config({ path: ".env" });
 
 module.exports = {
   preset: "ts-jest",
   testEnvironment: "jsdom",
   transform: {
-    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
+    "^.+\\.(js|jsx|ts|tsx)$": [
+      "babel-jest",
+      { configFile: "./test/babel.config.js" },
+    ],
   },
   moduleNameMapper: {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
@@ -29,4 +33,5 @@ module.exports = {
     "!**/index.ts", // <-- escludi file "entrypoint" se necessario
   ],
   coverageReporters: ["text", "lcov", "html"],
+  moduleFileExtensions: ["js", "jsx", "ts", "tsx", "json", "node"],
 };

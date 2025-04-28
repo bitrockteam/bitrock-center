@@ -6,6 +6,7 @@ const mockRoles = [
   { id: 2, name: "User" },
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mockFetch(data: any) {
   return jest.fn().mockImplementation(() =>
     Promise.resolve({
