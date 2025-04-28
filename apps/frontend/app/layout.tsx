@@ -4,10 +4,8 @@ import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import type React from "react";
 import { Suspense } from "react";
-import "../styles/globals.css";
-import { AuthProvider } from "./(auth)/AuthProvider";
-import { SessionDataProvider } from "./utenti/SessionData";
 import { Toaster } from "sonner";
+import "../styles/globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -36,19 +34,15 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <AuthProvider>
-              <SessionDataProvider>
-                <div className="flex h-screen">
-                  <Sidebar />
-                  <div className="flex-1 overflow-auto">
-                    <main className="container py-4 mx-auto px-4 h-full">
-                      {children}
-                    </main>
-                  </div>
-                </div>
-                <Toaster />
-              </SessionDataProvider>
-            </AuthProvider>
+            <div className="flex h-screen">
+              <Sidebar />
+              <div className="flex-1 overflow-auto">
+                <main className="container py-4 mx-auto px-4 h-full">
+                  {children}
+                </main>
+              </div>
+            </div>
+            <Toaster />
           </ThemeProvider>
         </Suspense>
       </body>
