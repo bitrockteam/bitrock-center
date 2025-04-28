@@ -1,6 +1,5 @@
 import { ICreateUser, IUpdateUser, IUser } from "@bitrock/types";
 import { sql } from "../config/postgres";
-import { uuid } from "uuidv4";
 import { supabase } from "../config/supabase";
 
 // GET
@@ -96,7 +95,7 @@ export async function uploadFileAvatar(
   mimetype: string,
   buffer: Buffer,
 ) {
-  const avatarId = uuid();
+  const avatarId = crypto.randomUUID();
   // Generate a unique file name
   const filePath = `${userId}/${avatarId}`;
 
