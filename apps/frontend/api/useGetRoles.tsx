@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 export const useGetRoles = () => {
   const [roles, setRoles] = useState<IRole[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { session } = useAuth();
 
