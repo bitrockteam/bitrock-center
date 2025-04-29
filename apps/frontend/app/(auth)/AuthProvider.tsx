@@ -1,5 +1,6 @@
 "use client";
-import { supabase } from "../(config)/supabase";
+import { Loader } from "@/components/custom/Loader";
+import { createClient } from "@/utils/supabase/client";
 import { IUser } from "@bitrock/types";
 import { Session } from "@supabase/supabase-js";
 import {
@@ -11,14 +12,11 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { getUserInfo, loginUser, verifyBitrockToken } from "../(services)/api";
 import { api } from "../(config)/client";
-import { Loader } from "@/components/custom/Loader";
+import { getUserInfo, verifyBitrockToken } from "../(services)/api";
 
 const AuthContext = createContext({
   user: undefined as IUser | undefined,
-  login: () => {},
-  logout: () => {},
   loading: true as boolean,
   isLogged: false as boolean,
   session: undefined as Session | undefined,
@@ -32,6 +30,8 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [user, setUser] = useState<IUser>();
 
   const token = useMemo(() => session?.access_token, [session]);
+
+  const supabase = createClient();
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange(async (_, session) => {
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
       }
     });
     return () => data.subscription.unsubscribe();
-  }, [user]);
+  }, [supabase.auth, user]);
 
   useEffect(() => {
     api.interceptors.request.use((config) => {
@@ -80,8 +80,6 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   const value = useMemo(
     () => ({
       user,
-      login: () => loginUser(),
-      logout: () => loginUser(),
       isLogged: !!session,
       session,
       loading,

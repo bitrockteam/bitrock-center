@@ -19,6 +19,7 @@ module.exports = {
     "^@/config$": "<rootDir>/config",
     "^@/config/(.*)$": "<rootDir>/config/$1",
     "^@/components/(.*)$": "<rootDir>/components/$1",
+    "^@/utils/(.*)$": "<rootDir>/utils/$1",
   },
   transformIgnorePatterns: ["<rootDir>/node_modules/"],
   collectCoverage: true,
