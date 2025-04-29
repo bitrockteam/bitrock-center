@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useGetProjectById } from "@/api/useGetProjectsById";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,13 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Calendar, Clock, Edit, Users } from "lucide-react";
-import { getTimeEntriesByProject } from "@/lib/mock-data";
-import AddProjectDialog from "./add-project-dialog";
 import {
   Table,
   TableBody,
@@ -25,13 +19,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetProjectById } from "@/api/useGetProjectsById";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getTimeEntriesByProject } from "@/lib/mock-data";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Edit,
+  PlusIcon,
+  Users,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Loader } from "../custom/Loader";
+import AddProjectDialog from "./add-project-dialog";
+import { AddProjectMemberDialog } from "./add-project-member-dialog";
 
-export default function ProjectDetail({ id }: { id: string }) {
+export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
 
   const { project, isLoading } = useGetProjectById(id);
   const timeEntries = getTimeEntriesByProject("project-1");
@@ -197,7 +206,7 @@ export default function ProjectDetail({ id }: { id: string }) {
         <TabsList>
           <TabsTrigger value="timesheet">Timesheet</TabsTrigger>
           <TabsTrigger value="tasks">Attività</TabsTrigger>
-          <TabsTrigger value="documents">Documenti</TabsTrigger>
+          <TabsTrigger value="teams">Team</TabsTrigger>
         </TabsList>
         <TabsContent value="timesheet">
           <Card>
@@ -292,19 +301,72 @@ export default function ProjectDetail({ id }: { id: string }) {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="documents">
+        <TabsContent value="teams">
           <Card>
             <CardHeader>
-              <CardTitle>Documenti</CardTitle>
-              <CardDescription>Documenti associati al progetto</CardDescription>
+              <div className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Team</CardTitle>
+                  <CardDescription>Sviluppatori del team</CardDescription>
+                </div>
+                <Button onClick={() => setShowAddMemberDialog(true)}>
+                  <PlusIcon />
+                  Aggiungi Membro
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-10">
-                <Users className="h-10 w-10 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">
-                  Nessun documento disponibile
-                </p>
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Utente</TableHead>
+                    <TableHead>Ruolo</TableHead>
+                    <TableHead>Data Inizio</TableHead>
+                    <TableHead>Data Fine</TableHead>
+                    <TableHead>Percentuale Allocazione</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {timeEntries.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="text-center py-6 text-muted-foreground"
+                      >
+                        Nessuna registrazione trovata
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    timeEntries?.map((entry, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage
+                                src={
+                                  entry.user.avatar ||
+                                  "/placeholder.svg?height=24&width=24"
+                                }
+                              />
+                              <AvatarFallback>
+                                {entry.user.name.charAt(0)}
+                                {entry.user.surname.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span>
+                              {entry.user.name} {entry.user.surname}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{entry.role}</TableCell>
+                        <TableCell>{entry.date}</TableCell>
+                        <TableCell>{entry.dateEnd}</TableCell>
+                        <TableCell>{entry.percentage}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
@@ -316,6 +378,10 @@ export default function ProjectDetail({ id }: { id: string }) {
         onOpenChange={setShowEditDialog}
         editData={project}
         projectId={id}
+      />
+      <AddProjectMemberDialog
+        open={showAddMemberDialog}
+        onOpenChange={setShowAddMemberDialog}
       />
     </motion.div>
   );
