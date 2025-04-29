@@ -1,15 +1,16 @@
 "use client";
 
 import { useSessionContext } from "@/app/utenti/SessionData";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Portal } from "@radix-ui/react-portal";
 import { motion } from "framer-motion";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Portal } from "@radix-ui/react-portal";
 
+import { DatePicker } from "../custom/DatePicker";
 import {
   Command,
   CommandEmpty,
@@ -35,9 +36,7 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Textarea } from "../ui/textarea";
 import { addMemberProjectSchema } from "./schema";
-import { DatePicker } from "../custom/DatePicker";
 
 export function AddProjectMemberDialog({
   open,
@@ -57,7 +56,6 @@ export function AddProjectMemberDialog({
       start_date: undefined,
     },
   });
-  console.log({ values: form.getValues() });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,129 +68,152 @@ export function AddProjectMemberDialog({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              form.handleSubmit(() => {})(e);
+              form.handleSubmit(() => {
+                console.log("submit", form.getValues());
+              })(e);
             }}
             className="space-y-4"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="user_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome Membro</FormLabel>
-                    <FormControl>
-                      <Popover
-                        open={isPopoverOpen}
-                        onOpenChange={setIsPopoverOpen}
-                      >
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={open}
-                            className="w-[200px] justify-between"
-                          >
-                            {field.value
-                              ? users.find((user) => user.id === field.value)
-                                  ?.name
-                              : "Select framework..."}
-                            <ChevronsUpDown className="opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <Portal>
-                          <PopoverContent className="w-[200px] p-0" forceMount>
-                            <Command>
-                              <CommandInput
-                                placeholder="Search framework..."
-                                className="h-9 pointer-events-auto"
-                              />
-                              <CommandList>
-                                <CommandEmpty>No framework found.</CommandEmpty>
-                                <CommandGroup>
-                                  {users.map((user) => (
-                                    <CommandItem
-                                      key={user.id}
-                                      value={user.name}
-                                      className="pointer-events-auto"
-                                      onSelect={() => {
-                                        field.onChange(user.id);
-                                        setIsPopoverOpen(false);
-                                      }}
-                                    >
-                                      {user.name}
-                                      <Check
-                                        className={cn(
-                                          "ml-auto",
-                                          field.value === user.id
-                                            ? "opacity-100"
-                                            : "opacity-0",
-                                        )}
-                                      />
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Portal>
-                      </Popover>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="col-span-1">
+                <FormField
+                  control={form.control}
+                  name="user_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome Membro</FormLabel>
+                      <FormControl>
+                        <Popover
+                          open={isPopoverOpen}
+                          onOpenChange={setIsPopoverOpen}
+                        >
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={open}
+                              className="w-[250px] justify-between"
+                            >
+                              {field.value
+                                ? users.find((user) => user.id === field.value)
+                                    ?.name
+                                : "Seleziona membro..."}
+                              <ChevronsUpDown className="opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <Portal>
+                            <PopoverContent
+                              className="w-[250px] p-0"
+                              forceMount
+                            >
+                              <Command>
+                                <CommandInput
+                                  placeholder="Seleziona membro..."
+                                  className="h-9 pointer-events-auto"
+                                />
+                                <CommandList>
+                                  <CommandEmpty>
+                                    No framework found.
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    {users.map((user) => (
+                                      <CommandItem
+                                        key={user.id}
+                                        value={user.name}
+                                        className="pointer-events-auto"
+                                        onSelect={() => {
+                                          field.onChange(user.id);
+                                          setIsPopoverOpen(false);
+                                        }}
+                                      >
+                                        {user.name}
+                                        <Check
+                                          className={cn(
+                                            "ml-auto",
+                                            field.value === user.id
+                                              ? "opacity-100"
+                                              : "opacity-0",
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Portal>
+                        </Popover>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="start_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data inizio</FormLabel>
-                    <FormControl>
-                      <DatePicker
-                        {...field}
-                        date={field.value}
-                        setDate={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="end_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cliente</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome del cliente" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="percentage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descrizione</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Descrizione del progetto"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="col-span-1">
+                <FormField
+                  control={form.control}
+                  name="percentage"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Percentuale allocazione</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Nome del cliente"
+                          type="number"
+                          className="w-[250px]"
+                          {...field}
+                          onChange={(e) => {
+                            if (Number(e.target.value) > 100)
+                              field.onChange(100);
+                            else field.onChange(Number(e.target.value));
+                          }}
+                          max={100}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="col-span-1">
+                <FormField
+                  control={form.control}
+                  name="start_date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data inizio</FormLabel>
+                      <FormControl>
+                        <DatePicker
+                          {...field}
+                          date={field.value}
+                          setDate={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="col-span-1">
+                <FormField
+                  control={form.control}
+                  name="end_date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data Fine</FormLabel>
+                      <FormControl>
+                        <DatePicker
+                          {...field}
+                          date={field.value}
+                          setDate={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             <DialogFooter>

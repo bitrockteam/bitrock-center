@@ -12,6 +12,6 @@ export const addProjectSchema = z.object({
 export const addMemberProjectSchema = z.object({
   user_id: z.string({ required_error: "This field is required" }),
   start_date: z.date().optional(),
-  end_date: z.string().optional(),
+  end_date: z.date().optional(),
   percentage: z.number().optional(),
 });
