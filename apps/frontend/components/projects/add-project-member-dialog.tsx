@@ -3,13 +3,14 @@
 import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Portal } from "@radix-ui/react-portal";
 import { motion } from "framer-motion";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useCreateAllocation } from "@/api/useCreateAllocation";
+import { format } from "date-fns";
 import { DatePicker } from "../custom/DatePicker";
 import {
   Command,
@@ -37,8 +38,6 @@ import {
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { addMemberProjectSchema } from "./schema";
-import { useCreateAllocation } from "@/api/useCreateAllocation";
-import { format } from "date-fns";
 
 export function AddProjectMemberDialog({
   open,
@@ -124,47 +123,40 @@ export function AddProjectMemberDialog({
                               <ChevronsUpDown className="opacity-50" />
                             </Button>
                           </PopoverTrigger>
-                          <Portal>
-                            <PopoverContent
-                              className="w-[250px] p-0"
-                              forceMount
-                            >
-                              <Command>
-                                <CommandInput
-                                  placeholder="Seleziona membro..."
-                                  className="h-9 pointer-events-auto"
-                                />
-                                <CommandList>
-                                  <CommandEmpty>
-                                    No framework found.
-                                  </CommandEmpty>
-                                  <CommandGroup>
-                                    {users.map((user) => (
-                                      <CommandItem
-                                        key={user.id}
-                                        value={user.name}
-                                        className="pointer-events-auto"
-                                        onSelect={() => {
-                                          field.onChange(user.id);
-                                          setIsPopoverOpen(false);
-                                        }}
-                                      >
-                                        {user.name}
-                                        <Check
-                                          className={cn(
-                                            "ml-auto",
-                                            field.value === user.id
-                                              ? "opacity-100"
-                                              : "opacity-0",
-                                          )}
-                                        />
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Portal>
+                          <PopoverContent className="w-[250px] p-0">
+                            <Command>
+                              <CommandInput
+                                placeholder="Seleziona membro..."
+                                className="h-9 pointer-events-auto"
+                              />
+                              <CommandList>
+                                <CommandEmpty>No framework found.</CommandEmpty>
+                                <CommandGroup>
+                                  {users.map((user) => (
+                                    <CommandItem
+                                      key={user.id}
+                                      value={user.name}
+                                      className="pointer-events-auto"
+                                      onSelect={() => {
+                                        field.onChange(user.id);
+                                        setIsPopoverOpen(false);
+                                      }}
+                                    >
+                                      {user.name}
+                                      <Check
+                                        className={cn(
+                                          "ml-auto",
+                                          field.value === user.id
+                                            ? "opacity-100"
+                                            : "opacity-0",
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
                         </Popover>
                       </FormControl>
                       <FormMessage />
