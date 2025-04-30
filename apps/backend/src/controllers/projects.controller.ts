@@ -7,7 +7,6 @@ import {
   getProjects,
   updateProject,
 } from "../repository/projects.repository";
-import { IProjectUpsert } from "@bitrock/types";
 
 export const createProjectsController = (app: Express) => {
   app.get(
