@@ -37,16 +37,23 @@ import {
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { addMemberProjectSchema } from "./schema";
+import { useCreateAllocation } from "@/api/useCreateAllocation";
+import { format } from "date-fns";
 
 export function AddProjectMemberDialog({
   open,
   onOpenChange,
+  projectId,
+  refetch,
 }: Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  projectId: string;
+  refetch: () => void;
 }>) {
   const { users } = useSessionContext();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const { createAllocation } = useCreateAllocation();
 
   const form = useForm<z.infer<typeof addMemberProjectSchema>>({
     defaultValues: {
@@ -69,7 +76,23 @@ export function AddProjectMemberDialog({
             onSubmit={(e) => {
               e.preventDefault();
               form.handleSubmit(() => {
-                console.log("submit", form.getValues());
+                const values = form.getValues();
+
+                createAllocation({
+                  project_id: projectId,
+                  start_date: values.start_date
+                    ? format(values.start_date, "yyyy-MM-dd")
+                    : undefined,
+                  end_date: values.end_date
+                    ? format(values.end_date, "yyyy-MM-dd")
+                    : undefined,
+                  percentage: values.percentage,
+                  user_id: values.user_id,
+                }).then(() => {
+                  onOpenChange(false);
+                  form.reset();
+                  refetch();
+                });
               })(e);
             }}
             className="space-y-4"

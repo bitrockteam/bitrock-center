@@ -1,0 +1,76 @@
+import { ICreateAllocation } from "@bitrock/types";
+import { type Express, type Request, type Response } from "express";
+import { authenticateToken } from "../middleware/authMiddleware";
+import { extractInfoFromToken } from "../middleware/extractInfoFromToken";
+import {
+  createAllocation,
+  getAllocationsForProject,
+} from "../repository/allocations.repository";
+
+export const createAllocationsController = (app: Express) => {
+  /**
+   * @swagger
+   *
+   * /user:
+   *   post:
+   *     summary: Create a new user manually
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: User created successfully
+   *       400:
+   *         description: User not provided
+   *       403:
+   *         description: Unauthorized
+   *       409:
+   *         description: User already exists
+   *       500:
+   *         description: Error performing the request
+   */
+  app.post(
+    "/allocation",
+    authenticateToken,
+    async (req: Request, res: Response) => {
+      try {
+        const user = await extractInfoFromToken(req);
+        if (!user) return res.status(403).send("Unauthorized");
+
+        const allocationRequest = req.body as ICreateAllocation;
+        if (!allocationRequest.user_id)
+          return res.status(400).send("User not provided");
+        if (!allocationRequest.project_id)
+          return res.status(400).send("Project not provided");
+
+        const newAllocation = await createAllocation(allocationRequest);
+
+        return res.status(200).send({ allocation: newAllocation });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Error performing the request" });
+      }
+    },
+  );
+
+  app.get(
+    "/allocations/:project_id",
+    authenticateToken,
+    async (req: Request, res: Response) => {
+      try {
+        const user = await extractInfoFromToken(req);
+        if (!user) return res.status(403).send("Unauthorized");
+
+        const project_id = req.params.project_id;
+
+        if (!project_id) return res.status(400).send("Project not provided");
+
+        const allocations = await getAllocationsForProject(project_id);
+
+        return res.status(200).send(allocations);
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Error performing the request" });
+      }
+    },
+  );
+};
