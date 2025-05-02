@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { useCreateAllocation } from "@/api/useCreateAllocation";
 import { useGetProjectsUsersAvailable } from "@/api/useGetProjectsUsersAvailable";
+import { useSessionContext } from "@/app/utenti/SessionData";
 import { format } from "date-fns";
 import { DatePicker } from "../custom/DatePicker";
 import { Loader } from "../custom/Loader";
@@ -39,21 +40,34 @@ import {
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { addMemberProjectSchema } from "./schema";
+import { useUpdateAllocation } from "@/api/useUpdateAllocation";
 
 export function AddProjectMemberDialog({
   open,
   onOpenChange,
   projectId,
   refetch,
+  isEdit,
+  initialData,
 }: Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
   refetch: () => void;
+  isEdit: boolean;
+  initialData?: {
+    user_id: string;
+    start_date?: Date;
+    end_date?: Date;
+    percentage?: number;
+  };
 }>) {
-  const { users, isLoading } = useGetProjectsUsersAvailable(projectId);
+  const { users } = useSessionContext();
+  const { users: usersAvailable, isLoading } =
+    useGetProjectsUsersAvailable(projectId);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { createAllocation } = useCreateAllocation();
+  const { updateAllocation } = useUpdateAllocation();
 
   const form = useForm<z.infer<typeof addMemberProjectSchema>>({
     defaultValues: {
@@ -63,6 +77,21 @@ export function AddProjectMemberDialog({
       start_date: undefined,
     },
   });
+
+  const getUsers = () => {
+    return isEdit ? users : usersAvailable;
+  };
+
+  useEffect(() => {
+    if (isEdit && initialData) {
+      form.reset({
+        user_id: initialData.user_id,
+        start_date: initialData.start_date ?? undefined,
+        end_date: initialData.end_date ?? undefined,
+        percentage: initialData.percentage ?? 100,
+      });
+    }
+  }, [form, initialData, isEdit, usersAvailable]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -81,22 +110,36 @@ export function AddProjectMemberDialog({
                   e.preventDefault();
                   form.handleSubmit(() => {
                     const values = form.getValues();
-
-                    createAllocation({
-                      project_id: projectId,
-                      start_date: values.start_date
-                        ? format(values.start_date, "yyyy-MM-dd")
-                        : undefined,
-                      end_date: values.end_date
-                        ? format(values.end_date, "yyyy-MM-dd")
-                        : undefined,
-                      percentage: values.percentage,
-                      user_id: values.user_id,
-                    }).then(() => {
-                      onOpenChange(false);
-                      form.reset();
-                      refetch();
-                    });
+                    if (isEdit) {
+                      updateAllocation(projectId, values.user_id, {
+                        start_date: values.start_date
+                          ? format(values.start_date, "yyyy-MM-dd")
+                          : undefined,
+                        end_date: values.end_date
+                          ? format(values.end_date, "yyyy-MM-dd")
+                          : undefined,
+                        percentage: values.percentage ?? 100,
+                      }).then(() => {
+                        onOpenChange(false);
+                        form.reset();
+                        refetch();
+                      });
+                    } else
+                      createAllocation({
+                        project_id: projectId,
+                        start_date: values.start_date
+                          ? format(values.start_date, "yyyy-MM-dd")
+                          : undefined,
+                        end_date: values.end_date
+                          ? format(values.end_date, "yyyy-MM-dd")
+                          : undefined,
+                        percentage: values.percentage,
+                        user_id: values.user_id,
+                      }).then(() => {
+                        onOpenChange(false);
+                        form.reset();
+                        refetch();
+                      });
                   })(e);
                 }}
                 className="space-y-4"
@@ -120,9 +163,11 @@ export function AddProjectMemberDialog({
                                   role="combobox"
                                   aria-expanded={open}
                                   className="w-[250px] justify-between"
+                                  disabled={isEdit}
                                 >
-                                  {field.value
-                                    ? users.find(
+                                  {field.value &&
+                                  getUsers().some((u) => u.id === field.value)
+                                    ? getUsers().find(
                                         (user) => user.id === field.value,
                                       )?.name
                                     : "Seleziona membro..."}
@@ -137,10 +182,10 @@ export function AddProjectMemberDialog({
                                   />
                                   <CommandList>
                                     <CommandEmpty>
-                                      No framework found.
+                                      Nessun membro disponibile
                                     </CommandEmpty>
                                     <CommandGroup>
-                                      {users.map((user) => (
+                                      {getUsers().map((user) => (
                                         <CommandItem
                                           key={user.id}
                                           value={user.name}
@@ -182,7 +227,7 @@ export function AddProjectMemberDialog({
                           <FormLabel>Percentuale allocazione</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Nome del cliente"
+                              autoFocus={false}
                               type="number"
                               className="w-[250px]"
                               {...field}

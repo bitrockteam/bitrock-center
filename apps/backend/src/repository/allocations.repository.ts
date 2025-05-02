@@ -1,4 +1,8 @@
-import { IAllocation, ICreateAllocation } from "@bitrock/types";
+import {
+  IAllocation,
+  ICreateAllocation,
+  IUpdateAllocation,
+} from "@bitrock/types";
 import { sql } from "../config/postgres";
 
 export async function createAllocation(allocation: ICreateAllocation) {
@@ -29,4 +33,14 @@ export async function getAllocationsForProject(
         },
       }) as IAllocation,
   );
+}
+
+export async function updateAllocationForUser(
+  project_id: string,
+  user_id: string,
+  allocation: IUpdateAllocation,
+) {
+  const res =
+    await sql`UPDATE public."ALLOCATIONS" SET start_date = ${allocation.start_date ?? null}, end_date = ${allocation.end_date ?? null}, percentage = ${allocation.percentage ?? 100} WHERE user_id = ${user_id} AND project_id = ${project_id} RETURNING *`;
+  return res[0] as ICreateAllocation;
 }

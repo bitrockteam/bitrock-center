@@ -1,10 +1,11 @@
-import { ICreateAllocation } from "@bitrock/types";
+import { ICreateAllocation, IUpdateAllocation } from "@bitrock/types";
 import { type Express, type Request, type Response } from "express";
 import { authenticateToken } from "../middleware/authMiddleware";
 import { extractInfoFromToken } from "../middleware/extractInfoFromToken";
 import {
   createAllocation,
   getAllocationsForProject,
+  updateAllocationForUser,
 } from "../repository/allocations.repository";
 
 export const createAllocationsController = (app: Express) => {
@@ -67,6 +68,36 @@ export const createAllocationsController = (app: Express) => {
         const allocations = await getAllocationsForProject(project_id);
 
         return res.status(200).send(allocations);
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Error performing the request" });
+      }
+    },
+  );
+
+  app.patch(
+    "/allocation/:project_id/:user_id",
+    authenticateToken,
+    async (req: Request, res: Response) => {
+      try {
+        const user = await extractInfoFromToken(req);
+        if (!user) return res.status(403).send("Unauthorized");
+
+        const project_id = req.params.project_id;
+        const user_id = req.params.user_id;
+
+        if (!project_id) return res.status(400).send("Project not provided");
+        if (!user_id) return res.status(400).send("User not provided");
+
+        const allocationRequest = req.body as IUpdateAllocation;
+
+        const updatedAllocation = await updateAllocationForUser(
+          project_id,
+          user_id,
+          allocationRequest,
+        );
+
+        return res.status(200).send({ allocation: updatedAllocation });
       } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "Error performing the request" });

@@ -22,14 +22,16 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDisplayName } from "@/services/users/utils";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Calendar,
   Clock,
   Edit,
+  Pencil,
   PlusIcon,
+  Trash2,
   Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -41,6 +43,15 @@ import { AddProjectMemberDialog } from "./add-project-member-dialog";
 export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedMember, setEditedMember] = useState<{
+    user_id: string;
+    percentage?: number;
+    start_date?: Date;
+    end_date?: Date;
+  }>({
+    user_id: "",
+  });
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
 
   const { project, isLoading } = useGetProjectById(id);
@@ -234,6 +245,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                     <TableHead>Data Inizio</TableHead>
                     <TableHead>Data Fine</TableHead>
                     <TableHead>Percentuale Allocazione</TableHead>
+                    <TableHead>{""}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -282,6 +294,60 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                             : "-"}
                         </TableCell>
                         <TableCell>{entry.percentage}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-row items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              className="cursor-pointer"
+                              size="icon"
+                              onClick={() => {
+                                console.log({
+                                  startDate: entry.start_date
+                                    ? parse(
+                                        format(entry.start_date, "dd-MM-yyyy"),
+                                        "dd-MM-yyyy",
+                                        new Date(),
+                                      )
+                                    : undefined,
+                                  startDate2: entry.start_date,
+                                });
+
+                                setEditedMember({
+                                  user_id: entry.user_id,
+                                  percentage: entry.percentage ?? 100,
+                                  start_date: entry.start_date
+                                    ? parse(
+                                        format(entry.start_date, "dd-MM-yyyy"),
+                                        "dd-MM-yyyy",
+                                        new Date(),
+                                      )
+                                    : undefined,
+                                  end_date: entry.end_date
+                                    ? parse(
+                                        format(entry.end_date, "dd-MM-yyyy"),
+                                        "dd-MM-yyyy",
+                                        new Date(),
+                                      )
+                                    : undefined,
+                                });
+                                setIsEditMode(true);
+                                setShowAddMemberDialog(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              className="cursor-pointer"
+                              size="icon"
+                              onClick={() => {
+                                // handleDelete(entry);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -348,9 +414,15 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
       />
       <AddProjectMemberDialog
         open={showAddMemberDialog}
-        onOpenChange={setShowAddMemberDialog}
+        onOpenChange={() => {
+          setShowAddMemberDialog(false);
+          setIsEditMode(false);
+          setEditedMember({ user_id: "" });
+        }}
         projectId={id}
         refetch={fetchAllocations}
+        isEdit={isEditMode}
+        initialData={editedMember}
       />
     </motion.div>
   );

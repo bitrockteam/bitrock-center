@@ -18,3 +18,9 @@ export interface IAllocation {
   user_avatar_url?: string;
   user_role: IRole;
 }
+
+export interface IUpdateAllocation {
+  start_date?: string;
+  end_date?: string;
+  percentage?: number;
+}
