@@ -271,8 +271,16 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                           </div>
                         </TableCell>
                         <TableCell>{entry.user_role.label}</TableCell>
-                        <TableCell>{entry.start_date ?? "-"}</TableCell>
-                        <TableCell>{entry.end_date ?? "-"}</TableCell>
+                        <TableCell>
+                          {entry.start_date
+                            ? format(entry.start_date, "dd-MM-yyyy")
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          {entry.end_date
+                            ? format(entry.end_date, "dd-MM-yyyy")
+                            : "-"}
+                        </TableCell>
                         <TableCell>{entry.percentage}</TableCell>
                       </TableRow>
                     ))
