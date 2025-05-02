@@ -55,7 +55,13 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
   });
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [deletedMemberId, setDeletedMemberId] = useState<string | null>(null);
+  const [deletedMemberId, setDeletedMemberId] = useState<{
+    name: string;
+    user_id: string;
+  }>({
+    name: "",
+    user_id: "",
+  });
 
   const { project, isLoading } = useGetProjectById(id);
   const { allocations: timeEntries, fetchAllocations } =
@@ -261,14 +267,14 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    timeEntries?.map((entry, index) => (
-                      <TableRow key={index}>
+                    timeEntries?.map((entry) => (
+                      <TableRow key={`${entry.project_id}-${entry.user_id}`}>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Avatar className="h-6 w-6">
                               <AvatarImage
                                 src={
-                                  entry.user_avatar_url ||
+                                  entry.user_avatar_url ??
                                   "/placeholder.svg?height=24&width=24"
                                 }
                               />
@@ -343,7 +349,10 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                               className="cursor-pointer"
                               size="icon"
                               onClick={() => {
-                                setDeletedMemberId(entry.user_id);
+                                setDeletedMemberId({
+                                  user_id: entry.user_id,
+                                  name: entry.user_name,
+                                });
                                 setShowDeleteDialog(true);
                               }}
                             >
@@ -431,8 +440,9 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
         project_id={project.id}
-        user_id={deletedMemberId ?? ""}
+        user={deletedMemberId}
         refetch={fetchAllocations}
+        project_name={project.name}
       />
     </motion.div>
   );

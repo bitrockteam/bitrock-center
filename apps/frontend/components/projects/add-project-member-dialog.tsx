@@ -41,6 +41,7 @@ import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { addMemberProjectSchema } from "./schema";
 import { useUpdateAllocation } from "@/api/useUpdateAllocation";
+import { toast } from "sonner";
 
 export function AddProjectMemberDialog({
   open,
@@ -122,6 +123,7 @@ export function AddProjectMemberDialog({
                       }).then(() => {
                         onOpenChange(false);
                         form.reset();
+                        toast.success("Allocazione aggiornata con successo");
                         refetch();
                       });
                     } else
@@ -139,6 +141,7 @@ export function AddProjectMemberDialog({
                       }).then(() => {
                         onOpenChange(false);
                         form.reset();
+                        toast.success("Allocazione creata con successo");
                         refetch();
                       });
                   })(e);
