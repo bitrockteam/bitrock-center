@@ -181,9 +181,13 @@ export function AddProjectMemberDialog({
                           onChange={(e) => {
                             if (Number(e.target.value) > 100)
                               field.onChange(100);
+                            else if (Number(e.target.value) < 5)
+                              field.onChange(5);
                             else field.onChange(Number(e.target.value));
                           }}
                           max={100}
+                          min={5}
+                          step={5}
                         />
                       </FormControl>
                       <FormMessage />
