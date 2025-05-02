@@ -4,6 +4,7 @@ import { authenticateToken } from "../middleware/authMiddleware";
 import { extractInfoFromToken } from "../middleware/extractInfoFromToken";
 import {
   createAllocation,
+  deleteAllocationForUser,
   getAllocationsForProject,
   updateAllocationForUser,
 } from "../repository/allocations.repository";
@@ -98,6 +99,30 @@ export const createAllocationsController = (app: Express) => {
         );
 
         return res.status(200).send({ allocation: updatedAllocation });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Error performing the request" });
+      }
+    },
+  );
+
+  app.delete(
+    "/allocation/:project_id/:user_id",
+    authenticateToken,
+    async (req: Request, res: Response) => {
+      try {
+        const user = await extractInfoFromToken(req);
+        if (!user) return res.status(403).send("Unauthorized");
+
+        const project_id = req.params.project_id;
+        const user_id = req.params.user_id;
+
+        if (!project_id) return res.status(400).send("Project not provided");
+        if (!user_id) return res.status(400).send("User not provided");
+
+        await deleteAllocationForUser(project_id, user_id);
+
+        return res.status(200).send({ message: "Allocation deleted" });
       } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "Error performing the request" });

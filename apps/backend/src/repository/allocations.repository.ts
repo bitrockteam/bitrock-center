@@ -44,3 +44,12 @@ export async function updateAllocationForUser(
     await sql`UPDATE public."ALLOCATIONS" SET start_date = ${allocation.start_date ?? null}, end_date = ${allocation.end_date ?? null}, percentage = ${allocation.percentage ?? 100} WHERE user_id = ${user_id} AND project_id = ${project_id} RETURNING *`;
   return res[0] as ICreateAllocation;
 }
+
+export async function deleteAllocationForUser(
+  project_id: string,
+  user_id: string,
+) {
+  const res =
+    await sql`DELETE FROM public."ALLOCATIONS" WHERE user_id = ${user_id} AND project_id = ${project_id}`;
+  return res[0] as ICreateAllocation;
+}

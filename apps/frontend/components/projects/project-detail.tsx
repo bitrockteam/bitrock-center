@@ -39,6 +39,7 @@ import { useState } from "react";
 import { Loader } from "../custom/Loader";
 import AddProjectDialog from "./add-project-dialog";
 import { AddProjectMemberDialog } from "./add-project-member-dialog";
+import { DeleteAllocationDialog } from "./delete-allocation-dialog";
 
 export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
@@ -53,11 +54,12 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
     user_id: "",
   });
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletedMemberId, setDeletedMemberId] = useState<string | null>(null);
 
   const { project, isLoading } = useGetProjectById(id);
   const { allocations: timeEntries, fetchAllocations } =
     useGetAllocationsForProject(id);
-  console.log({ timeEntries });
 
   if (isLoading)
     return (
@@ -341,7 +343,8 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                               className="cursor-pointer"
                               size="icon"
                               onClick={() => {
-                                // handleDelete(entry);
+                                setDeletedMemberId(entry.user_id);
+                                setShowDeleteDialog(true);
                               }}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -423,6 +426,13 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
         refetch={fetchAllocations}
         isEdit={isEditMode}
         initialData={editedMember}
+      />
+      <DeleteAllocationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        project_id={project.id}
+        user_id={deletedMemberId ?? ""}
+        refetch={fetchAllocations}
       />
     </motion.div>
   );

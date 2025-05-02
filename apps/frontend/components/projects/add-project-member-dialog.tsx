@@ -127,9 +127,10 @@ export function AddProjectMemberDialog({
                     } else
                       createAllocation({
                         project_id: projectId,
-                        start_date: values.start_date
-                          ? format(values.start_date, "yyyy-MM-dd")
-                          : undefined,
+                        start_date: format(
+                          values.start_date ?? new Date(),
+                          "yyyy-MM-dd",
+                        ),
                         end_date: values.end_date
                           ? format(values.end_date, "yyyy-MM-dd")
                           : undefined,
