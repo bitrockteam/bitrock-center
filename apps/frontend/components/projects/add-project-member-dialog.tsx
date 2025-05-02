@@ -10,8 +10,10 @@ import { z } from "zod";
 
 import { useCreateAllocation } from "@/api/useCreateAllocation";
 import { useGetProjectsUsersAvailable } from "@/api/useGetProjectsUsersAvailable";
+import { useUpdateAllocation } from "@/api/useUpdateAllocation";
 import { useSessionContext } from "@/app/utenti/SessionData";
-import { format } from "date-fns";
+import { format, isBefore } from "date-fns";
+import { toast } from "sonner";
 import { DatePicker } from "../custom/DatePicker";
 import { Loader } from "../custom/Loader";
 import {
@@ -40,8 +42,6 @@ import {
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { addMemberProjectSchema } from "./schema";
-import { useUpdateAllocation } from "@/api/useUpdateAllocation";
-import { toast } from "sonner";
 
 export function AddProjectMemberDialog({
   open,
@@ -283,6 +283,22 @@ export function AddProjectMemberDialog({
                               {...field}
                               date={field.value}
                               setDate={field.onChange}
+                              onDisableDate={(date) => {
+                                if (!form.getValues().start_date) return false;
+                                const dateString = format(date, "yyyy-MM-dd");
+
+                                if (
+                                  isBefore(
+                                    dateString,
+                                    format(
+                                      form.getValues().start_date!,
+                                      "yyyy-MM-dd",
+                                    ),
+                                  )
+                                )
+                                  return true;
+                                return false;
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
