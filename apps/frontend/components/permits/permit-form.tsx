@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -25,28 +19,67 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { getUserSummary } from "@/lib/mock-data";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
+import { useAuth } from "@/app/(auth)/AuthProvider";
+import { useEffect, useState } from "react";
+import { useCreatePermit } from "@/api/useCreatePermit";
 
-export default function LeaveRequestForm() {
-  const summary = getUserSummary();
+interface PermitFormValues {
+  type: string;
+  startDate: string;
+  endDate: string;
+  duration: string;
+  description: string;
+}
 
-  const form = useForm({
+export default function PermitRequestForm() {
+  const { user } = useAuth();
+  const { createPermit } = useCreatePermit();
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const form = useForm<PermitFormValues>({
     defaultValues: {
       type: "",
       startDate: "",
       endDate: "",
-      reason: "",
+      duration: "",
+      description: "",
     },
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = (data: any) => {
-    console.log(data);
-    // Here you would normally save the data
-    form.reset();
+  const onSubmit = async (data: PermitFormValues) => {
+    setErrorMessage("");
+
+    const payload = {
+      userId: user!.id,
+      type: data.type,
+      startDate: new Date(data.startDate),
+      endDate: data.endDate ? new Date(data.endDate) : undefined,
+      duration: data.type === "sickness" ? 8 : parseFloat(data.duration),
+      description: data.description,
+      status: "pending",
+      reviewerId: user!.id,
+    };
+
+    const result = await createPermit(payload);
+
+    if (result) {
+      form.reset();
+      alert("Richiesta inviata con successo");
+    } else {
+      setErrorMessage("Creazione permesso fallita o limite superato (8h).");
+    }
   };
+
+  useEffect(() => {
+    if (form.watch("type") === "sickness") {
+      form.setValue("duration", "8");
+    } else {
+      form.setValue("duration", "0");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.watch("type")]);
 
   return (
     <motion.div
@@ -56,10 +89,7 @@ export default function LeaveRequestForm() {
     >
       <Card>
         <CardHeader>
-          <CardTitle>Nuova Richiesta</CardTitle>
-          <CardDescription>
-            Hai {summary.vacationDaysLeft} giorni di ferie disponibili
-          </CardDescription>
+          <CardTitle>Richiedi Permesso</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -67,6 +97,7 @@ export default function LeaveRequestForm() {
               <FormField
                 control={form.control}
                 name="type"
+                rules={{ required: "Tipo richiesto" }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipo di Richiesta</FormLabel>
@@ -90,13 +121,28 @@ export default function LeaveRequestForm() {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="startDate"
+                rules={{ required: "Data richiesta" }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Data</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {form.watch("type") === "vacation" && (
                 <FormField
                   control={form.control}
                   name="startDate"
+                  rules={{ required: "Data richiesta" }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Data Inizio</FormLabel>
+                      <FormLabel>Data</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -104,25 +150,40 @@ export default function LeaveRequestForm() {
                     </FormItem>
                   )}
                 />
+              )}
 
+              {form.watch("type") !== "vacation" && (
                 <FormField
                   control={form.control}
-                  name="endDate"
+                  rules={{
+                    required: "Durata richiesta",
+                    validate: (value) =>
+                      parseFloat(value) > 0 ||
+                      "Durata deve essere maggiore di 0",
+                  }}
+                  name="duration"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Data Fine</FormLabel>
+                      <FormLabel>Durata (in ore)</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          max="8"
+                          {...field}
+                          disabled={form.watch("type") === "sickness"}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
+              )}
 
               <FormField
                 control={form.control}
-                name="reason"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Motivazione</FormLabel>
@@ -136,6 +197,10 @@ export default function LeaveRequestForm() {
                   </FormItem>
                 )}
               />
+
+              {errorMessage && (
+                <p className="text-red-500 text-sm">{errorMessage}</p>
+              )}
 
               <motion.div
                 className="pt-2"

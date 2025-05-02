@@ -5,7 +5,8 @@ export interface IPermit {
   duration: number;
   description: string;
   type: string;
-  date: Date;
+  startDate: Date;
+  endDate?: Date;
   status: string;
   reviewerId: string;
 }
@@ -15,7 +16,8 @@ export interface IPermitUpsert {
   duration: number;
   description: string;
   type: string;
-  date: Date;
+  startDate: Date;
+  endDate?: Date;
   status: string;
   reviewerId: string;
 }

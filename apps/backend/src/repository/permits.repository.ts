@@ -10,10 +10,11 @@ export async function getPermitsByUser(userId: string): Promise<IPermit[]> {
       p.duration,
       p.description,
       p.type,
-      p.date,
+      p.start_date,
+      p.end_date,
       p.status,
       p.reviewer_id
-    FROM public."permits" p
+    FROM public."PERMITS" p
     WHERE p.user_id = ${userId}
   `;
 
@@ -24,7 +25,8 @@ export async function getPermitsByUser(userId: string): Promise<IPermit[]> {
     duration: parseFloat(row.duration),
     description: row.description,
     type: row.type,
-    date: new Date(row.date),
+    startDate: new Date(row.start_date),
+    endDate: row.end_date ? new Date(row.end_date) : undefined,
     status: row.status,
     reviewerId: row.reviewer_id,
   }));
@@ -35,7 +37,7 @@ export async function getPermitsByReviewer(
 ): Promise<IPermit[]> {
   const rows = await sql`
     SELECT 
-      id, created_at, user_id, duration, description, type, date, status, reviewer_id
+      id, created_at, user_id, duration, description, type, start_date, end_date, status, reviewer_id
     FROM public."PERMITS"
     WHERE reviewer_id = ${reviewerId}
   `;
@@ -47,7 +49,8 @@ export async function getPermitsByReviewer(
     duration: parseFloat(row.duration),
     description: row.description,
     type: row.type,
-    date: new Date(row.date),
+    startDate: new Date(row.start_date),
+    endDate: row.end_date ? new Date(row.end_date) : undefined,
     status: row.status,
     reviewerId: row.reviewer_id,
   }));
@@ -62,10 +65,11 @@ export async function getPermitById(id: string): Promise<IPermit | null> {
       duration,
       description,
       type,
-      date,
+      start_date,
+      end_date,
       status,
       reviewer_id
-    FROM public."permits"
+    FROM public."PERMITS"
     WHERE id = ${id}
     LIMIT 1
   `;
@@ -80,21 +84,46 @@ export async function getPermitById(id: string): Promise<IPermit | null> {
     duration: parseFloat(row.duration),
     description: row.description,
     type: row.type,
-    date: new Date(row.date),
+    startDate: new Date(row.start_date),
+    endDate: row.end_date ? new Date(row.end_date) : undefined,
     status: row.status,
     reviewerId: row.reviewer_id,
   };
 }
 
 export async function createPermit(input: IPermitUpsert): Promise<IPermit> {
-  const { userId, duration, description, type, date, status, reviewerId } =
-    input;
+  const {
+    userId,
+    startDate,
+    endDate,
+    duration,
+    description,
+    type,
+    reviewerId,
+    status,
+  } = input;
+
+  const endDateString = endDate ? `AND end_date = ${endDate}` : "";
+
+  console.log("Creating permit with input:", input);
+
+  const result = await sql`
+    SELECT COALESCE(SUM(duration), 0) AS total
+    FROM public."PERMITS"
+    WHERE user_id = ${userId} AND start_date = ${startDate}
+  `;
+
+  const totalDuration = parseFloat(result[0].total) || 0;
+
+  if (totalDuration + duration > 8) {
+    throw new Error("Total duration for this date exceeds 8 hours.");
+  }
 
   const res = await sql`
-    INSERT INTO public."permits" (
-      user_id, duration, description, type, date, status, reviewer_id, created_at
+    INSERT INTO public."PERMITS" (
+      user_id, duration, description, type, start_date, status, reviewer_id, end_date
     ) VALUES (
-      ${userId}, ${duration}, ${description}, ${type}, ${date}, ${status}, ${reviewerId}, NOW()
+      ${userId}, ${duration}, ${description}, ${type}, ${startDate}, ${status}, ${reviewerId}, ${endDate || null}
     ) RETURNING id
   `;
 
@@ -104,58 +133,80 @@ export async function createPermit(input: IPermitUpsert): Promise<IPermit> {
   return (await getPermitById(id)) as IPermit;
 }
 
-export const updatePermit = async (
+export async function updatePermit(
   input: IPermitUpsert & { id: string },
-): Promise<IPermit | null> => {
-  const { id, userId, description, duration, type, date, reviewerId } = input;
+): Promise<IPermit | null> {
+  const { id, userId, description, duration, type, startDate, endDate } = input;
 
-  const existing = await sql`
-    SELECT status FROM public."PERMITS" WHERE id = ${id}
-  `;
+  const endDateString = endDate ? `AND end_date = ${endDate}` : "";
+  const endDateStringEdit = endDate ? `end_date = ${endDate},` : "";
 
-  if (existing.length === 0) return null;
-
-  const currentStatus = existing[0].status;
-
-  if (currentStatus === "approved") {
-    throw new Error("Approved permits cannot be edited");
-  }
-
-  const newStatus = currentStatus === "rejected" ? "pending" : currentStatus;
-
-  await sql`
-    UPDATE public."PERMITS"
-    SET
-      user_id = ${userId},
-      description = ${description},
-      duration = ${duration},
-      type = ${type},
-      date = ${date},
-      reviewer_id = ${reviewerId},
-      status = ${newStatus}
+  // Get existing permit data
+  const [existing] = await sql`
+    SELECT status, duration
+    FROM public."PERMITS"
     WHERE id = ${id}
   `;
 
-  const [row] = await sql`
-    SELECT * FROM public."PERMITS" WHERE id = ${id}
+  if (!existing) return null;
+
+  if (existing.status === "approved") {
+    throw new Error("Cannot edit an approved permit.");
+  }
+
+  // Check total duration of other permits on the same date
+  const result = await sql`
+    SELECT COALESCE(SUM(duration), 0) AS total
+    FROM public."PERMITS"
+    WHERE user_id = ${userId} AND start_date = ${startDate} AND id != ${id} ${endDateString}
+  `;
+
+  const otherDuration = parseFloat(result[0].total) || 0;
+
+  if (otherDuration + duration > 8) {
+    throw new Error("Total daily duration exceeds 8 hours.");
+  }
+
+  // If the status was rejected, reset it to pending
+  const newStatus =
+    existing.status === "rejected" ? "pending" : existing.status;
+
+  // Update the permit
+  await sql`
+    UPDATE public."PERMITS"
+    SET description = ${description},
+        duration = ${duration},
+        type = ${type},
+        start_date = ${startDate},
+        ${endDateStringEdit}
+        status = ${newStatus}
+    WHERE id = ${id}
+  `;
+
+  // Return the updated permit
+  const [updated] = await sql`
+    SELECT *
+    FROM public."PERMITS"
+    WHERE id = ${id}
   `;
 
   return {
-    id: row.id,
-    userId: row.user_id,
-    description: row.description,
-    duration: row.duration,
-    type: row.type,
-    date: row.date,
-    createdAt: row.created_at,
-    status: row.status,
-    reviewerId: row.reviewer_id,
+    id: updated.id,
+    userId: updated.user_id,
+    reviewerId: updated.reviewer_id,
+    description: updated.description,
+    duration: parseFloat(updated.duration),
+    type: updated.type,
+    startDate: updated.start_date,
+    endDate: updated.end_date,
+    status: updated.status,
+    createdAt: updated.created_at,
   };
-};
+}
 
 export async function deletePermit(id: string): Promise<boolean> {
   const result = await sql`
-    DELETE FROM public."permits" WHERE id = ${id}
+    DELETE FROM public."PERMITS" WHERE id = ${id}
   `;
   return result.count > 0;
 }
@@ -167,7 +218,7 @@ export async function updatePermitStatus(
 ): Promise<boolean> {
   // Fetch current status
   const existing = await sql`
-    SELECT status FROM public."permits" WHERE id = ${id}
+    SELECT status FROM public."PERMITS" WHERE id = ${id}
   `;
 
   if (existing.length === 0) return false;
@@ -180,7 +231,7 @@ export async function updatePermitStatus(
   }
 
   const result = await sql`
-    UPDATE public."permits"
+    UPDATE public."PERMITS"
     SET status = ${status}
     WHERE id = ${id}
   `;
