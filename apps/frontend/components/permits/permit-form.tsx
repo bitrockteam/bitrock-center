@@ -22,8 +22,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/app/(auth)/AuthProvider";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useCreatePermit } from "@/api/useCreatePermit";
+import { useGetUsers } from "@/api/useGetUsers";
 
 interface PermitFormValues {
   type: string;
@@ -31,10 +32,12 @@ interface PermitFormValues {
   endDate: string;
   duration: string;
   description: string;
+  reviewerId: string;
 }
 
 export default function PermitRequestForm() {
   const { user } = useAuth();
+  const { users } = useGetUsers();
   const { createPermit } = useCreatePermit();
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -45,6 +48,7 @@ export default function PermitRequestForm() {
       endDate: "",
       duration: "",
       description: "",
+      reviewerId: "",
     },
   });
 
@@ -56,10 +60,10 @@ export default function PermitRequestForm() {
       type: data.type,
       startDate: new Date(data.startDate),
       endDate: data.endDate ? new Date(data.endDate) : undefined,
-      duration: data.type === "sickness" ? 8 : parseFloat(data.duration),
+      duration: data.type === "permits" ? parseFloat(data.duration) : 8,
       description: data.description,
       status: "pending",
-      reviewerId: user!.id,
+      reviewerId: data.reviewerId,
     };
 
     const result = await createPermit(payload);
@@ -71,15 +75,6 @@ export default function PermitRequestForm() {
       setErrorMessage("Creazione permesso fallita o limite superato (8h).");
     }
   };
-
-  useEffect(() => {
-    if (form.watch("type") === "sickness") {
-      form.setValue("duration", "8");
-    } else {
-      form.setValue("duration", "0");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.watch("type")]);
 
   return (
     <motion.div
@@ -127,7 +122,9 @@ export default function PermitRequestForm() {
                 rules={{ required: "Data richiesta" }}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Data</FormLabel>
+                    <FormLabel>
+                      Data {form.watch("type") !== "permit" && "Inizio"}
+                    </FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -135,14 +132,14 @@ export default function PermitRequestForm() {
                   </FormItem>
                 )}
               />
-              {form.watch("type") === "vacation" && (
+              {form.watch("type") !== "permit" && (
                 <FormField
                   control={form.control}
-                  name="startDate"
+                  name="endDate"
                   rules={{ required: "Data richiesta" }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Data</FormLabel>
+                      <FormLabel>Data Fine</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -152,7 +149,7 @@ export default function PermitRequestForm() {
                 />
               )}
 
-              {form.watch("type") !== "vacation" && (
+              {form.watch("type") === "permit" && (
                 <FormField
                   control={form.control}
                   rules={{
@@ -180,6 +177,36 @@ export default function PermitRequestForm() {
                   )}
                 />
               )}
+
+              <FormField
+                control={form.control}
+                rules={{ required: "Responsabile richiesto" }}
+                name="reviewerId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Responsabile</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona Responsabile" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {users.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
