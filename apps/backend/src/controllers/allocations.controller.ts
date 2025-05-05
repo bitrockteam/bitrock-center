@@ -44,6 +44,10 @@ export const createAllocationsController = (app: Express) => {
         if (!allocationRequest.project_id)
           return res.status(400).send("Project not provided");
 
+        if (allocationRequest.start_date && allocationRequest.end_date && allocationRequest.start_date > allocationRequest.end_date) {
+            return res.status(400).send("Start date must be before end date");
+        }
+
         const newAllocation = await createAllocation(allocationRequest);
 
         return res.status(200).send({ allocation: newAllocation });
