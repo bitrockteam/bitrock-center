@@ -23,7 +23,7 @@ export function DatePicker({
     <Popover>
       <PopoverTrigger asChild>
         <div className="relative">
-          <Input value={date ? format(date, "dd/MM/yyyy") : "Seleziona una data"} className="pl-10"/>
+          <Input value={date ? format(date, "dd/MM/yyyy") : "Seleziona una data"} className="pl-10" onChange={() => {}}/>
           <CalendarIcon className="absolute top-[6px] left-2 cursor-pointer scale-80"/>
           { date && <XIcon className="absolute top-[6px] right-2 cursor-pointer scale-85" onClick={(evt) => {
             evt.stopPropagation()
