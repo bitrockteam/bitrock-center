@@ -7,7 +7,7 @@ export const useChangePermitStatus = () => {
   const changeStatus = async (id: string, status: string): Promise<boolean> => {
     try {
       const res = await fetch(
-        `${SERVERL_BASE_URL}/permits/change-status/${id}`,
+        `${SERVERL_BASE_URL}/permits/${id}/change-status`,
         {
           method: "PATCH",
           headers: {

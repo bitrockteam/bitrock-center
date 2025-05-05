@@ -123,12 +123,15 @@ export const createPermitsController = (app: Express) => {
   );
 
   // New route to approve the permit (change status)
-  app.post(
+  app.patch(
     "/permits/:id/change-status",
     authenticateToken,
     async (req: Request, res: Response) => {
       try {
-        const success = await updatePermitStatus(req.params.id, "approved");
+        const success = await updatePermitStatus(
+          req.params.id,
+          req.body.status,
+        );
 
         if (!success) {
           return res.status(404).json({ error: "Permit not found" });
