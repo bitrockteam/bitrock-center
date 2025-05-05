@@ -42,6 +42,7 @@ import {
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { addMemberProjectSchema } from "./schema";
+import {zodResolver} from "@hookform/resolvers/zod";
 
 export function AddProjectMemberDialog({
   open,
@@ -72,11 +73,12 @@ export function AddProjectMemberDialog({
 
   const form = useForm<z.infer<typeof addMemberProjectSchema>>({
     defaultValues: {
-      user_id: "",
+      user_id: undefined,
       end_date: undefined,
       percentage: 100,
       start_date: undefined,
     },
+    resolver: zodResolver(addMemberProjectSchema)
   });
 
   const getUsers = () => {
