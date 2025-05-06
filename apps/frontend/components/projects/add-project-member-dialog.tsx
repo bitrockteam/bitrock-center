@@ -42,7 +42,7 @@ import {
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { addMemberProjectSchema } from "./schema";
-import {zodResolver} from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export function AddProjectMemberDialog({
   open,
@@ -78,7 +78,7 @@ export function AddProjectMemberDialog({
       percentage: 100,
       start_date: undefined,
     },
-    resolver: zodResolver(addMemberProjectSchema)
+    resolver: zodResolver(addMemberProjectSchema),
   });
 
   const getUsers = () => {
@@ -168,7 +168,7 @@ export function AddProjectMemberDialog({
                                   variant="outline"
                                   role="combobox"
                                   aria-expanded={open}
-                                  className="w-[250px] justify-between"
+                                  className="justify-between"
                                   disabled={isEdit}
                                 >
                                   {field.value &&
@@ -180,7 +180,7 @@ export function AddProjectMemberDialog({
                                   <ChevronsUpDown className="opacity-50" />
                                 </Button>
                               </PopoverTrigger>
-                              <PopoverContent className="w-[250px] p-0">
+                              <PopoverContent className="w-[270px] p-0">
                                 <Command>
                                   <CommandInput
                                     placeholder="Seleziona membro..."
@@ -235,7 +235,6 @@ export function AddProjectMemberDialog({
                             <Input
                               autoFocus={false}
                               type="number"
-                              className="w-[250px]"
                               {...field}
                               onChange={(e) => {
                                 if (Number(e.target.value) > 100)
