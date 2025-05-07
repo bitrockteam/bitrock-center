@@ -24,7 +24,8 @@ export const formatDisplayName = ({
 }) => {
   const { firstName, lastName } = getFirstnameAndLastname(name);
 
-  if (initials) return `${firstName.charAt(0)}${lastName.charAt(0)}`;
+  if (initials)
+    return `${firstName.charAt(0)}${lastName.charAt(0).toUpperCase()}`;
 
   return `${firstName} ${lastName}`;
 };

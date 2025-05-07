@@ -6,6 +6,7 @@ import { createRolesController } from "./controllers/roles.controller";
 import { createProjectsController } from "./controllers/projects.controller";
 import { createStatusesController } from "./controllers/statuses.controller";
 import { createPermitsController } from "./controllers/permits.controller";
+import { createAllocationsController } from "./controllers/allocations.controller";
 
 const isLocal = process.env.MODE === "local";
 
@@ -19,4 +20,5 @@ export const addPublicRoutes = (app: Express) => {
   createProjectsController(app);
   createStatusesController(app);
   createPermitsController(app);
+  createAllocationsController(app);
 };

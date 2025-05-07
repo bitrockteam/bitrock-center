@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useGetAllocationsForProject } from "@/api/useGetAllocationsForProject";
+import { useGetProjectById } from "@/api/useGetProjectsById";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,13 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Calendar, Clock, Edit, Users } from "lucide-react";
-import { getTimeEntriesByProject } from "@/lib/mock-data";
-import AddProjectDialog from "./add-project-dialog";
 import {
   Table,
   TableBody,
@@ -25,16 +20,52 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetProjectById } from "@/api/useGetProjectsById";
-import { format } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatDisplayName } from "@/services/users/utils";
+import { format, parse } from "date-fns";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Edit,
+  Pencil,
+  PlusIcon,
+  Trash2,
+  Users,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Loader } from "../custom/Loader";
+import AddProjectDialog from "./add-project-dialog";
+import { AddProjectMemberDialog } from "./add-project-member-dialog";
+import { DeleteAllocationDialog } from "./delete-allocation-dialog";
 
-export default function ProjectDetail({ id }: { id: string }) {
+export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedMember, setEditedMember] = useState<{
+    user_id: string;
+    percentage?: number;
+    start_date?: Date;
+    end_date?: Date;
+  }>({
+    user_id: "",
+  });
+  const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletedMemberId, setDeletedMemberId] = useState<{
+    name: string;
+    user_id: string;
+  }>({
+    name: "",
+    user_id: "",
+  });
 
   const { project, isLoading } = useGetProjectById(id);
-  const timeEntries = getTimeEntriesByProject("project-1");
+  const { allocations: timeEntries, fetchAllocations } =
+    useGetAllocationsForProject(id);
 
   if (isLoading)
     return (
@@ -78,7 +109,7 @@ export default function ProjectDetail({ id }: { id: string }) {
   };
 
   // Calcola il totale delle ore lavorate sul progetto
-  const totalHours = timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
+  const totalHours = 40;
 
   return (
     <motion.div
@@ -193,12 +224,150 @@ export default function ProjectDetail({ id }: { id: string }) {
         </Card> */}
       </div>
 
-      <Tabs defaultValue="timesheet" className="w-full">
+      <Tabs defaultValue="teams" className="w-full">
         <TabsList>
+          <TabsTrigger value="teams">Team</TabsTrigger>
           <TabsTrigger value="timesheet">Timesheet</TabsTrigger>
           <TabsTrigger value="tasks">Attività</TabsTrigger>
-          <TabsTrigger value="documents">Documenti</TabsTrigger>
         </TabsList>
+        <TabsContent value="teams">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Team</CardTitle>
+                  <CardDescription>Sviluppatori del team</CardDescription>
+                </div>
+                <Button onClick={() => setShowAddMemberDialog(true)}>
+                  <PlusIcon />
+                  Aggiungi Membro
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Utente</TableHead>
+                    <TableHead>Ruolo</TableHead>
+                    <TableHead>Data Inizio</TableHead>
+                    <TableHead>Data Fine</TableHead>
+                    <TableHead>Percentuale Allocazione</TableHead>
+                    <TableHead>{""}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {timeEntries.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="text-center py-6 text-muted-foreground"
+                      >
+                        Nessuna registrazione trovata
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    timeEntries?.map((entry) => (
+                      <TableRow key={`${entry.project_id}-${entry.user_id}`}>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage
+                                src={
+                                  entry.user_avatar_url ??
+                                  "/placeholder.svg?height=24&width=24"
+                                }
+                              />
+                              <AvatarFallback>
+                                {formatDisplayName({
+                                  name: entry.user_name,
+                                  initials: true,
+                                })}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span>
+                              {formatDisplayName({ name: entry.user_name })}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{entry.user_role.label}</TableCell>
+                        <TableCell>
+                          {entry.start_date
+                            ? format(entry.start_date, "dd-MM-yyyy")
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          {entry.end_date
+                            ? format(entry.end_date, "dd-MM-yyyy")
+                            : "-"}
+                        </TableCell>
+                        <TableCell>{entry.percentage}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-row items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              className="cursor-pointer"
+                              size="icon"
+                              onClick={() => {
+                                console.log({
+                                  startDate: entry.start_date
+                                    ? parse(
+                                        format(entry.start_date, "dd-MM-yyyy"),
+                                        "dd-MM-yyyy",
+                                        new Date(),
+                                      )
+                                    : undefined,
+                                  startDate2: entry.start_date,
+                                });
+
+                                setEditedMember({
+                                  user_id: entry.user_id,
+                                  percentage: entry.percentage ?? 100,
+                                  start_date: entry.start_date
+                                    ? parse(
+                                        format(entry.start_date, "dd-MM-yyyy"),
+                                        "dd-MM-yyyy",
+                                        new Date(),
+                                      )
+                                    : undefined,
+                                  end_date: entry.end_date
+                                    ? parse(
+                                        format(entry.end_date, "dd-MM-yyyy"),
+                                        "dd-MM-yyyy",
+                                        new Date(),
+                                      )
+                                    : undefined,
+                                });
+                                setIsEditMode(true);
+                                setShowAddMemberDialog(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              className="cursor-pointer"
+                              size="icon"
+                              onClick={() => {
+                                setDeletedMemberId({
+                                  user_id: entry.user_id,
+                                  name: entry.user_name,
+                                });
+                                setShowDeleteDialog(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
         <TabsContent value="timesheet">
           <Card>
             <CardHeader>
@@ -217,60 +386,14 @@ export default function ProjectDetail({ id }: { id: string }) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {timeEntries.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        className="text-center py-6 text-muted-foreground"
-                      >
-                        Nessuna registrazione trovata
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    timeEntries?.map((entry, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{entry.date}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Avatar className="h-6 w-6">
-                              <AvatarImage
-                                src={
-                                  entry.user.avatar ||
-                                  "/placeholder.svg?height=24&width=24"
-                                }
-                              />
-                              <AvatarFallback>
-                                {entry.user.name.charAt(0)}
-                                {entry.user.surname.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span>
-                              {entry.user.name} {entry.user.surname}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>{entry.hours}</TableCell>
-                        <TableCell>{entry.description}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              entry.status === "approved"
-                                ? "outline"
-                                : entry.status === "pending"
-                                  ? "secondary"
-                                  : "destructive"
-                            }
-                          >
-                            {entry.status === "approved"
-                              ? "Approvato"
-                              : entry.status === "pending"
-                                ? "In attesa"
-                                : "Rifiutato"}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="text-center py-6 text-muted-foreground"
+                    >
+                      Nessuna registrazione trovata
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </CardContent>
@@ -292,22 +415,6 @@ export default function ProjectDetail({ id }: { id: string }) {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="documents">
-          <Card>
-            <CardHeader>
-              <CardTitle>Documenti</CardTitle>
-              <CardDescription>Documenti associati al progetto</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center justify-center py-10">
-                <Users className="h-10 w-10 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">
-                  Nessun documento disponibile
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
 
       {/* Dialog per modificare il progetto */}
@@ -316,6 +423,26 @@ export default function ProjectDetail({ id }: { id: string }) {
         onOpenChange={setShowEditDialog}
         editData={project}
         projectId={id}
+      />
+      <AddProjectMemberDialog
+        open={showAddMemberDialog}
+        onOpenChange={() => {
+          setShowAddMemberDialog(false);
+          setIsEditMode(false);
+          setEditedMember({ user_id: "" });
+        }}
+        projectId={id}
+        refetch={fetchAllocations}
+        isEdit={isEditMode}
+        initialData={editedMember}
+      />
+      <DeleteAllocationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        project_id={project.id}
+        user={deletedMemberId}
+        refetch={fetchAllocations}
+        project_name={project.name}
       />
     </motion.div>
   );
