@@ -21,10 +21,12 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
 import { useAuth } from "@/app/(auth)/AuthProvider";
+import { useGetUsers } from "@/api/useGetUsers";
 
 export default function PermitHistoryTable() {
   const { user } = useAuth();
   const { permits, isLoading } = useGetPermitsByUser(user!.id);
+  const { users } = useGetUsers();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -72,6 +74,7 @@ export default function PermitHistoryTable() {
                   <TableHead>Data</TableHead>
                   <TableHead>Ore</TableHead>
                   <TableHead>Motivazione</TableHead>
+                  <TableHead>Responsabile</TableHead>
                   <TableHead>Stato</TableHead>
                   <TableHead className="text-right">Azioni</TableHead>
                 </TableRow>
@@ -100,6 +103,12 @@ export default function PermitHistoryTable() {
                       <TableCell>{permit.duration}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {permit.description}
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        {
+                          users.find((user) => user.id === permit.reviewerId)
+                            ?.name
+                        }
                       </TableCell>
                       <TableCell>{getStatusBadge(permit.status)}</TableCell>
                       <TableCell className="text-right">

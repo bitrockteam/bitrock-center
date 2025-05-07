@@ -21,11 +21,13 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
 import { useChangePermitStatus } from "@/api/useChangePermitStatus";
+import { useGetUsers } from "@/api/useGetUsers";
 
 export default function PermitApprovalTable() {
   const { user } = useAuth();
   const { permits, isLoading } = useGetPermitsByReviewer(user!.id);
   const { changeStatus } = useChangePermitStatus();
+  const { users } = useGetUsers();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -81,6 +83,7 @@ export default function PermitApprovalTable() {
                   <TableHead>Data</TableHead>
                   <TableHead>Ore</TableHead>
                   <TableHead>Motivazione</TableHead>
+                  <TableHead>Richiedente</TableHead>
                   <TableHead>Stato</TableHead>
                   <TableHead className="text-right">Azioni</TableHead>
                 </TableRow>
@@ -110,8 +113,11 @@ export default function PermitApprovalTable() {
                       <TableCell className="max-w-[200px] truncate">
                         {permit.description}
                       </TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        {users?.find((user) => user.id === permit.userId)?.name}
+                      </TableCell>
                       <TableCell>{getStatusBadge(permit.status)}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right space-x-2">
                         <Button onClick={() => approvePermit(permit.id)}>
                           Approva
                         </Button>
