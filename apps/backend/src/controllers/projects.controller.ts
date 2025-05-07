@@ -3,11 +3,11 @@ import { authenticateToken } from "../middleware/authMiddleware";
 import {
   createProject,
   deleteProject,
+  getAvailableUsersForProject,
   getProjectById,
   getProjects,
   updateProject,
 } from "../repository/projects.repository";
-import { IProjectUpsert } from "@bitrock/types";
 
 export const createProjectsController = (app: Express) => {
   app.get(
@@ -92,4 +92,23 @@ export const createProjectsController = (app: Express) => {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
+
+  app.get(
+    "/projects/:id/users/available",
+    authenticateToken,
+    async (req: Request, res: Response) => {
+      try {
+        const projectId = req.params.id;
+
+        if (!projectId) res.status(400).send("Project ID not provided");
+
+        const users = await getAvailableUsersForProject(projectId);
+
+        return res.status(200).send(users);
+      } catch (error) {
+        console.error(error);
+        return res.status(500);
+      }
+    },
+  );
 };

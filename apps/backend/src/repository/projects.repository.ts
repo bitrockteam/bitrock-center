@@ -1,4 +1,4 @@
-import { IProject, IProjectUpsert } from "@bitrock/types";
+import { IProject, IProjectUpsert, IUser } from "@bitrock/types";
 import { sql } from "../config/postgres";
 
 export async function getProjects(params?: string): Promise<IProject[]> {
@@ -192,4 +192,18 @@ export const deleteProject = async (id: string): Promise<boolean> => {
   `;
 
   return result.count > 0;
+};
+
+export const getAvailableUsersForProject = async (
+  id: string,
+): Promise<IUser[]> => {
+  const res =
+    await sql`SELECT * FROM public."USERS" WHERE id not in (SELECT u.id FROM public."ALLOCATIONS" a INNER JOIN public."USERS" u ON a.user_id = u.id INNER JOIN public."PROJECTS" p ON p.id = a.project_id  WHERE p.id = ${id})`;
+  return res.map((row) => ({
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    role: row.role,
+    avatar_url: row.avatar_url,
+  }));
 };
