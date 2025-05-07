@@ -103,20 +103,45 @@ export async function createPermit(input: IPermitUpsert): Promise<IPermit> {
     status,
   } = input;
 
-  const endDateString = endDate ? `AND end_date = ${endDate}` : "";
+  // Basic validations
+  if (type === "permit") {
+    if (endDate) {
+      throw new Error("Permits cannot have an end date.");
+    }
 
-  console.log("Creating permit with input:", input);
+    const result = await sql`
+      SELECT COALESCE(SUM(duration), 0) AS total
+      FROM public."PERMITS"
+      WHERE user_id = ${userId} AND start_date = ${startDate}
+    `;
+    const totalDuration = parseFloat(result[0].total) || 0;
 
-  const result = await sql`
-    SELECT COALESCE(SUM(duration), 0) AS total
-    FROM public."PERMITS"
-    WHERE user_id = ${userId} AND start_date = ${startDate}
-  `;
+    if (totalDuration + duration > 8) {
+      throw new Error("Total duration for this date exceeds 8 hours.");
+    }
+  } else {
+    if (!endDate) {
+      throw new Error(`${type} must have an end date.`);
+    }
+    if (duration !== 8) {
+      throw new Error(`${type} must have a fixed duration of 8 hours.`);
+    }
 
-  const totalDuration = parseFloat(result[0].total) || 0;
-
-  if (totalDuration + duration > 8) {
-    throw new Error("Total duration for this date exceeds 8 hours.");
+    // Check if there's any overlapping request in the given date range
+    const conflict = await sql`
+      SELECT 1
+      FROM public."PERMITS"
+      WHERE user_id = ${userId}
+        AND (
+          start_date BETWEEN ${startDate} AND ${endDate}
+          OR end_date BETWEEN ${startDate} AND ${endDate}
+          OR (${startDate} BETWEEN start_date AND COALESCE(end_date, start_date))
+        )
+      LIMIT 1;
+    `;
+    if (conflict.length > 0) {
+      throw new Error(`You already have a request in this time range.`);
+    }
   }
 
   const res = await sql`

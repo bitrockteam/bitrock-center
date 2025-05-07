@@ -136,7 +136,21 @@ export default function PermitRequestForm() {
                 <FormField
                   control={form.control}
                   name="endDate"
-                  rules={{ required: "Data richiesta" }}
+                  rules={{
+                    validate: (value) => {
+                      const startDate = form.getValues("startDate");
+
+                      if (
+                        value &&
+                        startDate &&
+                        new Date(value) < new Date(startDate)
+                      ) {
+                        return "La data di fine non può essere prima della data di inizio";
+                      }
+
+                      return true;
+                    },
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Data Fine</FormLabel>
@@ -195,11 +209,13 @@ export default function PermitRequestForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {users.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            {user.name}
-                          </SelectItem>
-                        ))}
+                        {users
+                          .filter((u) => u.id !== user?.id)
+                          .map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
 
