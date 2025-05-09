@@ -8,6 +8,7 @@ import {
   getAllocationsForProject,
   updateAllocationForUser,
 } from "../repository/allocations.repository";
+import { sql } from "../config/postgres";
 
 export const createAllocationsController = (app: Express) => {
   /**
@@ -47,6 +48,14 @@ export const createAllocationsController = (app: Express) => {
         if (allocationRequest.start_date && allocationRequest.end_date && allocationRequest.start_date > allocationRequest.end_date) {
             return res.status(400).send("Start date must be before end date");
         }
+
+        const allocationAlreadyExists = await sql`SELECT * FROM public."ALLOCATIONS" WHERE user_id = ${allocationRequest.user_id} AND project_id = ${allocationRequest.project_id}`;
+        console.log("TEST: ", allocationAlreadyExists)
+
+        if (allocationAlreadyExists.length > 0) {
+            return res.status(409).json({ message: "Allocation already exists"});
+        }
+
 
         const newAllocation = await createAllocation(allocationRequest);
 

@@ -1,6 +1,7 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
 import { ICreateAllocation } from "@bitrock/types";
+import { useApiCall } from "@/api/useApiCall";
 
 export function useCreateAllocation() {
   const { session } = useAuth();
@@ -13,8 +14,8 @@ export function useCreateAllocation() {
       },
       body: JSON.stringify(allocation),
     })
-      .then((res) => res.json())
-      .then((data) => data as ICreateAllocation);
 
-  return { createAllocation };
+  const { error, isLoading, execute } = useApiCall(createAllocation);
+
+  return { error, isLoading, execute };
 }
