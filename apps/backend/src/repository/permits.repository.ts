@@ -39,7 +39,7 @@ export async function getPermitsByReviewer(
     SELECT 
       id, created_at, user_id, duration, description, type, start_date, end_date, status, reviewer_id
     FROM public."PERMITS"
-    WHERE reviewer_id = ${reviewerId}
+    WHERE reviewer_id = ${reviewerId} AND status = 'pending'
   `;
 
   return rows.map((row) => ({
@@ -120,9 +120,6 @@ export async function createPermit(input: IPermitUpsert): Promise<IPermit> {
       throw new Error("Total duration for this date exceeds 8 hours.");
     }
   } else {
-    if (!endDate) {
-      throw new Error(`${type} must have an end date.`);
-    }
     if (duration !== 8) {
       throw new Error(`${type} must have a fixed duration of 8 hours.`);
     }
@@ -133,8 +130,8 @@ export async function createPermit(input: IPermitUpsert): Promise<IPermit> {
       FROM public."PERMITS"
       WHERE user_id = ${userId}
         AND (
-          start_date BETWEEN ${startDate} AND ${endDate}
-          OR end_date BETWEEN ${startDate} AND ${endDate}
+          start_date BETWEEN ${startDate} AND ${endDate || null}
+          OR end_date BETWEEN ${startDate} AND ${endDate || null}
           OR (${startDate} BETWEEN start_date AND COALESCE(end_date, start_date))
         )
       LIMIT 1;
@@ -163,8 +160,8 @@ export async function updatePermit(
 ): Promise<IPermit | null> {
   const { id, userId, description, duration, type, startDate, endDate } = input;
 
-  const endDateString = endDate ? `AND end_date = ${endDate}` : "";
-  const endDateStringEdit = endDate ? `end_date = ${endDate},` : "";
+  const endDateString = endDate ? `AND end_date = ${endDate || null}` : "";
+  const endDateStringEdit = endDate ? `end_date = ${endDate || null},` : "";
 
   // Get existing permit data
   const [existing] = await sql`
