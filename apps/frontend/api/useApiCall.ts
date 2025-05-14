@@ -1,17 +1,16 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import localFont from "next/dist/compiled/@next/font/dist/local";
-
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ApiCall = (...args: any[]) => Promise<Response>;
 
 export function useApiCall(apiCall: ApiCall) {
-  const [ data, setData ] = useState(null);
-  const [ error, setError ] = useState<Error | null>(null);
-  const [ isLoading, setIsLoading ] = useState(false);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-    const execute = useCallback(async (...args: Parameters<ApiCall>) => {
+  const execute = useCallback(
+    async (...args: Parameters<ApiCall>) => {
       setIsLoading(true);
       setError(null);
 
@@ -19,8 +18,8 @@ export function useApiCall(apiCall: ApiCall) {
         const response = await apiCall(...args);
         if (!response.ok) {
           const errorData = await response.json();
-          console.log(errorData)
-          throw new Error(errorData.message || 'An error occurred');
+          console.log(errorData);
+          throw new Error(errorData.message || "An error occurred");
         }
         const data = await response.json();
         setData(data);
@@ -31,7 +30,9 @@ export function useApiCall(apiCall: ApiCall) {
       } finally {
         setIsLoading(false);
       }
-    }, [apiCall]);
+    },
+    [apiCall],
+  );
 
-    return { data, error, isLoading, execute };
+  return { data, error, isLoading, execute };
 }

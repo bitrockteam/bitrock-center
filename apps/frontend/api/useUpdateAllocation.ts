@@ -1,10 +1,9 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { useState } from "react";
+import { useApiCall } from "./useApiCall";
 
 export function useUpdateAllocation() {
   const { session } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
 
   const updateAllocation = async (
     project_id: string,
@@ -19,7 +18,6 @@ export function useUpdateAllocation() {
       percentage?: number;
     },
   ) => {
-    setIsLoading(true);
     return fetch(`${SERVERL_BASE_URL}/allocation/${project_id}/${user_id}`, {
       method: "PATCH",
       headers: {
@@ -27,12 +25,10 @@ export function useUpdateAllocation() {
         Authorization: `Bearer ${session?.access_token}`,
       },
       body: JSON.stringify({ start_date, end_date, percentage }),
-    })
-      .then((res) => res.json())
-      .finally(() => {
-        setIsLoading(false);
-      });
+    });
   };
 
-  return { updateAllocation, isLoading };
+  const { error, isLoading, execute } = useApiCall(updateAllocation);
+
+  return { error, isLoading, execute };
 }

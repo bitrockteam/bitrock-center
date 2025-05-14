@@ -69,7 +69,7 @@ export function AddProjectMemberDialog({
     useGetProjectsUsersAvailable(projectId);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { execute: createAllocation } = useCreateAllocation();
-  const { updateAllocation } = useUpdateAllocation();
+  const { execute: updateAllocation } = useUpdateAllocation();
 
   const form = useForm<z.infer<typeof addMemberProjectSchema>>({
     defaultValues: {
