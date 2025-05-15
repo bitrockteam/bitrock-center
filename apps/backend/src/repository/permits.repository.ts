@@ -104,7 +104,7 @@ export async function createPermit(input: IPermitUpsert): Promise<IPermit> {
   } = input;
 
   // Basic validations
-  if (type === "permit") {
+  if (type === "permission") {
     if (endDate) {
       throw new Error("Permits cannot have an end date.");
     }
