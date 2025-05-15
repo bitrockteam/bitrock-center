@@ -25,11 +25,16 @@ import { useAuth } from "@/app/(auth)/AuthProvider";
 import { useState } from "react";
 import { useCreatePermit } from "@/api/useCreatePermit";
 import { useGetUsers } from "@/api/useGetUsers";
+import { DatePicker } from "../custom/DatePicker";
+import { toast } from "sonner";
+// import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
+// import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
+import { useSessionContext } from "@/app/utenti/SessionData";
 
 interface PermitFormValues {
   type: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   duration: string;
   description: string;
   reviewerId: string;
@@ -39,42 +44,50 @@ export default function PermitRequestForm() {
   const { user } = useAuth();
   const { users } = useGetUsers();
   const { createPermit } = useCreatePermit();
+  const { refetchPermits } = useSessionContext();
   const [errorMessage, setErrorMessage] = useState("");
 
   const form = useForm<PermitFormValues>({
     defaultValues: {
       type: "",
-      startDate: "",
-      endDate: "",
+      startDate: undefined,
+      endDate: undefined,
       duration: "",
       description: "",
       reviewerId: "",
     },
   });
 
-  const onSubmit = async (data: PermitFormValues) => {
+  const onSubmit = (data: PermitFormValues) => {
     setErrorMessage("");
 
     const payload = {
       userId: user!.id,
       type: data.type,
-      startDate: new Date(data.startDate),
-      endDate: data.endDate ? new Date(data.endDate) : undefined,
-      duration: data.type === "permits" ? parseFloat(data.duration) : 8,
+      startDate: data.startDate,
+      endDate: data.endDate || undefined,
+      duration: data.type === "permission" ? parseFloat(data.duration) : 8,
       description: data.description,
       status: "pending",
       reviewerId: data.reviewerId,
     };
 
-    const result = await createPermit(payload);
-
-    if (result) {
-      form.reset();
-      alert("Richiesta inviata con successo");
-    } else {
-      setErrorMessage("Creazione permesso fallita o limite superato (8h).");
-    }
+    createPermit(payload)
+      .then((result) => {
+        if (result) {
+          form.reset();
+          toast.success("Richiesta inviata con successo!");
+          refetchPermits();
+        } else {
+          setErrorMessage("Creazione permesso fallita o limite superato (8h).");
+        }
+      })
+      .catch(() => {
+        setErrorMessage("Creazione permesso fallita.");
+      });
   };
+
+  console.log(form.watch("type"));
 
   return (
     <motion.div
@@ -123,16 +136,20 @@ export default function PermitRequestForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Data {form.watch("type") !== "permit" && "Inizio"}
+                      Data {form.watch("type") !== "permission" && "Inizio"}
                     </FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <DatePicker
+                        {...field}
+                        date={field.value}
+                        setDate={field.onChange}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              {form.watch("type") !== "permit" && (
+              {form.watch("type") !== "permission" && (
                 <FormField
                   control={form.control}
                   name="endDate"
@@ -155,7 +172,11 @@ export default function PermitRequestForm() {
                     <FormItem>
                       <FormLabel>Data Fine</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <DatePicker
+                          {...field}
+                          date={field.value}
+                          setDate={field.onChange}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -163,7 +184,7 @@ export default function PermitRequestForm() {
                 />
               )}
 
-              {form.watch("type") === "permit" && (
+              {form.watch("type") === "permission" && (
                 <FormField
                   control={form.control}
                   rules={{

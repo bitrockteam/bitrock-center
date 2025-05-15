@@ -17,15 +17,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { useGetUsers } from "@/api/useGetUsers";
+import { useSessionContext } from "@/app/utenti/SessionData";
 
 export default function PermitHistoryTable() {
-  const { user } = useAuth();
-  const { permits, isLoading } = useGetPermitsByUser(user!.id);
+  const { permitsList, isLoading } = useSessionContext();
   const { users } = useGetUsers();
 
   const getStatusBadge = (status: string) => {
@@ -76,11 +72,10 @@ export default function PermitHistoryTable() {
                   <TableHead>Motivazione</TableHead>
                   <TableHead>Responsabile</TableHead>
                   <TableHead>Stato</TableHead>
-                  <TableHead className="text-right">Azioni</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading || permits.length === 0 ? (
+                {isLoading || permitsList.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={6}
@@ -92,7 +87,7 @@ export default function PermitHistoryTable() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  permits.map((permit, index) => (
+                  permitsList.map((permit, index) => (
                     <TableRow key={index}>
                       <TableCell>{getTypeLabel(permit.type)}</TableCell>
                       <TableCell>
@@ -111,13 +106,6 @@ export default function PermitHistoryTable() {
                         }
                       </TableCell>
                       <TableCell>{getStatusBadge(permit.status)}</TableCell>
-                      <TableCell className="text-right">
-                        {permit.status === "pending" && (
-                          <Button variant="ghost" size="icon">
-                            <X className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </TableCell>
                     </TableRow>
                   ))
                 )}

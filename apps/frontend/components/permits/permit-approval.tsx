@@ -22,10 +22,11 @@ import { useAuth } from "@/app/(auth)/AuthProvider";
 import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
 import { useChangePermitStatus } from "@/api/useChangePermitStatus";
 import { useGetUsers } from "@/api/useGetUsers";
+import { toast } from "sonner";
 
 export default function PermitApprovalTable() {
   const { user } = useAuth();
-  const { permits, isLoading } = useGetPermitsByReviewer(user!.id);
+  const { permits, isLoading, refetch } = useGetPermitsByReviewer(user!.id);
   const { changeStatus } = useChangePermitStatus();
   const { users } = useGetUsers();
 
@@ -57,10 +58,14 @@ export default function PermitApprovalTable() {
 
   const approvePermit = async (permitId: string) => {
     changeStatus(permitId, "approved");
+    refetch();
+    toast.success("Permesso approvato");
   };
 
   const rejectPermit = async (permitId: string) => {
     changeStatus(permitId, "rejected");
+    refetch();
+    toast.success("Permesso rigettato");
   };
 
   return (
