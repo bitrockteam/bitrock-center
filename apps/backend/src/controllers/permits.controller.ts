@@ -36,10 +36,6 @@ export const createPermitsController = (app: Express) => {
       try {
         const permits = await getPermitsByReviewer(req.params.reviewerId);
 
-        if (!permits.length) {
-          return res.status(404).send("No permits found for this reviewer");
-        }
-
         return res.status(200).json(permits);
       } catch (error) {
         console.error("Error fetching permits by reviewer:", error);

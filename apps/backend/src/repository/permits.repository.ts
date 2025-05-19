@@ -42,6 +42,8 @@ export async function getPermitsByReviewer(
     WHERE reviewer_id = ${reviewerId} AND status = 'pending'
   `;
 
+  if (rows.length === 0) return [];
+
   return rows.map((row) => ({
     id: row.id,
     createdAt: new Date(row.created_at),
