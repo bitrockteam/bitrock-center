@@ -76,8 +76,8 @@ export default function PermitApprovalTable() {
     >
       <Card>
         <CardHeader>
-          <CardTitle>Storico Permessi</CardTitle>
-          <CardDescription>Le tue richieste di permesso</CardDescription>
+          <CardTitle>Approva/Rigetti Permessi</CardTitle>
+          <CardDescription>Permessi da Approvare/Rigettare</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
