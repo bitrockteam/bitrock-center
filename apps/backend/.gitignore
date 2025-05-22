@@ -1,5 +1,6 @@
 secrets
-.env
+.env*
+!.env_example
 
 node_modules
 dist
