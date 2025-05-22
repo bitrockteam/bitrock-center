@@ -100,7 +100,7 @@ export default function RegisterPage() {
                   <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
-                    value={sessionUser?.name}
+                    defaultValue={sessionUser?.name}
                     disabled
                     required
                   />
@@ -111,7 +111,7 @@ export default function RegisterPage() {
                   <Input
                     id="email"
                     type="email"
-                    value={sessionUser?.email}
+                    defaultValue={sessionUser?.email}
                     disabled
                     required
                   />
@@ -119,7 +119,7 @@ export default function RegisterPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="imageUrl">Profile Image URL</Label>
-                  <Input id="imageUrl" value={sessionUser?.avatar_url} />
+                  <Input id="imageUrl" defaultValue={sessionUser?.avatar_url} />
                 </div>
               </CardContent>
 
