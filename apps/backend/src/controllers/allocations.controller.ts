@@ -8,6 +8,7 @@ import {
   getAllocationsForProject,
   updateAllocationForUser,
 } from "../repository/allocations.repository";
+import { sql } from "../config/postgres";
 
 export const createAllocationsController = (app: Express) => {
   /**
@@ -44,8 +45,20 @@ export const createAllocationsController = (app: Express) => {
         if (!allocationRequest.project_id)
           return res.status(400).send("Project not provided");
 
-        if (allocationRequest.start_date && allocationRequest.end_date && allocationRequest.start_date > allocationRequest.end_date) {
-            return res.status(400).send("Start date must be before end date");
+        if (
+          allocationRequest.start_date &&
+          allocationRequest.end_date &&
+          allocationRequest.start_date > allocationRequest.end_date
+        ) {
+          return res.status(400).send("Start date must be before end date");
+        }
+
+        const allocationAlreadyExists =
+          await sql`SELECT * FROM public."ALLOCATIONS" WHERE user_id = ${allocationRequest.user_id} AND project_id = ${allocationRequest.project_id}`;
+        console.log("TEST: ", allocationAlreadyExists);
+
+        if (allocationAlreadyExists.length > 0) {
+          return res.status(409).json({ message: "Allocation already exists" });
         }
 
         const newAllocation = await createAllocation(allocationRequest);
@@ -91,8 +104,10 @@ export const createAllocationsController = (app: Express) => {
         const project_id = req.params.project_id;
         const user_id = req.params.user_id;
 
-        if (!project_id) return res.status(400).send("Project not provided");
-        if (!user_id) return res.status(400).send("User not provided");
+        if (!project_id)
+          return res.status(400).json({ message: "Project not provided" });
+        if (!user_id)
+          return res.status(400).json({ message: "User not provided" });
 
         const allocationRequest = req.body as IUpdateAllocation;
 
