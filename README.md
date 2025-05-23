@@ -80,8 +80,6 @@ We cannot merge directly in `main` and we will require the pipelines to pass.
 ### Frontend
 
 - [Next.js](https://nextjs.org)
-- [React Query](https://tanstack.com/query/latest)
-- [React Router](https://reactrouter.com/en/main)
 - [React Hook Form](https://react-hook-form.com/)
 - [Zod](https://zod.dev/)
 - [shadcn/ui](https://ui.shadcn.com)
