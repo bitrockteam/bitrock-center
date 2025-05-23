@@ -31,11 +31,15 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
+import { ITimesheet } from "@bitrock/types";
+import { ITimesheetUpsert } from "@bitrock/types";
+import {DatePicker} from "@/components/custom/DatePicker";
+import {undefined} from "zod";
+
 interface AddHoursDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editData?: any;
+  editData?: ITimesheetUpsert;
   defaultDate?: string | null;
   onClose?: () => void;
 }
@@ -47,14 +51,23 @@ export default function AddHoursDialog({
   defaultDate,
   onClose,
 }: AddHoursDialogProps) {
+
+  const WORKING_LOCATIONS = [
+    {label: "Remoto", value: "remote"},
+    {label: "Ufficio", value: "office"},
+    {label: "Cliente", value: "client"}
+  ];
+
   const projects = getProjects();
 
-  const form = useForm({
+  const form = useForm<ITimesheetUpsert>({
     defaultValues: {
-      date: new Date().toISOString().split("T")[0],
-      project: "",
-      hours: "",
+      date: undefined,
+      projectId: "",
+      hours: 0,
       description: "",
+      type: "",
+      endDate: undefined,
     },
   });
 
@@ -63,9 +76,10 @@ export default function AddHoursDialog({
     if (editData) {
       form.reset({
         date: editData.date,
-        project: editData.project,
+        projectId: editData.projectId,
         hours: editData.hours.toString(),
         description: editData.description,
+        endDate: editData.endDate,
       });
     } else if (defaultDate) {
       form.reset({
@@ -76,7 +90,7 @@ export default function AddHoursDialog({
   }, [editData, defaultDate, form]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: ITimesheetUpsert) => {
     console.log(data);
     // Here you would normally save the data
     onOpenChange(false);
@@ -120,8 +134,22 @@ export default function AddHoursDialog({
             />
 
             <FormField
+                control={form.control}
+                name="endDate"
+                render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data fine</FormLabel>
+                      <FormControl>
+                        <DatePicker {...field} date={field.value} setDate={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                )}
+            />
+
+            <FormField
               control={form.control}
-              name="project"
+              name="projectId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Progetto</FormLabel>
@@ -147,7 +175,34 @@ export default function AddHoursDialog({
                 </FormItem>
               )}
             />
-
+            <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Luogo di lavoro</FormLabel>
+                      <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona un luogo" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {WORKING_LOCATIONS.map((loc) => (
+                              <SelectItem key={loc.value} value={loc.value}>
+                                {loc.label}
+                              </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                )}
+            />
             <FormField
               control={form.control}
               name="hours"

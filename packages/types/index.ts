@@ -4,3 +4,4 @@ export * from "./projects.types";
 export * from "./status.types";
 export * from "./permits.types";
 export * from "./allocations.types";
+export * from "./timesheet.types";
