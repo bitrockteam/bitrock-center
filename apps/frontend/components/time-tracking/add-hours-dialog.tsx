@@ -31,17 +31,26 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-import { ITimesheet } from "@bitrock/types";
 import { ITimesheetUpsert } from "@bitrock/types";
-import {DatePicker} from "@/components/custom/DatePicker";
-import {undefined} from "zod";
+import { DatePicker } from "@/components/custom/DatePicker";
+import { useAuth } from "@/app/(auth)/AuthProvider";
+import { format, isAfter, isBefore } from "date-fns";
 
 interface AddHoursDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editData?: ITimesheetUpsert;
-  defaultDate?: string | null;
+  editData?: TimesheetValues;
+  defaultDate?: Date;
   onClose?: () => void;
+}
+
+interface TimesheetValues {
+  date: Date | undefined;
+  endDate: Date | undefined;
+  projectId: string;
+  hours: number;
+  description: string;
+  type: string;
 }
 
 export default function AddHoursDialog({
@@ -51,16 +60,17 @@ export default function AddHoursDialog({
   defaultDate,
   onClose,
 }: AddHoursDialogProps) {
-
   const WORKING_LOCATIONS = [
-    {label: "Remoto", value: "remote"},
-    {label: "Ufficio", value: "office"},
-    {label: "Cliente", value: "client"}
+    { label: "Remoto", value: "remote" },
+    { label: "Ufficio", value: "office" },
+    { label: "Cliente", value: "client" },
   ];
 
   const projects = getProjects();
 
-  const form = useForm<ITimesheetUpsert>({
+  const { user } = useAuth();
+
+  const form = useForm<TimesheetValues>({
     defaultValues: {
       date: undefined,
       projectId: "",
@@ -71,13 +81,12 @@ export default function AddHoursDialog({
     },
   });
 
-  // Update form when editing an entry or when a default date is provided
   useEffect(() => {
     if (editData) {
       form.reset({
         date: editData.date,
         projectId: editData.projectId,
-        hours: editData.hours.toString(),
+        hours: editData.hours,
         description: editData.description,
         endDate: editData.endDate,
       });
@@ -90,8 +99,22 @@ export default function AddHoursDialog({
   }, [editData, defaultDate, form]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = (data: ITimesheetUpsert) => {
-    console.log(data);
+  const onSubmit = (data: TimesheetValues) => {
+    if (!data.date) {
+      return;
+    }
+    const formattedData: ITimesheetUpsert = {
+      date: data.date,
+      endDate: data.endDate,
+      projectId: data.projectId,
+      hours: data.hours,
+      description: data.description,
+      type: data.type,
+      userId: user?.id || "",
+    };
+
+    console.log("data", formattedData);
+
     // Here you would normally save the data
     onOpenChange(false);
     form.reset();
@@ -126,7 +149,24 @@ export default function AddHoursDialog({
                 <FormItem>
                   <FormLabel>Data</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <DatePicker
+                      {...field}
+                      date={field.value}
+                      setDate={field.onChange}
+                      onDisableDate={(date) => {
+                        if (!form.getValues().endDate) return false;
+                        const dateString = format(date, "yyyy-MM-dd");
+
+                        if (
+                          isAfter(
+                            dateString,
+                            format(form.getValues().endDate!, "yyyy-MM-dd"),
+                          )
+                        )
+                          return true;
+                        return false;
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -134,17 +174,34 @@ export default function AddHoursDialog({
             />
 
             <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data fine</FormLabel>
-                      <FormControl>
-                        <DatePicker {...field} date={field.value} setDate={field.onChange} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                )}
+              control={form.control}
+              name="endDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Data fine (opzionale)</FormLabel>
+                  <FormControl>
+                    <DatePicker
+                      {...field}
+                      date={field.value}
+                      setDate={field.onChange}
+                      onDisableDate={(date) => {
+                        if (!form.getValues().date) return false;
+                        const dateString = format(date, "yyyy-MM-dd");
+
+                        if (
+                          isBefore(
+                            dateString,
+                            format(form.getValues().date!, "yyyy-MM-dd"),
+                          )
+                        )
+                          return true;
+                        return false;
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormField
@@ -176,32 +233,32 @@ export default function AddHoursDialog({
               )}
             />
             <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Luogo di lavoro</FormLabel>
-                      <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleziona un luogo" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {WORKING_LOCATIONS.map((loc) => (
-                              <SelectItem key={loc.value} value={loc.value}>
-                                {loc.label}
-                              </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                )}
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Luogo di lavoro</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona un luogo" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {WORKING_LOCATIONS.map((loc) => (
+                        <SelectItem key={loc.value} value={loc.value}>
+                          {loc.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
             <FormField
               control={form.control}
