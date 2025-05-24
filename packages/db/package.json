@@ -6,6 +6,9 @@
   "author": "Bitrock",
   "license": "ISC",
   "description": "",
+  "scripts": {
+    "postinstall": "npx prisma generate"
+  },
   "devDependencies": {
     "@types/node": "^22.15.21",
     "prisma": "^6.8.2",

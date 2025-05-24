@@ -19,10 +19,11 @@ git clone git@github.com:bitrockteam/bitrock-center.git
 
 ### Set env variables
 
-- See env variables on https://www.notion.so/Bitrock-Center-1cb75833085d80e3b914dbc329e4170c (ask Davide Ghiotto for
+- See env variables on [dedicated notion page](https://www.notion.so/Bitrock-Center-1cb75833085d80e3b914dbc329e4170c) (ask Davide Ghiotto for
   access)
 - Copy `apps/backend/.env.example` to `apps/backend/.env` file and update the values accordingly.
 - Copy `apps/frontend/.env.example` to `apps/frontend/.env` file and update the values accordingly.
+- Copy `packages/db/.env.example` to `packages/db/.env` file and update the values accordingly.
 - Copy `.env.example` to `.env` file and update the values accordingly.
 
 > Beware that you will need to run the local instance of Supabase to obtain these two: `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_PROJECT_KEY`. Keep reading to understand how to get them.
