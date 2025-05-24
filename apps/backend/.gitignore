@@ -5,5 +5,3 @@ secrets
 node_modules
 dist
 
-
-/src/generated/prisma

@@ -1,9 +1,7 @@
 import { IRole } from "@bitrock/types";
-import { sql } from "../config/postgres";
-import prisma from "../prisma";
+import { db } from "../config/prisma";
 
 export async function getRoles() {
-  const res = await sql`SELECT * FROM public."ROLES"`;
-
-  return [...res] as IRole[];
+  const res = await db.rOLES.findMany();
+  return res as IRole[];
 }
