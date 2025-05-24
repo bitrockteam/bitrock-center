@@ -21,8 +21,11 @@ git clone git@github.com:bitrockteam/bitrock-center.git
 
 - See env variables on https://www.notion.so/Bitrock-Center-1cb75833085d80e3b914dbc329e4170c (ask Davide Ghiotto for
   access)
-- Copy `apps/backend/.env_example` to `apps/backend/.env` file and update the values accordingly.
-- Copy `apps/frontend/.env_example` to `apps/frontend/.env` file and update the values accordingly.
+- Copy `apps/backend/.env.example` to `apps/backend/.env` file and update the values accordingly.
+- Copy `apps/frontend/.env.example` to `apps/frontend/.env` file and update the values accordingly.
+- Copy `.env.example` to `.env` file and update the values accordingly.
+
+> Beware that you will need to run the local instance of Supabase to obtain these two: `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_PROJECT_KEY`. Keep reading to understand how to get them.
 
 ### Setup local instance Supabase
 
@@ -42,6 +45,8 @@ Started supabase local development setup.
         anon key: eyJh......
 service_role key: eyJh......
 ```
+
+> In the console you will see the "anon" and "service_role" keys displaying two tokens. These are respectively the values of `apps/frontend/.env > NEXT_PUBLIC_SUPABASE_ANON_KEY` and `apps/backend/.env > SUPABASE_PROJECT_KEY`.
 
 Access the studio at [http://localhost:54323](http://localhost:54323).
 
