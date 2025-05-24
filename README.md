@@ -24,6 +24,29 @@ git clone git@github.com:bitrockteam/bitrock-center.git
 - Copy `apps/backend/.env_example` to `apps/backend/.env` file and update the values accordingly.
 - Copy `apps/frontend/.env_example` to `apps/frontend/.env` file and update the values accordingly.
 
+### Setup local instance Supabase
+
+- install the [supabase cli](https://supabase.com/docs/guides/local-development/cli/getting-started#updating-the-supabase-cli) (optional): if not installed a prefix `npx` is required to run the supabase via command line
+- run `supabase login` to access the hosted supabase instance
+- run `supabase link` to link the local instance to the remote one (for database diff, migrations and other stuff)
+- run `supabase start` will start a docker container for your local supabase instance
+
+If everything run correctly you should see something like this on your terminal:
+
+```bash
+Started supabase local development setup.
+         API URL: http://localhost:54321
+          DB URL: postgresql://postgres:postgres@localhost:54322/postgres
+      Studio URL: http://localhost:54323
+    Inbucket URL: http://localhost:54324
+        anon key: eyJh......
+service_role key: eyJh......
+```
+
+Access the studio at [http://localhost:54323](http://localhost:54323).
+
+To stop the container just run `supabase stop`.
+
 ### Install dependencies
 
 - `nvm install` (or `nvm use` if you have already installed the version written in `.nvmrc` file)
@@ -31,8 +54,8 @@ git clone git@github.com:bitrockteam/bitrock-center.git
 - `yarn`
 - `yarn build`
 - `yarn dev`:
-    - frontend on `localhost:3001`
-    - backend on `localhost:3000`
+  - frontend on `localhost:3001`
+  - backend on `localhost:3000`
 
 ## Development Workflow
 
