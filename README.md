@@ -47,6 +47,23 @@ Access the studio at [http://localhost:54323](http://localhost:54323).
 
 To stop the container just run `supabase stop`.
 
+#### Updating local from remote
+
+- `supabase db pull` to download locally the remote configuration along with the schema
+- `supabase db dump -f supabase/seed.sql --data-only` to download only the data available in the remote instance
+- `supabase migration up` to apply the new migrations
+- `supabase db reset` to reset the local instance and restarting it applying the new schema and seed data from the remote updates
+
+This procedure will automatically apply the migrations.
+
+#### Update remote from local
+
+- create a migration with `supabase db diff -f <your-migration-name>`
+- locally test that running `supabase db reset` will manage correctly the migration
+- when all checks are done (and maybe after releasing in develop/main branch) run the `supabase db push` command to push your local changes to the remote instance
+
+The `push` command will not reset the data on the remote instance.
+
 ### Install dependencies
 
 - `nvm install` (or `nvm use` if you have already installed the version written in `.nvmrc` file)
