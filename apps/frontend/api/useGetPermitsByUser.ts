@@ -3,7 +3,7 @@ import { SERVERL_BASE_URL } from "@/config";
 import { IPermit } from "@bitrock/types";
 import { useCallback, useEffect, useState } from "react";
 
-export const useGetPermitsByUser = (userId: string) => {
+export const useGetPermitsByUser = (userId?: string) => {
   const [permits, setPermits] = useState<IPermit[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { session } = useAuth();
@@ -22,8 +22,8 @@ export const useGetPermitsByUser = (userId: string) => {
   }, [session, userId]);
 
   useEffect(() => {
-    if (session?.access_token) refetch();
-  }, [refetch, session?.access_token]);
+    if (session?.access_token && userId) refetch();
+  }, [refetch, session?.access_token, userId]);
 
   return { permits, isLoading, refetch };
 };

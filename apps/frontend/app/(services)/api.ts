@@ -32,9 +32,9 @@ export async function getUserInfo({ token }: { token: string }) {
 export function verifyBitrockToken({ token }: { token: string }) {
   const tokenInfo: IToken = jwtDecode(token);
 
-  if (tokenInfo.user_metadata.custom_claims.hd === "bitrock.it") return true;
+  if (tokenInfo.user_metadata.custom_claims?.hd === "bitrock.it") return true;
 
-  if (tokenInfo.user.email.endsWith("@bitrock.it")) return true;
+  if (tokenInfo.user?.email.endsWith("@bitrock.it")) return true;
 
   return false;
 }
