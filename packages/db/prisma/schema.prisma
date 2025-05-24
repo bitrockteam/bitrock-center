@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ALLOCATIONS {
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  user_id    String    @db.Uuid
+  project_id String    @db.Uuid
+  start_date DateTime  @default(now()) @db.Timestamp(6)
+  end_date   DateTime? @db.Timestamp(6)
+  percentage Int       @default(100) @db.SmallInt
+  PROJECTS   PROJECTS  @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  USERS      USERS     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, project_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model PERMITS {
+  created_at                       DateTime  @default(now()) @db.Timestamptz(6)
+  user_id                          String    @db.Uuid
+  duration                         Decimal   @db.Decimal
+  id                               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  description                      String?
+  type                             String    @default("Holiday")
+  start_date                       DateTime  @db.Timestamp(6)
+  status                           String    @default("Waiting")
+  reviewer_id                      String    @db.Uuid
+  end_date                         DateTime? @db.Timestamp(6)
+  USERS_PERMITS_reviewer_idToUSERS USERS     @relation("PERMITS_reviewer_idToUSERS", fields: [reviewer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  USERS_PERMITS_user_idToUSERS     USERS     @relation("PERMITS_user_idToUSERS", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model PROJECTS {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  name        String        @db.VarChar
+  client      String        @db.VarChar
+  description String?
+  start_date  DateTime      @db.Timestamp(6)
+  end_date    DateTime?     @db.Timestamp(6)
+  status_id   String        @db.Uuid
+  ALLOCATIONS ALLOCATIONS[]
+  STATUSES    STATUSES      @relation(fields: [status_id], references: [id], onDelete: SetDefault)
+  TIMESHEETS  TIMESHEETS[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ROLES {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  label      String   @db.VarChar
+  USERS      USERS[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model STATUSES {
+  id         String     @id(map: "STATUS_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  name       String     @db.VarChar
+  PROJECTS   PROJECTS[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model TIMESHEETS {
+  id          BigInt   @id @default(autoincrement())
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  date        DateTime @db.Date
+  project_id  String   @db.Uuid
+  user_id     String   @db.Uuid
+  description String?  @db.VarChar
+  PROJECTS    PROJECTS @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  USERS       USERS    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model USERS {
+  id                                 String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                         DateTime      @default(now()) @db.Timestamptz(6)
+  email                              String        @unique
+  name                               String
+  avatar_url                         String?
+  auth_id                            String?       @unique @db.VarChar
+  role_id                            String?       @db.Uuid
+  ALLOCATIONS                        ALLOCATIONS[]
+  PERMITS_PERMITS_reviewer_idToUSERS PERMITS[]     @relation("PERMITS_reviewer_idToUSERS")
+  PERMITS_PERMITS_user_idToUSERS     PERMITS[]     @relation("PERMITS_user_idToUSERS")
+  TIMESHEETS                         TIMESHEETS[]
+  ROLES                              ROLES?        @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
