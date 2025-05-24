@@ -51,6 +51,7 @@ To stop the container just run `supabase stop`.
 
 - `supabase db pull` to download locally the remote configuration along with the schema
 - `supabase db dump -f supabase/seed.sql --data-only` to download only the data available in the remote instance
+  > Warning: do not commit `supabase/seed.sql` file since it contains data from the authentication of the users. First we need to exclude this data from the local dump
 - `supabase migration up` to apply the new migrations
 - `supabase db reset` to reset the local instance and restarting it applying the new schema and seed data from the remote updates
 
