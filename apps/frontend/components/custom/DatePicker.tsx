@@ -34,7 +34,9 @@ export function DatePicker({
         <div className="relative">
           <Input
             readOnly
-            value={date ? format(date, "dd/MM/yyyy") : "Seleziona una data"}
+            defaultValue={
+              date ? format(date, "dd/MM/yyyy") : "Seleziona una data"
+            }
             className="pl-10"
           />
           <CalendarIcon className="absolute top-[6px] left-2 cursor-pointer scale-80" />

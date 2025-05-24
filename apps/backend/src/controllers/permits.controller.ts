@@ -17,6 +17,9 @@ export const createPermitsController = (app: Express) => {
     async (req: Request, res: Response) => {
       try {
         const { userId } = req.params;
+
+        if (!userId) return res.status(400).send("User ID is required");
+
         const permits = await getPermitsByUser(userId);
 
         if (!permits) return res.status(404).send("No permits found");

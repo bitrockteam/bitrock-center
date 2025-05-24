@@ -35,7 +35,7 @@ export function SessionDataProvider({
     permits,
     isLoading: isPermitsLoading,
     refetch: refetchPermits,
-  } = useGetPermitsByUser(user?.id || "");
+  } = useGetPermitsByUser(user?.id);
   const {
     projects,
     refetch: refetchProjects,

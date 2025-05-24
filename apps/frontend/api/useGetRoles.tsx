@@ -10,6 +10,7 @@ export const useGetRoles = () => {
   const { session } = useAuth();
 
   useEffect(() => {
+    if (!session?.access_token) return;
     fetch(`${SERVERL_BASE_URL}/roles`, {
       method: "GET",
       headers: {
