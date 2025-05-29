@@ -1,23 +1,53 @@
 import { ICreateUser, IUpdateUser, IUser } from "@bitrock/types";
 import { sql } from "../config/postgres";
 import { supabase } from "../config/supabase";
+import { db } from "../config/prisma";
 
 // GET
 
 export async function getUserByAuthId(id: string): Promise<IUser | null> {
-  const res = await sql`SELECT * FROM public."USERS" WHERE auth_id = ${id}`;
+  const res = await db.uSERS.findFirst({
+    include: { ROLES: true },
+    where: { auth_id: id },
+  });
   if (!res) return null;
-  return res[0] as IUser;
+  return {
+    id: res.id,
+    auth_id: res.auth_id ?? undefined,
+    name: res.name,
+    email: res.email,
+    avatar_url: res.avatar_url ?? undefined,
+  };
 }
 
 export async function getUserByEmail(email: string): Promise<IUser | null> {
-  const res = await sql`SELECT * FROM public."USERS" WHERE email = ${email}`;
+  const res = await db.uSERS.findMany({
+    include: { ROLES: true },
+    where: { email },
+  });
+  // const res = await sql`SELECT * FROM public."USERS" WHERE email = ${email}`;
   if (!res) return null;
-  return res[0] as IUser;
+  console.log({ res });
+
+  return (
+    res.map(
+      (row) =>
+        ({
+          id: row.id,
+          auth_id: row.auth_id,
+          name: row.name,
+          email: row.email,
+          avatar_url: row.avatar_url,
+        }) as IUser,
+    )[0] || null
+  );
 }
 export async function getUserById(id: string): Promise<IUser | null> {
-  const res =
-    await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."USERS" u LEFT OUTER JOIN public."ROLES" r ON u.role_id = r.id WHERE u.id = ${id}`;
+  const res = await db.uSERS.findMany({
+    include: { ROLES: true },
+    where: { id },
+  });
+
   if (!res) return null;
   if (res.length === 0) return null;
   if (res.length > 1) {
@@ -27,14 +57,13 @@ export async function getUserById(id: string): Promise<IUser | null> {
   }
   return res.map((row) => ({
     id: row.id,
-    auth_id: row.auth_id,
+    auth_id: row.auth_id ?? undefined,
     name: row.name,
     email: row.email,
-    avatar_url: row.avatar_url,
-    role: {
-      id: row.role_id,
-      label: row.label,
-    },
+    avatar_url: row.avatar_url ?? undefined,
+    ...(row.ROLES?.id && {
+      role: { id: row.ROLES.id, label: row.ROLES.label },
+    }),
   }))[0];
 }
 
