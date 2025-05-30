@@ -14,7 +14,7 @@ export async function getPermitsByUser(userId: string): Promise<IPermit[]> {
       p.end_date,
       p.status,
       p.reviewer_id
-    FROM public."PERMITS" p
+    FROM public."permit" p
     WHERE p.user_id = ${userId}
   `;
 
@@ -38,7 +38,7 @@ export async function getPermitsByReviewer(
   const rows = await sql`
     SELECT 
       id, created_at, user_id, duration, description, type, start_date, end_date, status, reviewer_id
-    FROM public."PERMITS"
+    FROM public."permit"
     WHERE reviewer_id = ${reviewerId} AND status = 'pending'
   `;
 
@@ -71,7 +71,7 @@ export async function getPermitById(id: string): Promise<IPermit | null> {
       end_date,
       status,
       reviewer_id
-    FROM public."PERMITS"
+    FROM public."permit"
     WHERE id = ${id}
     LIMIT 1
   `;
@@ -113,7 +113,7 @@ export async function createPermit(input: IPermitUpsert): Promise<IPermit> {
 
     const result = await sql`
       SELECT COALESCE(SUM(duration), 0) AS total
-      FROM public."PERMITS"
+      FROM public."permit"
       WHERE user_id = ${userId} AND start_date = ${startDate}
     `;
     const totalDuration = parseFloat(result[0].total) || 0;
@@ -129,7 +129,7 @@ export async function createPermit(input: IPermitUpsert): Promise<IPermit> {
     // Check if there's any overlapping request in the given date range
     const conflict = await sql`
       SELECT 1
-      FROM public."PERMITS"
+      FROM public."permit"
       WHERE user_id = ${userId}
         AND (
           start_date BETWEEN ${startDate} AND ${endDate || null}
@@ -144,7 +144,7 @@ export async function createPermit(input: IPermitUpsert): Promise<IPermit> {
   }
 
   const res = await sql`
-    INSERT INTO public."PERMITS" (
+    INSERT INTO public."permit" (
       user_id, duration, description, type, start_date, status, reviewer_id, end_date
     ) VALUES (
       ${userId}, ${duration}, ${description}, ${type}, ${startDate}, ${status}, ${reviewerId}, ${endDate || null}
@@ -168,7 +168,7 @@ export async function updatePermit(
   // Get existing permit data
   const [existing] = await sql`
     SELECT status, duration
-    FROM public."PERMITS"
+    FROM public."permit"
     WHERE id = ${id}
   `;
 
@@ -181,7 +181,7 @@ export async function updatePermit(
   // Check total duration of other permits on the same date
   const result = await sql`
     SELECT COALESCE(SUM(duration), 0) AS total
-    FROM public."PERMITS"
+    FROM public."permit"
     WHERE user_id = ${userId} AND start_date = ${startDate} AND id != ${id} ${endDateString}
   `;
 
@@ -197,7 +197,7 @@ export async function updatePermit(
 
   // Update the permit
   await sql`
-    UPDATE public."PERMITS"
+    UPDATE public."permit"
     SET description = ${description},
         duration = ${duration},
         type = ${type},
@@ -210,7 +210,7 @@ export async function updatePermit(
   // Return the updated permit
   const [updated] = await sql`
     SELECT *
-    FROM public."PERMITS"
+    FROM public."permit"
     WHERE id = ${id}
   `;
 
@@ -230,7 +230,7 @@ export async function updatePermit(
 
 export async function deletePermit(id: string): Promise<boolean> {
   const result = await sql`
-    DELETE FROM public."PERMITS" WHERE id = ${id}
+    DELETE FROM public."permit" WHERE id = ${id}
   `;
   return result.count > 0;
 }
@@ -242,7 +242,7 @@ export async function updatePermitStatus(
 ): Promise<boolean> {
   // Fetch current status
   const existing = await sql`
-    SELECT status FROM public."PERMITS" WHERE id = ${id}
+    SELECT status FROM public."permit" WHERE id = ${id}
   `;
 
   if (existing.length === 0) return false;
@@ -255,7 +255,7 @@ export async function updatePermitStatus(
   }
 
   const result = await sql`
-    UPDATE public."PERMITS"
+    UPDATE public."permit"
     SET status = ${status}
     WHERE id = ${id}
   `;

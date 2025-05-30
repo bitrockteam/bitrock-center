@@ -1,3 +1,5 @@
+
+
 revoke delete on table "public"."ALLOCATIONS" from "anon";
 
 revoke insert on table "public"."ALLOCATIONS" from "anon";
@@ -344,19 +346,13 @@ drop index if exists "public"."USERS_email_key";
 
 drop index if exists "public"."USERS_pkey";
 
-drop table "public"."ALLOCATIONS";
-
-drop table "public"."PERMITS";
-
-drop table "public"."PROJECTS";
-
-drop table "public"."ROLES";
-
-drop table "public"."STATUSES";
-
-drop table "public"."TIMESHEETS";
-
-drop table "public"."USERS";
+alter table "public"."USERS" rename to "user";
+alter table "public"."ALLOCATIONS" rename to "allocation";
+alter table "public"."PERMITS" rename to "permit";
+alter table "public"."PROJECTS" rename to "project";
+alter table "public"."ROLES" rename to "role";
+alter table "public"."STATUSES" rename to "status";
+alter table "public"."TIMESHEETS" rename to "timesheet";
 
 create table "public"."Allocations" (
     "created_at" timestamp with time zone not null default now(),
@@ -804,5 +800,4 @@ grant trigger on table "public"."Users" to "service_role";
 grant truncate on table "public"."Users" to "service_role";
 
 grant update on table "public"."Users" to "service_role";
-
 

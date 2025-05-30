@@ -13,8 +13,8 @@ export async function getProjects(params?: string): Promise<IProject[]> {
       p.end_date,
       s.id AS status_id,
       s.name AS status_name
-    FROM public."PROJECTS" p
-    JOIN public."STATUSES" s ON p.status_id = s.id
+    FROM public."project" p
+    JOIN public."status" s ON p.status_id = s.id
     WHERE s.name IS DISTINCT FROM p.name
   `;
 
@@ -51,8 +51,8 @@ export async function getProjectById(id: string): Promise<IProject | null> {
       p.end_date,
       s.id AS status_id,
       s.name AS status_name
-    FROM public."PROJECTS" p
-    JOIN public."STATUSES" s ON p.status_id = s.id
+    FROM public."project" p
+    JOIN public."status" s ON p.status_id = s.id
     WHERE p.id = ${id}
       AND s.name IS DISTINCT FROM p.name
     LIMIT 1
@@ -83,7 +83,7 @@ export const createProject = async (
   const { name, client, status_id, description, start_date, end_date } = input;
 
   const res = await sql`
-    INSERT INTO public."PROJECTS" (
+    INSERT INTO public."project" (
       name, client, status_id, description, start_date, end_date, created_at
     ) VALUES (
       ${name}, ${client}, ${status_id}, ${description}, ${start_date}, ${end_date || null}, NOW()
@@ -104,8 +104,8 @@ export const createProject = async (
       p.end_date,
       s.id AS status_id,
       s.name AS status_name
-    FROM public."PROJECTS" p
-    JOIN public."STATUSES" s ON p.status_id = s.id
+    FROM public."project" p
+    JOIN public."status" s ON p.status_id = s.id
     WHERE p.id = ${id}
     LIMIT 1
   `;
@@ -142,7 +142,7 @@ export const updateProject = async (
     input;
 
   await sql`
-    UPDATE public."PROJECTS"
+    UPDATE public."project"
     SET name = ${name},
         client = ${client},
         status_id = ${status_id},
@@ -163,8 +163,8 @@ export const updateProject = async (
       p.end_date,
       s.id AS status_id,
       s.name AS status_name
-    FROM public."PROJECTS" p
-    JOIN public."STATUSES" s ON p.status_id = s.id
+    FROM public."project" p
+    JOIN public."status" s ON p.status_id = s.id
     WHERE p.id = ${id}
     LIMIT 1
   `;
@@ -188,7 +188,7 @@ export const updateProject = async (
 
 export const deleteProject = async (id: string): Promise<boolean> => {
   const result = await sql`
-    DELETE FROM public."PROJECTS" WHERE id = ${id}
+    DELETE FROM public."project" WHERE id = ${id}
   `;
 
   return result.count > 0;
@@ -198,7 +198,7 @@ export const getAvailableUsersForProject = async (
   id: string,
 ): Promise<IUser[]> => {
   const res =
-    await sql`SELECT * FROM public."USERS" WHERE id not in (SELECT u.id FROM public."ALLOCATIONS" a INNER JOIN public."USERS" u ON a.user_id = u.id INNER JOIN public."PROJECTS" p ON p.id = a.project_id  WHERE p.id = ${id})`;
+    await sql`SELECT * FROM public."user" WHERE id not in (SELECT u.id FROM public."allocation" a INNER JOIN public."user" u ON a.user_id = u.id INNER JOIN public."project" p ON p.id = a.project_id  WHERE p.id = ${id})`;
   return res.map((row) => ({
     id: row.id,
     name: row.name,

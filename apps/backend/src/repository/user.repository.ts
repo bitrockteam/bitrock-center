@@ -6,8 +6,8 @@ import { db } from "../config/prisma";
 // GET
 
 export async function getUserByAuthId(id: string): Promise<IUser | null> {
-  const res = await db.uSERS.findFirst({
-    include: { ROLES: true },
+  const res = await db.user.findFirst({
+    include: { role: true },
     where: { auth_id: id },
   });
   if (!res) return null;
@@ -21,11 +21,11 @@ export async function getUserByAuthId(id: string): Promise<IUser | null> {
 }
 
 export async function getUserByEmail(email: string): Promise<IUser | null> {
-  const res = await db.uSERS.findMany({
-    include: { ROLES: true },
+  const res = await db.user.findMany({
+    include: { role: true },
     where: { email },
   });
-  // const res = await sql`SELECT * FROM public."USERS" WHERE email = ${email}`;
+  // const res = await sql`SELECT * FROM public."user" WHERE email = ${email}`;
   if (!res) return null;
   console.log({ res });
 
@@ -43,8 +43,8 @@ export async function getUserByEmail(email: string): Promise<IUser | null> {
   );
 }
 export async function getUserById(id: string): Promise<IUser | null> {
-  const res = await db.uSERS.findMany({
-    include: { ROLES: true },
+  const res = await db.user.findMany({
+    include: { role: true },
     where: { id },
   });
 
@@ -61,8 +61,8 @@ export async function getUserById(id: string): Promise<IUser | null> {
     name: row.name,
     email: row.email,
     avatar_url: row.avatar_url ?? undefined,
-    ...(row.ROLES?.id && {
-      role: { id: row.ROLES.id, label: row.ROLES.label },
+    ...(row.role?.id && {
+      role: { id: row.role.id, label: row.role.label },
     }),
   }))[0];
 }
@@ -70,7 +70,7 @@ export async function getUserById(id: string): Promise<IUser | null> {
 export async function getUsers(params?: string): Promise<IUser[]> {
   if (params) {
     const res =
-      await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."USERS" u LEFT OUTER JOIN public."ROLES" r ON u.role_id = r.id WHERE u.name LIKE '%' || ${params} || '%' OR u.email LIKE '%' || ${params} || '%'`;
+      await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."user" u LEFT OUTER JOIN public."role" r ON u.role_id = r.id WHERE u.name LIKE '%' || ${params} || '%' OR u.email LIKE '%' || ${params} || '%'`;
     if (!res) return [];
     return res.map((row) => ({
       id: row.id,
@@ -86,7 +86,7 @@ export async function getUsers(params?: string): Promise<IUser[]> {
   }
 
   const res =
-    await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."USERS" u LEFT OUTER JOIN public."ROLES" r ON u.role_id = r.id`;
+    await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."user" u LEFT OUTER JOIN public."role" r ON u.role_id = r.id`;
 
   return res.map((row) => ({
     id: row.id,
@@ -108,14 +108,14 @@ export async function createUserFromAuth(
   user: ICreateUser,
 ): Promise<IUser> {
   const res = user.avatar_url
-    ? await sql`INSERT INTO public."USERS" (auth_id, name, email, avatar_url) VALUES (${authId}, ${user.name}, ${user.email}, ${user.avatar_url}) RETURNING *`
-    : await sql`INSERT INTO public."USERS" (auth_id, name, email) VALUES (${authId}, ${user.name}, ${user.email}) RETURNING *`;
+    ? await sql`INSERT INTO public."user" (auth_id, name, email, avatar_url) VALUES (${authId}, ${user.name}, ${user.email}, ${user.avatar_url}) RETURNING *`
+    : await sql`INSERT INTO public."user" (auth_id, name, email) VALUES (${authId}, ${user.name}, ${user.email}) RETURNING *`;
   return res[0] as IUser;
 }
 
 export async function createUserManually(user: ICreateUser): Promise<IUser> {
   const res =
-    await sql`INSERT INTO public."USERS" (name, email) VALUES (${user.name}, ${user.email}) RETURNING *`;
+    await sql`INSERT INTO public."user" (name, email) VALUES (${user.name}, ${user.email}) RETURNING *`;
   return res[0] as IUser;
 }
 
@@ -152,7 +152,7 @@ export async function updateUser(
   user: Partial<IUpdateUser>,
 ): Promise<IUser | null> {
   const res =
-    await sql`UPDATE public."USERS" SET ${sql(user)} WHERE id = ${id} RETURNING *`;
+    await sql`UPDATE public."user" SET ${sql(user)} WHERE id = ${id} RETURNING *`;
   if (!res) return null;
   return res[0] as IUser;
 }
