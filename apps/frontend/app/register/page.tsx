@@ -1,4 +1,5 @@
 "use client";
+import { useCreateUser } from "@/api/useCreateUser";
 import { Loader } from "@/components/custom/Loader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -14,11 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { UserCircle } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useAuth } from "../(auth)/AuthProvider";
 import { useRouter } from "next/navigation";
-import { useCreateUserProvider } from "@/api/useCreateUserProvider";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "../(auth)/AuthProvider";
 import { getUserInfo } from "../(services)/api";
 
 export default function RegisterPage() {
@@ -28,7 +28,7 @@ export default function RegisterPage() {
   const { session, user, loading, setUser } = useAuth();
   const sessionUser = session?.user.user_metadata;
 
-  const { createUser } = useCreateUserProvider();
+  const { createUser } = useCreateUser();
 
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault();
