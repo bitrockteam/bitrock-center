@@ -1,8 +1,9 @@
-import { IStatus } from "@bitrock/types";
-import { sql } from "../config/postgres";
+import { db } from "../config/prisma";
 
 export async function getStatuses() {
-  const res = await sql`SELECT * FROM public."status"`;
-
-  return [...res] as IStatus[];
+  return db.status.findMany({
+    orderBy: {
+      name: "asc",
+    },
+  });
 }

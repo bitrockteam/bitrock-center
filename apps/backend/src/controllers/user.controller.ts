@@ -4,9 +4,7 @@ import multer from "multer";
 import { authenticateToken } from "../middleware/authMiddleware";
 import { extractInfoFromToken } from "../middleware/extractInfoFromToken";
 import {
-  createUserFromAuth,
   createUserManually,
-  getUserByAuthId,
   getUserByEmail,
   getUserById,
   getUsers,
@@ -50,8 +48,6 @@ export const createUserController = (app: Express) => {
       const userFromDbByEmail = await getUserByEmail(user.email);
 
       if (!userFromDbByEmail) return res.status(404).send("User not found");
-      if (userFromDbByEmail.auth_id && userFromDbByEmail.auth_id !== user.id)
-        return res.status(403).send("Unauthorized");
 
       return res.status(200).send(userFromDbByEmail);
     } catch (error) {
@@ -148,56 +144,6 @@ export const createUserController = (app: Express) => {
       return res.status(500).json({ error: "Error performing the request" });
     }
   });
-
-  /**
-   * @swagger
-   * /user/provider:
-   *   post:
-   *     summary: Create a new user from provider
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: "#/components/schemas/ICreateUser"
-   *     responses:
-   *       200:
-   *         description: User created successfully
-   *       400:
-   *         description: User not provided
-   *       403:
-   *         description: Unauthorized
-   *       409:
-   *         description: User already exists
-   *       500:
-   *         description: Error performing the request
-   */
-  app.post(
-    "/user/provider",
-    authenticateToken,
-    async (req: Request, res: Response) => {
-      try {
-        const user = await extractInfoFromToken(req);
-        if (!user) return res.status(403).send("Unauthorized");
-
-        const userAlreadyExists = Boolean(await getUserByAuthId(user.id));
-        if (userAlreadyExists)
-          return res.status(409).send("User already exists");
-
-        const userRequest = req.body as ICreateUser;
-        if (!userRequest) return res.status(400).send("User not provided");
-
-        const newUser = await createUserFromAuth(user.id, userRequest);
-
-        return res.status(200).send({ user: newUser });
-      } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: "Error performing the request" });
-      }
-    },
-  );
 
   /**
    * @swagger
