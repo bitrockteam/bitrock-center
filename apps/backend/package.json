@@ -14,7 +14,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@bitrock/db": "*",
     "@bitrock/types": "*",
+    "@prisma/client": "^6.8.2",
     "@supabase/supabase-js": "^2.49.3",
     "body-parser": "^1.20.3",
     "busboy": "^1.6.0",

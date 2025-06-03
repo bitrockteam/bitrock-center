@@ -7,7 +7,7 @@ import { sql } from "../config/postgres";
 
 export async function createAllocation(allocation: ICreateAllocation) {
   const res =
-    await sql`INSERT INTO public."ALLOCATIONS" (user_id, project_id, start_date, end_date, percentage) VALUES (${allocation.user_id}, ${allocation.project_id}, ${allocation.start_date ?? null}, ${allocation.end_date ?? null}, ${allocation?.percentage ?? null}) RETURNING *`;
+    await sql`INSERT INTO public."allocation" (user_id, project_id, start_date, end_date, percentage) VALUES (${allocation.user_id}, ${allocation.project_id}, ${allocation.start_date ?? null}, ${allocation.end_date ?? null}, ${allocation?.percentage ?? null}) RETURNING *`;
 
   return res[0] as ICreateAllocation;
 }
@@ -16,7 +16,7 @@ export async function getAllocationsForProject(
   project_id: string,
 ): Promise<IAllocation[]> {
   const res =
-    await sql`SELECT * FROM public."ALLOCATIONS" a INNER JOIN public."USERS" u ON a.user_id = u.id LEFT OUTER JOIN public."ROLES" r on u.role_id = r.id WHERE project_id = ${project_id}`;
+    await sql`SELECT * FROM public."allocation" a INNER JOIN public."user" u ON a.user_id = u.id LEFT OUTER JOIN public."role" r on u.role_id = r.id WHERE project_id = ${project_id}`;
   return res.map(
     (row) =>
       ({
@@ -41,7 +41,7 @@ export async function updateAllocationForUser(
   allocation: IUpdateAllocation,
 ) {
   const res =
-    await sql`UPDATE public."ALLOCATIONS" SET start_date = ${allocation.start_date ?? null}, end_date = ${allocation.end_date ?? null}, percentage = ${allocation.percentage ?? 100} WHERE user_id = ${user_id} AND project_id = ${project_id} RETURNING *`;
+    await sql`UPDATE public."allocation" SET start_date = ${allocation.start_date ?? null}, end_date = ${allocation.end_date ?? null}, percentage = ${allocation.percentage ?? 100} WHERE user_id = ${user_id} AND project_id = ${project_id} RETURNING *`;
   return res[0] as ICreateAllocation;
 }
 
@@ -50,6 +50,6 @@ export async function deleteAllocationForUser(
   user_id: string,
 ) {
   const res =
-    await sql`DELETE FROM public."ALLOCATIONS" WHERE user_id = ${user_id} AND project_id = ${project_id}`;
+    await sql`DELETE FROM public."allocation" WHERE user_id = ${user_id} AND project_id = ${project_id}`;
   return res[0] as ICreateAllocation;
 }

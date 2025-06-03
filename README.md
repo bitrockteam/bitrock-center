@@ -19,10 +19,57 @@ git clone git@github.com:bitrockteam/bitrock-center.git
 
 ### Set env variables
 
-- See env variables on https://www.notion.so/Bitrock-Center-1cb75833085d80e3b914dbc329e4170c (ask Davide Ghiotto for
+- See env variables on [dedicated notion page](https://www.notion.so/Bitrock-Center-1cb75833085d80e3b914dbc329e4170c) (ask Davide Ghiotto for
   access)
-- Copy `apps/backend/.env_example` to `apps/backend/.env` file and update the values accordingly.
-- Copy `apps/frontend/.env_example` to `apps/frontend/.env` file and update the values accordingly.
+- Copy `apps/backend/.env.example` to `apps/backend/.env` file and update the values accordingly.
+- Copy `apps/frontend/.env.example` to `apps/frontend/.env` file and update the values accordingly.
+- Copy `packages/db/.env.example` to `packages/db/.env` file and update the values accordingly.
+- Copy `.env.example` to `.env` file and update the values accordingly.
+
+> Beware that you will need to run the local instance of Supabase to obtain these two: `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_PROJECT_KEY`. Keep reading to understand how to get them.
+
+### Setup local instance Supabase
+
+- install the [supabase cli](https://supabase.com/docs/guides/local-development/cli/getting-started#updating-the-supabase-cli) (optional): if not installed a prefix `npx` is required to run the supabase via command line
+- run `supabase login` to access the hosted supabase instance
+- run `supabase link` to link the local instance to the remote one (for database diff, migrations and other stuff)
+- run `supabase start` will start a docker container for your local supabase instance
+
+If everything run correctly you should see something like this on your terminal:
+
+```bash
+Started supabase local development setup.
+         API URL: http://localhost:54321
+          DB URL: postgresql://postgres:postgres@localhost:54322/postgres
+      Studio URL: http://localhost:54323
+    Inbucket URL: http://localhost:54324
+        anon key: eyJh......
+service_role key: eyJh......
+```
+
+> In the console you will see the "anon" and "service_role" keys displaying two tokens. These are respectively the values of `apps/frontend/.env > NEXT_PUBLIC_SUPABASE_ANON_KEY` and `apps/backend/.env > SUPABASE_PROJECT_KEY`.
+
+Access the studio at [http://localhost:54323](http://localhost:54323).
+
+To stop the container just run `supabase stop`.
+
+#### Updating local from remote
+
+- `supabase db pull` to download locally the remote configuration along with the schema
+- `supabase db dump -f supabase/seed.sql --data-only` to download only the data available in the remote instance
+  > Warning: do not commit `supabase/seed.sql` file since it contains data from the authentication of the users. First we need to exclude this data from the local dump
+- `supabase migration up` to apply the new migrations
+- `supabase db reset` to reset the local instance and restarting it applying the new schema and seed data from the remote updates
+
+This procedure will automatically apply the migrations.
+
+#### Update remote from local
+
+- create a migration with `supabase db diff -f <your-migration-name>`
+- locally test that running `supabase db reset` will manage correctly the migration
+- when all checks are done (and maybe after releasing in develop/main branch) run the `supabase db push` command to push your local changes to the remote instance
+
+The `push` command will not reset the data on the remote instance.
 
 ### Install dependencies
 
@@ -31,8 +78,8 @@ git clone git@github.com:bitrockteam/bitrock-center.git
 - `yarn`
 - `yarn build`
 - `yarn dev`:
-    - frontend on `localhost:3001`
-    - backend on `localhost:3000`
+  - frontend on `localhost:3001`
+  - backend on `localhost:3000`
 
 ## Development Workflow
 

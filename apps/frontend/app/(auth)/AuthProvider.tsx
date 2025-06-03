@@ -45,7 +45,13 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
           //   console.log("Autenticato");
           // }
           await getUserInfo({ token: session.access_token })
-            .then((res) => setUser(res))
+            .then((res) => {
+              if (res) setUser(res);
+              else {
+                setUser(undefined);
+                redirect.push("/register");
+              }
+            })
             .catch(() => {
               setUser(undefined);
               redirect.push("/register");

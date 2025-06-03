@@ -1,93 +1,55 @@
 import { ICreateUser, IUpdateUser, IUser } from "@bitrock/types";
-import { sql } from "../config/postgres";
+import { db } from "../config/prisma";
 import { supabase } from "../config/supabase";
 
 // GET
 
-export async function getUserByAuthId(id: string): Promise<IUser | null> {
-  const res = await sql`SELECT * FROM public."USERS" WHERE auth_id = ${id}`;
-  if (!res) return null;
-  return res[0] as IUser;
-}
-
-export async function getUserByEmail(email: string): Promise<IUser | null> {
-  const res = await sql`SELECT * FROM public."USERS" WHERE email = ${email}`;
-  if (!res) return null;
-  return res[0] as IUser;
+export async function getUserByEmail(email: string) {
+  return db.user.findFirst({
+    include: { role: true },
+    where: { email },
+  });
 }
 export async function getUserById(id: string): Promise<IUser | null> {
-  const res =
-    await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."USERS" u LEFT OUTER JOIN public."ROLES" r ON u.role_id = r.id WHERE u.id = ${id}`;
+  const res = await db.user.findUnique({
+    include: { role: true },
+    where: { id },
+  });
   if (!res) return null;
-  if (res.length === 0) return null;
-  if (res.length > 1) {
-    console.error("More than one user found with the same id");
-    console.error(res);
-    throw new Error("More than one user found with the same id");
-  }
-  return res.map((row) => ({
-    id: row.id,
-    auth_id: row.auth_id,
-    name: row.name,
-    email: row.email,
-    avatar_url: row.avatar_url,
-    role: {
-      id: row.role_id,
-      label: row.label,
+  return {
+    id: res.id,
+    name: res.name,
+    email: res.email,
+    avatar_url: res.avatar_url ?? undefined,
+    ...(res.role?.id && {
+      role: { id: res.role.id, label: res.role.label },
+    }),
+  };
+}
+
+export async function getUsers(params?: string) {
+  return db.user.findMany({
+    include: { role: true },
+    orderBy: { name: "asc" },
+    where: params
+      ? {
+          OR: [
+            { name: { contains: params, mode: "insensitive" } },
+            { email: { contains: params, mode: "insensitive" } },
+          ],
+        }
+      : undefined,
+  });
+}
+
+export async function createUserManually(user: ICreateUser) {
+  return db.user.create({
+    data: {
+      name: user.name,
+      email: user.email,
+      avatar_url: user.avatar_url ?? undefined,
     },
-  }))[0];
-}
-
-export async function getUsers(params?: string): Promise<IUser[]> {
-  if (params) {
-    const res =
-      await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."USERS" u LEFT OUTER JOIN public."ROLES" r ON u.role_id = r.id WHERE u.name LIKE '%' || ${params} || '%' OR u.email LIKE '%' || ${params} || '%'`;
-    if (!res) return [];
-    return res.map((row) => ({
-      id: row.id,
-      auth_id: row.auth_id,
-      name: row.name,
-      email: row.email,
-      avatar_url: row.avatar_url,
-      role: {
-        id: row.role_id,
-        label: row.label,
-      },
-    }));
-  }
-
-  const res =
-    await sql`SELECT u.id,u.email,u.name,u.avatar_url,u.auth_id,u.role_id, r.label FROM public."USERS" u LEFT OUTER JOIN public."ROLES" r ON u.role_id = r.id`;
-
-  return res.map((row) => ({
-    id: row.id,
-    auth_id: row.auth_id,
-    name: row.name,
-    email: row.email,
-    avatar_url: row.avatar_url,
-    role: {
-      id: row.role_id,
-      label: row.label,
-    },
-  }));
-}
-
-// POST
-
-export async function createUserFromAuth(
-  authId: string,
-  user: ICreateUser,
-): Promise<IUser> {
-  const res = user.avatar_url
-    ? await sql`INSERT INTO public."USERS" (auth_id, name, email, avatar_url) VALUES (${authId}, ${user.name}, ${user.email}, ${user.avatar_url}) RETURNING *`
-    : await sql`INSERT INTO public."USERS" (auth_id, name, email) VALUES (${authId}, ${user.name}, ${user.email}) RETURNING *`;
-  return res[0] as IUser;
-}
-
-export async function createUserManually(user: ICreateUser): Promise<IUser> {
-  const res =
-    await sql`INSERT INTO public."USERS" (name, email) VALUES (${user.name}, ${user.email}) RETURNING *`;
-  return res[0] as IUser;
+  });
 }
 
 export async function uploadFileAvatar(
@@ -118,12 +80,11 @@ export async function uploadFileAvatar(
 
 // PATCH
 
-export async function updateUser(
-  id: string,
-  user: Partial<IUpdateUser>,
-): Promise<IUser | null> {
-  const res =
-    await sql`UPDATE public."USERS" SET ${sql(user)} WHERE id = ${id} RETURNING *`;
+export async function updateUser(id: string, user: Partial<IUpdateUser>) {
+  const res = await db.user.update({
+    where: { id },
+    data: user,
+  });
   if (!res) return null;
-  return res[0] as IUser;
+  return res as IUser;
 }
