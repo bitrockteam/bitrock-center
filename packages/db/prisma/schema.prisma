@@ -22,7 +22,6 @@ model allocation {
   user       user      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_id, project_id])
-  
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -40,8 +39,6 @@ model permit {
   end_date                      DateTime? @db.Timestamp(6)
   user_permit_reviewer_idTouser user      @relation("permit_reviewer_idTouser", fields: [reviewer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user_permit_user_idTouser     user      @relation("permit_user_idTouser", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
