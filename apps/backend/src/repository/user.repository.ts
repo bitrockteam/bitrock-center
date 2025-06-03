@@ -1,5 +1,4 @@
 import { ICreateUser, IUpdateUser, IUser } from "@bitrock/types";
-import { sql } from "../config/postgres";
 import { db } from "../config/prisma";
 import { supabase } from "../config/supabase";
 
@@ -28,28 +27,19 @@ export async function getUserById(id: string): Promise<IUser | null> {
   };
 }
 
-export async function getUsers(params: string) {
+export async function getUsers(params?: string) {
   return db.user.findMany({
     include: { role: true },
-    where: {
-      OR: [
-        { name: { contains: params, mode: "insensitive" } },
-        { email: { contains: params, mode: "insensitive" } },
-      ],
-    },
+    orderBy: { name: "asc" },
+    where: params
+      ? {
+          OR: [
+            { name: { contains: params, mode: "insensitive" } },
+            { email: { contains: params, mode: "insensitive" } },
+          ],
+        }
+      : undefined,
   });
-}
-
-// POST
-
-export async function createUserFromAuth(
-  authId: string,
-  user: ICreateUser,
-): Promise<IUser> {
-  const res = user.avatar_url
-    ? await sql`INSERT INTO public."user" (name, email, avatar_url) VALUES (${user.name}, ${user.email}, ${user.avatar_url}) RETURNING *`
-    : await sql`INSERT INTO public."user" (name, email) VALUES (${user.name}, ${user.email}) RETURNING *`;
-  return res[0] as IUser;
 }
 
 export async function createUserManually(user: ICreateUser) {
@@ -90,12 +80,11 @@ export async function uploadFileAvatar(
 
 // PATCH
 
-export async function updateUser(
-  id: string,
-  user: Partial<IUpdateUser>,
-): Promise<IUser | null> {
-  const res =
-    await sql`UPDATE public."user" SET ${sql(user)} WHERE id = ${id} RETURNING *`;
+export async function updateUser(id: string, user: Partial<IUpdateUser>) {
+  const res = await db.user.update({
+    where: { id },
+    data: user,
+  });
   if (!res) return null;
-  return res[0] as IUser;
+  return res as IUser;
 }

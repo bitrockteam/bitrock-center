@@ -1,4 +1,5 @@
 import Sidebar from "@/components/sidebar";
+import { createClient } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
@@ -8,7 +9,6 @@ import { Toaster } from "sonner";
 import "../styles/globals.css";
 import { AuthProvider } from "./(auth)/AuthProvider";
 import { SessionDataProvider } from "./utenti/SessionData";
-import { createClient } from "@/utils/supabase/server";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,7 +31,7 @@ export default async function RootLayout({
   const session = await supabase.auth.getSession();
   return (
     <html lang="it" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
         <Suspense>
           <ThemeProvider
             attribute="class"

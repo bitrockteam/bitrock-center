@@ -95,7 +95,7 @@ export const createUserController = (app: Express) => {
     try {
       const { params } = req.query;
 
-      const users = await getUsers(params as string);
+      const users = await getUsers(params as string | undefined);
       return res.status(200).send(users);
     } catch (error) {
       console.error(error);
