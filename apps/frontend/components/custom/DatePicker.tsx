@@ -34,9 +34,7 @@ export function DatePicker({
         <div className="relative">
           <Input
             readOnly
-            defaultValue={
-              date ? format(date, "dd/MM/yyyy") : "Seleziona una data"
-            }
+            value={date ? format(date, "dd/MM/yyyy") : "Seleziona una data"}
             className="pl-10"
           />
           <CalendarIcon className="absolute top-[6px] left-2 cursor-pointer scale-80" />
@@ -53,6 +51,8 @@ export function DatePicker({
           mode="single"
           selected={date}
           onSelect={(selectedDate) => {
+            console.log("Selected date:", selectedDate);
+
             setDate(selectedDate);
             setIsOpen(false);
           }}
