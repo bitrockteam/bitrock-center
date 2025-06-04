@@ -84,6 +84,7 @@ model timesheet {
   user_id     String   @db.Uuid
   description String?  @db.VarChar
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  hours       Int      @db.SmallInt
   project     project  @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user        user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
