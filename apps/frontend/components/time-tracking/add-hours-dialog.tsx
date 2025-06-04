@@ -193,7 +193,16 @@ export default function AddHoursDialog({
                 <FormItem>
                   <FormLabel>Ore</FormLabel>
                   <FormControl>
-                    <Input type="number" min="0.5" step="0.5" {...field} />
+                    <Input
+                      type="number"
+                      min="0.5"
+                      step="0.5"
+                      {...field}
+                      onChange={(e) =>
+                        form.setValue("hours", parseFloat(e.target.value) || 0)
+                      }
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,6 +1,7 @@
 import { type Express, type Request, type Response } from "express";
 
 import { version } from "../package.json";
+import { createAiController } from "./controllers/ai.controller";
 import { createAllocationsController } from "./controllers/allocations.controller";
 import { createPermitsController } from "./controllers/permits.controller";
 import { createProjectsController } from "./controllers/projects.controller";
@@ -23,4 +24,5 @@ export const addPublicRoutes = (app: Express) => {
   createPermitsController(app);
   createAllocationsController(app);
   createTimesheetController(app);
+  createAiController(app);
 };
