@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { db } from "../config/prisma";
 import { supabase } from "../config/supabase";
 
 // Middleware for protected routes
@@ -15,4 +16,12 @@ export const extractInfoFromToken = (req: Request) => {
   } catch (err) {
     return null;
   }
+};
+
+export const getUserIdFromEmail = async (email?: string) => {
+  if (!email) return null;
+  return db.user.findFirst({
+    where: { email },
+    select: { id: true },
+  });
 };

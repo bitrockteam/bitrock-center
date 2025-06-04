@@ -1,7 +1,6 @@
 import { ICreateAllocation, IUpdateAllocation } from "@bitrock/types";
 import { type Express, type Request, type Response } from "express";
 import { authenticateToken } from "../middleware/authMiddleware";
-import { extractInfoFromToken } from "../middleware/extractInfoFromToken";
 import {
   createAllocation,
   deleteAllocationForUser,
@@ -35,17 +34,18 @@ export const createAllocationsController = (app: Express) => {
     authenticateToken,
     async (req: Request, res: Response) => {
       try {
-        const user = await extractInfoFromToken(req);
-        if (!user) return res.status(403).send("Unauthorized");
-
         const allocationRequest = req.body as ICreateAllocation;
         if (!allocationRequest.user_id)
           return res.status(400).send("User not provided");
         if (!allocationRequest.project_id)
           return res.status(400).send("Project not provided");
 
-        if (allocationRequest.start_date && allocationRequest.end_date && allocationRequest.start_date > allocationRequest.end_date) {
-            return res.status(400).send("Start date must be before end date");
+        if (
+          allocationRequest.start_date &&
+          allocationRequest.end_date &&
+          allocationRequest.start_date > allocationRequest.end_date
+        ) {
+          return res.status(400).send("Start date must be before end date");
         }
 
         const newAllocation = await createAllocation(allocationRequest);
@@ -63,9 +63,6 @@ export const createAllocationsController = (app: Express) => {
     authenticateToken,
     async (req: Request, res: Response) => {
       try {
-        const user = await extractInfoFromToken(req);
-        if (!user) return res.status(403).send("Unauthorized");
-
         const project_id = req.params.project_id;
 
         if (!project_id) return res.status(400).send("Project not provided");
@@ -85,9 +82,6 @@ export const createAllocationsController = (app: Express) => {
     authenticateToken,
     async (req: Request, res: Response) => {
       try {
-        const user = await extractInfoFromToken(req);
-        if (!user) return res.status(403).send("Unauthorized");
-
         const project_id = req.params.project_id;
         const user_id = req.params.user_id;
 
@@ -115,9 +109,6 @@ export const createAllocationsController = (app: Express) => {
     authenticateToken,
     async (req: Request, res: Response) => {
       try {
-        const user = await extractInfoFromToken(req);
-        if (!user) return res.status(403).send("Unauthorized");
-
         const project_id = req.params.project_id;
         const user_id = req.params.user_id;
 

@@ -2,7 +2,10 @@ import { ICreateUser, IUpdateUser } from "@bitrock/types";
 import { type Express, type Request, type Response } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/authMiddleware";
-import { extractInfoFromToken } from "../middleware/extractInfoFromToken";
+import {
+  extractInfoFromToken,
+  getUserIdFromEmail,
+} from "../middleware/extractInfoFromToken";
 import {
   createUserManually,
   getUserByEmail,
@@ -125,9 +128,6 @@ export const createUserController = (app: Express) => {
    */
   app.post("/user", authenticateToken, async (req: Request, res: Response) => {
     try {
-      const user = await extractInfoFromToken(req);
-      if (!user) return res.status(403).send("Unauthorized");
-
       const userRequest = req.body as ICreateUser;
       if (!userRequest) return res.status(400).send("User not provided");
 
@@ -179,6 +179,9 @@ export const createUserController = (app: Express) => {
         const user = await extractInfoFromToken(req);
         if (!user) return res.status(403).send("Unauthorized");
 
+        const userFromEmail = await getUserIdFromEmail(user.email);
+        if (!userFromEmail) return res.status(403).send("Unauthorized");
+
         if (!(req as any).file) {
           return res.status(400).json({ error: "No file uploaded" });
         }
@@ -209,7 +212,11 @@ export const createUserController = (app: Express) => {
           return res.status(400).json({ error: "File size exceeds 10MB" });
         }
 
-        const newAvatar = await uploadFileAvatar(user.id, mimetype, buffer);
+        const newAvatar = await uploadFileAvatar(
+          userFromEmail.id,
+          mimetype,
+          buffer,
+        );
 
         return res.status(200).send({ avatar: newAvatar });
       } catch (error) {

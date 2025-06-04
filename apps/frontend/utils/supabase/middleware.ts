@@ -1,31 +1,34 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { getUserInfo } from "@/app/(services)/api";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
-  })
+  });
 
   const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-            supabaseResponse = NextResponse.next({
-              request,
-            })
-            cookiesToSet.forEach(({ name, value, options }) =>
-                supabaseResponse.cookies.set(name, value, options)
-            )
-          },
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
         },
-      }
-  )
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value),
+          );
+          supabaseResponse = NextResponse.next({
+            request,
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options),
+          );
+        },
+      },
+    },
+  );
 
   // Do not run code between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
@@ -35,17 +38,18 @@ export async function updateSession(request: NextRequest) {
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
-  const pathNames = ['login', 'auth', 'error', 'auth/callback'];
+  const pathNames = ["login", "auth", "error", "auth/callback"];
 
   if (
-      !user && !pathNames.some(path => request.nextUrl.pathname.startsWith(`/${path}`))
+    !user &&
+    !pathNames.some((path) => request.nextUrl.pathname.startsWith(`/${path}`))
   ) {
     // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
@@ -61,5 +65,26 @@ export async function updateSession(request: NextRequest) {
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely!
 
-  return supabaseResponse
+  // 🔑 Add custom user info from token
+  const session = await supabase.auth.getSession();
+  const token = session.data.session?.access_token;
+  if (token) {
+    try {
+      const userInfo = await getUserInfo({ token });
+
+      // Option 1: Add to a secure cookie
+      supabaseResponse.cookies.set("x-user-info", JSON.stringify(userInfo), {
+        httpOnly: true,
+        secure: true,
+        path: "/",
+      });
+
+      // Option 2: Or alternatively, a header (less secure)
+      // supabaseResponse.headers.set("x-user-info", JSON.stringify(userInfo));
+    } catch (err) {
+      console.error("Failed to fetch userInfo:", err);
+    }
+  }
+
+  return supabaseResponse;
 }

@@ -1,5 +1,6 @@
 import { IProject, IProjectUpsert, IUser } from "@bitrock/types";
 import { sql } from "../config/postgres";
+import { db } from "../config/prisma";
 
 export async function getProjects(params?: string): Promise<IProject[]> {
   const baseQuery = sql`
@@ -207,3 +208,21 @@ export const getAvailableUsersForProject = async (
     avatar_url: row.avatar_url,
   }));
 };
+
+export async function getUserProjects(userId: string) {
+  return db.project.findMany({
+    include: {
+      status: true,
+    },
+    where: {
+      allocation: {
+        some: {
+          user_id: userId,
+        },
+      },
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+  });
+}
