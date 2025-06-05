@@ -6,14 +6,15 @@ export const metadata: Metadata = {
   description: "Visualizza il piano di progetto e il diagramma di Gantt",
 };
 
-export default function ProjectPlanPage({
+export default async function ProjectPlanPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   return (
     <div className="space-y-6">
-      <ProjectPlan id={params.id} />
+      <ProjectPlan id={id} />
     </div>
   );
 }
