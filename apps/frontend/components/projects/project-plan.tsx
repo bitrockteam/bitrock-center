@@ -90,7 +90,7 @@ export default function ProjectPlan({ id }: { id: string }) {
             {/* Header della sidebar */}
             <div className="bg-primary text-primary-foreground">
               <div className="flex">
-                <div className="w-64 min-w-12 border-r border-primary-foreground/20 p-3 font-medium">
+                <div className="w-96 min-w-96 border-r border-primary-foreground/20 p-3 font-medium">
                   Attività
                 </div>
                 <div className="w-24 min-w-24 overflow-auto p-3 font-medium text-center">
@@ -111,7 +111,7 @@ export default function ProjectPlan({ id }: { id: string }) {
                     )}
                     onClick={() => toggleEpic(epic.id)}
                   >
-                    <div className="w-64 min-w-64 border-r border-border p-3 font-medium flex items-center">
+                    <div className="w-96 min-w-96 border-r border-border p-3 font-medium flex items-center">
                       {expandedEpics[epic.id] ? (
                         <ChevronDown className="h-4 w-4 mr-2 flex-shrink-0" />
                       ) : (
@@ -144,8 +144,10 @@ export default function ProjectPlan({ id }: { id: string }) {
                           epicIndex % 2 === 0 ? "bg-muted/10" : "",
                         )}
                       >
-                        <div className="w-64 min-w-64 border-r border-border p-3 pl-8 overflow-auto">
-                          <span className="truncate">{activity.name}</span>
+                        <div className="w-96 min-w-96 border-r border-border p-3 pl-8 overflow-auto">
+                          <span className="truncate text-xs">
+                            {activity.name}
+                          </span>
                         </div>
                         <div
                           className={cn(
