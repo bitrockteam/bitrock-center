@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   BarChart3,
+  Bot,
   Briefcase,
   Calendar,
   Clock,
@@ -56,6 +57,11 @@ const navItems = [
     title: "Utenti",
     href: "/utenti",
     icon: Users,
+  },
+  {
+    title: "AI Assistant",
+    href: "/ai-assistant",
+    icon: Bot,
   },
 ];
 

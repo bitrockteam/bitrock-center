@@ -46,5 +46,11 @@ export function useAiSearch() {
     }
   };
 
-  return { loading, error, result, search };
+  const reset = () => {
+    setLoading(false);
+    setError(null);
+    setResult(undefined);
+  };
+
+  return { loading, error, result, search, reset };
 }
