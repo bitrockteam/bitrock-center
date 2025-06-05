@@ -35,15 +35,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-interface AddHoursDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editData?: any;
-  defaultDate?: string | null;
-  onClose?: () => void;
-}
-
 const schema = z.object({
   date: z
     .date()
@@ -56,6 +47,14 @@ const schema = z.object({
   description: z.string().optional(),
   user_id: z.string().min(1, "L'utente è obbligatorio"),
 });
+
+interface AddHoursDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  editData?: Partial<timesheet> | null;
+  defaultDate?: string | null;
+  onClose?: () => void;
+}
 
 export default function AddHoursDialog({
   open,
@@ -82,7 +81,7 @@ export default function AddHoursDialog({
       form.reset({
         date: editData.date,
         project_id: undefined,
-        hours: editData.hours.toString(),
+        hours: editData.hours,
         description: editData.description,
       });
     } else if (defaultDate) {

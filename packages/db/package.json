@@ -7,6 +7,7 @@
   "license": "ISC",
   "description": "",
   "scripts": {
+    "build": "tsc",
     "postinstall": "npx prisma generate"
   },
   "devDependencies": {

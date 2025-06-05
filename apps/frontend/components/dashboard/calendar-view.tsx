@@ -1,5 +1,6 @@
 "use client";
 
+import { UserTimesheet } from "@/api/server/timesheet/fetchUserTimesheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,26 +24,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getLeaveRequests, getTimeEntries } from "@/lib/mock-data";
+import { permit, PermitStatus, PermitType } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { useMemo, useState } from "react";
 
-// Tipo di evento nel calendario
-type CalendarEvent = {
-  date: Date;
-  type: "work" | "vacation" | "permission" | "sickness";
-  hours?: number;
-  description: string;
-  status: string;
-};
-
-export default function CalendarView() {
+export default function CalendarView({
+  timesheet,
+  permits,
+}: {
+  timesheet: UserTimesheet[];
+  permits: permit[];
+}) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-    null,
-  );
 
   // Ottieni il primo giorno del mese
   const firstDayOfMonth = useMemo(() => {
@@ -69,69 +63,6 @@ export default function CalendarView() {
     return firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
   }, [firstDayOfWeek]);
 
-  // Genera gli eventi del calendario
-  const calendarEvents = useMemo(() => {
-    const events: Record<string, CalendarEvent[]> = {};
-
-    // Aggiungi le ore lavorate
-    const timeEntries = getTimeEntries();
-    timeEntries.forEach((entry) => {
-      const date = new Date(entry.date);
-      const dateKey = date.toISOString().split("T")[0];
-
-      if (!events[dateKey]) {
-        events[dateKey] = [];
-      }
-
-      events[dateKey].push({
-        date,
-        type: "work",
-        hours: entry.hours,
-        description: entry.description,
-        status: entry.status,
-      });
-    });
-
-    // Aggiungi ferie e permessi
-    const leaveRequests = getLeaveRequests();
-    leaveRequests.forEach((request) => {
-      // Estrai le date di inizio e fine dal formato "DD/MM/YYYY - DD/MM/YYYY"
-      const [startDateStr, endDateStr] = request.period.split(" - ");
-
-      // Converti le date dal formato italiano (DD/MM/YYYY) a Date
-      const parseItalianDate = (dateStr: string) => {
-        const [day, month, year] = dateStr.split("/").map(Number);
-        return new Date(year, month - 1, day);
-      };
-
-      const startDate = parseItalianDate(startDateStr);
-      // Se c'è una data di fine, usala, altrimenti usa la data di inizio
-      const endDate = endDateStr ? parseItalianDate(endDateStr) : startDate;
-
-      // Aggiungi un evento per ogni giorno nel periodo
-      const currentDate = new Date(startDate);
-      while (currentDate <= endDate) {
-        const dateKey = currentDate.toISOString().split("T")[0];
-
-        if (!events[dateKey]) {
-          events[dateKey] = [];
-        }
-
-        events[dateKey].push({
-          date: new Date(currentDate),
-          type: request.type as "vacation" | "permission" | "sickness",
-          description: request.reason,
-          status: request.status,
-        });
-
-        // Passa al giorno successivo
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-    });
-
-    return events;
-  }, []);
-
   // Funzione per ottenere il nome del mese
   const getMonthName = (date: Date) => {
     return date.toLocaleString("it-IT", { month: "long" });
@@ -153,25 +84,40 @@ export default function CalendarView() {
 
   // Funzione per ottenere gli eventi di un giorno specifico
   const getEventsForDay = (day: number) => {
-    const date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day,
-    );
-    const dateKey = date.toISOString().split("T")[0];
-    return calendarEvents[dateKey] || [];
+    console.info(day);
+    return {
+      permits: permits.filter((permit) => {
+        const permitDate = new Date(permit.start_date);
+        if (permitDate.getDate() === day) {
+          console.info(permit.start_date, permitDate, day);
+        }
+        return (
+          permitDate.getDate() === day &&
+          permitDate.getMonth() === currentDate.getMonth() &&
+          permitDate.getFullYear() === currentDate.getFullYear()
+        );
+      }),
+      timesheet: timesheet.filter((ts) => {
+        const tsDate = new Date(ts.date);
+        return (
+          tsDate.getDate() === day &&
+          tsDate.getMonth() === currentDate.getMonth() &&
+          tsDate.getFullYear() === currentDate.getFullYear()
+        );
+      }),
+    };
   };
 
   // Funzione per ottenere il colore del badge in base al tipo di evento
-  const getEventBadgeColor = (type: string) => {
+  const getEventBadgeColor = (type?: PermitType) => {
     switch (type) {
-      case "work":
+      case undefined:
         return "bg-blue-500";
-      case "vacation":
+      case PermitType.VACATION:
         return "bg-green-500";
-      case "permission":
+      case PermitType.PERMISSION:
         return "bg-amber-500";
-      case "sickness":
+      case PermitType.SICKNESS:
         return "bg-red-500";
       default:
         return "bg-gray-500";
@@ -179,15 +125,15 @@ export default function CalendarView() {
   };
 
   // Funzione per ottenere l'etichetta del tipo di evento
-  const getEventTypeLabel = (type: string) => {
+  const getEventTypeLabel = (type?: PermitType) => {
     switch (type) {
-      case "work":
+      case undefined:
         return "Lavoro";
-      case "vacation":
+      case PermitType.VACATION:
         return "Ferie";
-      case "permission":
+      case PermitType.PERMISSION:
         return "Permesso";
-      case "sickness":
+      case PermitType.SICKNESS:
         return "Malattia";
       default:
         return type;
@@ -264,11 +210,14 @@ export default function CalendarView() {
                 );
               }
 
-              const events = getEventsForDay(day);
+              const dailyEvents = getEventsForDay(day);
               const isToday =
                 new Date().getDate() === day &&
                 new Date().getMonth() === currentDate.getMonth() &&
                 new Date().getFullYear() === currentDate.getFullYear();
+
+              const totalEvents =
+                dailyEvents.permits.length + dailyEvents.timesheet.length;
 
               return (
                 <div
@@ -281,7 +230,7 @@ export default function CalendarView() {
                     >
                       {day}
                     </span>
-                    {events.length > 0 && (
+                    {dailyEvents.permits.length > 0 && (
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
@@ -304,7 +253,7 @@ export default function CalendarView() {
                             </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4 mt-4">
-                            {events.map((event, eventIndex) => (
+                            {dailyEvents.permits.map((event, eventIndex) => (
                               <div
                                 key={eventIndex}
                                 className="border rounded-md p-3"
@@ -317,23 +266,23 @@ export default function CalendarView() {
                                   </Badge>
                                   <Badge
                                     variant={
-                                      event.status === "approved"
+                                      event.status === PermitStatus.APPROVED
                                         ? "outline"
-                                        : event.status === "pending"
+                                        : event.status === PermitStatus.PENDING
                                           ? "secondary"
                                           : "destructive"
                                     }
                                   >
-                                    {event.status === "approved"
+                                    {event.status === PermitStatus.APPROVED
                                       ? "Approvato"
-                                      : event.status === "pending"
+                                      : event.status === PermitStatus.PENDING
                                         ? "In attesa"
                                         : "Rifiutato"}
                                   </Badge>
                                 </div>
-                                {event.hours && (
+                                {event.duration && (
                                   <p className="text-sm mb-1">
-                                    Ore: {event.hours}
+                                    Ore: {Number(event.duration)}h
                                   </p>
                                 )}
                                 <p className="text-sm text-muted-foreground">
@@ -347,29 +296,29 @@ export default function CalendarView() {
                     )}
                   </div>
                   <div className="mt-1 space-y-1">
-                    {events.slice(0, 2).map((event, eventIndex) => (
-                      <TooltipProvider key={eventIndex}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div
-                              className={`text-xs px-1 py-0.5 rounded ${getEventBadgeColor(event.type)} text-white truncate`}
-                            >
-                              {event.type === "work"
-                                ? `${event.hours}h`
-                                : getEventTypeLabel(event.type)}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{getEventTypeLabel(event.type)}</p>
-                            {event.hours && <p>Ore: {event.hours}</p>}
-                            <p>{event.description}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ))}
-                    {events.length > 2 && (
+                    {dailyEvents.timesheet
+                      .slice(0, 2)
+                      .map((event, eventIndex) => (
+                        <TooltipProvider key={eventIndex}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div
+                                className={`text-xs px-1 py-0.5 rounded ${getEventBadgeColor()} text-white truncate`}
+                              >
+                                {`${event.hours}h`}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{getEventTypeLabel()}</p>
+                              {event.hours && <p>Ore: {event.hours}</p>}
+                              <p>{event.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ))}
+                    {totalEvents > 2 && (
                       <div className="text-xs text-muted-foreground">
-                        +{events.length - 2} altri
+                        +{totalEvents - 2} altri
                       </div>
                     )}
                   </div>

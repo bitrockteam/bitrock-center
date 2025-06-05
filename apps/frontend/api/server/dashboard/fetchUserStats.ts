@@ -1,6 +1,7 @@
 "use server";
 import { db } from "@/config/prisma";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import { PermitStatus, PermitType } from "@bitrock/db";
 
 export type UserStats = {
   hoursWorked: number;
@@ -49,7 +50,7 @@ export async function fetchUserStats(): Promise<UserStats> {
     },
     where: {
       user_id: userId,
-      type: "vacation",
+      type: PermitType.VACATION,
       start_date: {
         // Start of current year
         gte: new Date(new Date().getFullYear(), 0, 1),
@@ -58,12 +59,12 @@ export async function fetchUserStats(): Promise<UserStats> {
   });
 
   const totalVacationDays = 25; // Placeholder, replace with actual logic to fetch from user settings or config
-  const vacationDaysUsed = Number(permissionHours._sum.duration) || 0;
+  const vacationDaysUsed = Number(permissionHours._sum?.duration) || 0;
 
   const pendingRequests = await db.permit.count({
     where: {
       user_id: userId,
-      status: "pending",
+      status: PermitStatus.PENDING,
     },
   });
   return {

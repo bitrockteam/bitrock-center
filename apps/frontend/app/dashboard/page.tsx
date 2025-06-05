@@ -1,11 +1,13 @@
-import { fetchUserStats } from "@/api/server/stats/fetchUserStats";
+import { fetchLatestNotifications } from "@/api/server/dashboard/fetchLatestNotifications";
+import { fetchUserStats } from "@/api/server/dashboard/fetchUserStats";
+import { fetchUserPermits } from "@/api/server/permit/fetchUserPermits";
+import { fetchUserTimesheet } from "@/api/server/timesheet/fetchUserTimesheet";
 import CalendarView from "@/components/dashboard/calendar-view";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import DashboardSearch from "@/components/dashboard/dashboard-search";
 import DashboardSummary from "@/components/dashboard/dashboard-summary";
 import HoursChart from "@/components/dashboard/hours-chart";
 import NotificationsCard from "@/components/dashboard/notifications-card";
-import RecentRequests from "@/components/dashboard/recent-requests";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Metadata } from "next";
 
@@ -16,6 +18,10 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const summary = await fetchUserStats();
+  const latestNotifications = await fetchLatestNotifications();
+
+  const latestTimesheets = await fetchUserTimesheet();
+  const permits = await fetchUserPermits();
   return (
     <div className="space-y-6">
       <DashboardHeader />
@@ -31,13 +37,12 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <HoursChart />
             <div className="space-y-6">
-              <NotificationsCard />
-              <RecentRequests />
+              <NotificationsCard notifications={latestNotifications} />
             </div>
           </div>
         </TabsContent>
         <TabsContent value="calendar">
-          <CalendarView />
+          <CalendarView timesheet={latestTimesheets} permits={permits} />
         </TabsContent>
       </Tabs>
     </div>

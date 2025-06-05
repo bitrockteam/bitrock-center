@@ -1,5 +1,8 @@
 "use client";
 
+import { useCreatePermit } from "@/api/useCreatePermit";
+import { useGetUsers } from "@/api/useGetUsers";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -20,16 +23,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { useForm } from "react-hook-form";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { useState } from "react";
-import { useCreatePermit } from "@/api/useCreatePermit";
-import { useGetUsers } from "@/api/useGetUsers";
-import { DatePicker } from "../custom/DatePicker";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { DatePicker } from "../custom/DatePicker";
 // import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
 // import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
 import { useSessionContext } from "@/app/utenti/SessionData";
+import { PermitStatus, PermitType } from "@bitrock/db";
 
 interface PermitFormValues {
   type: string;
@@ -66,9 +67,10 @@ export default function PermitRequestForm() {
       type: data.type,
       startDate: data.startDate,
       endDate: data.endDate || undefined,
-      duration: data.type === "permission" ? parseFloat(data.duration) : 8,
+      duration:
+        data.type === PermitType.PERMISSION ? parseFloat(data.duration) : 8,
       description: data.description,
-      status: "pending",
+      status: PermitStatus.PENDING,
       reviewerId: data.reviewerId,
     };
 
@@ -119,9 +121,15 @@ export default function PermitRequestForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="vacation">Ferie</SelectItem>
-                        <SelectItem value="permission">Permesso</SelectItem>
-                        <SelectItem value="sickness">Malattia</SelectItem>
+                        <SelectItem value={PermitType.VACATION}>
+                          Ferie
+                        </SelectItem>
+                        <SelectItem value={PermitType.PERMISSION}>
+                          Permesso
+                        </SelectItem>
+                        <SelectItem value={PermitType.SICKNESS}>
+                          Malattia
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -136,7 +144,8 @@ export default function PermitRequestForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Data {form.watch("type") !== "permission" && "Inizio"}
+                      Data{" "}
+                      {form.watch("type") !== PermitType.PERMISSION && "Inizio"}
                     </FormLabel>
                     <FormControl>
                       <DatePicker
@@ -149,7 +158,7 @@ export default function PermitRequestForm() {
                   </FormItem>
                 )}
               />
-              {form.watch("type") !== "permission" && (
+              {form.watch("type") !== PermitType.PERMISSION && (
                 <FormField
                   control={form.control}
                   name="endDate"
@@ -184,7 +193,7 @@ export default function PermitRequestForm() {
                 />
               )}
 
-              {form.watch("type") === "permission" && (
+              {form.watch("type") === PermitType.PERMISSION && (
                 <FormField
                   control={form.control}
                   rules={{
@@ -204,7 +213,7 @@ export default function PermitRequestForm() {
                           min="0"
                           max="8"
                           {...field}
-                          disabled={form.watch("type") === "sickness"}
+                          disabled={form.watch("type") === PermitType.SICKNESS}
                         />
                       </FormControl>
                       <FormMessage />

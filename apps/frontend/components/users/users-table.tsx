@@ -78,7 +78,7 @@ export default function UsersTable() {
                         </div>
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.role?.label}</TableCell>
+                      <TableCell>{user.role?.label ?? "Developer"}</TableCell>
                       <TableCell>{0}</TableCell>
                     </TableRow>
                   );

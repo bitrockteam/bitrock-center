@@ -251,14 +251,14 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
                         <TableCell>
                           <Badge
                             variant={
-                              entry.status === "approved"
+                              entry.status === PermitStatus.APPROVED
                                 ? "outline"
                                 : entry.status === "pending"
                                   ? "secondary"
                                   : "destructive"
                             }
                           >
-                            {entry.status === "approved"
+                            {entry.status === PermitStatus.APPROVED
                               ? "Approvato"
                               : entry.status === "pending"
                                 ? "In attesa"
@@ -320,14 +320,14 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
                         <TableCell>
                           <Badge
                             variant={
-                              request.status === "approved"
+                              request.status === PermitStatus.APPROVED
                                 ? "outline"
                                 : request.status === "pending"
                                   ? "secondary"
                                   : "destructive"
                             }
                           >
-                            {request.status === "approved"
+                            {request.status === PermitStatus.APPROVED
                               ? "Approvato"
                               : request.status === "pending"
                                 ? "In attesa"

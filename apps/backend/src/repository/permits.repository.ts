@@ -1,5 +1,6 @@
-import { sql } from "../config/postgres";
+import { PermitStatus, PermitType } from "@bitrock/db";
 import { IPermit, IPermitUpsert } from "@bitrock/types";
+import { sql } from "../config/postgres";
 
 export async function getPermitsByUser(userId: string): Promise<IPermit[]> {
   const res = await sql`
@@ -39,7 +40,7 @@ export async function getPermitsByReviewer(
     SELECT 
       id, created_at, user_id, duration, description, type, start_date, end_date, status, reviewer_id
     FROM public."permit"
-    WHERE reviewer_id = ${reviewerId} AND status = 'pending'
+    WHERE reviewer_id = ${reviewerId} AND status = ${PermitStatus.PENDING}
   `;
 
   if (rows.length === 0) return [];
@@ -106,7 +107,7 @@ export async function createPermit(input: IPermitUpsert): Promise<IPermit> {
   } = input;
 
   // Basic validations
-  if (type === "permission") {
+  if (type === PermitType.PERMISSION) {
     if (endDate) {
       throw new Error("Permits cannot have an end date.");
     }
@@ -174,7 +175,7 @@ export async function updatePermit(
 
   if (!existing) return null;
 
-  if (existing.status === "approved") {
+  if (existing.status === PermitStatus.APPROVED) {
     throw new Error("Cannot edit an approved permit.");
   }
 
@@ -193,7 +194,9 @@ export async function updatePermit(
 
   // If the status was rejected, reset it to pending
   const newStatus =
-    existing.status === "rejected" ? "pending" : existing.status;
+    existing.status === PermitStatus.REJECTED
+      ? PermitStatus.PENDING
+      : existing.status;
 
   // Update the permit
   await sql`
@@ -250,7 +253,7 @@ export async function updatePermitStatus(
   const currentStatus = existing[0].status;
 
   // Prevent changes if already approved
-  if (currentStatus === "approved") {
+  if (currentStatus === PermitStatus.APPROVED) {
     throw new Error("Cannot change status of an approved permit");
   }
 
