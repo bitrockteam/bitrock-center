@@ -1,3 +1,4 @@
+import { fetchUserStats } from "@/api/server/stats/fetchUserStats";
 import CalendarView from "@/components/dashboard/calendar-view";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import DashboardSearch from "@/components/dashboard/dashboard-search";
@@ -13,12 +14,13 @@ export const metadata: Metadata = {
   description: "Panoramica delle ore lavorate, ferie e permessi",
 };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const summary = await fetchUserStats();
   return (
     <div className="space-y-6">
       <DashboardHeader />
       <DashboardSearch />
-      <DashboardSummary />
+      <DashboardSummary summary={summary} />
 
       <Tabs defaultValue="chart" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">
