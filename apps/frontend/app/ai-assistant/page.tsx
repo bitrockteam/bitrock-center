@@ -8,7 +8,10 @@ export const metadata: Metadata = {
 
 export default function AIAssistantPage() {
   return (
-    <div className="space-y-6">
+    <div
+      className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 via-blue-900 to-violet-900"
+      style={{ minHeight: "100vh", margin: -16 }}
+    >
       <AIAssistant />
     </div>
   );

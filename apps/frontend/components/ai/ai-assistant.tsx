@@ -5,16 +5,16 @@ import type React from "react";
 import { useAiSearch } from "@/api/ai/useAiSearch";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bot, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import AIBlob from "./ai-blob";
+import { Input } from "../ui/input";
+import BlobAnimation from "./blob-animation";
 import ThinkingIndicator from "./thinking-indicator";
 
 export default function AIAssistant() {
   const [query, setQuery] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { search, loading, result, reset } = useAiSearch();
 
@@ -29,20 +29,20 @@ export default function AIAssistant() {
 
   // Regola l'altezza della textarea in base al contenuto
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
     }
   }, [query]);
 
   return (
-    <div className="flex flex-col items-center justify-between min-h-[80vh] py-8">
+    <div className="flex flex-col items-center justify-between min-h-[80vh] py-6 w-[50vw]">
       {/* Header */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-2">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 1 }}
         >
           <h1 className="text-4xl font-bold flex items-center justify-center gap-2">
             <Bot className="h-8 w-8" />
@@ -63,10 +63,11 @@ export default function AIAssistant() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 1.5 }}
               className="relative"
             >
-              <AIBlob />
+              {/* <AIBlob /> */}
+              <BlobAnimation />
             </motion.div>
           )}
 
@@ -76,7 +77,7 @@ export default function AIAssistant() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 1 }}
               className="text-center"
             >
               <ThinkingIndicator />
@@ -91,10 +92,10 @@ export default function AIAssistant() {
               key="response"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 1 }}
               className="w-full max-w-3xl px-4"
             >
-              <Card>
+              <Card className="bg-slate-600/10 dark:bg-slate-800/20 rounded-lg p-6 border border-primary/20 shadow-lg">
                 <CardContent className="pt-6">
                   <div className="flex gap-4">
                     <div className="bg-primary/10 rounded-full p-2 h-fit">
@@ -122,14 +123,19 @@ export default function AIAssistant() {
       </div>
 
       {/* Input Area */}
-      <div className="w-full max-w-3xl px-4 mt-8">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Textarea
-            ref={textareaRef}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="w-full max-w-3xl px-4 mt-8"
+      >
+        <form onSubmit={handleSubmit} className="flex flex-row gap-2">
+          <Input
+            ref={inputRef}
             placeholder="Chiedi qualcosa a Rocky..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="min-h-[100px] resize-none"
+            className="min-h-10 resize-none"
             disabled={loading}
           />
           <div className="flex justify-end">
@@ -149,7 +155,7 @@ export default function AIAssistant() {
             </Button>
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

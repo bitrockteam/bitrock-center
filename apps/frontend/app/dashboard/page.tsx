@@ -4,7 +4,6 @@ import { fetchUserPermits } from "@/api/server/permit/fetchUserPermits";
 import { fetchUserTimesheet } from "@/api/server/timesheet/fetchUserTimesheet";
 import CalendarView from "@/components/dashboard/calendar-view";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-import DashboardSearch from "@/components/dashboard/dashboard-search";
 import DashboardSummary from "@/components/dashboard/dashboard-summary";
 import HoursChart from "@/components/dashboard/hours-chart";
 import NotificationsCard from "@/components/dashboard/notifications-card";
@@ -25,7 +24,6 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <DashboardHeader />
-      <DashboardSearch />
       <DashboardSummary summary={summary} />
 
       <Tabs defaultValue="chart" className="w-full">
