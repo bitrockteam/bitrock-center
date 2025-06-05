@@ -19,18 +19,18 @@ model allocation {
 }
 
 model permit {
-  created_at                    DateTime  @default(now()) @db.Timestamptz(6)
-  user_id                       String    @db.Uuid
-  duration                      Decimal   @db.Decimal
-  id                            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                    DateTime     @default(now()) @db.Timestamptz(6)
+  user_id                       String       @db.Uuid
+  duration                      Decimal      @db.Decimal
+  id                            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   description                   String?
-  type                          String    @default("Holiday")
-  start_date                    DateTime  @db.Timestamp(6)
-  status                        String    @default("Waiting")
-  reviewer_id                   String    @db.Uuid
-  end_date                      DateTime? @db.Timestamp(6)
-  user_permit_reviewer_idTouser user      @relation("permit_reviewer_idTouser", fields: [reviewer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user_permit_user_idTouser     user      @relation("permit_user_idTouser", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  start_date                    DateTime     @db.Timestamp(6)
+  reviewer_id                   String       @db.Uuid
+  end_date                      DateTime?    @db.Timestamp(6)
+  type                          PermitType
+  status                        PermitStatus
+  user_permit_reviewer_idTouser user         @relation("permit_reviewer_idTouser", fields: [reviewer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_permit_user_idTouser     user         @relation("permit_user_idTouser", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model project {
@@ -86,6 +86,19 @@ model user {
   timesheet                       timesheet[]
   role                            role?        @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
+
+enum PermitType {
+  VACATION
+  SICKNESS
+  PERMISSION
+}
+
+enum PermitStatus {
+  PENDING
+  REJECTED
+  APPROVED
+}
+
 
 Only output the SQL query without any formatting, just an executable SQL. Do not explain.
 Use JOINs if needed. Use snake_case table and column names exactly as shown.
