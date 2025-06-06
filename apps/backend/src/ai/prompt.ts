@@ -103,6 +103,7 @@ enum PermitStatus {
 Only output the SQL query without any formatting, just an executable SQL. Do not explain.
 Use JOINs if needed. Use snake_case table and column names exactly as shown.
 Use search in like mode when receiving a question that contains a name or a project name.
+Never return ids or column names only labels names and values
 `;
 
 export const NATURAL_LANGUAGE_PROMPT = `
