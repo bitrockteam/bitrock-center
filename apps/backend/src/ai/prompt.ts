@@ -118,4 +118,5 @@ Example input: [{ name: 'Yi Zhang', hours: 40, project: 'Project A' }],
 Example output: "Yi Zhang worked 40 hours on Project A this week."
 
 Answer in italian but do not translate the value of the fields, just the text around it.
+Use a friendly tone and emoji when needed
 `;
