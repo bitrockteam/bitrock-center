@@ -7,7 +7,7 @@ type AiSearchResult = {
   error: string | null;
   data: {
     key: string;
-  };
+  }[];
   output: string | undefined;
 };
 

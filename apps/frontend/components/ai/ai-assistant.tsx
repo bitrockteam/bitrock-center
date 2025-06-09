@@ -9,6 +9,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bot, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 import BlobAnimation from "./blob-animation";
 import ThinkingIndicator from "./thinking-indicator";
 
@@ -36,7 +44,7 @@ export default function AIAssistant() {
   }, [query]);
 
   return (
-    <div className="flex flex-col items-center justify-between min-h-[80vh] py-6 w-[50vw]">
+    <div className="flex flex-col items-center justify-between min-h-[80vh] py-6 min-w-[50vw]">
       {/* Header */}
       <div className="text-center mb-2">
         <motion.div
@@ -103,6 +111,41 @@ export default function AIAssistant() {
                     </div>
                     <div className="space-y-4">
                       <p className="text-lg">{result.output}</p>
+                      {result.data && (
+                        // table data
+
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              {Object.keys(result.data?.[0]).map((key) => {
+                                return <TableHead key={key}>{key}</TableHead>;
+                              })}
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {result.data.length === 0 ? (
+                              <TableRow>
+                                <TableCell
+                                  colSpan={6}
+                                  className="text-center py-6 text-muted-foreground"
+                                >
+                                  Nessuna richiesta trovata
+                                </TableCell>
+                              </TableRow>
+                            ) : (
+                              result.data.map((item, index) => (
+                                <TableRow key={index}>
+                                  {Object.entries(item).map(([key, value]) => (
+                                    <TableCell key={key}>
+                                      {value ? value.toString() : "-"}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                              ))
+                            )}
+                          </TableBody>
+                        </Table>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
