@@ -1,3 +1,4 @@
+import { user } from "@bitrock/db";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -23,4 +24,24 @@ export async function createClient() {
       },
     },
   );
+}
+
+export async function checkSession() {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("No session found");
+  }
+  return session;
+}
+
+export async function getUserInfoFromCookie() {
+  await checkSession();
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get("x-user-info")?.value;
+  if (!cookie) throw new Error("No user info cookie found");
+  return JSON.parse(cookie) as user;
 }

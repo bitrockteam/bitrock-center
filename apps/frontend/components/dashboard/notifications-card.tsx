@@ -1,14 +1,22 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bell, Check, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { getNotifications } from "@/lib/mock-data"
+import { LastestNotification } from "@/api/server/dashboard/fetchLatestNotifications";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { getStatusBadge } from "@/utils/mapping";
+import { motion } from "framer-motion";
+import { Bell } from "lucide-react";
 
-export default function NotificationsCard() {
-  const notifications = getNotifications()
-
+export default function NotificationsCard({
+  notifications,
+}: {
+  notifications?: LastestNotification[];
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -19,16 +27,18 @@ export default function NotificationsCard() {
         <CardHeader className="flex flex-row items-center">
           <div className="flex-1">
             <CardTitle>Notifiche</CardTitle>
-            <CardDescription>Richieste in attesa di approvazione</CardDescription>
+            <CardDescription>
+              Richieste in attesa di approvazione
+            </CardDescription>
           </div>
           <Bell className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {notifications.length === 0 ? (
+            {notifications?.length === 0 ? (
               <p className="text-sm text-muted-foreground">Nessuna notifica</p>
             ) : (
-              notifications.map((notification, index) => (
+              notifications?.map((notification, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
@@ -37,19 +47,20 @@ export default function NotificationsCard() {
                   className="flex items-start space-x-4 rounded-md border p-3"
                 >
                   <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">{notification.title}</p>
-                    <p className="text-sm text-muted-foreground">{notification.description}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {notification.type === "PERMISSION"
+                        ? "Richiesta di permesso"
+                        : notification.type === "VACATION"
+                          ? "Richiesta di ferie"
+                          : notification.type === "SICKNESS"
+                            ? "Richiesta di malattia"
+                            : "Notifica generica"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {notification.description}
+                    </p>
                   </div>
-                  {notification.requiresAction && (
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="icon" className="h-7 w-7">
-                        <Check className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-7 w-7">
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
+                  {getStatusBadge(notification.status)}
                 </motion.div>
               ))
             )}
@@ -57,6 +68,5 @@ export default function NotificationsCard() {
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }
-

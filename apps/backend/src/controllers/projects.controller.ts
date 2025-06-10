@@ -6,6 +6,7 @@ import {
   getAvailableUsersForProject,
   getProjectById,
   getProjects,
+  getUserProjects,
   updateProject,
 } from "../repository/projects.repository";
 
@@ -103,6 +104,24 @@ export const createProjectsController = (app: Express) => {
         if (!projectId) res.status(400).send("Project ID not provided");
 
         const users = await getAvailableUsersForProject(projectId);
+
+        return res.status(200).send(users);
+      } catch (error) {
+        console.error(error);
+        return res.status(500);
+      }
+    },
+  );
+  app.get(
+    "/projects/user/:id",
+    authenticateToken,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = req.params.id;
+
+        if (!userId) res.status(400).send("User id not provided");
+
+        const users = await getUserProjects(userId);
 
         return res.status(200).send(users);
       } catch (error) {

@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useGetUsers } from "@/api/useGetUsers";
+import { useSessionContext } from "@/app/utenti/SessionData";
 import {
   Card,
   CardContent,
@@ -16,34 +17,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { useGetUsers } from "@/api/useGetUsers";
-import { useSessionContext } from "@/app/utenti/SessionData";
+import { getStatusBadge } from "@/utils/mapping";
+import { PermitType } from "@bitrock/db";
+import { motion } from "framer-motion";
 
 export default function PermitHistoryTable() {
   const { permitsList, isLoading } = useSessionContext();
   const { users } = useGetUsers();
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "approved":
-        return <Badge className="bg-green-500">Approvato</Badge>;
-      case "pending":
-        return <Badge variant="outline">In attesa</Badge>;
-      case "rejected":
-        return <Badge variant="destructive">Rifiutato</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case "vacation":
+      case PermitType.VACATION:
         return "Ferie";
-      case "permission":
+      case PermitType.PERMISSION:
         return "Permesso";
-      case "sickness":
+      case PermitType.SICKNESS:
         return "Malattia";
       default:
         return type;

@@ -1,3 +1,5 @@
+import { PermitStatus } from "@bitrock/db";
+
 export interface IPermit {
   id: string;
   createdAt: Date;
@@ -7,7 +9,7 @@ export interface IPermit {
   type: string;
   startDate: Date;
   endDate?: Date;
-  status: string;
+  status: PermitStatus;
   reviewerId: string;
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { useTimesheetGetUserTimesheet } from "@/api/timesheet/useTimesheetGetUserTimesheet";
+import { useGetProjectsUser } from "@/api/useGetProjectsUser";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -18,7 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getProjects, getTimeEntries } from "@/lib/mock-data";
 import { motion } from "framer-motion";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -30,28 +30,8 @@ export default function TimeTrackingTable() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [editEntry, setEditEntry] = useState<any>(null);
 
-  const timeEntries = getTimeEntries();
-  const projects = getProjects();
-
-  // Filter entries based on selected month and project
-  const filteredEntries = timeEntries.filter((entry) => {
-    const monthMatch = month === "all" || month === "current";
-    const projectMatch = project === "all" || entry.project === project;
-    return monthMatch && projectMatch;
-  });
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "approved":
-        return <Badge className="bg-green-500">Approvato</Badge>;
-      case "pending":
-        return <Badge variant="outline">In attesa</Badge>;
-      case "rejected":
-        return <Badge variant="destructive">Rifiutato</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
+  const { projects } = useGetProjectsUser();
+  const { timesheets } = useTimesheetGetUserTimesheet();
 
   return (
     <motion.div
@@ -99,12 +79,11 @@ export default function TimeTrackingTable() {
                   <TableHead>Progetto</TableHead>
                   <TableHead>Ore</TableHead>
                   <TableHead>Descrizione</TableHead>
-                  <TableHead>Stato</TableHead>
                   <TableHead className="text-right">Azioni</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredEntries.length === 0 ? (
+                {timesheets.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={6}
@@ -114,18 +93,20 @@ export default function TimeTrackingTable() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredEntries.map((entry, index) => (
+                  timesheets.map((entry, index) => (
                     <TableRow key={index}>
-                      <TableCell>{entry.date}</TableCell>
                       <TableCell>
-                        {projects.find((p) => p.id === entry.project)?.name ||
-                          entry.project}
+                        {new Date(entry.date).toLocaleDateString()}
+                      </TableCell>
+
+                      <TableCell>
+                        {projects.find((p) => p.id === entry.project_id)?.name}
                       </TableCell>
                       <TableCell>{entry.hours}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {entry.description}
                       </TableCell>
-                      <TableCell>{getStatusBadge(entry.status)}</TableCell>
+
                       <TableCell className="text-right">
                         <div className="flex justify-end space-x-2">
                           <Button

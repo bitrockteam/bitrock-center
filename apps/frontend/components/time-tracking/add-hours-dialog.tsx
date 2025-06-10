@@ -1,5 +1,8 @@
 "use client";
 
+import { useTimesheetAddTimesheet } from "@/api/timesheet/useTimesheetAddTimesheet";
+import { useGetProjectsUser } from "@/api/useGetProjectsUser";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,16 +29,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { getProjects } from "@/lib/mock-data";
+import { timesheet } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  date: z
+    .date()
+    .min(
+      new Date("2020-01-01"),
+      "La data deve essere successiva al 1 gennaio 2020",
+    ),
+  project_id: z.string(),
+  hours: z.number(),
+  description: z.string().optional(),
+  user_id: z.string().min(1, "L'utente è obbligatorio"),
+});
 
 interface AddHoursDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editData?: any;
+  editData?: Partial<timesheet> | null;
   defaultDate?: string | null;
   onClose?: () => void;
 }
@@ -47,14 +63,15 @@ export default function AddHoursDialog({
   defaultDate,
   onClose,
 }: AddHoursDialogProps) {
-  const projects = getProjects();
+  const { user } = useAuth();
+  const { projects } = useGetProjectsUser();
+  const { execute: addTimesheet } = useTimesheetAddTimesheet();
 
-  const form = useForm({
+  const form = useForm<Partial<timesheet>>({
     defaultValues: {
-      date: new Date().toISOString().split("T")[0],
-      project: "",
-      hours: "",
-      description: "",
+      date: new Date(),
+      hours: 8,
+      user_id: user?.id || "",
     },
   });
 
@@ -63,25 +80,36 @@ export default function AddHoursDialog({
     if (editData) {
       form.reset({
         date: editData.date,
-        project: editData.project,
-        hours: editData.hours.toString(),
+        project_id: undefined,
+        hours: editData.hours,
         description: editData.description,
       });
     } else if (defaultDate) {
       form.reset({
         ...form.getValues(),
-        date: defaultDate,
+        date: new Date(defaultDate),
       });
     }
   }, [editData, defaultDate, form]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = (data: any) => {
-    console.log(data);
-    // Here you would normally save the data
-    onOpenChange(false);
-    form.reset();
-    if (onClose) onClose();
+  const onSubmit = async () => {
+    // parse data to ensure it matches the expected type
+
+    const parsedData = schema.safeParse(form.getValues());
+    if (!parsedData.success) {
+      // Handle validation errors
+      console.error("Validation failed", parsedData.error);
+      return;
+    }
+
+    await addTimesheet({
+      timesheet: parsedData.data as timesheet,
+    }).then(() => {
+      // Here you would normally save the data
+      onOpenChange(false);
+      form.reset();
+      if (onClose) onClose();
+    });
   };
 
   const handleDialogClose = () => {
@@ -112,7 +140,16 @@ export default function AddHoursDialog({
                 <FormItem>
                   <FormLabel>Data</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input
+                      type="date"
+                      {...field}
+                      value={field.value?.toISOString().substring(0, 10)}
+                      onChange={(e) => {
+                        const date = new Date(e.target.value);
+                        field.onChange(date);
+                      }}
+                      min="2020-01-01"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -121,7 +158,7 @@ export default function AddHoursDialog({
 
             <FormField
               control={form.control}
-              name="project"
+              name="project_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Progetto</FormLabel>
@@ -155,7 +192,16 @@ export default function AddHoursDialog({
                 <FormItem>
                   <FormLabel>Ore</FormLabel>
                   <FormControl>
-                    <Input type="number" min="0.5" step="0.5" {...field} />
+                    <Input
+                      type="number"
+                      min="0.5"
+                      step="0.5"
+                      {...field}
+                      onChange={(e) =>
+                        form.setValue("hours", parseFloat(e.target.value) || 0)
+                      }
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -172,6 +218,11 @@ export default function AddHoursDialog({
                     <Textarea
                       placeholder="Descrivi brevemente l'attività svolta"
                       {...field}
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      rows={3}
+                      maxLength={500}
+                      className="resize-none"
                     />
                   </FormControl>
                   <FormMessage />

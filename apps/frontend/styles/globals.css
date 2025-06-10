@@ -158,3 +158,56 @@ kbd {
   font-size: 0.8rem;
   font-family: monospace;
 }
+
+@layer utilities {
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    25% {
+      transform: translate(30px, -50px) scale(1.1);
+      border-radius: 50% 60% 40% 80% / 70% 50% 80% 30%;
+    }
+    50% {
+      transform: translate(-20px, 20px) scale(0.9);
+      border-radius: 70% 30% 60% 40% / 50% 70% 40% 60%;
+    }
+    75% {
+      transform: translate(-30px, -20px) scale(1.05);
+      border-radius: 40% 70% 50% 60% / 80% 40% 60% 50%;
+    }
+    100% {
+      transform: translate(0px, 0px) scale(1);
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+      opacity: 0.4;
+    }
+    50% {
+      transform: translateY(-20px) rotate(180deg);
+      opacity: 0.8;
+    }
+  }
+
+  .animate-blob {
+    animation: blob 7s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}

@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
+import { useTimesheetGetUserTimesheet } from "@/api/timesheet/useTimesheetGetUserTimesheet";
+import { useGetProjectsUser } from "@/api/useGetProjectsUser";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,9 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -25,34 +24,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getTimeEntries, getProjects } from "@/lib/mock-data";
+import { timesheet } from "@bitrock/db";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
 import AddHoursDialog from "./add-hours-dialog";
-
-// Tipo di evento nel calendario
-type TimeEntry = {
-  date: string;
-  project: string;
-  hours: number;
-  description: string;
-  status: string;
-};
 
 export default function TimeTrackingCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedProject, setSelectedProject] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [editEntry, setEditEntry] = useState<TimeEntry | null>(null);
+  const [editEntry, setEditEntry] = useState<timesheet | null>(null);
 
-  const projects = getProjects();
-  const timeEntries = getTimeEntries();
-
-  // Filtra le voci in base al progetto selezionato
-  const filteredEntries = useMemo(() => {
-    return timeEntries.filter(
-      (entry) => selectedProject === "all" || entry.project === selectedProject,
-    );
-  }, [timeEntries, selectedProject]);
+  const { projects } = useGetProjectsUser();
+  const { timesheets } = useTimesheetGetUserTimesheet();
 
   // Ottieni il primo giorno del mese
   const firstDayOfMonth = useMemo(() => {
@@ -81,17 +67,18 @@ export default function TimeTrackingCalendar() {
 
   // Organizza le voci per data
   const entriesByDate = useMemo(() => {
-    const result: Record<string, TimeEntry[]> = {};
+    const result: Record<string, timesheet[]> = {};
 
-    filteredEntries.forEach((entry) => {
-      if (!result[entry.date]) {
-        result[entry.date] = [];
+    timesheets.forEach((entry) => {
+      const date = new Date(entry.date).toISOString().split("T")[0];
+      if (!result[date]) {
+        result[date] = [];
       }
-      result[entry.date].push(entry);
+      result[date].push(entry);
     });
 
     return result;
-  }, [filteredEntries]);
+  }, [timesheets]);
 
   // Calcola il totale delle ore per ogni giorno
   const hoursPerDay = useMemo(() => {
@@ -153,20 +140,6 @@ export default function TimeTrackingCalendar() {
     return "bg-blue-300 dark:bg-blue-900/60";
   };
 
-  // Funzione per ottenere il colore del testo in base allo stato
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "text-green-600 dark:text-green-400";
-      case "pending":
-        return "text-amber-600 dark:text-amber-400";
-      case "rejected":
-        return "text-red-600 dark:text-red-400";
-      default:
-        return "text-gray-600 dark:text-gray-400";
-    }
-  };
-
   // Funzione per aprire il dialog di aggiunta ore
   const handleAddHours = (day: number) => {
     const date = new Date(
@@ -180,7 +153,7 @@ export default function TimeTrackingCalendar() {
   };
 
   // Funzione per modificare una voce esistente
-  const handleEditEntry = (entry: TimeEntry) => {
+  const handleEditEntry = (entry: timesheet) => {
     setEditEntry(entry);
     setShowAddDialog(true);
   };
@@ -325,22 +298,25 @@ export default function TimeTrackingCalendar() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div
-                              className={`text-xs px-1 py-0.5 rounded bg-background/80 dark:bg-background/80 ${getStatusColor(entry.status)} truncate cursor-pointer`}
+                              className={`text-xs px-1 py-0.5 rounded bg-background/80 dark:bg-background/80 truncate cursor-pointer`}
                               onClick={() => handleEditEntry(entry)}
                             >
-                              {projects.find((p) => p.id === entry.project)
-                                ?.name || entry.project}
+                              {
+                                projects.find((p) => p.id === entry.project_id)
+                                  ?.name
+                              }
                               : {entry.hours}h
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
                             <p className="font-medium">
-                              {projects.find((p) => p.id === entry.project)
-                                ?.name || entry.project}
+                              {
+                                projects.find((p) => p.id === entry.project_id)
+                                  ?.name
+                              }
                             </p>
                             <p>Ore: {entry.hours}</p>
                             <p>{entry.description}</p>
-                            <p className="capitalize">Stato: {entry.status}</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>

@@ -29,7 +29,7 @@ export async function getUserById(id: string): Promise<IUser | null> {
 
 export async function getUsers(params?: string) {
   return db.user.findMany({
-    include: { role: true },
+    include: { role: true, allocation: true },
     orderBy: { name: "asc" },
     where: params
       ? {

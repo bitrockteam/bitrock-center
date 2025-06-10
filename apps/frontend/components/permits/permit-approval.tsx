@@ -1,6 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useChangePermitStatus } from "@/api/useChangePermitStatus";
+import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
+import { useGetUsers } from "@/api/useGetUsers";
+import { useAuth } from "@/app/(auth)/AuthProvider";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,12 +20,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
-import { useChangePermitStatus } from "@/api/useChangePermitStatus";
-import { useGetUsers } from "@/api/useGetUsers";
+import { getStatusBadge } from "@/utils/mapping";
+import { PermitStatus, PermitType } from "@bitrock/db";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 export default function PermitApprovalTable() {
@@ -30,26 +31,13 @@ export default function PermitApprovalTable() {
   const { changeStatus } = useChangePermitStatus();
   const { users } = useGetUsers();
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "approved":
-        return <Badge className="bg-green-500">Approvato</Badge>;
-      case "pending":
-        return <Badge variant="outline">In attesa</Badge>;
-      case "rejected":
-        return <Badge variant="destructive">Rifiutato</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case "vacation":
+      case PermitType.VACATION:
         return "Ferie";
-      case "permission":
+      case PermitType.PERMISSION:
         return "Permesso";
-      case "sickness":
+      case PermitType.SICKNESS:
         return "Malattia";
       default:
         return type;
@@ -57,7 +45,7 @@ export default function PermitApprovalTable() {
   };
 
   const approvePermit = async (permitId: string) => {
-    changeStatus(permitId, "approved");
+    changeStatus(permitId, PermitStatus.APPROVED);
     refetch();
     toast.success("Permesso approvato");
   };

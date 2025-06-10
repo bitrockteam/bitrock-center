@@ -29,6 +29,7 @@ import {
   Calendar,
   Clock,
   Edit,
+  GanttChart,
   Pencil,
   PlusIcon,
   Trash2,
@@ -137,10 +138,21 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
             </div>
           </div>
         </div>
-        <Button onClick={() => setShowEditDialog(true)}>
-          <Edit className="mr-2 h-4 w-4" />
-          Modifica Progetto
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="default"
+              onClick={() => router.push(`/progetti/${id}/plan`)}
+            >
+              <GanttChart className="mr-2 h-4 w-4" />
+              Vai al Piano
+            </Button>
+          </motion.div>
+          <Button onClick={() => setShowEditDialog(true)}>
+            <Edit className="mr-2 h-4 w-4" />
+            Modifica Progetto
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
