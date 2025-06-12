@@ -32,11 +32,10 @@ model permit {
   duration                      Decimal      @db.Decimal
   id                            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   description                   String?
-  start_date                    DateTime     @db.Timestamp(6)
-  reviewer_id                   String       @db.Uuid
-  end_date                      DateTime?    @db.Timestamp(6)
   type                          PermitType
+  date                          DateTime     @db.Date
   status                        PermitStatus
+  reviewer_id                   String       @db.Uuid
   user_permit_reviewer_idTouser user         @relation("permit_reviewer_idTouser", fields: [reviewer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user_permit_user_idTouser     user         @relation("permit_user_idTouser", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
