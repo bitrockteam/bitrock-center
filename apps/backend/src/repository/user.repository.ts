@@ -1,6 +1,7 @@
 import { ICreateUser, IUpdateUser, IUser } from "@bitrock/types";
 import { db } from "../config/prisma";
 import { supabase } from "../config/supabase";
+import { sql } from "../config/postgres";
 
 // GET
 
@@ -15,15 +16,15 @@ export async function getUserById(id: string): Promise<IUser | null> {
     include: { role: true },
     where: { id },
   });
+  console.log({ res2: res });
   if (!res) return null;
+
   return {
     id: res.id,
     name: res.name,
     email: res.email,
     avatar_url: res.avatar_url ?? undefined,
-    ...(res.role?.id && {
-      role: { id: res.role.id, label: res.role.label },
-    }),
+    role: { id: res.role.id, label: res.role.label },
   };
 }
 
@@ -48,6 +49,9 @@ export async function createUserManually(user: ICreateUser) {
       name: user.name,
       email: user.email,
       avatar_url: user.avatar_url ?? undefined,
+      role: {
+        connect: { id: user.roleId },
+      },
     },
   });
 }
@@ -81,10 +85,16 @@ export async function uploadFileAvatar(
 // PATCH
 
 export async function updateUser(id: string, user: Partial<IUpdateUser>) {
-  const res = await db.user.update({
-    where: { id },
-    data: user,
-  });
+  console.log({ user });
+
+  // TODO: convert into prisma query
+  const res = await sql`UPDATE public."user" SET 
+    name = ${user.name ?? null},
+    avatar_url = ${user.avatar_url ?? null},
+    role_id = ${user.roleId ?? null}
+    WHERE id = ${id} RETURNING *`;
+
   if (!res) return null;
-  return res as IUser;
+
+  return res[0] as IUser;
 }
