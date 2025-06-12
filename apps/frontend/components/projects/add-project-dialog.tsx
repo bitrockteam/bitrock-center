@@ -4,6 +4,7 @@ import { useCreateProject } from "@/api/useCreateProject";
 import { useGetStatuses } from "@/api/useGetStatuses";
 // import { useGetUsers } from "@/api/useGetUsers";
 import { useEditProject } from "@/api/useEditProject";
+import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,18 +31,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { IProject, IProjectUpsert } from "@bitrock/types";
+import { project } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { addProjectSchema } from "./schema";
-import { useSessionContext } from "@/app/utenti/SessionData";
 
 interface AddProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editData?: IProject;
+  editData?: project;
   projectId?: string;
 }
 
@@ -74,8 +74,8 @@ export default function AddProjectDialog({
       form.reset({
         name: editData.name,
         client: editData.client,
-        description: editData.description,
-        status_id: editData.status.id,
+        description: editData.description ?? undefined,
+        status_id: editData.status_id,
         start_date: String(editData.start_date).slice(0, 10),
         end_date: editData.end_date
           ? String(editData.end_date).slice(0, 10)
@@ -86,10 +86,10 @@ export default function AddProjectDialog({
   }, [editData, form]);
 
   const onSubmit = (data: z.infer<typeof addProjectSchema>) => {
-    const formattedData: IProjectUpsert = {
+    const formattedData: Omit<project, "id" | "created_at"> = {
       ...data,
       start_date: new Date(data.start_date),
-      end_date: data.end_date ? new Date(data.end_date) : undefined,
+      end_date: data.end_date ? new Date(data.end_date) : null,
     };
 
     if (editData && projectId) {

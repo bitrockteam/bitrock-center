@@ -2,17 +2,18 @@
 
 import { useGetProjects } from "@/api/useGetProjects";
 import { useGetRoles } from "@/api/useGetRoles";
-import { useGetUsers } from "@/api/useGetUsers";
-import { IPermit, IProject, IRole, IUser } from "@bitrock/types";
+import { GetUsers, useGetUsers } from "@/api/useGetUsers";
+
+import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
+import { permit, project, role } from "@bitrock/db";
 import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 import { useAuth } from "../(auth)/AuthProvider";
-import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
 
 const SessionDataContext = createContext({
-  users: [] as IUser[],
-  roles: [] as IRole[],
-  projects: [] as IProject[],
-  permitsList: [] as IPermit[],
+  users: [] as GetUsers[],
+  roles: [] as role[],
+  projects: [] as project[],
+  permitsList: [] as permit[],
   isLoading: false as boolean,
   refetchUsers: () => {},
   refetchProjects: () => {},
@@ -22,12 +23,12 @@ const SessionDataContext = createContext({
 export function SessionDataProvider({
   children,
 }: Readonly<{ children: ReactNode }>) {
-  const [usersList, setUsersList] = useState<IUser[]>([]);
-  const [rolesList, setRolesList] = useState<IRole[]>([]);
+  const [usersList, setUsersList] = useState<GetUsers[]>([]);
+  const [rolesList, setRolesList] = useState<role[]>([]);
 
   const { user } = useAuth();
-  const [projectsList, setProjectsList] = useState<IProject[]>([]);
-  const [permitsList, setPermitsList] = useState<IPermit[]>([]);
+  const [projectsList, setProjectsList] = useState<project[]>([]);
+  const [permitsList, setPermitsList] = useState<permit[]>([]);
 
   const { users, refetch: refetchUsers, loading } = useGetUsers();
   const { roles, isLoading: isLoadingRoles } = useGetRoles();

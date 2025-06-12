@@ -1,4 +1,4 @@
-import { ICreateAllocation, IUpdateAllocation } from "@bitrock/types";
+import { allocation } from "@bitrock/db";
 import { type Express, type Request, type Response } from "express";
 import { authenticateToken } from "../middleware/authMiddleware";
 import {
@@ -34,7 +34,10 @@ export const createAllocationsController = (app: Express) => {
     authenticateToken,
     async (req: Request, res: Response) => {
       try {
-        const allocationRequest = req.body as ICreateAllocation;
+        const allocationRequest = req.body as Omit<
+          allocation,
+          "id" | "created_at"
+        >;
         if (!allocationRequest.user_id)
           return res.status(400).send("User not provided");
         if (!allocationRequest.project_id)
@@ -88,7 +91,10 @@ export const createAllocationsController = (app: Express) => {
         if (!project_id) return res.status(400).send("Project not provided");
         if (!user_id) return res.status(400).send("User not provided");
 
-        const allocationRequest = req.body as IUpdateAllocation;
+        const allocationRequest = req.body as Omit<
+          allocation,
+          "id" | "created_at" | "project_id" | "user_id"
+        >;
 
         const updatedAllocation = await updateAllocationForUser(
           project_id,

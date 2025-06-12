@@ -1,10 +1,13 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { IProjectUpsert, IProject } from "@bitrock/types";
+import { project } from "@bitrock/db";
 
 export function useEditProject() {
   const { session } = useAuth();
-  const editProject = (project: IProjectUpsert, id: string) =>
+  const editProject = (
+    project: Omit<project, "id" | "created_at">,
+    id: string,
+  ) =>
     fetch(`${SERVERL_BASE_URL}/projects/${id}`, {
       method: "PUT",
       headers: {
@@ -14,7 +17,7 @@ export function useEditProject() {
       body: JSON.stringify(project),
     })
       .then((res) => res.json())
-      .then((data) => data as IProject);
+      .then((data) => data as project);
 
   return { editProject };
 }

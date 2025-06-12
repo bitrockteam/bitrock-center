@@ -1,10 +1,10 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { IProjectUpsert, IProject } from "@bitrock/types";
+import { project } from "@bitrock/db";
 
 export function useCreateProject() {
   const { session } = useAuth();
-  const createProject = (project: IProjectUpsert) =>
+  const createProject = (project: Omit<project, "id" | "created_at">) =>
     fetch(`${SERVERL_BASE_URL}/projects`, {
       method: "POST",
       headers: {
@@ -12,9 +12,7 @@ export function useCreateProject() {
         Authorization: `Bearer ${session?.access_token}`,
       },
       body: JSON.stringify(project),
-    })
-      .then((res) => res.json())
-      .then((data) => data as IProject);
+    });
 
   return { createProject };
 }

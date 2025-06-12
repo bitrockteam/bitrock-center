@@ -1,4 +1,4 @@
-import { ICreateUser, IUpdateUser, IUser } from "@bitrock/types";
+import { user } from "@bitrock/db";
 import { db } from "../config/prisma";
 import { supabase } from "../config/supabase";
 
@@ -10,7 +10,7 @@ export async function getUserByEmail(email: string) {
     where: { email },
   });
 }
-export async function getUserById(id: string): Promise<IUser | null> {
+export async function getUserById(id: string) {
   const res = await db.user.findUnique({
     include: { role: true },
     where: { id },
@@ -42,7 +42,9 @@ export async function getUsers(params?: string) {
   });
 }
 
-export async function createUserManually(user: ICreateUser) {
+export async function createUserManually(
+  user: Omit<user, "id" | "created_at">,
+) {
   return db.user.create({
     data: {
       name: user.name,
@@ -80,11 +82,9 @@ export async function uploadFileAvatar(
 
 // PATCH
 
-export async function updateUser(id: string, user: Partial<IUpdateUser>) {
-  const res = await db.user.update({
+export async function updateUser(id: string, user: Partial<user>) {
+  return db.user.update({
     where: { id },
     data: user,
   });
-  if (!res) return null;
-  return res as IUser;
 }

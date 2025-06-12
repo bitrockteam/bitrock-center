@@ -1,7 +1,7 @@
 "use client";
 import { Loader } from "@/components/custom/Loader";
 import { createClient } from "@/utils/supabase/client";
-import { IUser } from "@bitrock/types";
+import { user } from "@bitrock/db";
 import { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import {
@@ -17,18 +17,18 @@ import { api } from "../(config)/client";
 import { getUserInfo } from "../(services)/api";
 
 const AuthContext = createContext({
-  user: undefined as IUser | undefined,
+  user: undefined as user | undefined,
   loading: true as boolean,
   isLogged: false as boolean,
   session: undefined as Session | undefined,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setUser: (user: IUser | undefined) => {},
+  setUser: (user: user | undefined) => {},
 });
 
 export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [session, setSession] = useState<Session>();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<user>();
   const redirect = useRouter();
 
   const token = useMemo(() => session?.access_token, [session]);

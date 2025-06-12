@@ -1,5 +1,5 @@
 import { SERVERL_BASE_URL } from "@/config";
-import { IUser } from "@bitrock/types";
+import { user } from "@bitrock/db";
 import { jwtDecode } from "jwt-decode";
 
 interface IToken {
@@ -26,7 +26,7 @@ export async function getUserInfo({ token }: { token: string }) {
     if (res.status !== 200) throw Error("Error fetching user info");
     return res.json();
   });
-  return res as IUser;
+  return res as user;
 }
 
 export function verifyBitrockToken({ token }: { token: string }) {

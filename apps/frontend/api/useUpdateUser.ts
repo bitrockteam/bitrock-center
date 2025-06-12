@@ -1,6 +1,6 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { IUpdateUser } from "@bitrock/types";
+import { user } from "@bitrock/db";
 import { useState } from "react";
 
 export const useUpdateUser = () => {
@@ -13,7 +13,7 @@ export const useUpdateUser = () => {
     user,
   }: {
     id: string;
-    user: IUpdateUser;
+    user: Partial<Omit<user, "id" | "created_at" | "updated_at">>;
   }) => {
     setIsLoading(true);
     const response = await fetch(`${SERVERL_BASE_URL}/user/${id}`, {

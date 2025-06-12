@@ -1,4 +1,4 @@
-import { ICreateUser, IUpdateUser } from "@bitrock/types";
+import { user } from "@bitrock/db";
 import { type Express, type Request, type Response } from "express";
 import multer from "multer";
 import { authenticateToken } from "../middleware/authMiddleware";
@@ -128,7 +128,7 @@ export const createUserController = (app: Express) => {
    */
   app.post("/user", authenticateToken, async (req: Request, res: Response) => {
     try {
-      const userRequest = req.body as ICreateUser;
+      const userRequest = req.body as Omit<user, "id" | "created_at">;
       if (!userRequest) return res.status(400).send("User not provided");
 
       const userAlreadyExists = Boolean(
@@ -264,7 +264,7 @@ export const createUserController = (app: Express) => {
         const userId = req.params.id;
         if (!userId) return res.status(400).send("User ID not provided");
 
-        const userRequest = req.body as IUpdateUser;
+        const userRequest = req.body as Omit<user, "id" | "created_at">;
 
         if (!userRequest) return res.status(400).send("User not provided");
 

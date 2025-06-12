@@ -1,10 +1,10 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { IRole } from "@bitrock/types";
+import { role } from "@bitrock/db";
 import { useEffect, useState } from "react";
 
 export const useGetRoles = () => {
-  const [roles, setRoles] = useState<IRole[]>([]);
+  const [roles, setRoles] = useState<role[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const { session } = useAuth();

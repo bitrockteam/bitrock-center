@@ -1,8 +1,0 @@
-{
-  "name": "@bitrock/types",
-  "private": true,
-  "version": "0.5.0",
-  "scripts": {
-    "lint": "prettier --check \"**/*.{ts,tsx,md}\""
-  }
-}

@@ -1,10 +1,10 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { IPermit } from "@bitrock/types";
+import { permit } from "@bitrock/db";
 import { useCallback, useEffect, useState } from "react";
 
 export const useGetPermitsByReviewer = (reviewerId: string) => {
-  const [permits, setPermits] = useState<IPermit[]>([]);
+  const [permits, setPermits] = useState<permit[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { session } = useAuth();
 

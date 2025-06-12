@@ -43,6 +43,7 @@ export default function RegisterPage() {
         name: sessionUser?.name,
         email: sessionUser?.email,
         avatar_url: sessionUser?.avatar_url,
+        role_id: "employee",
       },
     })
       .then(async () => {

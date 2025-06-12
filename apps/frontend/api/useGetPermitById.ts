@@ -1,11 +1,11 @@
 "use client";
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { IPermit } from "@bitrock/types"; // Ensure IPermit is defined in your shared types
+import { permit } from "@bitrock/db";
 import { useCallback, useEffect, useState } from "react";
 
 export const useGetPermitById = (id: string) => {
-  const [permit, setPermit] = useState<IPermit | null>(null);
+  const [permit, setPermit] = useState<permit | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { session } = useAuth();
 

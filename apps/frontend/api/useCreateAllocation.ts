@@ -1,10 +1,12 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { ICreateAllocation } from "@bitrock/types";
+import { allocation } from "@bitrock/db";
 
 export function useCreateAllocation() {
   const { session } = useAuth();
-  const createAllocation = (allocation: ICreateAllocation) =>
+  const createAllocation = (
+    allocation: Omit<allocation, "id" | "created_at">,
+  ) =>
     fetch(`${SERVERL_BASE_URL}/allocation`, {
       method: "POST",
       headers: {
@@ -14,7 +16,7 @@ export function useCreateAllocation() {
       body: JSON.stringify(allocation),
     })
       .then((res) => res.json())
-      .then((data) => data as ICreateAllocation);
+      .then((data) => data as Omit<allocation, "id" | "created_at">);
 
   return { createAllocation };
 }

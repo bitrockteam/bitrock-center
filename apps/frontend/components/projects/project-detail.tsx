@@ -134,7 +134,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
             </h1>
             <div className="flex items-center space-x-2">
               <p className="text-muted-foreground">Cliente: {project.client}</p>
-              {getStatusBadge(project.status.id)}
+              {getStatusBadge(project.status_id)}
             </div>
           </div>
         </div>
@@ -286,23 +286,23 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                             <Avatar className="h-6 w-6">
                               <AvatarImage
                                 src={
-                                  entry.user_avatar_url ??
+                                  entry.user_id ??
                                   "/placeholder.svg?height=24&width=24"
                                 }
                               />
                               <AvatarFallback>
                                 {formatDisplayName({
-                                  name: entry.user_name,
+                                  name: entry.user_id,
                                   initials: true,
                                 })}
                               </AvatarFallback>
                             </Avatar>
                             <span>
-                              {formatDisplayName({ name: entry.user_name })}
+                              {formatDisplayName({ name: entry.user_id })}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>{entry.user_role.label}</TableCell>
+                        <TableCell>{entry.user_id}</TableCell>
                         <TableCell>
                           {entry.start_date
                             ? format(entry.start_date, "dd-MM-yyyy")
@@ -363,7 +363,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                               onClick={() => {
                                 setDeletedMemberId({
                                   user_id: entry.user_id,
-                                  name: entry.user_name,
+                                  name: entry.user_id,
                                 });
                                 setShowDeleteDialog(true);
                               }}

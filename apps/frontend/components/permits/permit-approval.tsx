@@ -98,16 +98,17 @@ export default function PermitApprovalTable() {
                     <TableRow key={index}>
                       <TableCell>{getTypeLabel(permit.type)}</TableCell>
                       <TableCell>
-                        {new Date(permit.startDate).toLocaleDateString()}{" "}
-                        {permit.endDate &&
-                          `- ${new Date(permit.endDate).toLocaleDateString()}`}
+                        {new Date(permit.date).toLocaleDateString()}{" "}
                       </TableCell>
-                      <TableCell>{permit.duration}</TableCell>
+                      <TableCell>{Number(permit.duration)}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {permit.description}
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate">
-                        {users?.find((user) => user.id === permit.userId)?.name}
+                        {
+                          users?.find((user) => user.id === permit.user_id)
+                            ?.name
+                        }
                       </TableCell>
                       <TableCell>{getStatusBadge(permit.status)}</TableCell>
                       <TableCell className="text-right space-x-2">

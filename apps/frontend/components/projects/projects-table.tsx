@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { IProject } from "@bitrock/types";
+import { project } from "@bitrock/db";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
@@ -42,11 +42,11 @@ import AddProjectDialog from "./add-project-dialog";
 
 export default function ProjectsTable() {
   const router = useRouter();
-  const [editProjectDialog, setEditProjectDialog] = useState<IProject | null>(
+  const [editProjectDialog, setEditProjectDialog] = useState<project | null>(
     null,
   );
   const [deleteProjectDialog, setDeleteProjectDialog] =
-    useState<IProject | null>(null);
+    useState<project | null>(null);
 
   const { refetchProjects } = useSessionContext();
 
@@ -124,9 +124,7 @@ export default function ProjectsTable() {
                       {project?.name}
                     </TableCell>
                     <TableCell>{project?.client}</TableCell>
-                    <TableCell>
-                      {getStatusBadge(project?.status.name)}
-                    </TableCell>
+                    <TableCell>{getStatusBadge(project?.status_id)}</TableCell>
 
                     <TableCell>
                       {format(project?.start_date, "MM dd yyyy")}

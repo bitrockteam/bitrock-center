@@ -12,6 +12,7 @@ import { useCreateAllocation } from "@/api/useCreateAllocation";
 import { useGetProjectsUsersAvailable } from "@/api/useGetProjectsUsersAvailable";
 import { useUpdateAllocation } from "@/api/useUpdateAllocation";
 import { useSessionContext } from "@/app/utenti/SessionData";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isBefore } from "date-fns";
 import { toast } from "sonner";
 import { DatePicker } from "../custom/DatePicker";
@@ -42,7 +43,6 @@ import {
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { addMemberProjectSchema } from "./schema";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 export function AddProjectMemberDialog({
   open,
@@ -131,14 +131,9 @@ export function AddProjectMemberDialog({
                     } else
                       createAllocation({
                         project_id: projectId,
-                        start_date: format(
-                          values.start_date ?? new Date(),
-                          "yyyy-MM-dd",
-                        ),
-                        end_date: values.end_date
-                          ? format(values.end_date, "yyyy-MM-dd")
-                          : undefined,
-                        percentage: values.percentage,
+                        start_date: values.start_date ?? new Date(),
+                        end_date: values.end_date ?? null,
+                        percentage: values.percentage ?? 100,
                         user_id: values.user_id,
                       }).then(() => {
                         onOpenChange(false);

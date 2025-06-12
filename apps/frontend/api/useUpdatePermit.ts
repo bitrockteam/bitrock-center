@@ -1,14 +1,14 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { IPermit, IPermitUpsert } from "@bitrock/types";
+import { permit } from "@bitrock/db";
 
 export const useUpdatePermit = () => {
   const { session } = useAuth();
 
   const updatePermit = async (
     id: string,
-    data: IPermitUpsert,
-  ): Promise<IPermit | null> => {
+    data: Omit<permit, "id" | "create_at">,
+  ) => {
     try {
       const res = await fetch(`${SERVERL_BASE_URL}/permits/${id}`, {
         method: "PUT",

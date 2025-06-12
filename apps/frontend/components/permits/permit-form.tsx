@@ -31,6 +31,7 @@ import { DatePicker } from "../custom/DatePicker";
 // import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
 import { useSessionContext } from "@/app/utenti/SessionData";
 import { PermitStatus, PermitType } from "@bitrock/db";
+import { Decimal } from "@bitrock/db/generated/prisma/runtime/library";
 
 interface PermitFormValues {
   type: string;
@@ -74,7 +75,15 @@ export default function PermitRequestForm() {
       reviewerId: data.reviewerId,
     };
 
-    createPermit(payload)
+    createPermit({
+      user_id: payload.userId,
+      type: payload.type as PermitType,
+      date: payload.startDate,
+      duration: Decimal(payload.duration),
+      description: payload.description,
+      status: payload.status,
+      reviewer_id: payload.reviewerId,
+    })
       .then((result) => {
         if (result) {
           form.reset();

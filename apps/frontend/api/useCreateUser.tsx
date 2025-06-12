@@ -1,12 +1,16 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { ICreateUser, IUser } from "@bitrock/types";
+import { user } from "@bitrock/db";
 import { useState } from "react";
 
 export function useCreateUser() {
   const { session } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const createUser = ({ user }: { user: ICreateUser }) => {
+  const createUser = ({
+    user,
+  }: {
+    user: Partial<Omit<user, "id" | "created_at">>;
+  }) => {
     setIsLoading(true);
     return fetch(`${SERVERL_BASE_URL}/user`, {
       method: "POST",
@@ -17,7 +21,7 @@ export function useCreateUser() {
       body: JSON.stringify(user),
     })
       .then((res) => res.json())
-      .then((data) => data as IUser)
+      .then((data) => data as user)
       .finally(() => {
         setIsLoading(false);
       });

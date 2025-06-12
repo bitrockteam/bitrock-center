@@ -1,11 +1,21 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { IUser } from "@bitrock/types";
 import { useCallback, useEffect, useState } from "react";
 
 export function useGetUserById(userId: string) {
   const { session } = useAuth();
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<{
+    role?:
+      | {
+          id: string;
+          label: string;
+        }
+      | undefined;
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string | undefined;
+  }>();
   const [isLoading, setIsLoading] = useState(false);
 
   const getUserById = useCallback(() => {
@@ -33,3 +43,5 @@ export function useGetUserById(userId: string) {
 
   return { user, isLoading, refetch: getUserById };
 }
+
+export type GetUserByIdResponse = ReturnType<typeof useGetUserById>["user"];

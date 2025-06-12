@@ -1,6 +1,7 @@
 "use client";
 
 import { useCreateUser } from "@/api/useCreateUser";
+import { GetUserByIdResponse } from "@/api/useGetUserById";
 import { useUpdateUser } from "@/api/useUpdateUser";
 import { useUploadFile } from "@/api/useUploadFile";
 import { useAuth } from "@/app/(auth)/AuthProvider";
@@ -24,7 +25,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { getFirstnameAndLastname } from "@/services/users/utils";
-import { IUser } from "@bitrock/types";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
@@ -40,7 +40,7 @@ interface AddUserDialogProps {
       shouldRefetch?: boolean;
     },
   ) => void;
-  editData?: IUser;
+  editData?: GetUserByIdResponse;
   onRefetch?: () => void;
 }
 

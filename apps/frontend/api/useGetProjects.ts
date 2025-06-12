@@ -1,11 +1,11 @@
 "use client";
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { IProject } from "@bitrock/types";
+import { project } from "@bitrock/db";
 import { useCallback, useEffect, useState } from "react";
 
 export const useGetProjects = () => {
-  const [projects, setProjects] = useState<IProject[]>([]);
+  const [projects, setProjects] = useState<project[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const { session } = useAuth();

@@ -8,10 +8,10 @@ export async function fetchUserPermits() {
   return db.permit.findMany({
     where: {
       user_id: userInfo.id,
-      start_date: {},
+      date: {},
     },
     orderBy: {
-      start_date: "desc",
+      date: "desc",
     },
   });
 }

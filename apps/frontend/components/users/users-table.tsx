@@ -66,7 +66,7 @@ export default function UsersTable() {
                       <TableCell>
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.avatar_url} />
+                            <AvatarImage src={user.avatar_url ?? undefined} />
                             <AvatarFallback>
                               {formatDisplayName({
                                 name: user.name,

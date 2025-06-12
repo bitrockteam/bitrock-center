@@ -51,7 +51,7 @@ export async function fetchUserStats(): Promise<UserStats> {
     where: {
       user_id: userId,
       type: PermitType.VACATION,
-      start_date: {
+      date: {
         // Start of current year
         gte: new Date(new Date().getFullYear(), 0, 1),
       },

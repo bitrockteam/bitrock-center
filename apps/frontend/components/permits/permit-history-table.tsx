@@ -79,17 +79,15 @@ export default function PermitHistoryTable() {
                     <TableRow key={index}>
                       <TableCell>{getTypeLabel(permit.type)}</TableCell>
                       <TableCell>
-                        {new Date(permit.startDate).toLocaleDateString()}{" "}
-                        {permit.endDate &&
-                          `- ${new Date(permit.endDate).toLocaleDateString()}`}
+                        {new Date(permit.date).toLocaleDateString()}{" "}
                       </TableCell>
-                      <TableCell>{permit.duration}</TableCell>
+                      <TableCell>{Number(permit.duration)}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {permit.description}
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {
-                          users.find((user) => user.id === permit.reviewerId)
+                          users.find((user) => user.id === permit.reviewer_id)
                             ?.name
                         }
                       </TableCell>

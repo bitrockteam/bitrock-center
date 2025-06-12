@@ -1,11 +1,11 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { IAllocation } from "@bitrock/types";
+import { allocation } from "@bitrock/db";
 import { useCallback, useEffect, useState } from "react";
 
 export function useGetAllocationsForProject(projectId: string) {
   const { session } = useAuth();
-  const [allocations, setAllocations] = useState<IAllocation[]>([]);
+  const [allocations, setAllocations] = useState<allocation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchAllocations = useCallback(() => {
