@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateUser } from "@/api/useCreateUser";
+import { createUser } from "@/api/server/user/createUser";
 import { GetUserByIdResponse } from "@/api/useGetUserById";
 import { useUpdateUser } from "@/api/useUpdateUser";
 import { useUploadFile } from "@/api/useUploadFile";
@@ -49,7 +49,6 @@ export default function AddUserDialog({
   onComplete,
   editData,
 }: Readonly<AddUserDialogProps>) {
-  const { createUser, isLoading: isLoadingCreateUser } = useCreateUser();
   const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
   const { uploadFile, isLoading: isLoadingUploadFile } = useUploadFile();
   const { refetchUsers } = useSessionContext();
@@ -90,7 +89,7 @@ export default function AddUserDialog({
     refetchUsers();
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (editData) {
       const file = form.getValues().file;
       if (file) {
@@ -112,11 +111,9 @@ export default function AddUserDialog({
           });
       }
     } else
-      createUser({
-        user: {
-          name: `${form.getValues().name} ${form.getValues().surname}`,
-          email: form.getValues().email,
-        },
+      await createUser({
+        name: `${form.getValues().name} ${form.getValues().surname}`,
+        email: form.getValues().email,
       })
         .then(() => toast.success("Utente creato con successo"))
         .finally(() => {
@@ -209,15 +206,9 @@ export default function AddUserDialog({
               >
                 <Button
                   type="submit"
-                  disabled={
-                    isLoadingUpdateUser ||
-                    isLoadingCreateUser ||
-                    isLoadingUploadFile
-                  }
+                  disabled={isLoadingUpdateUser || isLoadingUploadFile}
                 >
-                  {isLoadingUpdateUser ||
-                    isLoadingCreateUser ||
-                    (isLoadingUploadFile && <Loader2 />)}
+                  {isLoadingUpdateUser || (isLoadingUploadFile && <Loader2 />)}
                   {editData ? "Aggiorna" : "Crea Utente"}
                 </Button>
               </motion.div>

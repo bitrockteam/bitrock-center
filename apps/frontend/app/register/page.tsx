@@ -1,5 +1,5 @@
 "use client";
-import { useCreateUser } from "@/api/useCreateUser";
+import { createUser } from "@/api/server/user/createUser";
 import { Loader } from "@/components/custom/Loader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -28,23 +28,19 @@ export default function RegisterPage() {
   const { session, user, loading, setUser } = useAuth();
   const sessionUser = session?.user.user_metadata;
 
-  const { createUser } = useCreateUser();
-
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault();
     setShowRecap(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    createUser({
-      user: {
-        name: sessionUser?.name,
-        email: sessionUser?.email,
-        avatar_url: sessionUser?.avatar_url,
-        role_id: "employee",
-      },
+    await createUser({
+      name: sessionUser?.name,
+      email: sessionUser?.email,
+      avatar_url: sessionUser?.avatar_url,
+      role_id: "employee",
     })
       .then(async () => {
         // Here you would typically send the data to your backend
