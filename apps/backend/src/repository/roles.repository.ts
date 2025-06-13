@@ -18,10 +18,13 @@ export async function updateRoleForUser(userId: string, roleId: string) {
 
   if (!user) throw new Error("User not found");
 
-  // TODO: convert into prisma query
-  const res =
-    await sql`UPDATE public."user" SET role_id = ${roleId} WHERE id = ${userId} RETURNING *`;
-  console.log({ userId, roleId, res });
-
-  return res[0] as IUser;
+  return db.user.update({
+    where: { id: userId },
+    data: {
+      role: {
+        connect: { id: roleId },
+      },
+    },
+    include: { role: true },
+  });
 }

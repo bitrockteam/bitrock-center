@@ -87,14 +87,12 @@ export async function uploadFileAvatar(
 export async function updateUser(id: string, user: Partial<IUpdateUser>) {
   console.log({ user });
 
-  // TODO: convert into prisma query
-  const res = await sql`UPDATE public."user" SET 
-    name = ${user.name ?? null},
-    avatar_url = ${user.avatar_url ?? null},
-    role_id = ${user.roleId ?? null}
-    WHERE id = ${id} RETURNING *`;
-
-  if (!res) return null;
-
-  return res[0] as IUser;
+  return db.user.update({
+    where: { id },
+    data: {
+      name: user.name ?? undefined,
+      avatar_url: user.avatar_url ?? undefined,
+      role_id: user.roleId ?? undefined,
+    },
+  });
 }
