@@ -9,6 +9,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "prepare": "husky",
+    "seed": "npx supabase db dump -f supabase/seed.sql --data-only --local",
     "preinstall": "corepack enable"
   },
   "devDependencies": {
