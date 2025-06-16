@@ -20,11 +20,13 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "../(auth)/AuthProvider";
 import { getUserInfo } from "../(services)/api";
+import { useSessionContext } from "../utenti/SessionData";
 
 export default function RegisterPage() {
   const [showRecap, setShowRecap] = useState(false);
 
   const router = useRouter();
+  const { roles } = useSessionContext();
   const { session, user, loading, setUser } = useAuth();
   const sessionUser = session?.user.user_metadata;
 
@@ -43,6 +45,7 @@ export default function RegisterPage() {
         name: sessionUser?.name,
         email: sessionUser?.email,
         avatar_url: sessionUser?.avatar_url,
+        roleId: roles.find((role) => role.label === "Employee")?.id ?? "",
       },
     })
       .then(async () => {

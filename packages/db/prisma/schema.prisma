@@ -98,10 +98,13 @@ model user {
   name                            String
   avatar_url                      String?
   role_id                         String       @db.Uuid
+  referentId                      String?      @db.Uuid
   allocation                      allocation[]
   permit_permit_reviewer_idTouser permit[]     @relation("permit_reviewer_idTouser")
   permit_permit_user_idTouser     permit[]     @relation("permit_user_idTouser")
   timesheet                       timesheet[]
+  user                            user?        @relation("userTouser", fields: [referentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_user                      user[]       @relation("userTouser")
   role                            role         @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 

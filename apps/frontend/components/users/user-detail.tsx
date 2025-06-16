@@ -19,12 +19,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader } from "../custom/Loader";
 import AddUserDialog from "./add-user-dialog";
+import { useSessionContext } from "@/app/utenti/SessionData";
 
 export default function UserDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const { user, refetch, isLoading } = useGetUserById(id);
+  const { users } = useSessionContext();
   const { user: userData } = useAuth();
 
   const timeEntries = getTimeEntriesByUser(id);
@@ -128,6 +130,13 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
                 <p className="text-sm font-medium">Ruolo:</p>
                 <p className="text-sm text-muted-foreground capitalize">
                   {user.role?.label}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Referente:</p>
+                <p className="text-sm text-muted-foreground capitalize">
+                  {users.find((us) => us.id === user.referentId)?.name ||
+                    "Nessuno"}
                 </p>
               </div>
               <div className="space-y-1">

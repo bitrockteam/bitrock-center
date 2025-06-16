@@ -26,8 +26,8 @@ import { Input } from "@/components/ui/input";
 import { getFirstnameAndLastname } from "@/services/users/utils";
 import { IUser } from "@bitrock/types";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FileUploader } from "../custom/FileUploader";
@@ -38,6 +38,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../ui/command";
+import { cn } from "@/lib/utils";
 
 interface AddUserDialogProps {
   open: boolean;
@@ -59,8 +69,10 @@ export default function AddUserDialog({
   const { createUser, isLoading: isLoadingCreateUser } = useCreateUser();
   const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
   const { uploadFile, isLoading: isLoadingUploadFile } = useUploadFile();
-  const { refetchUsers, roles } = useSessionContext();
+  const { refetchUsers, roles, users } = useSessionContext();
   const { user } = useAuth();
+
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -69,6 +81,7 @@ export default function AddUserDialog({
       email: "",
       file: undefined as File | undefined,
       role: "",
+      referentId: undefined as string | undefined,
     },
   });
 
@@ -80,6 +93,7 @@ export default function AddUserDialog({
         surname: getFirstnameAndLastname(editData.name).lastName,
         email: editData.email,
         role: editData.role.id,
+        referentId: editData.referentId,
       });
     }
   }, [editData, form]);
@@ -91,6 +105,7 @@ export default function AddUserDialog({
         name: `${form.getValues().name} ${form.getValues().surname}`,
         ...(avatar_url && { avatar_url }),
         roleId: form.getValues().role,
+        referentId: form.getValues().referentId,
       },
     });
 
@@ -228,6 +243,75 @@ export default function AddUserDialog({
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="referentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Referente</FormLabel>
+                    <FormControl>
+                      <Popover
+                        open={isPopoverOpen}
+                        onOpenChange={setIsPopoverOpen}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={open}
+                            className="justify-between"
+                          >
+                            {field.value &&
+                            users.some((u) => u.id === field.value)
+                              ? users.find((user) => user.id === field.value)
+                                  ?.name
+                              : "Seleziona referente..."}
+                            <ChevronsUpDown className="opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[270px] p-0">
+                          <Command>
+                            <CommandInput
+                              placeholder="Seleziona referente..."
+                              className="h-9 pointer-events-auto"
+                            />
+                            <CommandList>
+                              <CommandEmpty>
+                                Nessun membro disponibile
+                              </CommandEmpty>
+                              <CommandGroup>
+                                {users.map((user) => (
+                                  <CommandItem
+                                    key={user.id}
+                                    value={user.name}
+                                    className="pointer-events-auto"
+                                    onSelect={() => {
+                                      field.onChange(user.id);
+                                      setIsPopoverOpen(false);
+                                    }}
+                                  >
+                                    {user.name}
+                                    <Check
+                                      className={cn(
+                                        "ml-auto",
+                                        field.value === user.id
+                                          ? "opacity-100"
+                                          : "opacity-0",
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

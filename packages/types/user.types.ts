@@ -6,6 +6,7 @@ export interface IUser {
   email: string;
   avatar_url?: string;
   role: IRole;
+  referentId?: string;
 }
 
 export interface ICreateUser {
@@ -13,10 +14,12 @@ export interface ICreateUser {
   email: string;
   avatar_url?: string;
   roleId: string;
+  referentId?: string;
 }
 
 export interface IUpdateUser {
   name?: string;
   avatar_url?: string;
   roleId: string;
+  referentId?: string;
 }
