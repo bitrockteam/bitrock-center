@@ -38,25 +38,17 @@ export const canUserEdit = ({
 }: {
   currentUser?: IUser;
   user?: IUser;
-}) => {
-  console.log({
-    currentUser,
-    user,
-    cond1: currentUser?.role.label === "Admin",
-    cond2: currentUser?.role.label === "Super Admin",
-    cond3: user?.role.label !== "Super Admin",
-    cond4:
-      (currentUser?.role.label === "Admin" ||
-        currentUser?.role.label === "Super Admin") &&
-      currentUser?.role.label === "Admin" &&
-      user?.role.label !== "Super Admin",
-  });
+}) =>
+  (currentUser?.role.label === "Admin" ||
+    currentUser?.role.label === "Super Admin") &&
+  currentUser?.role.label === "Admin" &&
+  user?.role.label !== "Super Admin" &&
+  currentUser.role.label !== user?.role.label;
 
-  return (
-    (currentUser?.role.label === "Admin" ||
-      currentUser?.role.label === "Super Admin") &&
-    currentUser?.role.label === "Admin" &&
-    user?.role.label !== "Super Admin" &&
-    currentUser.role.label !== user?.role.label
-  );
-};
+export const canUserDealProjects = (user?: IUser) =>
+  user?.role.label === "Admin" || user?.role.label === "Super Admin";
+
+export const canUserAllocateResources = (user?: IUser) =>
+  user?.role.label === "Admin" ||
+  user?.role.label === "Super Admin" ||
+  user?.role.label === "Key Client";
