@@ -81,7 +81,7 @@ export default function AddUserDialog({
       email: "",
       file: undefined as File | undefined,
       role: "",
-      referentId: undefined as string | undefined,
+      referent_id: undefined as string | undefined,
     },
   });
 
@@ -93,7 +93,7 @@ export default function AddUserDialog({
         surname: getFirstnameAndLastname(editData.name).lastName,
         email: editData.email,
         role: editData.role.id,
-        referentId: editData.referentId,
+        referent_id: editData.referent_id,
       });
     }
   }, [editData, form]);
@@ -105,7 +105,7 @@ export default function AddUserDialog({
         name: `${form.getValues().name} ${form.getValues().surname}`,
         ...(avatar_url && { avatar_url }),
         roleId: form.getValues().role,
-        referentId: form.getValues().referentId,
+        referent_id: form.getValues().referent_id,
       },
     });
 
@@ -250,7 +250,7 @@ export default function AddUserDialog({
 
               <FormField
                 control={form.control}
-                name="referentId"
+                name="referent_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Referente</FormLabel>

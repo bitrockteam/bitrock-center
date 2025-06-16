@@ -25,7 +25,7 @@ export async function getUserById(id: string): Promise<IUser | null> {
     email: res.email,
     avatar_url: res.avatar_url ?? undefined,
     role: { id: res.role.id, label: res.role.label },
-    referentId: res.referentId ?? undefined,
+    referent_id: res.referent_id ?? undefined,
   };
 }
 
@@ -51,7 +51,7 @@ export async function createUserManually(user: ICreateUser) {
       email: user.email,
       avatar_url: user.avatar_url ?? undefined,
       role_id: user.roleId,
-      referentId: user.referentId ?? undefined,
+      referent_id: user.referent_id ?? undefined,
     },
   });
 }
@@ -93,7 +93,7 @@ export async function updateUser(id: string, user: Partial<IUpdateUser>) {
       name: user.name ?? undefined,
       avatar_url: user.avatar_url ?? undefined,
       role_id: user.roleId ?? undefined,
-      referentId: user.referentId ?? undefined,
+      referent_id: user.referent_id ?? undefined,
     },
   });
 }

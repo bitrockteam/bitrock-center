@@ -135,7 +135,7 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
               <div className="space-y-1">
                 <p className="text-sm font-medium">Referente:</p>
                 <p className="text-sm text-muted-foreground capitalize">
-                  {users.find((us) => us.id === user.referentId)?.name ||
+                  {users.find((us) => us.id === user.referent_id)?.name ||
                     "Nessuno"}
                 </p>
               </div>
