@@ -1,7 +1,7 @@
 import { useAuth } from "@/app/(auth)/AuthProvider";
-import { SERVERL_BASE_URL } from "@/config";
 import { project } from "@bitrock/db";
 import { useEffect, useState } from "react";
+import { fetchProjectById } from "./server/project/fetchProjectById";
 
 export const useGetProjectById = (id: string) => {
   const [project, setProject] = useState<project | null>(null);
@@ -10,14 +10,7 @@ export const useGetProjectById = (id: string) => {
   const { session } = useAuth();
 
   useEffect(() => {
-    fetch(`${SERVERL_BASE_URL}/projects/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
-      },
-    })
-      .then((res) => res.json())
+    fetchProjectById({ projectId: id })
       .then((data) => {
         setProject(data);
       })

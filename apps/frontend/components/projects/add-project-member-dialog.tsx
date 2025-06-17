@@ -114,13 +114,11 @@ export function AddProjectMemberDialog({
                   form.handleSubmit(() => {
                     const values = form.getValues();
                     if (isEdit) {
-                      updateAllocation(projectId, values.user_id, {
-                        start_date: values.start_date
-                          ? format(values.start_date, "yyyy-MM-dd")
-                          : undefined,
-                        end_date: values.end_date
-                          ? format(values.end_date, "yyyy-MM-dd")
-                          : undefined,
+                      updateAllocation({
+                        user_id: values.user_id,
+                        project_id: projectId,
+                        start_date: values.start_date ?? new Date(),
+                        end_date: values.end_date ?? null,
                         percentage: values.percentage ?? 100,
                       }).then(() => {
                         onOpenChange(false);

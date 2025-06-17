@@ -7,10 +7,13 @@ import { PlusCircle, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddUserDialog from "./add-user-dialog";
+import { isAdminOrSuperAdmin } from "@/services/users/utils";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 
 export default function UsersHeader() {
   const router = useRouter();
   const serachParams = useSearchParams();
+  const { user } = useAuth();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [textSearch, setTextSearch] = useState(
@@ -65,15 +68,17 @@ export default function UsersHeader() {
             onChange={handleChange}
           />
         </div>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button
-            onClick={() => setShowAddDialog(true)}
-            className="cursor-pointer	"
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Nuovo Utente
-          </Button>
-        </motion.div>
+        {isAdminOrSuperAdmin(user) && (
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              onClick={() => setShowAddDialog(true)}
+              className="cursor-pointer	"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Nuovo Utente
+            </Button>
+          </motion.div>
+        )}
       </div>
 
       <AddUserDialog

@@ -1,37 +1,25 @@
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { SERVERL_BASE_URL } from "@/config";
+import { allocation } from "@bitrock/db";
 import { useState } from "react";
+import { fetchUpdateAllocation } from "./server/allocation/updateAllocation";
 
 export function useUpdateAllocation() {
-  const { session } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const updateAllocation = async (
-    project_id: string,
-    user_id: string,
-    {
-      start_date,
-      end_date,
-      percentage,
-    }: {
-      start_date?: string;
-      end_date?: string;
-      percentage?: number;
-    },
+    allocation: Omit<allocation, "created_at">,
   ) => {
     setIsLoading(true);
-    return fetch(`${SERVERL_BASE_URL}/allocation/${project_id}/${user_id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
+    return fetchUpdateAllocation({
+      allocation: {
+        project_id: allocation.project_id,
+        user_id: allocation.user_id,
+        start_date: allocation.start_date,
+        end_date: allocation.end_date,
+        percentage: allocation.percentage,
       },
-      body: JSON.stringify({ start_date, end_date, percentage }),
-    })
-      .then((res) => res.json())
-      .finally(() => {
-        setIsLoading(false);
-      });
+    }).finally(() => {
+      setIsLoading(false);
+    });
   };
 
   return { updateAllocation, isLoading };

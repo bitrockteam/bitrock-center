@@ -12,8 +12,6 @@ import {
 } from "@/components/ui/alert-dialog";
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDeleteProject } from "@/api/useDeleteProject";
-import { useGetProjectsUser } from "@/api/useGetProjectsUser";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,14 +30,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { isAdminOrSuperAdmin } from "@/services/users/utils";
 import { getProjectStatusBadge } from "@/utils/mapping";
 import { project } from "@bitrock/db";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import AddProjectDialog from "./add-project-dialog";
 
@@ -51,16 +48,7 @@ export default function ProjectsTable() {
   const [deleteProjectDialog, setDeleteProjectDialog] =
     useState<project | null>(null);
 
-  const { user } = useAuth();
-
-  const { refetchProjects, projects: allProjects } = useSessionContext();
-  const { projects: allUserProjects } = useGetProjectsUser();
-  const projects = useMemo(
-    () => (isAdminOrSuperAdmin(user) ? allProjects : allUserProjects),
-    [allProjects, allUserProjects, user],
-  );
-
-  console.log({ projects, allProjects, allUserProjects });
+  const { refetchProjects, projects } = useSessionContext();
 
   const { deleteProject } = useDeleteProject();
 

@@ -284,17 +284,17 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                               />
                               <AvatarFallback>
                                 {formatDisplayName({
-                                  name: entry.user_id,
+                                  name: entry.user.name,
                                   initials: true,
                                 })}
                               </AvatarFallback>
                             </Avatar>
                             <span>
-                              {formatDisplayName({ name: entry.user_id })}
+                              {formatDisplayName({ name: entry.user.name })}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>{entry.user_id}</TableCell>
+                        <TableCell>{entry.user.role}</TableCell>
                         <TableCell>
                           {entry.start_date
                             ? format(entry.start_date, "dd-MM-yyyy")
