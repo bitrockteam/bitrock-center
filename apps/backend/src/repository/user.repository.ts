@@ -1,6 +1,7 @@
 import { ICreateUser, IUpdateUser, IUser } from "@bitrock/types";
 import { db } from "../config/prisma";
 import { supabase } from "../config/supabase";
+import { sql } from "../config/postgres";
 
 // GET
 
@@ -15,15 +16,16 @@ export async function getUserById(id: string): Promise<IUser | null> {
     include: { role: true },
     where: { id },
   });
+  console.log({ res2: res });
   if (!res) return null;
+
   return {
     id: res.id,
     name: res.name,
     email: res.email,
     avatar_url: res.avatar_url ?? undefined,
-    ...(res.role?.id && {
-      role: { id: res.role.id, label: res.role.label },
-    }),
+    role: { id: res.role.id, label: res.role.label },
+    referent_id: res.referent_id ?? undefined,
   };
 }
 
@@ -48,6 +50,8 @@ export async function createUserManually(user: ICreateUser) {
       name: user.name,
       email: user.email,
       avatar_url: user.avatar_url ?? undefined,
+      role_id: user.roleId,
+      referent_id: user.referent_id ?? undefined,
     },
   });
 }
@@ -81,10 +85,15 @@ export async function uploadFileAvatar(
 // PATCH
 
 export async function updateUser(id: string, user: Partial<IUpdateUser>) {
-  const res = await db.user.update({
+  console.log({ user });
+
+  return db.user.update({
     where: { id },
-    data: user,
+    data: {
+      name: user.name ?? undefined,
+      avatar_url: user.avatar_url ?? undefined,
+      role_id: user.roleId ?? undefined,
+      referent_id: user.referent_id ?? undefined,
+    },
   });
-  if (!res) return null;
-  return res as IUser;
 }

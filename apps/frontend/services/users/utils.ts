@@ -1,3 +1,5 @@
+import { IUser } from "@bitrock/types";
+
 export const getFirstnameAndLastname = (name?: string) => {
   if (!name) {
     return { firstName: "", lastName: "" };
@@ -29,3 +31,27 @@ export const formatDisplayName = ({
 
   return `${firstName} ${lastName}`;
 };
+
+export const canUserEdit = ({
+  currentUser,
+  user,
+}: {
+  currentUser?: IUser;
+  user?: IUser;
+}) =>
+  (currentUser?.role.label === "Admin" ||
+    currentUser?.role.label === "Super Admin") &&
+  currentUser?.role.label === "Admin" &&
+  user?.role.label !== "Super Admin" &&
+  currentUser.role.label !== user?.role.label;
+
+export const canUserDealProjects = (user?: IUser) =>
+  user?.role.label === "Admin" || user?.role.label === "Super Admin";
+
+export const canUserAllocateResources = (user?: IUser) =>
+  user?.role.label === "Admin" ||
+  user?.role.label === "Super Admin" ||
+  user?.role.label === "Key Client";
+
+export const isAdminOrSuperAdmin = (user?: IUser) =>
+  user?.role.label === "Admin" || user?.role.label === "Super Admin";

@@ -46,6 +46,8 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
           // }
           await getUserInfo({ token: session.access_token })
             .then((res) => {
+              console.log({ res });
+
               if (res) setUser(res);
               else {
                 setUser(undefined);

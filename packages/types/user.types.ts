@@ -5,16 +5,21 @@ export interface IUser {
   name: string;
   email: string;
   avatar_url?: string;
-  role?: IRole;
+  role: IRole;
+  referent_id?: string;
 }
 
 export interface ICreateUser {
   name: string;
   email: string;
   avatar_url?: string;
+  roleId: string;
+  referent_id?: string;
 }
 
 export interface IUpdateUser {
   name?: string;
   avatar_url?: string;
+  roleId: string;
+  referent_id?: string;
 }

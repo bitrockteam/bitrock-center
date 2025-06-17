@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetUserById } from "@/api/useGetUserById";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,19 +12,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getProjectsByUser, getTimeEntriesByUser } from "@/lib/mock-data";
-import { formatDisplayName } from "@/services/users/utils";
+import { canUserEdit, formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, Briefcase, Clock, Edit, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader } from "../custom/Loader";
 import AddUserDialog from "./add-user-dialog";
+import { useSessionContext } from "@/app/utenti/SessionData";
 
 export default function UserDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const { user, refetch, isLoading } = useGetUserById(id);
+  const { users } = useSessionContext();
+  const { user: userData } = useAuth();
 
   const timeEntries = getTimeEntriesByUser(id);
   // const leaveRequests = getLeaveRequestsByUser(id);
@@ -87,13 +91,16 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
             )}
           </div>
         </div>
-        <Button
-          className="cursor-pointer"
-          onClick={() => setShowEditDialog(true)}
-        >
-          <Edit className="mr-2 h-4 w-4" />
-          Modifica Utente
-        </Button>
+
+        {canUserEdit({ currentUser: userData, user }) && (
+          <Button
+            className="cursor-pointer"
+            onClick={() => setShowEditDialog(true)}
+          >
+            <Edit className="mr-2 h-4 w-4" />
+            Modifica Utente
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -123,6 +130,13 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
                 <p className="text-sm font-medium">Ruolo:</p>
                 <p className="text-sm text-muted-foreground capitalize">
                   {user.role?.label}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Referente:</p>
+                <p className="text-sm text-muted-foreground capitalize">
+                  {users.find((us) => us.id === user.referent_id)?.name ||
+                    "Nessuno"}
                 </p>
               </div>
               <div className="space-y-1">

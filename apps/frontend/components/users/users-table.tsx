@@ -11,16 +11,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { useUpdateRoleForUser } from "@/api/useUpdateRoleForUser";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 import { useSessionContext } from "@/app/utenti/SessionData";
-import { formatDisplayName } from "@/services/users/utils";
+import { canUserEdit, formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export default function UsersTable() {
   const router = useRouter();
 
-  const { users } = useSessionContext();
-  console.log({ users });
+  const { users, roles, refetchUsers } = useSessionContext();
+  const { user } = useAuth();
+  const { updateRoleForUser } = useUpdateRoleForUser();
 
   const handleViewUser = (id: string) => {
     router.push(`/utenti/${id}`);
@@ -54,35 +64,59 @@ export default function UsersTable() {
                   </TableCell>
                 </TableRow>
               ) : (
-                users?.map((user) => {
-                  console.log({ user });
-
-                  return (
-                    <TableRow
-                      key={user.id}
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handleViewUser(user.id)}
-                    >
+                users?.map((us) => (
+                  <TableRow
+                    key={us.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => handleViewUser(us.id)}
+                  >
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={us.avatar_url} />
+                          <AvatarFallback>
+                            {formatDisplayName({
+                              name: us.name,
+                              initials: true,
+                            })}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">{us.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{us.email}</TableCell>
+                    {canUserEdit({ currentUser: user!, user: us }) ? (
                       <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.avatar_url} />
-                            <AvatarFallback>
-                              {formatDisplayName({
-                                name: user.name,
-                                initials: true,
-                              })}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="font-medium">{user.name}</span>
-                        </div>
+                        <Select
+                          onValueChange={(e) => {
+                            const roleIdSelected = e as string;
+                            updateRoleForUser(us.id, roleIdSelected).then(
+                              () => {
+                                refetchUsers();
+                              },
+                            );
+                          }}
+                          value={us.role.id}
+                        >
+                          <SelectTrigger className="min-w-[120px]">
+                            <SelectValue placeholder="Seleziona stato" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {roles.map((s) => (
+                              <SelectItem value={s.id} key={s.id}>
+                                {s.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.role?.label ?? "Developer"}</TableCell>
-                      <TableCell>{0}</TableCell>
-                    </TableRow>
-                  );
-                })
+                    ) : (
+                      <TableCell>{us.role?.label ?? "Developer"}</TableCell>
+                    )}
+
+                    <TableCell>{0}</TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>
