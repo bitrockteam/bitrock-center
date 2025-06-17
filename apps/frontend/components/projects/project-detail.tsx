@@ -2,6 +2,7 @@
 
 import { useGetAllocationsForProject } from "@/api/useGetAllocationsForProject";
 import { useGetProjectById } from "@/api/useGetProjectsById";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDisplayName } from "@/services/users/utils";
+import {
+  canUserAllocateResources,
+  canUserDealProjects,
+  formatDisplayName,
+} from "@/services/users/utils";
 import { format, parse } from "date-fns";
 import { motion } from "framer-motion";
 import {
@@ -57,16 +62,16 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletedMemberId, setDeletedMemberId] = useState<{
-    name: string;
     user_id: string;
   }>({
-    name: "",
     user_id: "",
   });
 
   const { project, isLoading } = useGetProjectById(id);
   const { allocations: timeEntries, fetchAllocations } =
     useGetAllocationsForProject(id);
+
+  const { user } = useAuth();
 
   if (isLoading)
     return (
@@ -148,10 +153,12 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
               Vai al Piano
             </Button>
           </motion.div>
-          <Button onClick={() => setShowEditDialog(true)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Modifica Progetto
-          </Button>
+          {canUserDealProjects(user) && (
+            <Button onClick={() => setShowEditDialog(true)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Modifica Progetto
+            </Button>
+          )}
         </div>
       </div>
 
@@ -250,10 +257,12 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                   <CardTitle>Team</CardTitle>
                   <CardDescription>Sviluppatori del team</CardDescription>
                 </div>
-                <Button onClick={() => setShowAddMemberDialog(true)}>
-                  <PlusIcon />
-                  Aggiungi Membro
-                </Button>
+                {canUserAllocateResources(user) && (
+                  <Button onClick={() => setShowAddMemberDialog(true)}>
+                    <PlusIcon />
+                    Aggiungi Membro
+                  </Button>
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -265,7 +274,9 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                     <TableHead>Data Inizio</TableHead>
                     <TableHead>Data Fine</TableHead>
                     <TableHead>Percentuale Allocazione</TableHead>
-                    <TableHead>{""}</TableHead>
+                    {canUserAllocateResources(user) && (
+                      <TableHead>{""}</TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -314,64 +325,71 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                             : "-"}
                         </TableCell>
                         <TableCell>{entry.percentage}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-row items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              className="cursor-pointer"
-                              size="icon"
-                              onClick={() => {
-                                console.log({
-                                  startDate: entry.start_date
-                                    ? parse(
-                                        format(entry.start_date, "dd-MM-yyyy"),
-                                        "dd-MM-yyyy",
-                                        new Date(),
-                                      )
-                                    : undefined,
-                                  startDate2: entry.start_date,
-                                });
+                        {canUserAllocateResources(user) && (
+                          <TableCell>
+                            <div className="flex flex-row items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                className="cursor-pointer"
+                                size="icon"
+                                onClick={() => {
+                                  console.log({
+                                    startDate: entry.start_date
+                                      ? parse(
+                                          format(
+                                            entry.start_date,
+                                            "dd-MM-yyyy",
+                                          ),
+                                          "dd-MM-yyyy",
+                                          new Date(),
+                                        )
+                                      : undefined,
+                                    startDate2: entry.start_date,
+                                  });
 
-                                setEditedMember({
-                                  user_id: entry.user_id,
-                                  percentage: entry.percentage ?? 100,
-                                  start_date: entry.start_date
-                                    ? parse(
-                                        format(entry.start_date, "dd-MM-yyyy"),
-                                        "dd-MM-yyyy",
-                                        new Date(),
-                                      )
-                                    : undefined,
-                                  end_date: entry.end_date
-                                    ? parse(
-                                        format(entry.end_date, "dd-MM-yyyy"),
-                                        "dd-MM-yyyy",
-                                        new Date(),
-                                      )
-                                    : undefined,
-                                });
-                                setIsEditMode(true);
-                                setShowAddMemberDialog(true);
-                              }}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              className="cursor-pointer"
-                              size="icon"
-                              onClick={() => {
-                                setDeletedMemberId({
-                                  user_id: entry.user_id,
-                                  name: entry.user_id,
-                                });
-                                setShowDeleteDialog(true);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                                  setEditedMember({
+                                    user_id: entry.user_id,
+                                    percentage: entry.percentage ?? 100,
+                                    start_date: entry.start_date
+                                      ? parse(
+                                          format(
+                                            entry.start_date,
+                                            "dd-MM-yyyy",
+                                          ),
+                                          "dd-MM-yyyy",
+                                          new Date(),
+                                        )
+                                      : undefined,
+                                    end_date: entry.end_date
+                                      ? parse(
+                                          format(entry.end_date, "dd-MM-yyyy"),
+                                          "dd-MM-yyyy",
+                                          new Date(),
+                                        )
+                                      : undefined,
+                                  });
+                                  setIsEditMode(true);
+                                  setShowAddMemberDialog(true);
+                                }}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="cursor-pointer"
+                                size="icon"
+                                onClick={() => {
+                                  setDeletedMemberId({
+                                    user_id: entry.user_id,
+                                  });
+                                  setShowDeleteDialog(true);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))
                   )}
@@ -452,7 +470,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
         project_id={project.id}
-        user={deletedMemberId}
+        user_id={deletedMemberId.user_id}
         refetch={fetchAllocations}
         project_name={project.name}
       />

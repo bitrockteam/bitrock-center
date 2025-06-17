@@ -10,6 +10,8 @@
     "check-types": "turbo run check-types",
     "prepare": "husky",
     "seed": "npx supabase db dump -f supabase/seed.sql --data-only --local",
+    "db:pull": "cd packages/db && npx prisma db pull && cd ../../",
+    "generate": "cd packages/db && npx prisma generate && cd ../../",
     "preinstall": "corepack enable"
   },
   "devDependencies": {

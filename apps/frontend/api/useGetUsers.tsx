@@ -1,61 +1,28 @@
 "use client";
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { SERVERL_BASE_URL } from "@/config";
 
 import { useCallback, useEffect, useState } from "react";
+import { FindUsers, findUsers } from "./server/user/findUsers";
 
 export const useGetUsers = () => {
-  const [users, setUsers] = useState<
-    ({
-      allocation: {
-        created_at: Date;
-        user_id: string;
-        project_id: string;
-        start_date: Date;
-        end_date: Date | null;
-        percentage: number;
-      }[];
-      role: {
-        id: string;
-        created_at: Date;
-        label: string;
-      } | null;
-    } & {
-      id: string;
-      name: string;
-      created_at: Date;
-      email: string;
-      avatar_url: string | null;
-      role_id: string | null;
-    })[]
-  >([]);
+  const [users, setUsers] = useState<FindUsers[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const { session } = useAuth();
 
   const refetch = useCallback(() => {
     setLoading(true);
     const searchParams = new URLSearchParams(window.location.search);
-    const search = searchParams.get("params");
+    const search = searchParams.get("params") || undefined;
 
-    fetch(`${SERVERL_BASE_URL}/users${search ? `?params=${search}` : ""}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
-      },
-    })
-      .then((res) => res.json())
+    findUsers(search)
       .then((data) => setUsers(data))
       .catch((err) => {
         console.error(err);
       })
       .finally(() => setLoading(false));
-  }, [session]);
+  }, []);
 
   useEffect(() => {
-    if (session?.access_token) refetch();
-  }, [refetch, session?.access_token]);
+    refetch();
+  }, [refetch]);
 
   return { users, loading, refetch };
 };

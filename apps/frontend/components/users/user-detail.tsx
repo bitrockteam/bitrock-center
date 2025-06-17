@@ -1,6 +1,8 @@
 "use client";
 
-import { useGetUserById } from "@/api/useGetUserById";
+import { findUserById } from "@/api/server/user/findUserById";
+import { useAuth } from "@/app/(auth)/AuthProvider";
+import { useSessionContext } from "@/app/utenti/SessionData";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,11 +13,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getProjectsByUser, getTimeEntriesByUser } from "@/lib/mock-data";
-import { formatDisplayName } from "@/services/users/utils";
+import { canUserEdit, formatDisplayName } from "@/services/users/utils";
+import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { ArrowLeft, Briefcase, Clock, Edit, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Loader } from "../custom/Loader";
 import AddUserDialog from "./add-user-dialog";
 
@@ -23,11 +26,35 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const { user, refetch, isLoading } = useGetUserById(id);
+  const { users } = useSessionContext();
+  const { user: userData } = useAuth();
 
   const timeEntries = getTimeEntriesByUser(id);
   // const leaveRequests = getLeaveRequestsByUser(id);
   const projects = getProjectsByUser(id);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<user>();
+
+  const fetchUser = useCallback(async () => {
+    findUserById(id)
+      .then((res) => {
+        if (res) {
+          setUser(res);
+        } else {
+          setUser(undefined);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching user:", err);
+        setUser(undefined);
+      })
+      .finally(() => setIsLoading(false));
+  }, [id]);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser, id]);
 
   if (isLoading)
     return (
@@ -71,7 +98,7 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
-            <AvatarImage src={user?.avatar_url} />
+            {user.avatar_url && <AvatarImage src={user?.avatar_url} />}
             <AvatarFallback>
               {formatDisplayName({ name: user.name, initials: true })}
             </AvatarFallback>
@@ -80,20 +107,21 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
             <h1 className="text-3xl font-bold tracking-tight">
               {formatDisplayName({ name: user.name })}
             </h1>
-            {user.role?.id && (
-              <div className="flex items-center space-x-2">
-                {user.role.label}
-              </div>
+            {user.role && (
+              <div className="flex items-center space-x-2">{user.role}</div>
             )}
           </div>
         </div>
-        <Button
-          className="cursor-pointer"
-          onClick={() => setShowEditDialog(true)}
-        >
-          <Edit className="mr-2 h-4 w-4" />
-          Modifica Utente
-        </Button>
+
+        {canUserEdit({ currentUser: userData, user }) && (
+          <Button
+            className="cursor-pointer"
+            onClick={() => setShowEditDialog(true)}
+          >
+            <Edit className="mr-2 h-4 w-4" />
+            Modifica Utente
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -122,7 +150,14 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
               <div className="space-y-1">
                 <p className="text-sm font-medium">Ruolo:</p>
                 <p className="text-sm text-muted-foreground capitalize">
-                  {user.role?.label}
+                  {user.role}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Referente:</p>
+                <p className="text-sm text-muted-foreground capitalize">
+                  {users.find((us) => us.id === user.referent_id)?.name ||
+                    "Nessuno"}
                 </p>
               </div>
               <div className="space-y-1">
@@ -349,7 +384,7 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
         open={showEditDialog}
         onComplete={(isOpen, options) => {
           setShowEditDialog(isOpen);
-          if (options?.shouldRefetch) refetch();
+          if (options?.shouldRefetch) fetchUser();
         }}
         editData={user}
       />

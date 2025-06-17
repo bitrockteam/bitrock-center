@@ -6,30 +6,29 @@ import { supabase } from "../config/supabase";
 
 export async function getUserByEmail(email: string) {
   return db.user.findFirst({
-    include: { role: true },
     where: { email },
   });
 }
 export async function getUserById(id: string) {
   const res = await db.user.findUnique({
-    include: { role: true },
     where: { id },
   });
+  console.log({ res2: res });
   if (!res) return null;
+
   return {
     id: res.id,
     name: res.name,
     email: res.email,
     avatar_url: res.avatar_url ?? undefined,
-    ...(res.role?.id && {
-      role: { id: res.role.id, label: res.role.label },
-    }),
+    role: res.role,
+    referent_id: res.referent_id ?? undefined,
   };
 }
 
 export async function getUsers(params?: string) {
   return db.user.findMany({
-    include: { role: true, allocation: true },
+    include: { allocation: true },
     orderBy: { name: "asc" },
     where: params
       ? {
@@ -50,6 +49,8 @@ export async function createUserManually(
       name: user.name,
       email: user.email,
       avatar_url: user.avatar_url ?? undefined,
+      role: user.role,
+      referent_id: user.referent_id ?? undefined,
     },
   });
 }
@@ -85,6 +86,11 @@ export async function uploadFileAvatar(
 export async function updateUser(id: string, user: Partial<user>) {
   return db.user.update({
     where: { id },
-    data: user,
+    data: {
+      name: user.name ?? undefined,
+      avatar_url: user.avatar_url ?? undefined,
+      role: user.role ?? undefined,
+      referent_id: user.referent_id ?? undefined,
+    },
   });
 }

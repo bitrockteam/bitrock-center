@@ -1,6 +1,5 @@
 "use client";
 
-import { useCreatePermit } from "@/api/useCreatePermit";
 import { useGetUsers } from "@/api/useGetUsers";
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -29,8 +28,9 @@ import { toast } from "sonner";
 import { DatePicker } from "../custom/DatePicker";
 // import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
 // import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
+import { createUserPermits } from "@/api/server/permit/createUserPermits";
 import { useSessionContext } from "@/app/utenti/SessionData";
-import { PermitStatus, PermitType } from "@bitrock/db";
+import { PermitType } from "@bitrock/db";
 
 interface PermitFormValues {
   type: string;
@@ -44,7 +44,8 @@ interface PermitFormValues {
 export default function PermitRequestForm() {
   const { user } = useAuth();
   const { users } = useGetUsers();
-  const { createPermit } = useCreatePermit();
+  // const { createPermit } = useCreatePermit();
+
   const { refetchPermits } = useSessionContext();
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -62,26 +63,13 @@ export default function PermitRequestForm() {
   const onSubmit = (data: PermitFormValues) => {
     setErrorMessage("");
 
-    const payload = {
-      userId: user!.id,
-      type: data.type,
-      startDate: data.startDate,
-      endDate: data.endDate || undefined,
+    createUserPermits({
+      type: data.type as PermitType,
+      date: data.startDate,
       duration:
         data.type === PermitType.PERMISSION ? parseFloat(data.duration) : 8,
       description: data.description,
-      status: PermitStatus.PENDING,
-      reviewerId: data.reviewerId,
-    };
-
-    createPermit({
-      user_id: payload.userId,
-      type: payload.type as PermitType,
-      date: payload.startDate,
-      duration: payload.duration,
-      description: payload.description,
-      status: payload.status,
-      reviewer_id: payload.reviewerId,
+      reviewer_id: data.reviewerId,
     })
       .then((result) => {
         if (result) {

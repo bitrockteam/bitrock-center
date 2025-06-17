@@ -12,6 +12,7 @@ export async function createUser(
       name: user.name!,
       email: user.email!,
       avatar_url: user.avatar_url ?? undefined,
+      role: user.role,
     },
   });
 }

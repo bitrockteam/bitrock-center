@@ -24,12 +24,6 @@ export async function getAllocationsForProject(project_id: string) {
           id: true,
           name: true,
           avatar_url: true,
-          role: {
-            select: {
-              id: true,
-              label: true,
-            },
-          },
         },
       },
     },

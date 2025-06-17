@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Role } from "@bitrock/db";
 import { UserCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -25,6 +26,7 @@ export default function RegisterPage() {
   const [showRecap, setShowRecap] = useState(false);
 
   const router = useRouter();
+
   const { session, user, loading, setUser } = useAuth();
   const sessionUser = session?.user.user_metadata;
 
@@ -40,7 +42,7 @@ export default function RegisterPage() {
       name: sessionUser?.name,
       email: sessionUser?.email,
       avatar_url: sessionUser?.avatar_url,
-      role_id: "employee",
+      role: Role.Employee, // Assuming you want to set the role to Employee
     })
       .then(async () => {
         // Here you would typically send the data to your backend

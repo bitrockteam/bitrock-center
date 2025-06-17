@@ -2,6 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 
+import { findUserById } from "@/api/server/user/findUserById";
+import { useDeleteAllocation } from "@/api/useDeleteAllocation";
+import { user } from "@bitrock/db";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -10,25 +15,40 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { useDeleteAllocation } from "@/api/useDeleteAllocation";
-import { toast } from "sonner";
 
 export function DeleteAllocationDialog({
   open,
   onOpenChange,
   project_id,
-  user,
+  user_id,
   project_name,
   refetch,
 }: Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   project_id: string;
-  user: { user_id: string; name: string };
+  user_id: string;
   project_name: string;
   refetch: () => void;
 }>) {
   const { deleteAllocation } = useDeleteAllocation();
+
+  const [user, setUser] = useState<user>();
+
+  useEffect(() => {
+    findUserById(user_id)
+      .then((res) => {
+        if (res) {
+          setUser(res);
+        } else {
+          toast.error("Utente non trovato");
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching user:", err);
+        toast.error("Errore durante il recupero dell'utente");
+      });
+  }, [user_id]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -36,7 +56,7 @@ export function DeleteAllocationDialog({
         <DialogHeader>
           <DialogTitle>{"Elimina allocazione"}</DialogTitle>
           <DialogDescription className="py-4">
-            {`Sei sicuro di voler rimuovere ${user.name} dal progetto di ${project_name}?`}
+            {`Sei sicuro di voler rimuovere ${user?.name} dal progetto di ${project_name}?`}
           </DialogDescription>
           <DialogFooter>
             <div className="w-full flex flex-row justify-between items-center">
@@ -44,13 +64,14 @@ export function DeleteAllocationDialog({
               <Button
                 variant="destructive"
                 onClick={() => {
-                  deleteAllocation(project_id, user.user_id).then((res) => {
-                    if (res) {
-                      onOpenChange(false);
-                      refetch();
-                      toast.success("Allocazione eliminata con successo");
-                    }
-                  });
+                  if (user?.id)
+                    deleteAllocation(project_id, user.id).then((res) => {
+                      if (res) {
+                        onOpenChange(false);
+                        refetch();
+                        toast.success("Allocazione eliminata con successo");
+                      }
+                    });
                 }}
               >
                 Elimina

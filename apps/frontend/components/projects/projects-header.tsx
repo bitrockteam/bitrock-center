@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 import { useSessionContext } from "@/app/utenti/SessionData";
+import { canUserDealProjects } from "@/services/users/utils";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 
 export default function ProjectsHeader() {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -18,6 +20,7 @@ export default function ProjectsHeader() {
   const [debouncedInput, setDebouncedInput] = useState("");
 
   const { refetchProjects } = useSessionContext();
+  const { user } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextSearch(e.target.value);
@@ -75,12 +78,14 @@ export default function ProjectsHeader() {
             onChange={handleChange}
           />
         </div>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Nuovo Progetto
-          </Button>
-        </motion.div>
+        {canUserDealProjects(user) && (
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button onClick={() => setShowAddDialog(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Nuovo Progetto
+            </Button>
+          </motion.div>
+        )}
       </div>
 
       <AddProjectDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
