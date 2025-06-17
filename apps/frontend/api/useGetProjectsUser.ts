@@ -1,13 +1,13 @@
 "use client";
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { SERVERL_BASE_URL } from "@/config";
-import { project } from "@bitrock/db";
+import { IProject } from "@bitrock/types";
 import { useCallback, useEffect, useState } from "react";
 
 export function useGetProjectsUser() {
   const { user, session } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [projects, setProjects] = useState<project[]>([]);
+  const [projects, setProjects] = useState<IProject[]>([]);
 
   const fetchProjects = useCallback(async () => {
     if (!user?.id) return;

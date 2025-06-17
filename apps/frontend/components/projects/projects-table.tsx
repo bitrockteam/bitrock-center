@@ -36,9 +36,12 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import AddProjectDialog from "./add-project-dialog";
+import { useGetProjectsUser } from "@/api/useGetProjectsUser";
+import { useAuth } from "@/app/(auth)/AuthProvider";
+import { isAdminOrSuperAdmin } from "@/services/users/utils";
 
 export default function ProjectsTable() {
   const router = useRouter();
@@ -48,9 +51,16 @@ export default function ProjectsTable() {
   const [deleteProjectDialog, setDeleteProjectDialog] =
     useState<IProject | null>(null);
 
-  const { refetchProjects } = useSessionContext();
+  const { user } = useAuth();
 
-  const { projects } = useSessionContext();
+  const { refetchProjects, projects: allProjects } = useSessionContext();
+  const { projects: allUserProjects } = useGetProjectsUser();
+  const projects = useMemo(
+    () => (isAdminOrSuperAdmin(user) ? allProjects : allUserProjects),
+    [allProjects, allUserProjects, user],
+  );
+
+  console.log({ projects, allProjects, allUserProjects });
 
   const { deleteProject } = useDeleteProject();
 

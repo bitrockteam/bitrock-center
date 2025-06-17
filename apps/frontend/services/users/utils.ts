@@ -52,3 +52,6 @@ export const canUserAllocateResources = (user?: IUser) =>
   user?.role.label === "Admin" ||
   user?.role.label === "Super Admin" ||
   user?.role.label === "Key Client";
+
+export const isAdminOrSuperAdmin = (user?: IUser) =>
+  user?.role.label === "Admin" || user?.role.label === "Super Admin";
