@@ -11,9 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { FindUsers } from "@/api/server/user/findUsers";
 import { useUpdateRoleForUser } from "@/api/useUpdateRoleForUser";
 import { useAuth } from "@/app/(auth)/AuthProvider";
-import { useSessionContext } from "@/app/utenti/SessionData";
 import { canUserEdit, formatDisplayName } from "@/services/users/utils";
 import { Role } from "@bitrock/db";
 import { motion } from "framer-motion";
@@ -26,10 +26,15 @@ import {
   SelectValue,
 } from "../ui/select";
 
-export default function UsersTable() {
+export default function UsersTable({
+  users,
+  refetchUsers,
+}: {
+  users: FindUsers[];
+  refetchUsers: () => void;
+}) {
   const router = useRouter();
 
-  const { users, refetchUsers } = useSessionContext();
   const { user } = useAuth();
   const { updateRoleForUser } = useUpdateRoleForUser();
 

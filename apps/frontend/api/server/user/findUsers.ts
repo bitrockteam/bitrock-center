@@ -7,20 +7,24 @@ export async function findUsers(search?: string) {
   await getUserInfoFromCookie();
   return db.user.findMany({
     where: {
-      OR: [
-        {
-          name: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-        {
-          email: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-      ],
+      ...(search
+        ? {
+            OR: [
+              {
+                name: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                email: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          }
+        : {}),
     },
     orderBy: {
       created_at: "desc",

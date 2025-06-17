@@ -1,6 +1,5 @@
 "use client";
 
-import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
@@ -8,7 +7,11 @@ import { PlusCircle, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddUserDialog from "./add-user-dialog";
 
-export default function UsersHeader() {
+export default function UsersHeader({
+  refetchUsers,
+}: {
+  refetchUsers: () => void;
+}) {
   const serachParams = new URLSearchParams(window.location.search);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -16,8 +19,6 @@ export default function UsersHeader() {
     serachParams.get("params") ?? "",
   );
   const [debouncedInput, setDebouncedInput] = useState("");
-
-  const { refetchUsers } = useSessionContext();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextSearch(e.target.value);
@@ -52,7 +53,7 @@ export default function UsersHeader() {
       refetchUsers();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refetchUsers, debouncedInput]);
+  }, [debouncedInput]);
 
   return (
     <motion.div
