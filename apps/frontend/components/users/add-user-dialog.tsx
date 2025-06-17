@@ -285,27 +285,29 @@ export default function AddUserDialog({
                                 Nessun membro disponibile
                               </CommandEmpty>
                               <CommandGroup>
-                                {users.map((user) => (
-                                  <CommandItem
-                                    key={user.id}
-                                    value={user.name}
-                                    className="pointer-events-auto"
-                                    onSelect={() => {
-                                      field.onChange(user.id);
-                                      setIsPopoverOpen(false);
-                                    }}
-                                  >
-                                    {user.name}
-                                    <Check
-                                      className={cn(
-                                        "ml-auto",
-                                        field.value === user.id
-                                          ? "opacity-100"
-                                          : "opacity-0",
-                                      )}
-                                    />
-                                  </CommandItem>
-                                ))}
+                                {users
+                                  .filter((u) => u.id !== editData?.id)
+                                  .map((user) => (
+                                    <CommandItem
+                                      key={user.id}
+                                      value={user.name}
+                                      className="pointer-events-auto"
+                                      onSelect={() => {
+                                        field.onChange(user.id);
+                                        setIsPopoverOpen(false);
+                                      }}
+                                    >
+                                      {user.name}
+                                      <Check
+                                        className={cn(
+                                          "ml-auto",
+                                          field.value === user.id
+                                            ? "opacity-100"
+                                            : "opacity-0",
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
                               </CommandGroup>
                             </CommandList>
                           </Command>
