@@ -4,9 +4,6 @@ import { db } from "../config/prisma";
 
 export async function getProjects(params?: string) {
   return db.project.findMany({
-    include: {
-      status: true,
-    },
     orderBy: {
       created_at: "desc",
     },
@@ -22,22 +19,19 @@ export async function getProjects(params?: string) {
 export async function getProjectById(id: string) {
   return db.project.findUnique({
     where: { id },
-    include: {
-      status: true,
-    },
   });
 }
 
 export const createProject = async (
   input: Omit<project, "id" | "created_at">,
 ) => {
-  const { name, client, status_id, description, start_date, end_date } = input;
+  const { name, client, status, description, start_date, end_date } = input;
 
   const res = await sql`
     INSERT INTO public."project" (
-      name, client, status_id, description, start_date, end_date, created_at
+      name, client, status, description, start_date, end_date, created_at
     ) VALUES (
-      ${name}, ${client}, ${status_id}, ${description}, ${start_date}, ${end_date || null}, NOW()
+      ${name}, ${client}, ${status}, ${description}, ${start_date}, ${end_date || null}, NOW()
     ) RETURNING id
   `;
 
@@ -92,13 +86,10 @@ export const updateProject = async (input: Omit<project, "created_at">) => {
     data: {
       name: input.name,
       client: input.client,
-      status_id: input.status_id,
+      status: input.status,
       description: input.description,
       start_date: input.start_date,
       end_date: input.end_date ? new Date(input.end_date) : null,
-    },
-    include: {
-      status: true,
     },
   });
 };
@@ -132,9 +123,6 @@ export const getAvailableUsersForProject = async (id: string) => {
 
 export async function getUserProjects(userId: string) {
   return db.project.findMany({
-    include: {
-      status: true,
-    },
     where: {
       allocation: {
         some: {

@@ -6,7 +6,6 @@ import { createAllocationsController } from "./controllers/allocations.controlle
 import { createPermitsController } from "./controllers/permits.controller";
 import { createProjectsController } from "./controllers/projects.controller";
 import { createRolesController } from "./controllers/roles.controller";
-import { createStatusesController } from "./controllers/statuses.controller";
 import { createTimesheetController } from "./controllers/timesheet.controller";
 import { createUserController } from "./controllers/user.controller";
 
@@ -20,7 +19,6 @@ export const addPublicRoutes = (app: Express) => {
   createUserController(app);
   createRolesController(app);
   createProjectsController(app);
-  createStatusesController(app);
   createPermitsController(app);
   createAllocationsController(app);
   createTimesheetController(app);

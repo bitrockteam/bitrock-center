@@ -4,7 +4,6 @@ import { useGetAllocationsForProject } from "@/api/useGetAllocationsForProject";
 import { useGetProjectById } from "@/api/useGetProjectsById";
 import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,6 +26,7 @@ import {
   canUserDealProjects,
   formatDisplayName,
 } from "@/services/users/utils";
+import { getProjectStatusBadge } from "@/utils/mapping";
 import { format, parse } from "date-fns";
 import { motion } from "framer-motion";
 import {
@@ -95,25 +95,6 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
     );
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge className="bg-green-500">Attivo</Badge>;
-      case "completed":
-        return <Badge variant="outline">Completato</Badge>;
-      case "on-hold":
-        return <Badge variant="secondary">In Pausa</Badge>;
-      case "planned":
-        return (
-          <Badge variant="outline" className="border-amber-500 text-amber-500">
-            Pianificato
-          </Badge>
-        );
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
   // Calcola il totale delle ore lavorate sul progetto
   const totalHours = 40;
 
@@ -139,7 +120,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
             </h1>
             <div className="flex items-center space-x-2">
               <p className="text-muted-foreground">Cliente: {project.client}</p>
-              {getStatusBadge(project.status_id)}
+              {getProjectStatusBadge(project.status)}
             </div>
           </div>
         </div>

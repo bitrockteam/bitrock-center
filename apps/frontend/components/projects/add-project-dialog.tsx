@@ -1,7 +1,6 @@
 "use client";
 
 import { useCreateProject } from "@/api/useCreateProject";
-import { useGetStatuses } from "@/api/useGetStatuses";
 // import { useGetUsers } from "@/api/useGetUsers";
 import { useEditProject } from "@/api/useEditProject";
 import { useSessionContext } from "@/app/utenti/SessionData";
@@ -31,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { project } from "@bitrock/db";
+import { project, ProjectStatus } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -52,7 +51,6 @@ export default function AddProjectDialog({
   projectId,
 }: AddProjectDialogProps) {
   const { refetchProjects } = useSessionContext();
-  const { statuses } = useGetStatuses();
   const { createProject } = useCreateProject();
   const { editProject } = useEditProject();
 
@@ -61,7 +59,7 @@ export default function AddProjectDialog({
       name: "",
       client: "",
       description: "",
-      status_id: "",
+      status: ProjectStatus.PLANNED,
       start_date: new Date().toISOString().split("T")[0],
       // team: [] as string[],
     },
@@ -75,7 +73,7 @@ export default function AddProjectDialog({
         name: editData.name,
         client: editData.client,
         description: editData.description ?? undefined,
-        status_id: editData.status_id,
+        status: editData.status,
         start_date: String(editData.start_date).slice(0, 10),
         end_date: editData.end_date
           ? String(editData.end_date).slice(0, 10)
@@ -90,6 +88,7 @@ export default function AddProjectDialog({
       ...data,
       start_date: new Date(data.start_date),
       end_date: data.end_date ? new Date(data.end_date) : null,
+      status: data.status as ProjectStatus,
     };
 
     if (editData && projectId) {
@@ -186,7 +185,7 @@ export default function AddProjectDialog({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
-                name="status_id"
+                name="status"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Stato</FormLabel>
@@ -201,9 +200,9 @@ export default function AddProjectDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {statuses.map((s) => (
-                          <SelectItem value={s.id} key={s.id}>
-                            {s.name}
+                        {Object.keys(ProjectStatus).map((s) => (
+                          <SelectItem value={s} key={s}>
+                            {s.replace(/_/g, " ")}
                           </SelectItem>
                         ))}
                       </SelectContent>

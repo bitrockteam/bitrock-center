@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/alert-dialog";
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDeleteProject } from "@/api/useDeleteProject";
+import { useGetProjectsUser } from "@/api/useGetProjectsUser";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 import { useSessionContext } from "@/app/utenti/SessionData";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,6 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { isAdminOrSuperAdmin } from "@/services/users/utils";
+import { getProjectStatusBadge } from "@/utils/mapping";
 import { project } from "@bitrock/db";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
@@ -39,9 +42,6 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import AddProjectDialog from "./add-project-dialog";
-import { useGetProjectsUser } from "@/api/useGetProjectsUser";
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { isAdminOrSuperAdmin } from "@/services/users/utils";
 
 export default function ProjectsTable() {
   const router = useRouter();
@@ -63,25 +63,6 @@ export default function ProjectsTable() {
   console.log({ projects, allProjects, allUserProjects });
 
   const { deleteProject } = useDeleteProject();
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge className="bg-green-500">Attivo</Badge>;
-      case "completed":
-        return <Badge variant="outline">Completato</Badge>;
-      case "on-hold":
-        return <Badge variant="secondary">In Pausa</Badge>;
-      case "planned":
-        return (
-          <Badge variant="outline" className="border-amber-500 text-amber-500">
-            Pianificato
-          </Badge>
-        );
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
 
   const handleViewProject = (id: string) => {
     router.push(`/progetti/${id}`);
@@ -134,7 +115,9 @@ export default function ProjectsTable() {
                       {project?.name}
                     </TableCell>
                     <TableCell>{project?.client}</TableCell>
-                    <TableCell>{getStatusBadge(project?.status_id)}</TableCell>
+                    <TableCell>
+                      {getProjectStatusBadge(project?.status)}
+                    </TableCell>
 
                     <TableCell>
                       {format(project?.start_date, "MM dd yyyy")}

@@ -43,26 +43,16 @@ model permit {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model project {
-  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at  DateTime     @default(now()) @db.Timestamptz(6)
-  name        String       @db.VarChar
-  client      String       @db.VarChar
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  name        String        @db.VarChar
+  client      String        @db.VarChar
   description String?
-  start_date  DateTime     @db.Timestamp(6)
-  end_date    DateTime?    @db.Timestamp(6)
-  status_id   String       @db.Uuid
+  start_date  DateTime      @db.Timestamp(6)
+  end_date    DateTime?     @db.Timestamp(6)
+  status      ProjectStatus @default(PLANNED)
   allocation  allocation[]
-  status      status       @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   timesheet   timesheet[]
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model status {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at DateTime  @default(now()) @db.Timestamptz(6)
-  name       String    @db.VarChar
-  project    project[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -115,4 +105,11 @@ enum Role {
   Key_Client  @map("Key Client")
   Manager
   Employee
+}
+
+enum ProjectStatus {
+  ACTIVE
+  PLANNED
+  PAUSED
+  COMPLETED
 }

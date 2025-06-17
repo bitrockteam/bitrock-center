@@ -26,13 +26,7 @@ import {
   SelectValue,
 } from "../ui/select";
 
-export default function UsersTable({
-  users,
-  refetchUsers,
-}: {
-  users: FindUsers[];
-  refetchUsers: () => void;
-}) {
+export default function UsersTable({ users }: { users: FindUsers[] }) {
   const router = useRouter();
 
   const { user } = useAuth();
@@ -96,11 +90,7 @@ export default function UsersTable({
                         <Select
                           onValueChange={(e) => {
                             const roleIdSelected = e as string;
-                            updateRoleForUser(us.id, roleIdSelected).then(
-                              () => {
-                                refetchUsers();
-                              },
-                            );
+                            updateRoleForUser(us.id, roleIdSelected);
                           }}
                           value={us.role}
                         >

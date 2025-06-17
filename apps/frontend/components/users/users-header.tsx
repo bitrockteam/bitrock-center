@@ -4,15 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddUserDialog from "./add-user-dialog";
 
-export default function UsersHeader({
-  refetchUsers,
-}: {
-  refetchUsers: () => void;
-}) {
-  const serachParams = new URLSearchParams(window.location.search);
+export default function UsersHeader() {
+  const router = useRouter();
+  const serachParams = useSearchParams();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [textSearch, setTextSearch] = useState(
@@ -24,13 +22,7 @@ export default function UsersHeader({
     setTextSearch(e.target.value);
 
     if (e.target.value === "") {
-      serachParams.delete("params");
-      history.pushState(
-        {},
-        "",
-        `${window.location.pathname}?${serachParams.toString()}`,
-      );
-      refetchUsers();
+      router.push(`/utenti`);
     }
   };
 
@@ -43,14 +35,10 @@ export default function UsersHeader({
 
   useEffect(() => {
     if (debouncedInput !== "") {
-      serachParams.set("params", debouncedInput);
-      history.pushState(
-        {},
-        "",
-        `${window.location.pathname}?${serachParams.toString()}`,
-      );
-
-      refetchUsers();
+      const newParams = new URLSearchParams(serachParams.toString());
+      newParams.set("params", debouncedInput);
+      // Remove other params if needed
+      router.push(`/utenti?${newParams.toString()}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedInput]);
