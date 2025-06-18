@@ -15,7 +15,3 @@ export async function fetchUserPermits() {
     },
   });
 }
-
-export type UserTimesheet = Awaited<
-  ReturnType<typeof fetchUserPermits>
->[number];

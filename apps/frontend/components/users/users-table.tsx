@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 
 import { FindUsers } from "@/api/server/user/findUsers";
-import { useUpdateRoleForUser } from "@/api/useUpdateRoleForUser";
+import { updateUserRole } from "@/api/server/user/updateUserRole";
 import { canUserEdit, formatDisplayName } from "@/services/users/utils";
 import { Role, user } from "@bitrock/db";
 import { motion } from "framer-motion";
@@ -35,8 +35,6 @@ export default function UsersTable({
   user: user | null;
 }) {
   const router = useRouter();
-
-  const { updateRoleForUser } = useUpdateRoleForUser();
 
   const handleViewUser = (id: string) => {
     router.push(`/utenti/${id}`);
@@ -95,8 +93,8 @@ export default function UsersTable({
                       <TableCell>
                         <Select
                           onValueChange={(e) => {
-                            const roleIdSelected = e as string;
-                            updateRoleForUser(us.id, roleIdSelected).then(() =>
+                            const roleIdSelected = e as Role;
+                            updateUserRole(us.id, roleIdSelected).then(() =>
                               refetch(),
                             );
                           }}

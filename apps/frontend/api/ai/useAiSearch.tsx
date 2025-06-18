@@ -1,21 +1,10 @@
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { SERVERL_BASE_URL } from "@/config";
 import { useState } from "react";
-
-type AiSearchResult = {
-  sql: string;
-  error: string | null;
-  data: {
-    key: string;
-  }[];
-  output: string | undefined;
-};
+import { smartSearch, SmartSearchResult } from "../server/ai/smartSearch";
 
 export function useAiSearch() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<AiSearchResult>();
-  const { session } = useAuth();
+  const [result, setResult] = useState<SmartSearchResult>();
 
   const search = async (question: string) => {
     setLoading(true);
@@ -23,20 +12,7 @@ export function useAiSearch() {
     setResult(undefined);
 
     try {
-      const response = await fetch(`${SERVERL_BASE_URL}/smart-search`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({ question }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = (await response.json()) as AiSearchResult;
+      const data = await smartSearch({ question });
       setResult(data);
     } catch (err) {
       console.error("Error during AI search:", err);

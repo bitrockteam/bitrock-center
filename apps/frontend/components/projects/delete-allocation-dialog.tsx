@@ -2,8 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 
+import { deleteAllocation } from "@/api/server/allocation/deleteAllocation";
 import { findUserById } from "@/api/server/user/findUserById";
-import { useDeleteAllocation } from "@/api/useDeleteAllocation";
 import { user } from "@bitrock/db";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -31,8 +31,6 @@ export function DeleteAllocationDialog({
   project_name: string;
   refetch: () => void;
 }>) {
-  const { deleteAllocation } = useDeleteAllocation();
-
   const [user, setUser] = useState<user>();
 
   useEffect(() => {
@@ -68,13 +66,15 @@ export function DeleteAllocationDialog({
                 variant="destructive"
                 onClick={() => {
                   if (user?.id)
-                    deleteAllocation(project_id, user.id).then((res) => {
-                      if (res) {
-                        onOpenChange(false);
-                        refetch();
-                        toast.success("Allocazione eliminata con successo");
-                      }
-                    });
+                    deleteAllocation({ project_id, user_id: user.id }).then(
+                      (res) => {
+                        if (res) {
+                          onOpenChange(false);
+                          refetch();
+                          toast.success("Allocazione eliminata con successo");
+                        }
+                      },
+                    );
                 }}
               >
                 Elimina

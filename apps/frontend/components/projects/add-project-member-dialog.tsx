@@ -8,10 +8,10 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useCreateAllocation } from "@/api/useCreateAllocation";
+import { createAllocation } from "@/api/server/allocation/createAllocation";
+import { updateAllocation } from "@/api/server/allocation/updateAllocation";
 import { useGetProjectsUsersAvailable } from "@/api/useGetProjectsUsersAvailable";
 import { useGetUsers } from "@/api/useGetUsers";
-import { useUpdateAllocation } from "@/api/useUpdateAllocation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isBefore } from "date-fns";
 import { toast } from "sonner";
@@ -68,8 +68,6 @@ export function AddProjectMemberDialog({
   const { users: usersAvailable, isLoading } =
     useGetProjectsUsersAvailable(projectId);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const { createAllocation } = useCreateAllocation();
-  const { updateAllocation } = useUpdateAllocation();
 
   const form = useForm<z.infer<typeof addMemberProjectSchema>>({
     defaultValues: {
@@ -117,11 +115,13 @@ export function AddProjectMemberDialog({
                     const values = form.getValues();
                     if (isEdit) {
                       updateAllocation({
-                        user_id: values.user_id,
-                        project_id: projectId,
-                        start_date: values.start_date ?? new Date(),
-                        end_date: values.end_date ?? null,
-                        percentage: values.percentage ?? 100,
+                        allocation: {
+                          user_id: values.user_id,
+                          project_id: projectId,
+                          start_date: values.start_date ?? new Date(),
+                          end_date: values.end_date ?? null,
+                          percentage: values.percentage ?? 100,
+                        },
                       }).then(() => {
                         onOpenChange(false);
                         form.reset();
@@ -130,11 +130,13 @@ export function AddProjectMemberDialog({
                       });
                     } else
                       createAllocation({
-                        project_id: projectId,
-                        start_date: values.start_date ?? new Date(),
-                        end_date: values.end_date ?? null,
-                        percentage: values.percentage ?? 100,
-                        user_id: values.user_id,
+                        allocation: {
+                          project_id: projectId,
+                          start_date: values.start_date ?? new Date(),
+                          end_date: values.end_date ?? null,
+                          percentage: values.percentage ?? 100,
+                          user_id: values.user_id,
+                        },
                       }).then(() => {
                         onOpenChange(false);
                         form.reset();

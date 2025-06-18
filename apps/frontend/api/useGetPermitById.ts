@@ -1,29 +1,21 @@
 "use client";
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { SERVERL_BASE_URL } from "@/config";
+import { db } from "@/config/prisma";
 import { permit } from "@bitrock/db";
 import { useCallback, useEffect, useState } from "react";
 
 export const useGetPermitById = (id: string) => {
   const [permit, setPermit] = useState<permit | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { session } = useAuth();
 
   const refetch = useCallback(() => {
+    "use server";
     if (!id) return;
 
     setIsLoading(true);
 
-    fetch(`${SERVERL_BASE_URL}/permits/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch permit");
-        return res.json();
+    return db.permit
+      .findUnique({
+        where: { id },
       })
       .then((data) => setPermit(data))
       .catch((err) => {
@@ -31,11 +23,11 @@ export const useGetPermitById = (id: string) => {
         setPermit(null);
       })
       .finally(() => setIsLoading(false));
-  }, [id, session?.access_token]);
+  }, [id]);
 
   useEffect(() => {
-    if (session?.access_token) refetch();
-  }, [refetch, session?.access_token]);
+    refetch();
+  }, [refetch]);
 
   return { permit, isLoading, refetch };
 };

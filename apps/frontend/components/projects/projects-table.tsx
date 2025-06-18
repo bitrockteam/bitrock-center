@@ -10,8 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useDeleteProject } from "@/api/useDeleteProject";
+
+import { deleteProject } from "@/api/server/project/deleteProject";
 import { useGetProjects } from "@/api/useGetProjects";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,8 +49,6 @@ export default function ProjectsTable() {
     useState<project | null>(null);
 
   const { refetch: refetchProjects, projects } = useGetProjects();
-
-  const { deleteProject } = useDeleteProject();
 
   const handleViewProject = (id: string) => {
     router.push(`/progetti/${id}`);

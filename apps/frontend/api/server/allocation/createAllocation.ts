@@ -3,20 +3,12 @@
 import { db } from "@/config/prisma";
 import { allocation } from "@bitrock/db";
 
-export async function updateAllocation({
+export async function createAllocation({
   allocation,
 }: {
-  allocation: Omit<allocation, "created_at">;
+  allocation: Omit<allocation, "created_at" | "id">;
 }) {
-  console.log({ allocation });
-
-  return db.allocation.update({
-    where: {
-      user_id_project_id: {
-        user_id: allocation.user_id,
-        project_id: allocation.project_id,
-      },
-    },
+  return db.allocation.create({
     data: {
       user_id: allocation.user_id,
       project_id: allocation.project_id,

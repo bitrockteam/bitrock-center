@@ -3,7 +3,7 @@ import { getFirstnameAndLastname } from "@/services/users/utils";
 import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 
-export async function DashboardHeader({ user }: { user: user }) {
+export function DashboardHeader({ user }: { user: user }) {
   const currentDate = new Date();
   const formattedDate = new Intl.DateTimeFormat("it-IT", {
     weekday: "long",

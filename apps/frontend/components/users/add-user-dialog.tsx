@@ -2,9 +2,9 @@
 
 import { createUser } from "@/api/server/user/createUser";
 import { FindUserById } from "@/api/server/user/findUserById";
+import { updateUser } from "@/api/server/user/updateUser";
+import { uploadFile } from "@/api/server/user/uploadFile";
 import { useGetUsers } from "@/api/useGetUsers";
-import { useUpdateUser } from "@/api/useUpdateUser";
-import { useUploadFile } from "@/api/useUploadFile";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { getFirstnameAndLastname } from "@/services/users/utils";
 import { Role, user } from "@bitrock/db";
 import { motion } from "framer-motion";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -68,8 +68,6 @@ export default function AddUserDialog({
   editData,
   user,
 }: Readonly<AddUserDialogProps>) {
-  const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
-  const { uploadFile, isLoading: isLoadingUploadFile } = useUploadFile();
   const { refetch: refetchUsers, users } = useGetUsers();
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -101,12 +99,10 @@ export default function AddUserDialog({
   const handleUpdateUser = (avatar_url?: string) =>
     updateUser({
       id: editData!.id,
-      user: {
-        name: `${form.getValues().name} ${form.getValues().surname}`,
-        ...(avatar_url && { avatar_url }),
-        role: form.getValues().role,
-        referent_id: form.getValues().referent_id,
-      },
+      name: `${form.getValues().name} ${form.getValues().surname}`,
+      ...(avatar_url && { avatar_url }),
+      role: form.getValues().role,
+      referent_id: form.getValues().referent_id,
     });
 
   const handleComplete = (open: boolean) => {
@@ -122,7 +118,7 @@ export default function AddUserDialog({
         const fileFormData = new FormData();
         fileFormData.append("file", file);
 
-        uploadFile({ file: fileFormData }).then((data) => {
+        await uploadFile({ file: fileFormData }).then((data) => {
           handleUpdateUser(data.avatar_url)
             .then(() => toast.success("Utente aggiornato con successo"))
             .finally(() => {
@@ -332,11 +328,7 @@ export default function AddUserDialog({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button
-                  type="submit"
-                  disabled={isLoadingUpdateUser || isLoadingUploadFile}
-                >
-                  {isLoadingUpdateUser || (isLoadingUploadFile && <Loader2 />)}
+                <Button type="submit">
                   {editData ? "Aggiorna" : "Crea Utente"}
                 </Button>
               </motion.div>

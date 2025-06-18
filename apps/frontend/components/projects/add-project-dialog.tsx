@@ -1,8 +1,7 @@
 "use client";
 
-import { useCreateProject } from "@/api/useCreateProject";
-// import { useGetUsers } from "@/api/useGetUsers";
-import { useEditProject } from "@/api/useEditProject";
+import { createProject } from "@/api/server/project/createProject";
+import { updateProject } from "@/api/server/project/updateProject";
 import { useGetProjects } from "@/api/useGetProjects";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,8 +50,6 @@ export default function AddProjectDialog({
   projectId,
 }: AddProjectDialogProps) {
   const { refetch: refetchProjects } = useGetProjects();
-  const { createProject } = useCreateProject();
-  const { editProject } = useEditProject();
 
   const form = useForm<z.infer<typeof addProjectSchema>>({
     defaultValues: {
@@ -83,7 +80,7 @@ export default function AddProjectDialog({
     }
   }, [editData, form]);
 
-  const onSubmit = (data: z.infer<typeof addProjectSchema>) => {
+  const onSubmit = async (data: z.infer<typeof addProjectSchema>) => {
     const formattedData: Omit<project, "id" | "created_at"> = {
       ...data,
       start_date: new Date(data.start_date),
@@ -92,7 +89,7 @@ export default function AddProjectDialog({
     };
 
     if (editData && projectId) {
-      editProject(formattedData, projectId)
+      await updateProject({ id: projectId, ...formattedData })
         .then(() => {
           onOpenChange(false);
           form.reset();
@@ -102,7 +99,7 @@ export default function AddProjectDialog({
         });
       return;
     }
-    createProject(formattedData)
+    await createProject(formattedData)
       .then(() => {
         onOpenChange(false);
         form.reset();

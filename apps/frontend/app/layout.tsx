@@ -7,7 +7,6 @@ import type React from "react";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
 import "../styles/globals.css";
-import { AuthProvider } from "./(auth)/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,14 +37,12 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <div className="flex h-screen">
-              <AuthProvider>
-                {user && <Sidebar user={user} />}
-                <div className="flex-1 overflow-auto">
-                  <main className="container py-4 mx-auto px-4 h-full">
-                    {children}
-                  </main>
-                </div>
-              </AuthProvider>
+              {user && <Sidebar user={user} />}
+              <div className="flex-1 overflow-auto">
+                <main className="container py-4 mx-auto px-4 h-full">
+                  {children}
+                </main>
+              </div>
             </div>
             <Toaster />
           </ThemeProvider>

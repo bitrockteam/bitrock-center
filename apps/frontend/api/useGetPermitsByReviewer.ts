@@ -1,29 +1,21 @@
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { SERVERL_BASE_URL } from "@/config";
 import { permit } from "@bitrock/db";
 import { useCallback, useEffect, useState } from "react";
+import { getPermitsByReviewer } from "./server/permit/getPermitsByReviewer";
 
 export const useGetPermitsByReviewer = (reviewerId: string) => {
   const [permits, setPermits] = useState<permit[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { session } = useAuth();
 
   const refetch = useCallback(() => {
-    setIsLoading(true);
-    fetch(`${SERVERL_BASE_URL}/permits/reviewer/${reviewerId}`, {
-      headers: {
-        Authorization: `Bearer ${session?.access_token}`,
-      },
-    })
-      .then((res) => res.json())
+    return getPermitsByReviewer({ reviewerId })
       .then(setPermits)
       .catch(console.error)
       .finally(() => setIsLoading(false));
-  }, [session, reviewerId]);
+  }, [reviewerId]);
 
   useEffect(() => {
-    if (session?.access_token) refetch();
-  }, [refetch, session?.access_token]);
+    refetch();
+  }, [refetch]);
 
   return { permits, isLoading, refetch };
 };
