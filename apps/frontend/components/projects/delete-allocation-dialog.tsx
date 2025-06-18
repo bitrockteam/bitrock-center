@@ -36,6 +36,7 @@ export function DeleteAllocationDialog({
   const [user, setUser] = useState<user>();
 
   useEffect(() => {
+    if (!user_id) return;
     findUserById(user_id)
       .then((res) => {
         if (res) {
@@ -49,6 +50,8 @@ export function DeleteAllocationDialog({
         toast.error("Errore durante il recupero dell'utente");
       });
   }, [user_id]);
+
+  if (!open) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

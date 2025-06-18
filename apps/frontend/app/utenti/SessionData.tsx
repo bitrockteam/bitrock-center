@@ -7,7 +7,6 @@ import { GetUsers, useGetUsers } from "@/api/useGetUsers";
 import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
 import { permit, project } from "@bitrock/db";
 import { createContext, ReactNode, useContext, useMemo, useState } from "react";
-import { useAuth } from "../(auth)/AuthProvider";
 
 const SessionDataContext = createContext({
   users: [] as GetUsers[],
@@ -24,7 +23,6 @@ export function SessionDataProvider({
 }: Readonly<{ children: ReactNode }>) {
   const [usersList, setUsersList] = useState<GetUsers[]>([]);
 
-  const { user } = useAuth();
   const [projectsList, setProjectsList] = useState<project[]>([]);
   const [permitsList, setPermitsList] = useState<permit[]>([]);
 
@@ -34,7 +32,7 @@ export function SessionDataProvider({
     permits,
     isLoading: isPermitsLoading,
     refetch: refetchPermits,
-  } = useGetPermitsByUser(user?.id);
+  } = useGetPermitsByUser();
   const {
     projects,
     refetch: refetchProjects,

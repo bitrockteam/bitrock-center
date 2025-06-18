@@ -1,4 +1,3 @@
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { useCallback, useEffect, useState } from "react";
 import {
   fetchAllocationsForProject,
@@ -6,7 +5,6 @@ import {
 } from "./server/project/fetchAllocationsForProject";
 
 export function useGetAllocationsForProject(projectId: string) {
-  const { session } = useAuth();
   const [allocations, setAllocations] = useState<UserAllocated[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,7 +19,7 @@ export function useGetAllocationsForProject(projectId: string) {
 
   useEffect(() => {
     fetchAllocations();
-  }, [fetchAllocations, projectId, session?.access_token]);
+  }, [fetchAllocations, projectId]);
 
   return { allocations, isLoading, fetchAllocations };
 }

@@ -15,7 +15,7 @@ export default async function ProjectDetailPage({
 
   return (
     <div className="space-y-6">
-      <ProjectDetail id={id} />
+      <ProjectDetail id={id} />{" "}
     </div>
   );
 }
