@@ -10,8 +10,8 @@ import { z } from "zod";
 
 import { useCreateAllocation } from "@/api/useCreateAllocation";
 import { useGetProjectsUsersAvailable } from "@/api/useGetProjectsUsersAvailable";
+import { useGetUsers } from "@/api/useGetUsers";
 import { useUpdateAllocation } from "@/api/useUpdateAllocation";
-import { useSessionContext } from "@/app/utenti/SessionData";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isBefore } from "date-fns";
 import { toast } from "sonner";
@@ -64,7 +64,7 @@ export function AddProjectMemberDialog({
     percentage?: number;
   };
 }>) {
-  const { users } = useSessionContext();
+  const { users } = useGetUsers();
   const { users: usersAvailable, isLoading } =
     useGetProjectsUsersAvailable(projectId);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);

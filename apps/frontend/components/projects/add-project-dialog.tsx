@@ -3,7 +3,7 @@
 import { useCreateProject } from "@/api/useCreateProject";
 // import { useGetUsers } from "@/api/useGetUsers";
 import { useEditProject } from "@/api/useEditProject";
-import { useSessionContext } from "@/app/utenti/SessionData";
+import { useGetProjects } from "@/api/useGetProjects";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -50,7 +50,7 @@ export default function AddProjectDialog({
   editData,
   projectId,
 }: AddProjectDialogProps) {
-  const { refetchProjects } = useSessionContext();
+  const { refetch: refetchProjects } = useGetProjects();
   const { createProject } = useCreateProject();
   const { editProject } = useEditProject();
 

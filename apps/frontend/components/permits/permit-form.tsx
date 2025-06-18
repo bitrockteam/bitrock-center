@@ -29,7 +29,6 @@ import { DatePicker } from "../custom/DatePicker";
 // import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
 // import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
 import { createUserPermits } from "@/api/server/permit/createUserPermits";
-import { useSessionContext } from "@/app/utenti/SessionData";
 import { PermitType } from "@bitrock/db";
 
 interface PermitFormValues {
@@ -46,7 +45,6 @@ export default function PermitRequestForm() {
   const { users } = useGetUsers();
   // const { createPermit } = useCreatePermit();
 
-  const { refetchPermits } = useSessionContext();
   const [errorMessage, setErrorMessage] = useState("");
 
   const form = useForm<PermitFormValues>({
@@ -75,7 +73,7 @@ export default function PermitRequestForm() {
         if (result) {
           form.reset();
           toast.success("Richiesta inviata con successo!");
-          refetchPermits();
+          // TODO: refetch permits here
         } else {
           setErrorMessage("Creazione permesso fallita o limite superato (8h).");
         }

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDeleteProject } from "@/api/useDeleteProject";
-import { useSessionContext } from "@/app/utenti/SessionData";
+import { useGetProjects } from "@/api/useGetProjects";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -48,7 +48,7 @@ export default function ProjectsTable() {
   const [deleteProjectDialog, setDeleteProjectDialog] =
     useState<project | null>(null);
 
-  const { refetchProjects, projects } = useSessionContext();
+  const { refetch: refetchProjects, projects } = useGetProjects();
 
   const { deleteProject } = useDeleteProject();
 

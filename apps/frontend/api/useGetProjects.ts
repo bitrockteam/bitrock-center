@@ -1,5 +1,4 @@
 "use client";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { project } from "@bitrock/db";
 import { useCallback, useEffect, useState } from "react";
 import { fetchAllProjects } from "./server/project/fetchAllProjects";
@@ -7,8 +6,6 @@ import { fetchAllProjects } from "./server/project/fetchAllProjects";
 export const useGetProjects = () => {
   const [projects, setProjects] = useState<project[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const { session } = useAuth();
 
   const refetch = useCallback(() => {
     setIsLoading(true);
@@ -24,8 +21,8 @@ export const useGetProjects = () => {
   }, []);
 
   useEffect(() => {
-    if (session?.access_token) refetch();
-  }, [refetch, session?.access_token]);
+    refetch();
+  }, [refetch]);
 
   return { projects, isLoading, refetch };
 };

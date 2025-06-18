@@ -2,10 +2,10 @@
 
 import { createUser } from "@/api/server/user/createUser";
 import { FindUserById } from "@/api/server/user/findUserById";
+import { useGetUsers } from "@/api/useGetUsers";
 import { useUpdateUser } from "@/api/useUpdateUser";
 import { useUploadFile } from "@/api/useUploadFile";
 import { useAuth } from "@/app/(auth)/AuthProvider";
-import { useSessionContext } from "@/app/utenti/SessionData";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -69,7 +69,7 @@ export default function AddUserDialog({
 }: Readonly<AddUserDialogProps>) {
   const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
   const { uploadFile, isLoading: isLoadingUploadFile } = useUploadFile();
-  const { refetchUsers, users } = useSessionContext();
+  const { refetch: refetchUsers, users } = useGetUsers();
   const { user } = useAuth();
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);

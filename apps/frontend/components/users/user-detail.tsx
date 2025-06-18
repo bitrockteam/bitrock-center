@@ -1,8 +1,8 @@
 "use client";
 
 import { findUserById } from "@/api/server/user/findUserById";
+import { useGetUsers } from "@/api/useGetUsers";
 import { useAuth } from "@/app/(auth)/AuthProvider";
-import { useSessionContext } from "@/app/utenti/SessionData";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +26,7 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const { users } = useSessionContext();
+  const { users } = useGetUsers();
   const { user: userData } = useAuth();
 
   const timeEntries = getTimeEntriesByUser(id);

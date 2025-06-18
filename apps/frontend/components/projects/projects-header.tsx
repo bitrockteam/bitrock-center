@@ -1,14 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { canUserDealProjects } from "@/services/users/utils";
+import { motion } from "framer-motion";
+import { PlusCircle, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
-import { useSessionContext } from "@/app/utenti/SessionData";
-import { canUserDealProjects } from "@/services/users/utils";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 
 export default function ProjectsHeader() {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -19,7 +18,6 @@ export default function ProjectsHeader() {
   );
   const [debouncedInput, setDebouncedInput] = useState("");
 
-  const { refetchProjects } = useSessionContext();
   const { user } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +30,7 @@ export default function ProjectsHeader() {
         "",
         `${window.location.pathname}?${searchParams.toString()}`,
       );
-      refetchProjects();
+      // TODO: refetchProjects();
     }
   };
 
@@ -51,10 +49,9 @@ export default function ProjectsHeader() {
         "",
         `${window.location.pathname}?${searchParams.toString()}`,
       );
-      refetchProjects();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedInput, refetchProjects]);
+  }, [debouncedInput]);
 
   return (
     <motion.div
