@@ -23,8 +23,9 @@ import { motion } from "framer-motion";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import AddHoursDialog from "./add-hours-dialog";
+import { user } from "@bitrock/db";
 
-export default function TimeTrackingTable() {
+export default function TimeTrackingTable({ user }: { user: user }) {
   const [month, setMonth] = useState("current");
   const [project, setProject] = useState("all");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,6 +136,7 @@ export default function TimeTrackingTable() {
           open={!!editEntry}
           onOpenChange={(open) => !open && setEditEntry(null)}
           editData={editEntry}
+          user={user}
         />
       )}
     </motion.div>

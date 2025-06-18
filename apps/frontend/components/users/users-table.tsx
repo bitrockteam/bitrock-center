@@ -13,9 +13,8 @@ import {
 
 import { FindUsers } from "@/api/server/user/findUsers";
 import { useUpdateRoleForUser } from "@/api/useUpdateRoleForUser";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { canUserEdit, formatDisplayName } from "@/services/users/utils";
-import { Role } from "@bitrock/db";
+import { Role, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -29,13 +28,14 @@ import {
 export default function UsersTable({
   users,
   refetch,
+  user,
 }: {
   users: FindUsers[];
   refetch: () => void;
+  user: user | null;
 }) {
   const router = useRouter();
 
-  const { user } = useAuth();
   const { updateRoleForUser } = useUpdateRoleForUser();
 
   const handleViewUser = (id: string) => {

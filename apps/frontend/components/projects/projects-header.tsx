@@ -1,15 +1,15 @@
 "use client";
 
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { canUserDealProjects } from "@/services/users/utils";
+import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 
-export default function ProjectsHeader() {
+export default function ProjectsHeader({ user }: { user: user }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   const searchParams = new URLSearchParams(window?.location?.search);
@@ -17,8 +17,6 @@ export default function ProjectsHeader() {
     searchParams.get("params") ?? "",
   );
   const [debouncedInput, setDebouncedInput] = useState("");
-
-  const { user } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextSearch(e.target.value);

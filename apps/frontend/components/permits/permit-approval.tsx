@@ -3,7 +3,6 @@
 import { useChangePermitStatus } from "@/api/useChangePermitStatus";
 import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
 import { useGetUsers } from "@/api/useGetUsers";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,12 +20,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getStatusBadge } from "@/utils/mapping";
-import { PermitStatus, PermitType } from "@bitrock/db";
+import { PermitStatus, PermitType, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-export default function PermitApprovalTable() {
-  const { user } = useAuth();
+export default function PermitApprovalTable({ user }: { user: user }) {
   const { permits, isLoading, refetch } = useGetPermitsByReviewer(user!.id);
   const { changeStatus } = useChangePermitStatus();
   const { users } = useGetUsers();

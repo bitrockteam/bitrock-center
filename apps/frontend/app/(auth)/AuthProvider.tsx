@@ -1,7 +1,6 @@
 "use client";
 import { Loader } from "@/components/custom/Loader";
 import { createClient } from "@/utils/supabase/client";
-import { user } from "@bitrock/db";
 import { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import {
@@ -17,18 +16,13 @@ import { api } from "../(config)/client";
 import { getUserInfo } from "../(services)/api";
 
 const AuthContext = createContext({
-  user: undefined as user | undefined,
   loading: true as boolean,
-  isLogged: false as boolean,
   session: undefined as Session | undefined,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setUser: (user: user | undefined) => {},
 });
 
 export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [session, setSession] = useState<Session>();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<user>();
   const redirect = useRouter();
 
   const token = useMemo(() => session?.access_token, [session]);
@@ -40,22 +34,14 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
       setLoading(true);
       setSession(session ?? undefined);
       try {
-        if (session && !user) {
-          // if (verifyBitrockToken({ token: session.access_token })) {
-          //   console.log("Autenticato");
-          // }
+        if (session) {
           await getUserInfo({ token: session.access_token })
             .then((res) => {
               console.log({ res });
 
-              if (res) setUser(res);
-              else {
-                setUser(undefined);
-                redirect.push("/register");
-              }
+              if (!res) redirect.push("/register");
             })
             .catch(() => {
-              setUser(undefined);
               redirect.push("/register");
             });
         }
@@ -67,7 +53,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
       }
     });
     return () => data.subscription.unsubscribe();
-  }, [redirect, supabase.auth, user]);
+  }, [redirect, supabase.auth]);
 
   useEffect(() => {
     api.interceptors.request.use((config) => {
@@ -92,13 +78,10 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
 
   const value = useMemo(
     () => ({
-      user,
-      isLogged: !!session,
       session,
       loading,
-      setUser,
     }),
-    [loading, session, user],
+    [loading, session],
   );
 
   return (

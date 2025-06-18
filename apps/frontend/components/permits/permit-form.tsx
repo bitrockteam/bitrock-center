@@ -1,7 +1,6 @@
 "use client";
 
 import { useGetUsers } from "@/api/useGetUsers";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -29,7 +28,7 @@ import { DatePicker } from "../custom/DatePicker";
 // import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
 // import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
 import { createUserPermits } from "@/api/server/permit/createUserPermits";
-import { PermitType } from "@bitrock/db";
+import { PermitType, user } from "@bitrock/db";
 
 interface PermitFormValues {
   type: string;
@@ -40,8 +39,7 @@ interface PermitFormValues {
   reviewerId: string;
 }
 
-export default function PermitRequestForm() {
-  const { user } = useAuth();
+export default function PermitRequestForm({ user }: { user: user | null }) {
   const { users } = useGetUsers();
   // const { createPermit } = useCreatePermit();
 

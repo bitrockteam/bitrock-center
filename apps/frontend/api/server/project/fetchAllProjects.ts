@@ -4,14 +4,14 @@ import { db } from "@/config/prisma";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
 export async function fetchAllProjects({ params }: { params: string | null }) {
-  const user = getUserInfoFromCookie();
+  const user = await getUserInfoFromCookie();
 
-  if ((await user).role !== "Admin" && (await user).role !== "Super_Admin") {
+  if (user.role !== "Admin" && user.role !== "Super_Admin") {
     return db.project.findMany({
       where: {
         allocation: {
           some: {
-            user_id: (await user).id,
+            user_id: user.id,
           },
         },
       },

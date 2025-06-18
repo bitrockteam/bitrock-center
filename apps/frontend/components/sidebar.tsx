@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import {
   BarChart3,
@@ -65,11 +66,11 @@ const navItems = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ user }: { user: user }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
 
-  const { session, user } = useAuth();
+  const { session } = useAuth();
 
   if (!session || !user) return null;
 

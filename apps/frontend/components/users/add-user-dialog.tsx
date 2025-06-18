@@ -5,7 +5,6 @@ import { FindUserById } from "@/api/server/user/findUserById";
 import { useGetUsers } from "@/api/useGetUsers";
 import { useUpdateUser } from "@/api/useUpdateUser";
 import { useUploadFile } from "@/api/useUploadFile";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,7 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { getFirstnameAndLastname } from "@/services/users/utils";
-import { Role } from "@bitrock/db";
+import { Role, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -60,17 +59,18 @@ interface AddUserDialogProps {
   ) => void;
   editData?: FindUserById;
   onRefetch?: () => void;
+  user: user;
 }
 
 export default function AddUserDialog({
   open,
   onComplete,
   editData,
+  user,
 }: Readonly<AddUserDialogProps>) {
   const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
   const { uploadFile, isLoading: isLoadingUploadFile } = useUploadFile();
   const { refetch: refetchUsers, users } = useGetUsers();
-  const { user } = useAuth();
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 

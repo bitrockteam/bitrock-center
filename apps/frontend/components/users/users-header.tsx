@@ -2,18 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { isAdminOrSuperAdmin } from "@/services/users/utils";
+import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddUserDialog from "./add-user-dialog";
-import { isAdminOrSuperAdmin } from "@/services/users/utils";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 
-export default function UsersHeader() {
+export default function UsersHeader({ user }: { user: user }) {
   const router = useRouter();
   const serachParams = useSearchParams();
-  const { user } = useAuth();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [textSearch, setTextSearch] = useState(
@@ -84,6 +83,7 @@ export default function UsersHeader() {
       <AddUserDialog
         open={showAddDialog}
         onComplete={(isOpen) => setShowAddDialog(isOpen)}
+        user={user}
       />
     </motion.div>
   );

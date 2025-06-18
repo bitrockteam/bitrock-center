@@ -1,4 +1,5 @@
 import ProjectDetail from "@/components/projects/project-detail";
+import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -12,10 +13,11 @@ export default async function ProjectDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const user = await getUserInfoFromCookie();
 
   return (
     <div className="space-y-6">
-      <ProjectDetail id={id} />{" "}
+      <ProjectDetail id={id} user={user} />{" "}
     </div>
   );
 }

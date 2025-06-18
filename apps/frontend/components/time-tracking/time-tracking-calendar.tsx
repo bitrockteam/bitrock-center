@@ -24,13 +24,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { timesheet } from "@bitrock/db";
+import { timesheet, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import AddHoursDialog from "./add-hours-dialog";
 
-export default function TimeTrackingCalendar() {
+export default function TimeTrackingCalendar({ user }: { user: user }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedProject, setSelectedProject] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -370,6 +370,7 @@ export default function TimeTrackingCalendar() {
           setEditEntry(null);
           setSelectedDate(null);
         }}
+        user={user}
       />
     </motion.div>
   );

@@ -1,5 +1,5 @@
 import Sidebar from "@/components/sidebar";
-import { createClient } from "@/utils/supabase/server";
+import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
@@ -26,8 +26,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const session = await supabase.auth.getSession();
+  const user = await getUserInfoFromCookie();
   return (
     <html lang="it" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
@@ -40,7 +39,7 @@ export default async function RootLayout({
           >
             <div className="flex h-screen">
               <AuthProvider>
-                {session.data.session && <Sidebar />}
+                {user && <Sidebar user={user} />}
                 <div className="flex-1 overflow-auto">
                   <main className="container py-4 mx-auto px-4 h-full">
                     {children}

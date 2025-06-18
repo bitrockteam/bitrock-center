@@ -2,7 +2,6 @@
 
 import { findUserById } from "@/api/server/user/findUserById";
 import { useGetUsers } from "@/api/useGetUsers";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,12 +21,14 @@ import { useCallback, useEffect, useState } from "react";
 import { Loader } from "../custom/Loader";
 import AddUserDialog from "./add-user-dialog";
 
-export default function UserDetail({ id }: Readonly<{ id: string }>) {
+export default function UserDetail({
+  id,
+  userData,
+}: Readonly<{ id: string; userData: user }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const { users } = useGetUsers();
-  const { user: userData } = useAuth();
 
   const timeEntries = getTimeEntriesByUser(id);
   // const leaveRequests = getLeaveRequestsByUser(id);
@@ -387,6 +388,7 @@ export default function UserDetail({ id }: Readonly<{ id: string }>) {
           if (options?.shouldRefetch) fetchUser();
         }}
         editData={user}
+        user={userData}
       />
     </motion.div>
   );

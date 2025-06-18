@@ -2,7 +2,6 @@
 
 import { useGetAllocationsForProject } from "@/api/useGetAllocationsForProject";
 import { useGetProjectById } from "@/api/useGetProjectsById";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +26,7 @@ import {
   formatDisplayName,
 } from "@/services/users/utils";
 import { getProjectStatusBadge } from "@/utils/mapping";
+import { user } from "@bitrock/db";
 import { format, parse } from "date-fns";
 import { motion } from "framer-motion";
 import {
@@ -47,7 +47,10 @@ import AddProjectDialog from "./add-project-dialog";
 import { AddProjectMemberDialog } from "./add-project-member-dialog";
 import { DeleteAllocationDialog } from "./delete-allocation-dialog";
 
-export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
+export default function ProjectDetail({
+  id,
+  user,
+}: Readonly<{ id: string; user: user }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -70,8 +73,6 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
   const { project, isLoading } = useGetProjectById(id);
   const { allocations: timeEntries, fetchAllocations } =
     useGetAllocationsForProject(id);
-
-  const { user } = useAuth();
 
   if (isLoading)
     return (
