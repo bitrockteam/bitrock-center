@@ -1,5 +1,5 @@
 import Sidebar from "@/components/sidebar";
-import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import { tryGetUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
@@ -25,7 +25,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getUserInfoFromCookie();
+  const user = await tryGetUserInfoFromCookie();
   return (
     <html lang="it" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>

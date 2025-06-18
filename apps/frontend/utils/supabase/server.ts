@@ -45,3 +45,12 @@ export async function getUserInfoFromCookie() {
   if (!cookie) throw new Error("No user info cookie found");
   return JSON.parse(cookie) as user;
 }
+
+export async function tryGetUserInfoFromCookie() {
+  try {
+    return await getUserInfoFromCookie();
+  } catch (error) {
+    console.error("Error getting user info from cookie:", error);
+    return null;
+  }
+}
