@@ -1,17 +1,5 @@
 import { SERVERL_BASE_URL } from "@/config";
 import { user } from "@bitrock/db";
-import { jwtDecode } from "jwt-decode";
-
-interface IToken {
-  user_metadata: {
-    custom_claims: {
-      hd: string;
-    };
-  };
-  user: {
-    email: string;
-  };
-}
 
 // *** AUTH
 
@@ -27,14 +15,4 @@ export async function getUserInfo({ token }: { token: string }) {
     return res.json();
   });
   return res as user;
-}
-
-export function verifyBitrockToken({ token }: { token: string }) {
-  const tokenInfo: IToken = jwtDecode(token);
-
-  if (tokenInfo.user_metadata.custom_claims?.hd === "bitrock.it") return true;
-
-  if (tokenInfo.user?.email.endsWith("@bitrock.it")) return true;
-
-  return false;
 }

@@ -1,4 +1,4 @@
-import { getUserInfo } from "@/app/(services)/api";
+import { getUserInfo } from "@/api/server/user/getUserInfo";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
