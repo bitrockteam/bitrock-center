@@ -83,6 +83,9 @@ export async function updateSession(request: NextRequest) {
       // supabaseResponse.headers.set("x-user-info", JSON.stringify(userInfo));
     } catch (err) {
       console.error("Failed to fetch userInfo:", err);
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
     }
   }
 

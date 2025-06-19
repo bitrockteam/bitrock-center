@@ -9,7 +9,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "prepare": "husky",
-    "seed": "npx supabase db dump -f supabase/seed.sql --data-only --local",
+    "seed": "npx supabase db dump -f supabase/seed.sql --data-only --schema public --local ",
+    "seed:remote": "npx supabase db dump -f supabase/seed.sql --data-only --schema public",
     "db:pull": "cd packages/db && npx prisma db pull && cd ../../",
     "generate": "cd packages/db && npx prisma generate && cd ../../",
     "preinstall": "corepack enable"
