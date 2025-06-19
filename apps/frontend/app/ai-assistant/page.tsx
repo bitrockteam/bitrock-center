@@ -16,3 +16,5 @@ export default function AIAssistantPage() {
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import PermitRequestForm from "@/components/permits/permit-form";
-import PermitHistoryTable from "@/components/permits/permit-history-table";
-import PermitHeader from "@/components/permits/permit-header";
-import PermitApprovalTable from "@/components/permits/permit-approval";
-import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { fetchReferent } from "@/api/server/user/fetchReferent";
+import PermitApprovalTable from "@/components/permits/permit-approval";
+import PermitRequestForm from "@/components/permits/permit-form";
+import PermitHeader from "@/components/permits/permit-header";
+import PermitHistoryTable from "@/components/permits/permit-history-table";
+import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Ferie e Permessi | Bitrock Hours",
@@ -35,3 +35,5 @@ export default async function LeavePage() {
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

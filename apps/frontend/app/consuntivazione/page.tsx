@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+import TimeTrackingCalendar from "@/components/time-tracking/time-tracking-calendar";
 import TimeTrackingHeader from "@/components/time-tracking/time-tracking-header";
 import TimeTrackingTable from "@/components/time-tracking/time-tracking-table";
-import TimeTrackingCalendar from "@/components/time-tracking/time-tracking-calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Consuntivazione | Bitrock Hours",
@@ -31,3 +31,5 @@ export default async function TimeTrackingPage() {
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

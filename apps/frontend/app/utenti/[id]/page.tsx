@@ -20,3 +20,5 @@ export default async function UserDetailPage({
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

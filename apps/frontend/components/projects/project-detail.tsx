@@ -20,13 +20,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  canUserAllocateResources,
-  canUserDealProjects,
-  formatDisplayName,
-} from "@/services/users/utils";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
+import { formatDisplayName } from "@/services/users/utils";
 import { getProjectStatusBadge } from "@/utils/mapping";
-import { user } from "@bitrock/db";
 import { format, parse } from "date-fns";
 import { motion } from "framer-motion";
 import {
@@ -47,11 +43,10 @@ import AddProjectDialog from "./add-project-dialog";
 import { AddProjectMemberDialog } from "./add-project-member-dialog";
 import { DeleteAllocationDialog } from "./delete-allocation-dialog";
 
-export default function ProjectDetail({
-  id,
-  user,
-}: Readonly<{ id: string; user: user }>) {
+export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
+
+  const { canDealProjects, canAllocateResources } = useUserPermissions();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedMember, setEditedMember] = useState<{
@@ -135,7 +130,7 @@ export default function ProjectDetail({
               Vai al Piano
             </Button>
           </motion.div>
-          {canUserDealProjects(user) && (
+          {canDealProjects && (
             <Button onClick={() => setShowEditDialog(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Modifica Progetto
@@ -239,7 +234,7 @@ export default function ProjectDetail({
                   <CardTitle>Team</CardTitle>
                   <CardDescription>Sviluppatori del team</CardDescription>
                 </div>
-                {canUserAllocateResources(user) && (
+                {canAllocateResources && (
                   <Button onClick={() => setShowAddMemberDialog(true)}>
                     <PlusIcon />
                     Aggiungi Membro
@@ -256,9 +251,7 @@ export default function ProjectDetail({
                     <TableHead>Data Inizio</TableHead>
                     <TableHead>Data Fine</TableHead>
                     <TableHead>Percentuale Allocazione</TableHead>
-                    {canUserAllocateResources(user) && (
-                      <TableHead>{""}</TableHead>
-                    )}
+                    {canAllocateResources && <TableHead>{""}</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -307,7 +300,7 @@ export default function ProjectDetail({
                             : "-"}
                         </TableCell>
                         <TableCell>{entry.percentage}</TableCell>
-                        {canUserAllocateResources(user) && (
+                        {canAllocateResources && (
                           <TableCell>
                             <div className="flex flex-row items-center gap-2">
                               <Button

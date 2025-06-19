@@ -1,6 +1,4 @@
-import ProjectsHeader from "@/components/projects/projects-header";
 import ProjectsTable from "@/components/projects/projects-table";
-import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,11 +7,13 @@ export const metadata: Metadata = {
 };
 
 export default async function ProjectsPage() {
-  const user = await getUserInfoFromCookie();
+  // const user = await getUserInfoFromCookie();
   return (
     <div className="space-y-6">
-      <ProjectsHeader user={user} />
+      {/* <ProjectsHeader user={user} /> */}
       <ProjectsTable />
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

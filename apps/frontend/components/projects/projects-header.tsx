@@ -6,10 +6,12 @@ import { canUserDealProjects } from "@/services/users/utils";
 import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 
 export default function ProjectsHeader({ user }: { user: user }) {
+  const router = useRouter();
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   const searchParams = new URLSearchParams(window?.location?.search);
@@ -23,12 +25,7 @@ export default function ProjectsHeader({ user }: { user: user }) {
 
     if (e.target.value === "") {
       searchParams.delete("params");
-      history.pushState(
-        {},
-        "",
-        `${window.location.pathname}?${searchParams.toString()}`,
-      );
-      // TODO: refetchProjects();
+      router.push(`/progetti`);
     }
   };
 
@@ -42,11 +39,7 @@ export default function ProjectsHeader({ user }: { user: user }) {
   useEffect(() => {
     if (debouncedInput !== "") {
       searchParams.set("params", debouncedInput);
-      history.pushState(
-        {},
-        "",
-        `${window.location.pathname}?${searchParams.toString()}`,
-      );
+      router.push(`/progetti?${searchParams.toString()}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedInput]);
