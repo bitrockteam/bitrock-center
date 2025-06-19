@@ -1,6 +1,5 @@
 "use client";
 
-import { useGetUsers } from "@/api/useGetUsers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -28,6 +27,7 @@ import { DatePicker } from "../custom/DatePicker";
 // import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
 // import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
 import { createUserPermits } from "@/api/server/permit/createUserPermits";
+import { useGetUserReviewers } from "@/api/useGetUserReviewers";
 import { PermitType, user } from "@bitrock/db";
 
 interface PermitFormValues {
@@ -40,7 +40,7 @@ interface PermitFormValues {
 }
 
 export default function PermitRequestForm({ user }: { user: user | null }) {
-  const { users } = useGetUsers();
+  const { reviewers } = useGetUserReviewers();
   // const { createPermit } = useCreatePermit();
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -231,7 +231,7 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {users
+                        {reviewers
                           .filter((u) => u.id !== user?.id)
                           .map((user) => (
                             <SelectItem key={user.id} value={user.id}>
