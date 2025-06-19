@@ -13,6 +13,7 @@ export async function createUser(
       email: user.email!,
       avatar_url: user.avatar_url ?? undefined,
       role: user.role,
+      referent_id: user.referent_id ?? null,
     },
   });
 }

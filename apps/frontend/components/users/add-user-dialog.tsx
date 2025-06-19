@@ -138,6 +138,8 @@ export default function AddUserDialog({
       await createUser({
         name: `${form.getValues().name} ${form.getValues().surname}`,
         email: form.getValues().email,
+        role: form.getValues().role,
+        referent_id: form.getValues().referent_id,
       })
         .then(() => toast.success("Utente creato con successo"))
         .finally(() => {
