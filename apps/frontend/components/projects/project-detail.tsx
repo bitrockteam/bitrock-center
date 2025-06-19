@@ -47,6 +47,8 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
   const router = useRouter();
 
   const { canDealProjects, canAllocateResources } = useUserPermissions();
+  console.log({ canDealProjects });
+
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedMember, setEditedMember] = useState<{
@@ -130,7 +132,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
               Vai al Piano
             </Button>
           </motion.div>
-          {canDealProjects && (
+          {canDealProjects.enabled && (
             <Button onClick={() => setShowEditDialog(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Modifica Progetto
@@ -234,7 +236,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                   <CardTitle>Team</CardTitle>
                   <CardDescription>Sviluppatori del team</CardDescription>
                 </div>
-                {canAllocateResources && (
+                {canAllocateResources.enabled && (
                   <Button onClick={() => setShowAddMemberDialog(true)}>
                     <PlusIcon />
                     Aggiungi Membro
@@ -251,7 +253,9 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                     <TableHead>Data Inizio</TableHead>
                     <TableHead>Data Fine</TableHead>
                     <TableHead>Percentuale Allocazione</TableHead>
-                    {canAllocateResources && <TableHead>{""}</TableHead>}
+                    {canAllocateResources.enabled && (
+                      <TableHead>{""}</TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -300,7 +304,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                             : "-"}
                         </TableCell>
                         <TableCell>{entry.percentage}</TableCell>
-                        {canAllocateResources && (
+                        {canAllocateResources.enabled && (
                           <TableCell>
                             <div className="flex flex-row items-center gap-2">
                               <Button

@@ -3,11 +3,15 @@ import { allowRoles } from "@/services/users/server.utils";
 import { Role } from "@bitrock/db";
 import { useEffect, useState } from "react";
 
-type PermissionType = "canUserAllocateResources" | "canUserDealProjects";
+type PermissionType =
+  | "canUserAllocateResources"
+  | "canUserDealProjects"
+  | "isAdminOrSuperAdmin";
 
 const PermissionsRoles: Record<PermissionType, Role[]> = {
   canUserAllocateResources: ["Admin", "Key_Client"],
   canUserDealProjects: ["Admin", "Super_Admin"],
+  isAdminOrSuperAdmin: ["Admin", "Super_Admin"],
 };
 
 export const usePermissions = (permission: PermissionType) => {

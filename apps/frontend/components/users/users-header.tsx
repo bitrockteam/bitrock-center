@@ -2,13 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { isAdminOrSuperAdmin } from "@/services/users/utils";
 import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddUserDialog from "./add-user-dialog";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 
 export default function UsersHeader({ user }: { user: user }) {
   const router = useRouter();
@@ -19,6 +19,7 @@ export default function UsersHeader({ user }: { user: user }) {
     serachParams.get("params") ?? "",
   );
   const [debouncedInput, setDebouncedInput] = useState("");
+  const { isAdminOrSuperAdmin } = useUserPermissions();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextSearch(e.target.value);
@@ -67,7 +68,7 @@ export default function UsersHeader({ user }: { user: user }) {
             onChange={handleChange}
           />
         </div>
-        {isAdminOrSuperAdmin(user) && (
+        {isAdminOrSuperAdmin.enabled && (
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               onClick={() => setShowAddDialog(true)}

@@ -2,15 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { canUserDealProjects } from "@/services/users/utils";
-import { user } from "@bitrock/db";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 
-export default function ProjectsHeader({ user }: { user: user }) {
+export default function ProjectsHeader() {
   const router = useRouter();
   const [showAddDialog, setShowAddDialog] = useState(false);
 
@@ -19,6 +18,8 @@ export default function ProjectsHeader({ user }: { user: user }) {
     searchParams.get("params") ?? "",
   );
   const [debouncedInput, setDebouncedInput] = useState("");
+
+  const { canDealProjects } = useUserPermissions();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextSearch(e.target.value);
@@ -66,7 +67,7 @@ export default function ProjectsHeader({ user }: { user: user }) {
             onChange={handleChange}
           />
         </div>
-        {canUserDealProjects(user) && (
+        {canDealProjects && (
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button onClick={() => setShowAddDialog(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
