@@ -18,48 +18,34 @@ model allocation {
   @@id([user_id, project_id])
 }
 
+
 model permit {
   created_at                    DateTime     @default(now()) @db.Timestamptz(6)
   user_id                       String       @db.Uuid
-  duration                      Decimal      @db.Decimal
+  duration                      Int          @db.SmallInt
   id                            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   description                   String?
-  start_date                    DateTime     @db.Timestamp(6)
-  reviewer_id                   String       @db.Uuid
-  end_date                      DateTime?    @db.Timestamp(6)
   type                          PermitType
+  date                          DateTime     @db.Date
   status                        PermitStatus
+  reviewer_id                   String       @db.Uuid
   user_permit_reviewer_idTouser user         @relation("permit_reviewer_idTouser", fields: [reviewer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user_permit_user_idTouser     user         @relation("permit_user_idTouser", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model project {
-  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at  DateTime     @default(now()) @db.Timestamptz(6)
-  name        String       @db.VarChar
-  client      String       @db.VarChar
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  name        String        @db.VarChar
+  client      String        @db.VarChar
   description String?
-  start_date  DateTime     @db.Timestamp(6)
-  end_date    DateTime?    @db.Timestamp(6)
-  status_id   String       @db.Uuid
+  start_date  DateTime      @db.Timestamp(6)
+  end_date    DateTime?     @db.Timestamp(6)
+  status      ProjectStatus @default(PLANNED)
   allocation  allocation[]
-  status      status       @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   timesheet   timesheet[]
 }
 
-model role {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  label      String   @db.VarChar
-  user       user[]
-}
-
-model status {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at DateTime  @default(now()) @db.Timestamptz(6)
-  name       String    @db.VarChar
-  project    project[]
-}
 
 model timesheet {
   created_at  DateTime @default(now()) @db.Timestamptz(6)
@@ -79,12 +65,14 @@ model user {
   email                           String
   name                            String
   avatar_url                      String?
-  role_id                         String?      @db.Uuid
+  referent_id                     String?      @db.Uuid
+  role                            Role         @default(Employee)
   allocation                      allocation[]
   permit_permit_reviewer_idTouser permit[]     @relation("permit_reviewer_idTouser")
   permit_permit_user_idTouser     permit[]     @relation("permit_user_idTouser")
   timesheet                       timesheet[]
-  role                            role?        @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user                            user?        @relation("userTouser", fields: [referent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_user                      user[]       @relation("userTouser")
 }
 
 enum PermitType {
@@ -99,11 +87,29 @@ enum PermitStatus {
   APPROVED
 }
 
+enum Role {
+  Super_Admin @map("Super Admin")
+  Admin
+  Key_Client  @map("Key Client")
+  Manager
+  Employee
+}
+
+enum ProjectStatus {
+  ACTIVE
+  PLANNED
+  PAUSED
+  COMPLETED
+}
+
+
+
 
 Only output the SQL query without any formatting, just an executable SQL. Do not explain.
 Use JOINs if needed. Use snake_case table and column names exactly as shown.
 Use search in like mode when receiving a question that contains a name or a project name.
-Never return ids or column names only labels names and values
+Never return ids or column names only labels names and values.
+Use mapping for enum values and ensure that the SQL queries are compatible with PostgreSQL: for example Key_Client should be written as 'Key Client' in the SQL query.
 `;
 
 export const NATURAL_LANGUAGE_PROMPT = `
