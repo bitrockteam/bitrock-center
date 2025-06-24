@@ -2,9 +2,9 @@
 
 import { createUser } from "@/api/server/user/createUser";
 import { FindUserById } from "@/api/server/user/findUserById";
+import { findUsers } from "@/api/server/user/findUsers";
 import { updateUser } from "@/api/server/user/updateUser";
 import { uploadFile } from "@/api/server/user/uploadFile";
-import { useGetUsers } from "@/api/useGetUsers";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useServerAction } from "@/hooks/useServerAction";
 import { cn } from "@/lib/utils";
 import { getFirstnameAndLastname } from "@/services/users/utils";
 import { Role, user } from "@bitrock/db";
@@ -68,7 +69,7 @@ export default function AddUserDialog({
   editData,
   user,
 }: Readonly<AddUserDialogProps>) {
-  const { refetch: refetchUsers, users } = useGetUsers();
+  const [users, refetchUsers, loadingUsers] = useServerAction(findUsers);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -148,6 +149,10 @@ export default function AddUserDialog({
           refetchUsers();
         });
   };
+
+  useEffect(() => {
+    if (open) refetchUsers();
+  }, [open, refetchUsers]);
 
   return (
     <Dialog open={open} onOpenChange={onComplete}>
@@ -260,9 +265,10 @@ export default function AddUserDialog({
                             role="combobox"
                             aria-expanded={open}
                             className="justify-between"
+                            disabled={loadingUsers}
                           >
                             {field.value &&
-                            users.some((u) => u.id === field.value)
+                            users?.some((u) => u.id === field.value)
                               ? users.find((user) => user.id === field.value)
                                   ?.name
                               : "Seleziona referente..."}
@@ -281,7 +287,7 @@ export default function AddUserDialog({
                               </CommandEmpty>
                               <CommandGroup>
                                 {users
-                                  .filter((u) => u.id !== editData?.id)
+                                  ?.filter((u) => u.id !== editData?.id)
                                   .map((user) => (
                                     <CommandItem
                                       key={user.id}
