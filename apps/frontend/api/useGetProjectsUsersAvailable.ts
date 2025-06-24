@@ -1,6 +1,6 @@
 "use client";
 import { user } from "@bitrock/db";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { fetchProjectsUsersAvailable } from "./server/allocation/fetchProjectsUsersAvailable";
 
 export function useGetProjectsUsersAvailable(projectId: string) {
@@ -15,9 +15,5 @@ export function useGetProjectsUsersAvailable(projectId: string) {
     [projectId],
   );
 
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
-
-  return { users, isLoading };
+  return { users, refetch: fetchUsers, isLoading };
 }

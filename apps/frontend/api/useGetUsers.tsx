@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { FindUsers, findUsers } from "./server/user/findUsers";
 
 export const useGetUsers = () => {
@@ -19,10 +19,6 @@ export const useGetUsers = () => {
       })
       .finally(() => setLoading(false));
   }, []);
-
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
 
   return { users, loading, refetch };
 };

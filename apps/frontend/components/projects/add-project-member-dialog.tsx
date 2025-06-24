@@ -16,7 +16,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isBefore } from "date-fns";
 import { toast } from "sonner";
 import { DatePicker } from "../custom/DatePicker";
-import { Loader } from "../custom/Loader";
 import {
   Command,
   CommandEmpty,
@@ -64,9 +63,10 @@ export function AddProjectMemberDialog({
     percentage?: number;
   };
 }>) {
-  const { users } = useGetUsers();
-  const { users: usersAvailable, isLoading } =
+  const { users, refetch: fetchUsers } = useGetUsers();
+  const { users: usersAvailable, refetch: fetchUsersAvailable } =
     useGetProjectsUsersAvailable(projectId);
+
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const form = useForm<z.infer<typeof addMemberProjectSchema>>({
@@ -80,7 +80,7 @@ export function AddProjectMemberDialog({
   });
 
   const getUsers = () => {
-    return isEdit ? users : usersAvailable;
+    return (isEdit ? users : usersAvailable) ?? [];
   };
 
   useEffect(() => {
@@ -94,237 +94,240 @@ export function AddProjectMemberDialog({
     }
   }, [form, initialData, isEdit, usersAvailable]);
 
+  useEffect(() => {
+    if (open) {
+      fetchUsers();
+      fetchUsersAvailable();
+    }
+  }, [open, fetchUsers, fetchUsersAvailable, projectId]);
+
   if (!open) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
-        {isLoading ? (
-          <Loader />
-        ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle>{"Aggiungi membro al progetto"}</DialogTitle>
-            </DialogHeader>
+        <>
+          <DialogHeader>
+            <DialogTitle>{"Aggiungi membro al progetto"}</DialogTitle>
+          </DialogHeader>
 
-            <Form {...form}>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  form.handleSubmit(() => {
-                    const values = form.getValues();
-                    if (isEdit) {
-                      updateAllocation({
-                        allocation: {
-                          user_id: values.user_id,
-                          project_id: projectId,
-                          start_date: values.start_date ?? new Date(),
-                          end_date: values.end_date ?? null,
-                          percentage: values.percentage ?? 100,
-                        },
-                      }).then(() => {
-                        onOpenChange(false);
-                        form.reset();
-                        toast.success("Allocazione aggiornata con successo");
-                        refetch();
-                      });
-                    } else
-                      createAllocation({
-                        allocation: {
-                          project_id: projectId,
-                          start_date: values.start_date ?? new Date(),
-                          end_date: values.end_date ?? null,
-                          percentage: values.percentage ?? 100,
-                          user_id: values.user_id,
-                        },
-                      }).then(() => {
-                        onOpenChange(false);
-                        form.reset();
-                        toast.success("Allocazione creata con successo");
-                        refetch();
-                      });
-                  })(e);
-                }}
-                className="space-y-4"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="col-span-1">
-                    <FormField
-                      control={form.control}
-                      name="user_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nome Membro</FormLabel>
-                          <FormControl>
-                            <Popover
-                              open={isPopoverOpen}
-                              onOpenChange={setIsPopoverOpen}
-                            >
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  aria-expanded={open}
-                                  className="justify-between"
-                                  disabled={isEdit}
-                                >
-                                  {field.value &&
-                                  getUsers().some((u) => u.id === field.value)
-                                    ? getUsers().find(
-                                        (user) => user.id === field.value,
-                                      )?.name
-                                    : "Seleziona membro..."}
-                                  <ChevronsUpDown className="opacity-50" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-[270px] p-0">
-                                <Command>
-                                  <CommandInput
-                                    placeholder="Seleziona membro..."
-                                    className="h-9 pointer-events-auto"
-                                  />
-                                  <CommandList>
-                                    <CommandEmpty>
-                                      Nessun membro disponibile
-                                    </CommandEmpty>
-                                    <CommandGroup>
-                                      {getUsers().map((user) => (
-                                        <CommandItem
-                                          key={user.id}
-                                          value={user.name}
-                                          className="pointer-events-auto"
-                                          onSelect={() => {
-                                            field.onChange(user.id);
-                                            setIsPopoverOpen(false);
-                                          }}
-                                        >
-                                          {user.name}
-                                          <Check
-                                            className={cn(
-                                              "ml-auto",
-                                              field.value === user.id
-                                                ? "opacity-100"
-                                                : "opacity-0",
-                                            )}
-                                          />
-                                        </CommandItem>
-                                      ))}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-1">
-                    <FormField
-                      control={form.control}
-                      name="percentage"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Percentuale allocazione</FormLabel>
-                          <FormControl>
-                            <Input
-                              autoFocus={false}
-                              type="number"
-                              {...field}
-                              onChange={(e) => {
-                                if (Number(e.target.value) > 100)
-                                  field.onChange(100);
-                                else if (Number(e.target.value) < 5)
-                                  field.onChange(5);
-                                else field.onChange(Number(e.target.value));
-                              }}
-                              max={100}
-                              min={5}
-                              step={5}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <FormField
-                      control={form.control}
-                      name="start_date"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Data inizio</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              {...field}
-                              date={field.value}
-                              setDate={field.onChange}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <FormField
-                      control={form.control}
-                      name="end_date"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Data Fine</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              {...field}
-                              date={field.value}
-                              setDate={field.onChange}
-                              onDisableDate={(date) => {
-                                if (!form.getValues().start_date) return false;
-                                const dateString = format(date, "yyyy-MM-dd");
-
-                                if (
-                                  isBefore(
-                                    dateString,
-                                    format(
-                                      form.getValues().start_date!,
-                                      "yyyy-MM-dd",
-                                    ),
-                                  )
-                                )
-                                  return true;
-                                return false;
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+          <Form {...form}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit(() => {
+                  const values = form.getValues();
+                  if (isEdit) {
+                    updateAllocation({
+                      allocation: {
+                        user_id: values.user_id,
+                        project_id: projectId,
+                        start_date: values.start_date ?? new Date(),
+                        end_date: values.end_date ?? null,
+                        percentage: values.percentage ?? 100,
+                      },
+                    }).then(() => {
+                      onOpenChange(false);
+                      form.reset();
+                      toast.success("Allocazione aggiornata con successo");
+                      refetch();
+                    });
+                  } else
+                    createAllocation({
+                      allocation: {
+                        project_id: projectId,
+                        start_date: values.start_date ?? new Date(),
+                        end_date: values.end_date ?? null,
+                        percentage: values.percentage ?? 100,
+                        user_id: values.user_id,
+                      },
+                    }).then(() => {
+                      onOpenChange(false);
+                      form.reset();
+                      toast.success("Allocazione creata con successo");
+                      refetch();
+                    });
+                })(e);
+              }}
+              className="space-y-4"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="col-span-1">
+                  <FormField
+                    control={form.control}
+                    name="user_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome Membro</FormLabel>
+                        <FormControl>
+                          <Popover
+                            open={isPopoverOpen}
+                            onOpenChange={setIsPopoverOpen}
+                          >
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={open}
+                                className="justify-between"
+                                disabled={isEdit}
+                              >
+                                {field.value &&
+                                getUsers().some((u) => u.id === field.value)
+                                  ? getUsers().find(
+                                      (user) => user.id === field.value,
+                                    )?.name
+                                  : "Seleziona membro..."}
+                                <ChevronsUpDown className="opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[270px] p-0">
+                              <Command>
+                                <CommandInput
+                                  placeholder="Seleziona membro..."
+                                  className="h-9 pointer-events-auto"
+                                />
+                                <CommandList>
+                                  <CommandEmpty>
+                                    Nessun membro disponibile
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    {getUsers().map((user) => (
+                                      <CommandItem
+                                        key={user.id}
+                                        value={user.name}
+                                        className="pointer-events-auto"
+                                        onSelect={() => {
+                                          field.onChange(user.id);
+                                          setIsPopoverOpen(false);
+                                        }}
+                                      >
+                                        {user.name}
+                                        <Check
+                                          className={cn(
+                                            "ml-auto",
+                                            field.value === user.id
+                                              ? "opacity-100"
+                                              : "opacity-0",
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => onOpenChange(false)}
-                  >
-                    Annulla
-                  </Button>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button type="submit">Aggiungi</Button>
-                  </motion.div>
-                </DialogFooter>
-              </form>
-            </Form>
-          </>
-        )}
+                <div className="col-span-1">
+                  <FormField
+                    control={form.control}
+                    name="percentage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Percentuale allocazione</FormLabel>
+                        <FormControl>
+                          <Input
+                            autoFocus={false}
+                            type="number"
+                            {...field}
+                            onChange={(e) => {
+                              if (Number(e.target.value) > 100)
+                                field.onChange(100);
+                              else if (Number(e.target.value) < 5)
+                                field.onChange(5);
+                              else field.onChange(Number(e.target.value));
+                            }}
+                            max={100}
+                            min={5}
+                            step={5}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="col-span-1">
+                  <FormField
+                    control={form.control}
+                    name="start_date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Data inizio</FormLabel>
+                        <FormControl>
+                          <DatePicker
+                            {...field}
+                            date={field.value}
+                            setDate={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="col-span-1">
+                  <FormField
+                    control={form.control}
+                    name="end_date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Data Fine</FormLabel>
+                        <FormControl>
+                          <DatePicker
+                            {...field}
+                            date={field.value}
+                            setDate={field.onChange}
+                            onDisableDate={(date) => {
+                              if (!form.getValues().start_date) return false;
+                              const dateString = format(date, "yyyy-MM-dd");
+
+                              if (
+                                isBefore(
+                                  dateString,
+                                  format(
+                                    form.getValues().start_date!,
+                                    "yyyy-MM-dd",
+                                  ),
+                                )
+                              )
+                                return true;
+                              return false;
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                >
+                  Annulla
+                </Button>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button type="submit">Aggiungi</Button>
+                </motion.div>
+              </DialogFooter>
+            </form>
+          </Form>
+        </>
       </DialogContent>
     </Dialog>
   );

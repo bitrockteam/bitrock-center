@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 
 import { deleteAllocation } from "@/api/server/allocation/deleteAllocation";
 import { findUserById } from "@/api/server/user/findUserById";
-import { user } from "@bitrock/db";
-import { useEffect, useState } from "react";
+import { useServerAction } from "@/hooks/useServerAction";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -31,23 +31,12 @@ export function DeleteAllocationDialog({
   project_name: string;
   refetch: () => void;
 }>) {
-  const [user, setUser] = useState<user>();
+  const [user, fetchUserById] = useServerAction(findUserById);
 
   useEffect(() => {
     if (!user_id) return;
-    findUserById(user_id)
-      .then((res) => {
-        if (res) {
-          setUser(res);
-        } else {
-          toast.error("Utente non trovato");
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching user:", err);
-        toast.error("Errore durante il recupero dell'utente");
-      });
-  }, [user_id]);
+    fetchUserById(user_id);
+  }, [fetchUserById, user_id]);
 
   if (!open) return null;
 

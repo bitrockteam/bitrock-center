@@ -2,7 +2,6 @@
 
 import { createProject } from "@/api/server/project/createProject";
 import { updateProject } from "@/api/server/project/updateProject";
-import { useGetProjects } from "@/api/useGetProjects";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -49,8 +48,6 @@ export default function AddProjectDialog({
   editData,
   projectId,
 }: AddProjectDialogProps) {
-  const { refetch: refetchProjects } = useGetProjects();
-
   const form = useForm<z.infer<typeof addProjectSchema>>({
     defaultValues: {
       name: "",
@@ -103,7 +100,6 @@ export default function AddProjectDialog({
       .then(() => {
         onOpenChange(false);
         form.reset();
-        refetchProjects();
       })
       .catch((error) => {
         console.error("Failed to create project:", error);
@@ -239,57 +235,6 @@ export default function AddProjectDialog({
                 )}
               />
             </div>
-
-            {/* <FormField
-              control={form.control}
-              name="team"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel>Team di Progetto</FormLabel>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {users?.map((user) => (
-                      <FormField
-                        key={user.id}
-                        control={form.control}
-                        name="team"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={user.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(user.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          user.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== user.id,
-                                          ),
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {user.name} ({user.role?.label})
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
 
             <DialogFooter>
               <Button

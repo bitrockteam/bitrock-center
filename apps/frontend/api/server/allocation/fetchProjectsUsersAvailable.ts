@@ -29,6 +29,6 @@ export async function fetchProjectsUsersAvailable({
   });
 }
 
-export type Project = Awaited<
+export type UserAvailable = Awaited<
   ReturnType<typeof fetchProjectsUsersAvailable>
 >[number];
