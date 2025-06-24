@@ -12,7 +12,7 @@ export const useGetProjects = () => {
     const searchParams = new URLSearchParams(window.location.search);
     const search = searchParams.get("params");
 
-    fetchAllProjects({ params: search })
+    fetchAllProjects(search)
       .then((data) => setProjects(data))
       .catch((err) => {
         console.error(err);

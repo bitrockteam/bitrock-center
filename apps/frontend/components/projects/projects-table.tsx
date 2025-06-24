@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { deleteProject } from "@/api/server/project/deleteProject";
-import { useGetProjects } from "@/api/useGetProjects";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -40,7 +39,7 @@ import { useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import AddProjectDialog from "./add-project-dialog";
 
-export default function ProjectsTable() {
+export default function ProjectsTable({ projects }: { projects: project[] }) {
   const router = useRouter();
   const [editProjectDialog, setEditProjectDialog] = useState<project | null>(
     null,
@@ -48,17 +47,12 @@ export default function ProjectsTable() {
   const [deleteProjectDialog, setDeleteProjectDialog] =
     useState<project | null>(null);
 
-  const { refetch: refetchProjects, projects } = useGetProjects();
-
   const handleViewProject = (id: string) => {
     router.push(`/progetti/${id}`);
   };
 
   const handleDeleteProject = async (id: string) => {
-    const success = await deleteProject(id);
-    if (success) {
-      refetchProjects();
-    }
+    await deleteProject(id);
   };
 
   return (

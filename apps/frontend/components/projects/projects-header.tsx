@@ -2,14 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 
-export default function ProjectsHeader() {
+export default function ProjectsHeader({
+  canDealProjects,
+}: {
+  canDealProjects?: boolean;
+}) {
   const router = useRouter();
   const [showAddDialog, setShowAddDialog] = useState(false);
 
@@ -18,8 +21,6 @@ export default function ProjectsHeader() {
     searchParams.get("params") ?? "",
   );
   const [debouncedInput, setDebouncedInput] = useState("");
-
-  const { canDealProjects } = useUserPermissions();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextSearch(e.target.value);

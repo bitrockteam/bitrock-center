@@ -8,7 +8,7 @@ export function useGetProjectsUser() {
   const [projects, setProjects] = useState<project[]>([]);
 
   const fetchProjects = useCallback(async () => {
-    return fetchAllProjects({ params: null })
+    return fetchAllProjects()
       .then((data) => setProjects(data))
       .finally(() => setIsLoading(false));
   }, []);

@@ -1,7 +1,7 @@
 "use client";
 
-import { useGetAllocationsForProject } from "@/api/useGetAllocationsForProject";
-import { useGetProjectById } from "@/api/useGetProjectsById";
+import { UserAllocated } from "@/api/server/project/fetchAllocationsForProject";
+import { ProjectById } from "@/api/server/project/fetchProjectById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +20,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { formatDisplayName } from "@/services/users/utils";
 import { getProjectStatusBadge } from "@/utils/mapping";
 import { format, parse } from "date-fns";
@@ -38,16 +37,24 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Loader } from "../custom/Loader";
 import AddProjectDialog from "./add-project-dialog";
 import { AddProjectMemberDialog } from "./add-project-member-dialog";
 import { DeleteAllocationDialog } from "./delete-allocation-dialog";
 
-export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
+export default function ProjectDetail({
+  id,
+  canAllocateResources,
+  canDealProjects,
+  project,
+  allocations,
+}: Readonly<{
+  id: string;
+  canDealProjects?: boolean;
+  canAllocateResources?: boolean;
+  project: ProjectById;
+  allocations: UserAllocated[];
+}>) {
   const router = useRouter();
-
-  const { canDealProjects, canAllocateResources } = useUserPermissions();
-  console.log({ canDealProjects });
 
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -66,17 +73,6 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
   }>({
     user_id: "",
   });
-
-  const { project, isLoading } = useGetProjectById(id);
-  const { allocations: timeEntries, fetchAllocations } =
-    useGetAllocationsForProject(id);
-
-  if (isLoading)
-    return (
-      <div className="w-full h-full flex flex-row justify-center items-center">
-        <Loader transparent color="black" />
-      </div>
-    );
 
   if (!project) {
     return (
@@ -132,7 +128,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
               Vai al Piano
             </Button>
           </motion.div>
-          {canDealProjects.enabled && (
+          {canDealProjects && (
             <Button onClick={() => setShowEditDialog(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Modifica Progetto
@@ -184,42 +180,6 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
             </div>
           </CardContent>
         </Card>
-
-        {/* <Card className="md:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Team di Progetto
-            </CardTitle>
-            <CardDescription>Membri assegnati al progetto</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {project.team.map((member, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage
-                      src={
-                        member.avatar || "/placeholder.svg?height=40&width=40"
-                      }
-                    />
-                    <AvatarFallback>
-                      {member.name.charAt(0)}
-                      {member.surname.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium">
-                      {member.name} {member.surname}
-                    </p>
-                    <p className="text-xs text-muted-foreground capitalize">
-                      {member.role}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card> */}
       </div>
 
       <Tabs defaultValue="teams" className="w-full">
@@ -236,7 +196,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                   <CardTitle>Team</CardTitle>
                   <CardDescription>Sviluppatori del team</CardDescription>
                 </div>
-                {canAllocateResources.enabled && (
+                {canAllocateResources && (
                   <Button onClick={() => setShowAddMemberDialog(true)}>
                     <PlusIcon />
                     Aggiungi Membro
@@ -253,13 +213,11 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                     <TableHead>Data Inizio</TableHead>
                     <TableHead>Data Fine</TableHead>
                     <TableHead>Percentuale Allocazione</TableHead>
-                    {canAllocateResources.enabled && (
-                      <TableHead>{""}</TableHead>
-                    )}
+                    {canAllocateResources && <TableHead>{""}</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {timeEntries.length === 0 ? (
+                  {allocations.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={5}
@@ -269,7 +227,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    timeEntries?.map((entry) => (
+                    allocations?.map((entry) => (
                       <TableRow key={`${entry.project_id}-${entry.user_id}`}>
                         <TableCell>
                           <div className="flex items-center space-x-2">
@@ -304,7 +262,7 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
                             : "-"}
                         </TableCell>
                         <TableCell>{entry.percentage}</TableCell>
-                        {canAllocateResources.enabled && (
+                        {canAllocateResources && (
                           <TableCell>
                             <div className="flex flex-row items-center gap-2">
                               <Button
@@ -441,7 +399,10 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
           setEditedMember({ user_id: "" });
         }}
         projectId={id}
-        refetch={fetchAllocations}
+        refetch={() => {
+          // todo
+          console.info("Refetching allocations...");
+        }}
         isEdit={isEditMode}
         initialData={editedMember}
       />
@@ -450,7 +411,10 @@ export default function ProjectDetail({ id }: Readonly<{ id: string }>) {
         onOpenChange={setShowDeleteDialog}
         project_id={project.id}
         user_id={deletedMemberId.user_id}
-        refetch={fetchAllocations}
+        refetch={() => {
+          // todo
+          console.info("Refetching allocations...");
+        }}
         project_name={project.name}
       />
     </motion.div>

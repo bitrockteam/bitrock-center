@@ -3,7 +3,7 @@
 import { db } from "@/config/prisma";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
-export async function fetchAllProjects({ params }: { params: string | null }) {
+export async function fetchAllProjects(params?: string | null) {
   const user = await getUserInfoFromCookie();
 
   if (user.role !== "Admin" && user.role !== "Super_Admin") {
@@ -14,13 +14,28 @@ export async function fetchAllProjects({ params }: { params: string | null }) {
             user_id: user.id,
           },
         },
+        ...(params
+          ? {
+              name: {
+                contains: params || "",
+                mode: "insensitive",
+              },
+            }
+          : {}),
       },
-      ...(params ? { where: { name: { contains: params } } } : {}),
     });
   }
 
+  if (!params) return db.project.findMany();
+
+  console.info("Fetching projects with params:", params);
   return db.project.findMany({
-    ...(params ? { where: { name: { contains: params } } } : {}),
+    where: {
+      name: {
+        contains: params,
+        mode: "insensitive",
+      },
+    },
   });
 }
 

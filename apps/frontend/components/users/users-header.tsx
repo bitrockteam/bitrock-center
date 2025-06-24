@@ -8,9 +8,14 @@ import { PlusCircle, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddUserDialog from "./add-user-dialog";
-import { useUserPermissions } from "@/hooks/useUserPermissions";
 
-export default function UsersHeader({ user }: { user: user }) {
+export default function UsersHeader({
+  user,
+  isAdminOrSuperAdmin,
+}: {
+  user: user;
+  isAdminOrSuperAdmin: boolean;
+}) {
   const router = useRouter();
   const serachParams = useSearchParams();
 
@@ -19,7 +24,6 @@ export default function UsersHeader({ user }: { user: user }) {
     serachParams.get("params") ?? "",
   );
   const [debouncedInput, setDebouncedInput] = useState("");
-  const { isAdminOrSuperAdmin } = useUserPermissions();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextSearch(e.target.value);
@@ -68,7 +72,7 @@ export default function UsersHeader({ user }: { user: user }) {
             onChange={handleChange}
           />
         </div>
-        {isAdminOrSuperAdmin.enabled && (
+        {isAdminOrSuperAdmin && (
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               onClick={() => setShowAddDialog(true)}

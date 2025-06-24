@@ -1,7 +1,5 @@
 "use client";
 
-import { findUserById } from "@/api/server/user/findUserById";
-import { useGetUsers } from "@/api/useGetUsers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,60 +9,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getProjectsByUser, getTimeEntriesByUser } from "@/lib/mock-data";
-import { canUserEdit, formatDisplayName } from "@/services/users/utils";
-import { user } from "@bitrock/db";
+import { getTimeEntriesByUser } from "@/lib/mock-data";
+import { formatDisplayName } from "@/services/users/utils";
+import { project, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { ArrowLeft, Briefcase, Clock, Edit, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { Loader } from "../custom/Loader";
+import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
 
 export default function UserDetail({
   id,
-  userData,
-}: Readonly<{ id: string; userData: user }>) {
+  users,
+  userById,
+  projects,
+}: Readonly<{
+  id: string;
+  users: user[];
+  userById: user;
+  projects: project[];
+}>) {
   const router = useRouter();
+
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const { users } = useGetUsers();
-
   const timeEntries = getTimeEntriesByUser(id);
-  // const leaveRequests = getLeaveRequestsByUser(id);
-  const projects = getProjectsByUser(id);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<user>();
-
-  const fetchUser = useCallback(async () => {
-    findUserById(id)
-      .then((res) => {
-        if (res) {
-          setUser(res);
-        } else {
-          setUser(undefined);
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching user:", err);
-        setUser(undefined);
-      })
-      .finally(() => setIsLoading(false));
-  }, [id]);
-
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser, id]);
-
-  if (isLoading)
-    return (
-      <div className="w-full h-full flex flex-row justify-center items-center">
-        <Loader transparent color="black" />
-      </div>
-    );
-
-  if (!user) {
+  if (!userById) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh]">
         <h2 className="text-2xl font-bold">Utente non trovato</h2>
@@ -99,22 +70,22 @@ export default function UserDetail({
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
-            {user.avatar_url && <AvatarImage src={user?.avatar_url} />}
+            {userById.avatar_url && <AvatarImage src={userById?.avatar_url} />}
             <AvatarFallback>
-              {formatDisplayName({ name: user.name, initials: true })}
+              {formatDisplayName({ name: userById.name, initials: true })}
             </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {formatDisplayName({ name: user.name })}
+              {formatDisplayName({ name: userById.name })}
             </h1>
-            {user.role && (
-              <div className="flex items-center space-x-2">{user.role}</div>
+            {userById.role && (
+              <div className="flex items-center space-x-2">{userById.role}</div>
             )}
           </div>
         </div>
 
-        {canUserEdit({ currentUser: userData, user }) && (
+        {
           <Button
             className="cursor-pointer"
             onClick={() => setShowEditDialog(true)}
@@ -122,7 +93,7 @@ export default function UserDetail({
             <Edit className="mr-2 h-4 w-4" />
             Modifica Utente
           </Button>
-        )}
+        }
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -138,7 +109,7 @@ export default function UserDetail({
               <div className="space-y-1">
                 <p className="text-sm font-medium">Email:</p>
                 <p className="text-sm text-muted-foreground flex items-center">
-                  <Mail className="mr-1 h-3 w-3" /> {user.email}
+                  <Mail className="mr-1 h-3 w-3" /> {userById.email}
                 </p>
               </div>
               <div className="space-y-1">
@@ -151,13 +122,13 @@ export default function UserDetail({
               <div className="space-y-1">
                 <p className="text-sm font-medium">Ruolo:</p>
                 <p className="text-sm text-muted-foreground capitalize">
-                  {user.role}
+                  {userById.role}
                 </p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium">Referente:</p>
                 <p className="text-sm text-muted-foreground capitalize">
-                  {users.find((us) => us.id === user.referent_id)?.name ||
+                  {users.find((us) => us.id === userById.referent_id)?.name ||
                     "Nessuno"}
                 </p>
               </div>
@@ -176,220 +147,19 @@ export default function UserDetail({
             </div>
           </CardContent>
         </Card>
-
-        {/* <Card className="md:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Progetti Assegnati
-            </CardTitle>
-            <CardDescription>
-              Progetti a cui l&apos;utente sta lavorando
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {projects.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10">
-                <Briefcase className="h-10 w-10 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">
-                  Nessun progetto assegnato
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {projects.map((project, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col space-y-2 p-4 border rounded-md cursor-pointer hover:bg-muted/50"
-                    onClick={() => router.push(`/progetti/${project.id}`)}
-                  >
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-medium">{project.name}</h3>
-                      <Badge
-                        variant={
-                          project.status === "active"
-                            ? "default"
-                            : project.status === "completed"
-                              ? "outline"
-                              : project.status === "on-hold"
-                                ? "secondary"
-                                : "outline"
-                        }
-                        className={
-                          project.status === "planned"
-                            ? "border-amber-500 text-amber-500"
-                            : ""
-                        }
-                      >
-                        {project.status === "active"
-                          ? "Attivo"
-                          : project.status === "completed"
-                            ? "Completato"
-                            : project.status === "on-hold"
-                              ? "In Pausa"
-                              : "Pianificato"}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {project.client}
-                    </p>
-                    <div className="text-xs text-muted-foreground">
-                      <Calendar className="inline-block mr-1 h-3 w-3" />{" "}
-                      {project.startDate}{" "}
-                      {project.endDate ? `- ${project.endDate}` : ""}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card> */}
       </div>
 
-      {/* <Tabs defaultValue="timesheet" className="w-full">
-        <TabsList>
-          <TabsTrigger value="timesheet">Timesheet</TabsTrigger>
-          <TabsTrigger value="leave">Ferie e Permessi</TabsTrigger>
-        </TabsList>
-        <TabsContent value="timesheet">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ore Registrate</CardTitle>
-              <CardDescription>Ore lavorate dall&apos;utente</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Progetto</TableHead>
-                    <TableHead>Ore</TableHead>
-                    <TableHead>Descrizione</TableHead>
-                    <TableHead>Stato</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {timeEntries.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        className="text-center py-6 text-muted-foreground"
-                      >
-                        Nessuna registrazione trovata
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    timeEntries.map((entry, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{entry.date}</TableCell>
-                        <TableCell>{entry.project.name}</TableCell>
-                        <TableCell>{entry.hours}</TableCell>
-                        <TableCell>{entry.description}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              entry.status === PermitStatus.APPROVED
-                                ? "outline"
-                                : entry.status === "pending"
-                                  ? "secondary"
-                                  : "destructive"
-                            }
-                          >
-                            {entry.status === PermitStatus.APPROVED
-                              ? "Approvato"
-                              : entry.status === "pending"
-                                ? "In attesa"
-                                : "Rifiutato"}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="leave">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ferie e Permessi</CardTitle>
-              <CardDescription>
-                Richieste di ferie e permessi dell&apos;utente
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Periodo</TableHead>
-                    <TableHead>Giorni</TableHead>
-                    <TableHead>Motivazione</TableHead>
-                    <TableHead>Stato</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {leaveRequests.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        className="text-center py-6 text-muted-foreground"
-                      >
-                        Nessuna richiesta trovata
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    leaveRequests.map((request, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          {request.type === "vacation"
-                            ? "Ferie"
-                            : request.type === "permission"
-                              ? "Permesso"
-                              : request.type === "sickness"
-                                ? "Malattia"
-                                : request.type}
-                        </TableCell>
-                        <TableCell>{request.period}</TableCell>
-                        <TableCell>{request.days}</TableCell>
-                        <TableCell>{request.reason}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              request.status === PermitStatus.APPROVED
-                                ? "outline"
-                                : request.status === "pending"
-                                  ? "secondary"
-                                  : "destructive"
-                            }
-                          >
-                            {request.status === PermitStatus.APPROVED
-                              ? "Approvato"
-                              : request.status === "pending"
-                                ? "In attesa"
-                                : "Rifiutato"}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs> */}
-
       {/* Dialog per modificare l'utente */}
-      <AddUserDialog
-        open={showEditDialog}
-        onComplete={(isOpen, options) => {
-          setShowEditDialog(isOpen);
-          if (options?.shouldRefetch) fetchUser();
-        }}
-        editData={user}
-        user={userData}
-      />
+      {userById && (
+        <AddUserDialog
+          open={showEditDialog}
+          onComplete={(isOpen) => {
+            setShowEditDialog(isOpen);
+          }}
+          editData={userById}
+          user={userById}
+        />
+      )}
     </motion.div>
   );
 }
