@@ -111,7 +111,7 @@ export default function AIAssistant() {
                     </div>
                     <div className="space-y-4">
                       <p className="text-lg">{result.output}</p>
-                      {result.data && (
+                      {Boolean(result.data.length) && (
                         // table data
 
                         <Table>

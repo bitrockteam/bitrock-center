@@ -1,19 +1,16 @@
-import { ICreateUser, IUpdateUser, IUser } from "@bitrock/types";
+import { user } from "@bitrock/db";
 import { db } from "../config/prisma";
 import { supabase } from "../config/supabase";
-import { sql } from "../config/postgres";
 
 // GET
 
 export async function getUserByEmail(email: string) {
   return db.user.findFirst({
-    include: { role: true },
     where: { email },
   });
 }
-export async function getUserById(id: string): Promise<IUser | null> {
+export async function getUserById(id: string) {
   const res = await db.user.findUnique({
-    include: { role: true },
     where: { id },
   });
   console.log({ res2: res });
@@ -24,14 +21,14 @@ export async function getUserById(id: string): Promise<IUser | null> {
     name: res.name,
     email: res.email,
     avatar_url: res.avatar_url ?? undefined,
-    role: { id: res.role.id, label: res.role.label },
+    role: res.role,
     referent_id: res.referent_id ?? undefined,
   };
 }
 
 export async function getUsers(params?: string) {
   return db.user.findMany({
-    include: { role: true, allocation: true },
+    include: { allocation: true },
     orderBy: { name: "asc" },
     where: params
       ? {
@@ -44,13 +41,15 @@ export async function getUsers(params?: string) {
   });
 }
 
-export async function createUserManually(user: ICreateUser) {
+export async function createUserManually(
+  user: Omit<user, "id" | "created_at">,
+) {
   return db.user.create({
     data: {
       name: user.name,
       email: user.email,
       avatar_url: user.avatar_url ?? undefined,
-      role_id: user.roleId,
+      role: user.role,
       referent_id: user.referent_id ?? undefined,
     },
   });
@@ -84,15 +83,13 @@ export async function uploadFileAvatar(
 
 // PATCH
 
-export async function updateUser(id: string, user: Partial<IUpdateUser>) {
-  console.log({ user });
-
+export async function updateUser(id: string, user: Partial<user>) {
   return db.user.update({
     where: { id },
     data: {
       name: user.name ?? undefined,
       avatar_url: user.avatar_url ?? undefined,
-      role_id: user.roleId ?? undefined,
+      role: user.role ?? undefined,
       referent_id: user.referent_id ?? undefined,
     },
   });

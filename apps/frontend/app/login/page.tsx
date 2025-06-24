@@ -7,10 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import Image from "next/image";
-import { login } from "./actions";
 import { createClient } from "@/utils/supabase/server";
+import Image from "next/image";
 import { redirect } from "next/navigation";
+import { login } from "./actions";
 
 export default async function LoginPage() {
   const supabase = await createClient();
@@ -49,3 +49,5 @@ export default async function LoginPage() {
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

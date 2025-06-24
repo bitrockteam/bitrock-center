@@ -1,7 +1,7 @@
 "use client";
 
+import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
 import { useGetUsers } from "@/api/useGetUsers";
-import { useSessionContext } from "@/app/utenti/SessionData";
 import {
   Card,
   CardContent,
@@ -22,7 +22,7 @@ import { PermitType } from "@bitrock/db";
 import { motion } from "framer-motion";
 
 export default function PermitHistoryTable() {
-  const { permitsList, isLoading } = useSessionContext();
+  const { permits, isLoading } = useGetPermitsByUser();
   const { users } = useGetUsers();
 
   const getTypeLabel = (type: string) => {
@@ -63,7 +63,7 @@ export default function PermitHistoryTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading || permitsList.length === 0 ? (
+                {isLoading || permits.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={6}
@@ -75,21 +75,19 @@ export default function PermitHistoryTable() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  permitsList.map((permit, index) => (
+                  permits.map((permit, index) => (
                     <TableRow key={index}>
                       <TableCell>{getTypeLabel(permit.type)}</TableCell>
                       <TableCell>
-                        {new Date(permit.startDate).toLocaleDateString()}{" "}
-                        {permit.endDate &&
-                          `- ${new Date(permit.endDate).toLocaleDateString()}`}
+                        {new Date(permit.date).toLocaleDateString()}{" "}
                       </TableCell>
-                      <TableCell>{permit.duration}</TableCell>
+                      <TableCell>{Number(permit.duration)}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {permit.description}
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {
-                          users.find((user) => user.id === permit.reviewerId)
+                          users.find((user) => user.id === permit.reviewer_id)
                             ?.name
                         }
                       </TableCell>

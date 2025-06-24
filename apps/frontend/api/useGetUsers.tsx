@@ -1,38 +1,26 @@
 "use client";
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { SERVERL_BASE_URL } from "@/config";
-import { IUser } from "@bitrock/types";
-import { useCallback, useEffect, useState } from "react";
+
+import { useCallback, useState } from "react";
+import { FindUsers, findUsers } from "./server/user/findUsers";
 
 export const useGetUsers = () => {
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<FindUsers[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const { session } = useAuth();
 
   const refetch = useCallback(() => {
     setLoading(true);
     const searchParams = new URLSearchParams(window.location.search);
-    const search = searchParams.get("params");
+    const search = searchParams.get("params") || undefined;
 
-    fetch(`${SERVERL_BASE_URL}/users${search ? `?params=${search}` : ""}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
-      },
-    })
-      .then((res) => res.json())
+    findUsers(search)
       .then((data) => setUsers(data))
       .catch((err) => {
         console.error(err);
       })
       .finally(() => setLoading(false));
-  }, [session]);
-
-  useEffect(() => {
-    if (session?.access_token) refetch();
-  }, [refetch, session?.access_token]);
+  }, []);
 
   return { users, loading, refetch };
 };
+
+export type GetUsers = ReturnType<typeof useGetUsers>["users"][number];

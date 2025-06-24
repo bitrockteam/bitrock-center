@@ -1,9 +1,8 @@
 "use client";
 
-import { useChangePermitStatus } from "@/api/useChangePermitStatus";
+import { updatePermitStatus } from "@/api/server/permit/updatePermitStatus";
 import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
 import { useGetUsers } from "@/api/useGetUsers";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,14 +20,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getStatusBadge } from "@/utils/mapping";
-import { PermitStatus, PermitType } from "@bitrock/db";
+import { PermitStatus, PermitType, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-export default function PermitApprovalTable() {
-  const { user } = useAuth();
+export default function PermitApprovalTable({ user }: { user: user }) {
   const { permits, isLoading, refetch } = useGetPermitsByReviewer(user!.id);
-  const { changeStatus } = useChangePermitStatus();
   const { users } = useGetUsers();
 
   const getTypeLabel = (type: string) => {
@@ -45,13 +42,13 @@ export default function PermitApprovalTable() {
   };
 
   const approvePermit = async (permitId: string) => {
-    changeStatus(permitId, PermitStatus.APPROVED);
+    await updatePermitStatus(permitId, PermitStatus.APPROVED);
     refetch();
     toast.success("Permesso approvato");
   };
 
   const rejectPermit = async (permitId: string) => {
-    changeStatus(permitId, "rejected");
+    await updatePermitStatus(permitId, PermitStatus.REJECTED);
     refetch();
     toast.success("Permesso rigettato");
   };
@@ -98,16 +95,17 @@ export default function PermitApprovalTable() {
                     <TableRow key={index}>
                       <TableCell>{getTypeLabel(permit.type)}</TableCell>
                       <TableCell>
-                        {new Date(permit.startDate).toLocaleDateString()}{" "}
-                        {permit.endDate &&
-                          `- ${new Date(permit.endDate).toLocaleDateString()}`}
+                        {new Date(permit.date).toLocaleDateString()}{" "}
                       </TableCell>
-                      <TableCell>{permit.duration}</TableCell>
+                      <TableCell>{Number(permit.duration)}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {permit.description}
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate">
-                        {users?.find((user) => user.id === permit.userId)?.name}
+                        {
+                          users?.find((user) => user.id === permit.user_id)
+                            ?.name
+                        }
                       </TableCell>
                       <TableCell>{getStatusBadge(permit.status)}</TableCell>
                       <TableCell className="text-right space-x-2">

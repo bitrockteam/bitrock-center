@@ -10,10 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useDeleteProject } from "@/api/useDeleteProject";
-import { useSessionContext } from "@/app/utenti/SessionData";
-import { Badge } from "@/components/ui/badge";
+
+import { deleteProject } from "@/api/server/project/deleteProject";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,67 +29,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { IProject } from "@bitrock/types";
+import { getProjectStatusBadge } from "@/utils/mapping";
+import { project } from "@bitrock/db";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import AddProjectDialog from "./add-project-dialog";
-import { useGetProjectsUser } from "@/api/useGetProjectsUser";
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { isAdminOrSuperAdmin } from "@/services/users/utils";
 
-export default function ProjectsTable() {
+export default function ProjectsTable({ projects }: { projects: project[] }) {
   const router = useRouter();
-  const [editProjectDialog, setEditProjectDialog] = useState<IProject | null>(
+  const [editProjectDialog, setEditProjectDialog] = useState<project | null>(
     null,
   );
   const [deleteProjectDialog, setDeleteProjectDialog] =
-    useState<IProject | null>(null);
-
-  const { user } = useAuth();
-
-  const { refetchProjects, projects: allProjects } = useSessionContext();
-  const { projects: allUserProjects } = useGetProjectsUser();
-  const projects = useMemo(
-    () => (isAdminOrSuperAdmin(user) ? allProjects : allUserProjects),
-    [allProjects, allUserProjects, user],
-  );
-
-  console.log({ projects, allProjects, allUserProjects });
-
-  const { deleteProject } = useDeleteProject();
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge className="bg-green-500">Attivo</Badge>;
-      case "completed":
-        return <Badge variant="outline">Completato</Badge>;
-      case "on-hold":
-        return <Badge variant="secondary">In Pausa</Badge>;
-      case "planned":
-        return (
-          <Badge variant="outline" className="border-amber-500 text-amber-500">
-            Pianificato
-          </Badge>
-        );
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
+    useState<project | null>(null);
 
   const handleViewProject = (id: string) => {
     router.push(`/progetti/${id}`);
   };
 
   const handleDeleteProject = async (id: string) => {
-    const success = await deleteProject(id);
-    if (success) {
-      refetchProjects();
-    }
+    await deleteProject(id);
   };
 
   return (
@@ -135,7 +96,7 @@ export default function ProjectsTable() {
                     </TableCell>
                     <TableCell>{project?.client}</TableCell>
                     <TableCell>
-                      {getStatusBadge(project?.status.name)}
+                      {getProjectStatusBadge(project?.status)}
                     </TableCell>
 
                     <TableCell>

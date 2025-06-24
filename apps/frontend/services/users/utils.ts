@@ -1,4 +1,4 @@
-import { IUser } from "@bitrock/types";
+import { Role, user } from "@bitrock/db";
 
 export const getFirstnameAndLastname = (name?: string) => {
   if (!name) {
@@ -36,22 +36,22 @@ export const canUserEdit = ({
   currentUser,
   user,
 }: {
-  currentUser?: IUser;
-  user?: IUser;
+  currentUser?: user;
+  user?: user;
 }) =>
-  (currentUser?.role.label === "Admin" ||
-    currentUser?.role.label === "Super Admin") &&
-  currentUser?.role.label === "Admin" &&
-  user?.role.label !== "Super Admin" &&
-  currentUser.role.label !== user?.role.label;
+  (currentUser?.role === Role.Admin ||
+    currentUser?.role === Role.Super_Admin) &&
+  currentUser?.role === Role.Admin &&
+  user?.role !== Role.Super_Admin &&
+  currentUser.role !== user?.role;
 
-export const canUserDealProjects = (user?: IUser) =>
-  user?.role.label === "Admin" || user?.role.label === "Super Admin";
+export const canUserDealProjects = (user?: user) =>
+  user?.role === Role.Admin || user?.role === Role.Super_Admin;
 
-export const canUserAllocateResources = (user?: IUser) =>
-  user?.role.label === "Admin" ||
-  user?.role.label === "Super Admin" ||
-  user?.role.label === "Key Client";
+export const canUserAllocateResources = (user?: user) =>
+  user?.role === Role.Admin ||
+  user?.role === Role.Super_Admin ||
+  user?.role === Role.Key_Client;
 
-export const isAdminOrSuperAdmin = (user?: IUser) =>
-  user?.role.label === "Admin" || user?.role.label === "Super Admin";
+export const isAdminOrSuperAdmin = (user?: user) =>
+  user?.role === "Admin" || user?.role === Role.Super_Admin;

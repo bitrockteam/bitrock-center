@@ -1,10 +1,10 @@
 "use client";
 
-import { useCreateUser } from "@/api/useCreateUser";
-import { useUpdateUser } from "@/api/useUpdateUser";
-import { useUploadFile } from "@/api/useUploadFile";
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { useSessionContext } from "@/app/utenti/SessionData";
+import { createUser } from "@/api/server/user/createUser";
+import { FindUserById } from "@/api/server/user/findUserById";
+import { updateUser } from "@/api/server/user/updateUser";
+import { uploadFile } from "@/api/server/user/uploadFile";
+import { useGetUsers } from "@/api/useGetUsers";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,22 +23,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { getFirstnameAndLastname } from "@/services/users/utils";
-import { IUser } from "@bitrock/types";
+import { Role, user } from "@bitrock/db";
 import { motion } from "framer-motion";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FileUploader } from "../custom/FileUploader";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -47,7 +40,14 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
-import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 interface AddUserDialogProps {
   open: boolean;
@@ -57,20 +57,18 @@ interface AddUserDialogProps {
       shouldRefetch?: boolean;
     },
   ) => void;
-  editData?: IUser;
+  editData?: FindUserById;
   onRefetch?: () => void;
+  user: user;
 }
 
 export default function AddUserDialog({
   open,
   onComplete,
   editData,
+  user,
 }: Readonly<AddUserDialogProps>) {
-  const { createUser, isLoading: isLoadingCreateUser } = useCreateUser();
-  const { updateUser, isLoading: isLoadingUpdateUser } = useUpdateUser();
-  const { uploadFile, isLoading: isLoadingUploadFile } = useUploadFile();
-  const { refetchUsers, roles, users } = useSessionContext();
-  const { user } = useAuth();
+  const { refetch: refetchUsers, users } = useGetUsers();
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -80,7 +78,7 @@ export default function AddUserDialog({
       surname: "",
       email: "",
       file: undefined as File | undefined,
-      role: "",
+      role: Role.Employee as Role,
       referent_id: undefined as string | undefined,
     },
   });
@@ -92,8 +90,8 @@ export default function AddUserDialog({
         name: getFirstnameAndLastname(editData.name).firstName,
         surname: getFirstnameAndLastname(editData.name).lastName,
         email: editData.email,
-        role: editData.role.id,
-        referent_id: editData.referent_id,
+        role: editData.role ?? Role.Employee,
+        referent_id: editData.referent_id ?? undefined,
       });
     }
   }, [editData, form]);
@@ -101,12 +99,10 @@ export default function AddUserDialog({
   const handleUpdateUser = (avatar_url?: string) =>
     updateUser({
       id: editData!.id,
-      user: {
-        name: `${form.getValues().name} ${form.getValues().surname}`,
-        ...(avatar_url && { avatar_url }),
-        roleId: form.getValues().role,
-        referent_id: form.getValues().referent_id,
-      },
+      name: `${form.getValues().name} ${form.getValues().surname}`,
+      ...(avatar_url && { avatar_url }),
+      role: form.getValues().role,
+      referent_id: form.getValues().referent_id,
     });
 
   const handleComplete = (open: boolean) => {
@@ -115,14 +111,14 @@ export default function AddUserDialog({
     refetchUsers();
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (editData) {
       const file = form.getValues().file;
       if (file) {
         const fileFormData = new FormData();
         fileFormData.append("file", file);
 
-        uploadFile({ file: fileFormData }).then((data) => {
+        await uploadFile({ file: fileFormData }).then((data) => {
           handleUpdateUser(data.avatar_url)
             .then(() => toast.success("Utente aggiornato con successo"))
             .finally(() => {
@@ -139,12 +135,11 @@ export default function AddUserDialog({
           });
       }
     } else
-      createUser({
-        user: {
-          name: `${form.getValues().name} ${form.getValues().surname}`,
-          email: form.getValues().email,
-          roleId: form.getValues().role,
-        },
+      await createUser({
+        name: `${form.getValues().name} ${form.getValues().surname}`,
+        email: form.getValues().email,
+        role: form.getValues().role,
+        referent_id: form.getValues().referent_id,
       })
         .then(() => toast.success("Utente creato con successo"))
         .finally(() => {
@@ -236,9 +231,9 @@ export default function AddUserDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {roles.map((s) => (
-                          <SelectItem value={s.id} key={s.id}>
-                            {s.label}
+                        {Object.keys(Role).map((s) => (
+                          <SelectItem value={s} key={s}>
+                            {s.replace(/_/g, " ")}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -335,17 +330,7 @@ export default function AddUserDialog({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button
-                  type="submit"
-                  disabled={
-                    isLoadingUpdateUser ||
-                    isLoadingCreateUser ||
-                    isLoadingUploadFile
-                  }
-                >
-                  {isLoadingUpdateUser ||
-                    isLoadingCreateUser ||
-                    (isLoadingUploadFile && <Loader2 />)}
+                <Button type="submit">
                   {editData ? "Aggiorna" : "Crea Utente"}
                 </Button>
               </motion.div>

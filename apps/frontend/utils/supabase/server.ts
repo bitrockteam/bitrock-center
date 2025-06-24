@@ -1,5 +1,6 @@
 import { user } from "@bitrock/db";
 import { createServerClient } from "@supabase/ssr";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
 
 export async function createClient() {
@@ -38,10 +39,28 @@ export async function checkSession() {
   return session;
 }
 
+async function getCookieData(): Promise<ReadonlyRequestCookies> {
+  const cookieData = cookies();
+  return new Promise((resolve) =>
+    setTimeout(() => {
+      resolve(cookieData);
+    }, 1000),
+  );
+}
+
 export async function getUserInfoFromCookie() {
   await checkSession();
-  const cookieStore = await cookies();
+  const cookieStore = await getCookieData();
   const cookie = cookieStore.get("x-user-info")?.value;
   if (!cookie) throw new Error("No user info cookie found");
   return JSON.parse(cookie) as user;
+}
+
+export async function tryGetUserInfoFromCookie() {
+  try {
+    return await getUserInfoFromCookie();
+  } catch (error) {
+    console.error("Error getting user info from cookie:", error);
+    return null;
+  }
 }

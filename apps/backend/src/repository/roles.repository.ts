@@ -1,19 +1,9 @@
-import { IUser } from "@bitrock/types";
-import { sql } from "../config/postgres";
+import { Role } from "@bitrock/db";
 import { db } from "../config/prisma";
 
-export async function getRoles() {
-  return db.role.findMany({
-    orderBy: {
-      label: "asc",
-    },
-  });
-}
-
-export async function updateRoleForUser(userId: string, roleId: string) {
+export async function updateRoleForUser(userId: string, roleId: Role) {
   const user = await db.user.findUnique({
     where: { id: userId },
-    include: { role: true },
   });
 
   if (!user) throw new Error("User not found");
@@ -21,10 +11,7 @@ export async function updateRoleForUser(userId: string, roleId: string) {
   return db.user.update({
     where: { id: userId },
     data: {
-      role: {
-        connect: { id: roleId },
-      },
+      role: roleId,
     },
-    include: { role: true },
   });
 }

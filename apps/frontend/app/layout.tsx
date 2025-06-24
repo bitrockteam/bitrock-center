@@ -1,5 +1,5 @@
 import Sidebar from "@/components/sidebar";
-import { createClient } from "@/utils/supabase/server";
+import { tryGetUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
@@ -7,8 +7,6 @@ import type React from "react";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
 import "../styles/globals.css";
-import { AuthProvider } from "./(auth)/AuthProvider";
-import { SessionDataProvider } from "./utenti/SessionData";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,8 +25,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const session = await supabase.auth.getSession();
+  const user = await tryGetUserInfoFromCookie();
   return (
     <html lang="it" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
@@ -40,16 +37,12 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <div className="flex h-screen">
-              <AuthProvider>
-                <SessionDataProvider>
-                  {session.data.session && <Sidebar />}
-                  <div className="flex-1 overflow-auto">
-                    <main className="container py-4 mx-auto px-4 h-full">
-                      {children}
-                    </main>
-                  </div>
-                </SessionDataProvider>
-              </AuthProvider>
+              {user && <Sidebar user={user} />}
+              <div className="flex-1 overflow-auto">
+                <main className="container py-4 mx-auto px-4 h-full">
+                  {children}
+                </main>
+              </div>
             </div>
             <Toaster />
           </ThemeProvider>

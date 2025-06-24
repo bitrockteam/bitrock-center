@@ -87,9 +87,9 @@ export default function CalendarView({
     console.info(day);
     return {
       permits: permits.filter((permit) => {
-        const permitDate = new Date(permit.start_date);
+        const permitDate = new Date(permit.date);
         if (permitDate.getDate() === day) {
-          console.info(permit.start_date, permitDate, day);
+          console.info(permit.date, permitDate, day);
         }
         return (
           permitDate.getDate() === day &&

@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import AddHoursDialog from "./add-hours-dialog";
 import { useState } from "react";
+import { user } from "@bitrock/db";
 
-export default function TimeTrackingHeader() {
+export default function TimeTrackingHeader({ user }: { user: user }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   return (
@@ -27,7 +28,11 @@ export default function TimeTrackingHeader() {
         </Button>
       </motion.div>
 
-      <AddHoursDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
+      <AddHoursDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        user={user}
+      />
     </motion.div>
   );
 }

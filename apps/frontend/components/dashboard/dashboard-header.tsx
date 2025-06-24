@@ -1,11 +1,9 @@
 "use client";
-
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { getFirstnameAndLastname } from "@/services/users/utils";
+import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 
-export default function DashboardHeader() {
-  const { user } = useAuth();
+export function DashboardHeader({ user }: { user: user }) {
   const currentDate = new Date();
   const formattedDate = new Intl.DateTimeFormat("it-IT", {
     weekday: "long",

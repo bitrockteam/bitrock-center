@@ -1,16 +1,19 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { motion } from "framer-motion";
+import { PlusCircle, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
-import { useSessionContext } from "@/app/utenti/SessionData";
-import { canUserDealProjects } from "@/services/users/utils";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 
-export default function ProjectsHeader() {
+export default function ProjectsHeader({
+  canDealProjects,
+}: {
+  canDealProjects?: boolean;
+}) {
+  const router = useRouter();
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   const searchParams = new URLSearchParams(window?.location?.search);
@@ -19,20 +22,12 @@ export default function ProjectsHeader() {
   );
   const [debouncedInput, setDebouncedInput] = useState("");
 
-  const { refetchProjects } = useSessionContext();
-  const { user } = useAuth();
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextSearch(e.target.value);
 
     if (e.target.value === "") {
       searchParams.delete("params");
-      history.pushState(
-        {},
-        "",
-        `${window.location.pathname}?${searchParams.toString()}`,
-      );
-      refetchProjects();
+      router.push(`/progetti`);
     }
   };
 
@@ -46,15 +41,10 @@ export default function ProjectsHeader() {
   useEffect(() => {
     if (debouncedInput !== "") {
       searchParams.set("params", debouncedInput);
-      history.pushState(
-        {},
-        "",
-        `${window.location.pathname}?${searchParams.toString()}`,
-      );
-      refetchProjects();
+      router.push(`/progetti?${searchParams.toString()}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedInput, refetchProjects]);
+  }, [debouncedInput]);
 
   return (
     <motion.div
@@ -78,7 +68,7 @@ export default function ProjectsHeader() {
             onChange={handleChange}
           />
         </div>
-        {canUserDealProjects(user) && (
+        {canDealProjects && (
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button onClick={() => setShowAddDialog(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />

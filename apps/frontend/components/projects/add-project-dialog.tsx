@@ -1,9 +1,7 @@
 "use client";
 
-import { useCreateProject } from "@/api/useCreateProject";
-import { useGetStatuses } from "@/api/useGetStatuses";
-// import { useGetUsers } from "@/api/useGetUsers";
-import { useEditProject } from "@/api/useEditProject";
+import { createProject } from "@/api/server/project/createProject";
+import { updateProject } from "@/api/server/project/updateProject";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,18 +28,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { IProject, IProjectUpsert } from "@bitrock/types";
+import { project, ProjectStatus } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { addProjectSchema } from "./schema";
-import { useSessionContext } from "@/app/utenti/SessionData";
 
 interface AddProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editData?: IProject;
+  editData?: project;
   projectId?: string;
 }
 
@@ -51,17 +48,12 @@ export default function AddProjectDialog({
   editData,
   projectId,
 }: AddProjectDialogProps) {
-  const { refetchProjects } = useSessionContext();
-  const { statuses } = useGetStatuses();
-  const { createProject } = useCreateProject();
-  const { editProject } = useEditProject();
-
   const form = useForm<z.infer<typeof addProjectSchema>>({
     defaultValues: {
       name: "",
       client: "",
       description: "",
-      status_id: "",
+      status: ProjectStatus.PLANNED,
       start_date: new Date().toISOString().split("T")[0],
       // team: [] as string[],
     },
@@ -74,8 +66,8 @@ export default function AddProjectDialog({
       form.reset({
         name: editData.name,
         client: editData.client,
-        description: editData.description,
-        status_id: editData.status.id,
+        description: editData.description ?? undefined,
+        status: editData.status,
         start_date: String(editData.start_date).slice(0, 10),
         end_date: editData.end_date
           ? String(editData.end_date).slice(0, 10)
@@ -85,15 +77,16 @@ export default function AddProjectDialog({
     }
   }, [editData, form]);
 
-  const onSubmit = (data: z.infer<typeof addProjectSchema>) => {
-    const formattedData: IProjectUpsert = {
+  const onSubmit = async (data: z.infer<typeof addProjectSchema>) => {
+    const formattedData: Omit<project, "id" | "created_at"> = {
       ...data,
       start_date: new Date(data.start_date),
-      end_date: data.end_date ? new Date(data.end_date) : undefined,
+      end_date: data.end_date ? new Date(data.end_date) : null,
+      status: data.status as ProjectStatus,
     };
 
     if (editData && projectId) {
-      editProject(formattedData, projectId)
+      await updateProject({ id: projectId, ...formattedData })
         .then(() => {
           onOpenChange(false);
           form.reset();
@@ -103,16 +96,17 @@ export default function AddProjectDialog({
         });
       return;
     }
-    createProject(formattedData)
+    await createProject(formattedData)
       .then(() => {
         onOpenChange(false);
         form.reset();
-        refetchProjects();
       })
       .catch((error) => {
         console.error("Failed to create project:", error);
       });
   };
+
+  if (!open) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -186,7 +180,7 @@ export default function AddProjectDialog({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
-                name="status_id"
+                name="status"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Stato</FormLabel>
@@ -201,9 +195,9 @@ export default function AddProjectDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {statuses.map((s) => (
-                          <SelectItem value={s.id} key={s.id}>
-                            {s.name}
+                        {Object.keys(ProjectStatus).map((s) => (
+                          <SelectItem value={s} key={s}>
+                            {s.replace(/_/g, " ")}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -241,57 +235,6 @@ export default function AddProjectDialog({
                 )}
               />
             </div>
-
-            {/* <FormField
-              control={form.control}
-              name="team"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel>Team di Progetto</FormLabel>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {users?.map((user) => (
-                      <FormField
-                        key={user.id}
-                        control={form.control}
-                        name="team"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={user.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(user.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          user.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== user.id,
-                                          ),
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {user.name} ({user.role?.label})
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
 
             <DialogFooter>
               <Button

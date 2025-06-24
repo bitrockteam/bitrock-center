@@ -1,7 +1,5 @@
 "use client";
 
-import { useGetUsers } from "@/api/useGetUsers";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -29,8 +27,8 @@ import { DatePicker } from "../custom/DatePicker";
 // import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
 // import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
 import { createUserPermits } from "@/api/server/permit/createUserPermits";
-import { useSessionContext } from "@/app/utenti/SessionData";
-import { PermitType } from "@bitrock/db";
+import { useGetUserReviewers } from "@/api/useGetUserReviewers";
+import { PermitType, user } from "@bitrock/db";
 
 interface PermitFormValues {
   type: string;
@@ -41,12 +39,10 @@ interface PermitFormValues {
   reviewerId: string;
 }
 
-export default function PermitRequestForm() {
-  const { user } = useAuth();
-  const { users } = useGetUsers();
+export default function PermitRequestForm({ user }: { user: user | null }) {
+  const { reviewers } = useGetUserReviewers();
   // const { createPermit } = useCreatePermit();
 
-  const { refetchPermits } = useSessionContext();
   const [errorMessage, setErrorMessage] = useState("");
 
   const form = useForm<PermitFormValues>({
@@ -65,8 +61,7 @@ export default function PermitRequestForm() {
 
     createUserPermits({
       type: data.type as PermitType,
-      start_date: data.startDate,
-      end_date: data.endDate || undefined,
+      date: data.startDate,
       duration:
         data.type === PermitType.PERMISSION ? parseFloat(data.duration) : 8,
       description: data.description,
@@ -76,7 +71,7 @@ export default function PermitRequestForm() {
         if (result) {
           form.reset();
           toast.success("Richiesta inviata con successo!");
-          refetchPermits();
+          // TODO: refetch permits here
         } else {
           setErrorMessage("Creazione permesso fallita o limite superato (8h).");
         }
@@ -236,7 +231,7 @@ export default function PermitRequestForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {users
+                        {reviewers
                           .filter((u) => u.id !== user?.id)
                           .map((user) => (
                             <SelectItem key={user.id} value={user.id}>

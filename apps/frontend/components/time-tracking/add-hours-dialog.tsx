@@ -2,7 +2,6 @@
 
 import { useTimesheetAddTimesheet } from "@/api/timesheet/useTimesheetAddTimesheet";
 import { useGetProjectsUser } from "@/api/useGetProjectsUser";
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { timesheet } from "@bitrock/db";
+import { timesheet, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -54,6 +53,7 @@ interface AddHoursDialogProps {
   editData?: Partial<timesheet> | null;
   defaultDate?: string | null;
   onClose?: () => void;
+  user: user | null;
 }
 
 export default function AddHoursDialog({
@@ -62,8 +62,8 @@ export default function AddHoursDialog({
   editData,
   defaultDate,
   onClose,
+  user,
 }: AddHoursDialogProps) {
-  const { user } = useAuth();
   const { projects } = useGetProjectsUser();
   const { execute: addTimesheet } = useTimesheetAddTimesheet();
 

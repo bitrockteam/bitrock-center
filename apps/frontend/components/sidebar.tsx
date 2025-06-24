@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@/app/(auth)/AuthProvider";
 import { logout } from "@/app/login/actions";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import {
   BarChart3,
@@ -65,13 +65,9 @@ const navItems = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ user }: { user: user }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-
-  const { session, user } = useAuth();
-
-  if (!session || !user) return null;
 
   return (
     <div className="relative">
@@ -135,12 +131,12 @@ export default function Sidebar() {
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder.svg?height=32&width=32" />
                     <AvatarFallback>
-                      {session.user.user_metadata.name.charAt(0)}
+                      {user.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   {!collapsed && (
                     <span className="ml-2 text-sm font-medium">
-                      {session.user.user_metadata.name}
+                      {user.name || "Utente"}
                     </span>
                   )}
                 </Button>

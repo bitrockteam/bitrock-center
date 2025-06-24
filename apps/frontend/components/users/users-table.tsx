@@ -11,10 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { useUpdateRoleForUser } from "@/api/useUpdateRoleForUser";
-import { useAuth } from "@/app/(auth)/AuthProvider";
-import { useSessionContext } from "@/app/utenti/SessionData";
+import { FindUsers } from "@/api/server/user/findUsers";
+import { updateUserRole } from "@/api/server/user/updateUserRole";
 import { canUserEdit, formatDisplayName } from "@/services/users/utils";
+import { Role, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -25,12 +25,16 @@ import {
   SelectValue,
 } from "../ui/select";
 
-export default function UsersTable() {
+export default function UsersTable({
+  users,
+  refetch,
+  user,
+}: {
+  users: FindUsers[];
+  refetch: () => void;
+  user: user | null;
+}) {
   const router = useRouter();
-
-  const { users, roles, refetchUsers } = useSessionContext();
-  const { user } = useAuth();
-  const { updateRoleForUser } = useUpdateRoleForUser();
 
   const handleViewUser = (id: string) => {
     router.push(`/utenti/${id}`);
@@ -73,7 +77,7 @@ export default function UsersTable() {
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={us.avatar_url} />
+                          {us.avatar_url && <AvatarImage src={us.avatar_url} />}
                           <AvatarFallback>
                             {formatDisplayName({
                               name: us.name,
@@ -89,29 +93,27 @@ export default function UsersTable() {
                       <TableCell>
                         <Select
                           onValueChange={(e) => {
-                            const roleIdSelected = e as string;
-                            updateRoleForUser(us.id, roleIdSelected).then(
-                              () => {
-                                refetchUsers();
-                              },
+                            const roleIdSelected = e as Role;
+                            updateUserRole(us.id, roleIdSelected).then(() =>
+                              refetch(),
                             );
                           }}
-                          value={us.role.id}
+                          value={us.role}
                         >
                           <SelectTrigger className="min-w-[120px]">
                             <SelectValue placeholder="Seleziona stato" />
                           </SelectTrigger>
                           <SelectContent>
-                            {roles.map((s) => (
-                              <SelectItem value={s.id} key={s.id}>
-                                {s.label}
+                            {Object.keys(Role).map((s) => (
+                              <SelectItem value={s} key={s}>
+                                {s.replace("_", " ")}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </TableCell>
                     ) : (
-                      <TableCell>{us.role?.label ?? "Developer"}</TableCell>
+                      <TableCell>{us.role}</TableCell>
                     )}
 
                     <TableCell>{0}</TableCell>
