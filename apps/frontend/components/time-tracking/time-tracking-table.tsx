@@ -1,7 +1,7 @@
 "use client";
 
-import { useTimesheetGetUserTimesheet } from "@/api/timesheet/useTimesheetGetUserTimesheet";
-import { useGetProjectsUser } from "@/api/useGetProjectsUser";
+import { Project } from "@/api/server/project/fetchAllProjects";
+import { UserTimesheet } from "@/api/server/timesheet/fetchUserTimesheet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -19,20 +19,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import AddHoursDialog from "./add-hours-dialog";
-import { user } from "@bitrock/db";
 
-export default function TimeTrackingTable({ user }: { user: user }) {
+export default function TimeTrackingTable({
+  user,
+  projects,
+  timesheets,
+}: {
+  user: user;
+  projects: Project[];
+  timesheets: UserTimesheet[];
+}) {
   const [month, setMonth] = useState("current");
   const [project, setProject] = useState("all");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [editEntry, setEditEntry] = useState<any>(null);
-
-  const { projects } = useGetProjectsUser();
-  const { timesheets } = useTimesheetGetUserTimesheet();
 
   return (
     <motion.div
@@ -62,7 +67,7 @@ export default function TimeTrackingTable({ user }: { user: user }) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tutti i progetti</SelectItem>
-                  {projects.map((p) => (
+                  {projects?.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.name}
                     </SelectItem>
@@ -84,7 +89,7 @@ export default function TimeTrackingTable({ user }: { user: user }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {timesheets.length === 0 ? (
+                {timesheets?.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={6}
@@ -94,14 +99,14 @@ export default function TimeTrackingTable({ user }: { user: user }) {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  timesheets.map((entry, index) => (
+                  timesheets?.map((entry, index) => (
                     <TableRow key={index}>
                       <TableCell>
                         {new Date(entry.date).toLocaleDateString()}
                       </TableCell>
 
                       <TableCell>
-                        {projects.find((p) => p.id === entry.project_id)?.name}
+                        {projects?.find((p) => p.id === entry.project_id)?.name}
                       </TableCell>
                       <TableCell>{entry.hours}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
