@@ -1,4 +1,4 @@
-import { findUsers } from "@/api/server/user/findUsers";
+import { findUsersWithProjects } from "@/api/server/user/findUsersWithProjects";
 import UsersHeader from "@/components/users/users-header";
 import UsersTable from "@/components/users/users-table";
 import { allowRoles } from "@/services/users/server.utils";
@@ -13,7 +13,7 @@ export default async function UsersPage({
   }>;
 }) {
   const { params } = await searchParams;
-  const users = await findUsers(params);
+  const users = await findUsersWithProjects(params);
   const user = await getUserInfoFromCookie();
   const isAdminOrSuperAdmin = await allowRoles(["Admin", "Super_Admin"]);
 

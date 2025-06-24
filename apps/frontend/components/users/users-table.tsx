@@ -11,9 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { FindUsers } from "@/api/server/user/findUsers";
+import { FindUsersWithProjects } from "@/api/server/user/findUsersWithProjects";
 import { updateUserRole } from "@/api/server/user/updateUserRole";
 import { canUserEdit, formatDisplayName } from "@/services/users/utils";
+import { getRoleBadge } from "@/utils/mapping";
 import { Role, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -30,7 +31,7 @@ export default function UsersTable({
   refetch,
   user,
 }: {
-  users: FindUsers[];
+  users: FindUsersWithProjects[];
   refetch: () => void;
   user: user | null;
 }) {
@@ -113,10 +114,10 @@ export default function UsersTable({
                         </Select>
                       </TableCell>
                     ) : (
-                      <TableCell>{us.role}</TableCell>
+                      <TableCell>{getRoleBadge(us.role)}</TableCell>
                     )}
 
-                    <TableCell>{0}</TableCell>
+                    <TableCell>{us.allocation.length || "-"}</TableCell>
                   </TableRow>
                 ))
               )}
