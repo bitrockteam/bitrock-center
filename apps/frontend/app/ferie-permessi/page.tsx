@@ -1,10 +1,11 @@
-import { fetchReferent } from "@/api/server/user/fetchReferent";
-import PermitApprovalTable from "@/components/permits/permit-approval";
 import PermitRequestForm from "@/components/permits/permit-form";
 import PermitHeader from "@/components/permits/permit-header";
-import PermitHistoryTable from "@/components/permits/permit-history-table";
+import { allowRoles } from "@/services/users/server.utils";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
+import PermitApproval from "./permit-approval";
+import PermitHistory from "./permit-history";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Ferie e Permessi | Bitrock Hours",
@@ -13,7 +14,13 @@ export const metadata: Metadata = {
 
 export default async function LeavePage() {
   const user = await getUserInfoFromCookie();
-  const usersListReferent = await fetchReferent();
+  const isReferent = await allowRoles([
+    "Admin",
+    "Super_Admin",
+    "Manager",
+    "Key_Client",
+  ]);
+
   return (
     <div className="space-y-6">
       <PermitHeader />
@@ -22,18 +29,16 @@ export default async function LeavePage() {
           <PermitRequestForm user={user} />
         </div>
         <div className="lg:col-span-2">
-          <PermitHistoryTable />
+          <Suspense fallback={<div className="h-96">Loading...</div>}>
+            <PermitHistory />
+          </Suspense>
         </div>
-        {(user.role === "Admin" ||
-          user.role === "Key_Client" ||
-          usersListReferent.length > 0) && (
+        {isReferent && (
           <div className="lg:col-span-3">
-            <PermitApprovalTable user={user} />
+            <PermitApproval />
           </div>
         )}
       </div>
     </div>
   );
 }
-
-export const dynamic = "force-dynamic";

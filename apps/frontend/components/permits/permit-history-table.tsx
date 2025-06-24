@@ -1,7 +1,6 @@
 "use client";
 
-import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
-import { useGetUsers } from "@/api/useGetUsers";
+import { UserPermit } from "@/api/server/permit/fetchUserPermits";
 import {
   Card,
   CardContent,
@@ -21,10 +20,11 @@ import { getStatusBadge } from "@/utils/mapping";
 import { PermitType } from "@bitrock/db";
 import { motion } from "framer-motion";
 
-export default function PermitHistoryTable() {
-  const { permits, isLoading } = useGetPermitsByUser();
-  const { users } = useGetUsers();
-
+export default function PermitHistoryTable({
+  permits,
+}: {
+  permits: UserPermit[];
+}) {
   const getTypeLabel = (type: string) => {
     switch (type) {
       case PermitType.VACATION:
@@ -63,15 +63,13 @@ export default function PermitHistoryTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading || permits.length === 0 ? (
+                {permits.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={6}
                       className="text-center py-6 text-muted-foreground"
                     >
-                      {isLoading
-                        ? "Caricamento..."
-                        : "Nessuna richiesta trovata"}
+                      Nessuna richiesta trovata
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -86,10 +84,7 @@ export default function PermitHistoryTable() {
                         {permit.description}
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate">
-                        {
-                          users.find((user) => user.id === permit.reviewer_id)
-                            ?.name
-                        }
+                        {permit.user_permit_reviewer_idTouser.name}
                       </TableCell>
                       <TableCell>{getStatusBadge(permit.status)}</TableCell>
                     </TableRow>

@@ -1,13 +1,7 @@
-export function Loader({
-  transparent = false,
-  color = "#FFF",
-}: {
-  transparent?: boolean;
-  color?: string;
-}) {
+export function Loader({ color = "#FFF" }: { color?: string }) {
   return (
     <div
-      className={`flex justify-center items-center h-screen w-screen bg-gray-800 ${transparent ? "bg-transparent" : ""}`}
+      className={`flex justify-center items-center h-full w-full bg-transparent`}
     >
       <div className="loader" />
       <style>{`        

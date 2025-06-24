@@ -1,5 +1,7 @@
 "use client";
 
+import { createUserPermits } from "@/api/server/permit/createUserPermits";
+import { fetchUserReviewers } from "@/api/server/permit/fetchUserReviewers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,16 +21,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useServerAction } from "@/hooks/useServerAction";
+import { PermitType, user } from "@bitrock/db";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { DatePicker } from "../custom/DatePicker";
-// import { useGetPermitsByUser } from "@/api/useGetPermitsByUser";
-// import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
-import { createUserPermits } from "@/api/server/permit/createUserPermits";
-import { useGetUserReviewers } from "@/api/useGetUserReviewers";
-import { PermitType, user } from "@bitrock/db";
 
 interface PermitFormValues {
   type: string;
@@ -40,10 +40,11 @@ interface PermitFormValues {
 }
 
 export default function PermitRequestForm({ user }: { user: user | null }) {
-  const { reviewers } = useGetUserReviewers();
-  // const { createPermit } = useCreatePermit();
-
   const [errorMessage, setErrorMessage] = useState("");
+  const [reviewers, fetchReviewers] = useServerAction(fetchUserReviewers);
+  const [isPending, startTransition] = useTransition();
+
+  const router = useRouter();
 
   const form = useForm<PermitFormValues>({
     defaultValues: {
@@ -71,7 +72,9 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
         if (result) {
           form.reset();
           toast.success("Richiesta inviata con successo!");
-          // TODO: refetch permits here
+          startTransition(() => {
+            router.refresh();
+          });
         } else {
           setErrorMessage("Creazione permesso fallita o limite superato (8h).");
         }
@@ -81,7 +84,9 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
       });
   };
 
-  console.log(form.watch("type"));
+  useEffect(() => {
+    fetchReviewers();
+  }, [fetchReviewers]);
 
   return (
     <motion.div
@@ -232,7 +237,7 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
                       </FormControl>
                       <SelectContent>
                         {reviewers
-                          .filter((u) => u.id !== user?.id)
+                          ?.filter((u) => u.id !== user?.id)
                           .map((user) => (
                             <SelectItem key={user.id} value={user.id}>
                               {user.name}
@@ -272,8 +277,8 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button type="submit" className="w-full">
-                  Invia Richiesta
+                <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending ? "Invio in corso..." : "Invia Richiesta"}
                 </Button>
               </motion.div>
             </form>

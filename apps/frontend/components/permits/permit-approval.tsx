@@ -1,8 +1,7 @@
 "use client";
 
+import { PermitByReviewer } from "@/api/server/permit/getPermitsByReviewer";
 import { updatePermitStatus } from "@/api/server/permit/updatePermitStatus";
-import { useGetPermitsByReviewer } from "@/api/useGetPermitsByReviewer";
-import { useGetUsers } from "@/api/useGetUsers";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,14 +19,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getStatusBadge } from "@/utils/mapping";
-import { PermitStatus, PermitType, user } from "@bitrock/db";
+import { PermitStatus, PermitType } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-export default function PermitApprovalTable({ user }: { user: user }) {
-  const { permits, isLoading, refetch } = useGetPermitsByReviewer(user!.id);
-  const { users } = useGetUsers();
-
+export default function PermitApprovalTable({
+  permits,
+}: {
+  permits: PermitByReviewer[];
+}) {
   const getTypeLabel = (type: string) => {
     switch (type) {
       case PermitType.VACATION:
@@ -43,13 +43,11 @@ export default function PermitApprovalTable({ user }: { user: user }) {
 
   const approvePermit = async (permitId: string) => {
     await updatePermitStatus(permitId, PermitStatus.APPROVED);
-    refetch();
     toast.success("Permesso approvato");
   };
 
   const rejectPermit = async (permitId: string) => {
     await updatePermitStatus(permitId, PermitStatus.REJECTED);
-    refetch();
     toast.success("Permesso rigettato");
   };
 
@@ -79,15 +77,13 @@ export default function PermitApprovalTable({ user }: { user: user }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading || permits.length === 0 ? (
+                {permits.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={6}
                       className="text-center py-6 text-muted-foreground"
                     >
-                      {isLoading
-                        ? "Caricamento..."
-                        : "Nessuna richiesta trovata"}
+                      Nessuna richiesta trovata
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -102,10 +98,7 @@ export default function PermitApprovalTable({ user }: { user: user }) {
                         {permit.description}
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate">
-                        {
-                          users?.find((user) => user.id === permit.user_id)
-                            ?.name
-                        }
+                        {permit.user_permit_user_idTouser.name}
                       </TableCell>
                       <TableCell>{getStatusBadge(permit.status)}</TableCell>
                       <TableCell className="text-right space-x-2">
