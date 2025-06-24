@@ -116,24 +116,24 @@ export default function TimeTrackingCalendar({
   };
 
   // Funzione per ottenere le voci di un giorno specifico
+
+  const getDataKey = (day: number) => {
+    return `${currentDate.getFullYear()}-${
+      currentDate.getMonth() + 1 < 10
+        ? `0${currentDate.getMonth() + 1}`
+        : currentDate.getMonth() + 1
+    }-${day < 10 ? `0${day}` : day}`;
+  };
+
   const getEntriesForDay = (day: number) => {
-    const date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day,
-    );
-    const dateKey = date.toISOString().split("T")[0];
+    const dateKey = getDataKey(day);
+
     return entriesByDate[dateKey] || [];
   };
 
   // Funzione per ottenere il totale delle ore di un giorno specifico
   const getHoursForDay = (day: number) => {
-    const date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day,
-    );
-    const dateKey = date.toISOString().split("T")[0];
+    const dateKey = getDataKey(day);
     return hoursPerDay[dateKey] || 0;
   };
 
