@@ -47,12 +47,14 @@ export default function ProjectDetail({
   canDealProjects,
   project,
   allocations,
+  canSeeUsersTimesheets = false,
 }: Readonly<{
   id: string;
   canDealProjects?: boolean;
   canAllocateResources?: boolean;
   project: ProjectById;
   allocations: UserAllocated[];
+  canSeeUsersTimesheets?: boolean;
 }>) {
   const router = useRouter();
 
@@ -228,7 +230,16 @@ export default function ProjectDetail({
                     </TableRow>
                   ) : (
                     allocations?.map((entry) => (
-                      <TableRow key={`${entry.project_id}-${entry.user_id}`}>
+                      <TableRow
+                        key={`${entry.project_id}-${entry.user_id}`}
+                        onClick={() => {
+                          if (!canSeeUsersTimesheets) return;
+
+                          router.push(
+                            `/progetti/${id}/consuntivazione/${entry.user_id}`,
+                          );
+                        }}
+                      >
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Avatar className="h-6 w-6">
