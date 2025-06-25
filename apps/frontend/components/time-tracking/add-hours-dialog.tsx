@@ -1,7 +1,7 @@
 "use client";
 
-import { useTimesheetAddTimesheet } from "@/api/timesheet/useTimesheetAddTimesheet";
-import { useGetProjectsUser } from "@/api/useGetProjectsUser";
+import { fetchAllProjects } from "@/api/server/project/fetchAllProjects";
+import { addTimesheet } from "@/api/server/timesheet/addTimesheet";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useServerAction } from "@/hooks/useServerAction";
 import { timesheet, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
@@ -64,8 +65,12 @@ export default function AddHoursDialog({
   onClose,
   user,
 }: AddHoursDialogProps) {
-  const { projects } = useGetProjectsUser();
-  const { execute: addTimesheet } = useTimesheetAddTimesheet();
+  const [projects, fetchProjects] = useServerAction(fetchAllProjects);
+
+  useEffect(() => {
+    if (!open) return;
+    fetchProjects();
+  }, [fetchProjects, open]);
 
   const form = useForm<Partial<timesheet>>({
     defaultValues: {
@@ -173,7 +178,7 @@ export default function AddHoursDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {projects.map((project) => (
+                      {projects?.map((project) => (
                         <SelectItem key={project.id} value={project.id}>
                           {project.name}
                         </SelectItem>

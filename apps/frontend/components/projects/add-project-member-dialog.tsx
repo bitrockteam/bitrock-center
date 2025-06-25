@@ -9,9 +9,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { createAllocation } from "@/api/server/allocation/createAllocation";
+import { fetchProjectsUsersAvailable } from "@/api/server/allocation/fetchProjectsUsersAvailable";
 import { updateAllocation } from "@/api/server/allocation/updateAllocation";
-import { useGetProjectsUsersAvailable } from "@/api/useGetProjectsUsersAvailable";
-import { useGetUsers } from "@/api/useGetUsers";
+import { findUsers } from "@/api/server/user/findUsers";
+import { useServerAction } from "@/hooks/useServerAction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isBefore } from "date-fns";
 import { toast } from "sonner";
@@ -63,9 +64,10 @@ export function AddProjectMemberDialog({
     percentage?: number;
   };
 }>) {
-  const { users, refetch: fetchUsers } = useGetUsers();
-  const { users: usersAvailable, refetch: fetchUsersAvailable } =
-    useGetProjectsUsersAvailable(projectId);
+  const [users, fetchUsers] = useServerAction(findUsers);
+  const [usersAvailable, fetchUsersAvailable] = useServerAction(
+    fetchProjectsUsersAvailable,
+  );
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -97,7 +99,7 @@ export function AddProjectMemberDialog({
   useEffect(() => {
     if (open) {
       fetchUsers();
-      fetchUsersAvailable();
+      fetchUsersAvailable({ project_id: projectId });
     }
   }, [open, fetchUsers, fetchUsersAvailable, projectId]);
 

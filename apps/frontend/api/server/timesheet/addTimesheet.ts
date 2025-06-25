@@ -1,3 +1,4 @@
+"use server";
 import { db } from "@/config/prisma";
 import { timesheet } from "@bitrock/db";
 

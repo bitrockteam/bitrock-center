@@ -85,11 +85,13 @@ export default function UsersHeader({
         )}
       </div>
 
-      <AddUserDialog
-        open={showAddDialog}
-        onComplete={(isOpen) => setShowAddDialog(isOpen)}
-        user={user}
-      />
+      {showAddDialog && (
+        <AddUserDialog
+          open={showAddDialog}
+          onComplete={(isOpen) => setShowAddDialog(isOpen)}
+          user={user}
+        />
+      )}
     </motion.div>
   );
 }

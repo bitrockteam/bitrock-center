@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { PermitStatus, ProjectStatus } from "@bitrock/db";
+import { PermitStatus, ProjectStatus, Role } from "@bitrock/db";
 
 export const getStatusBadge = (status: PermitStatus) => {
   switch (status) {
@@ -30,5 +30,20 @@ export const getProjectStatusBadge = (status: ProjectStatus) => {
       );
     default:
       return <Badge variant="secondary">{status}</Badge>;
+  }
+};
+
+export const getRoleBadge = (role: Role) => {
+  switch (role) {
+    case Role.Super_Admin:
+      return <Badge className="bg-blue-900 text-white">Super Admin</Badge>;
+    case Role.Admin:
+      return <Badge className="bg-violet-700 text-white">Admin</Badge>;
+    case Role.Key_Client:
+      return <Badge className="bg-pink-500 text-white">Key Client</Badge>;
+    case Role.Manager:
+      return <Badge className="bg-purple-500 text-white">Manager</Badge>;
+    default:
+      return <Badge className="bg-blue-500 text-white">Employee</Badge>;
   }
 };

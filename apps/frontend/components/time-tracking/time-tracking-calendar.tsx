@@ -1,7 +1,7 @@
 "use client";
 
-import { useTimesheetGetUserTimesheet } from "@/api/timesheet/useTimesheetGetUserTimesheet";
-import { useGetProjectsUser } from "@/api/useGetProjectsUser";
+import { Project } from "@/api/server/project/fetchAllProjects";
+import { UserTimesheet } from "@/api/server/timesheet/fetchUserTimesheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,15 +30,20 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import AddHoursDialog from "./add-hours-dialog";
 
-export default function TimeTrackingCalendar({ user }: { user: user }) {
+export default function TimeTrackingCalendar({
+  user,
+  projects,
+  timesheets,
+}: {
+  user: user;
+  projects: Project[];
+  timesheets: UserTimesheet[];
+}) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedProject, setSelectedProject] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editEntry, setEditEntry] = useState<timesheet | null>(null);
-
-  const { projects } = useGetProjectsUser();
-  const { timesheets } = useTimesheetGetUserTimesheet();
 
   // Ottieni il primo giorno del mese
   const firstDayOfMonth = useMemo(() => {
@@ -111,24 +116,24 @@ export default function TimeTrackingCalendar({ user }: { user: user }) {
   };
 
   // Funzione per ottenere le voci di un giorno specifico
+
+  const getDataKey = (day: number) => {
+    return `${currentDate.getFullYear()}-${
+      currentDate.getMonth() + 1 < 10
+        ? `0${currentDate.getMonth() + 1}`
+        : currentDate.getMonth() + 1
+    }-${day < 10 ? `0${day}` : day}`;
+  };
+
   const getEntriesForDay = (day: number) => {
-    const date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day,
-    );
-    const dateKey = date.toISOString().split("T")[0];
+    const dateKey = getDataKey(day);
+
     return entriesByDate[dateKey] || [];
   };
 
   // Funzione per ottenere il totale delle ore di un giorno specifico
   const getHoursForDay = (day: number) => {
-    const date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day,
-    );
-    const dateKey = date.toISOString().split("T")[0];
+    const dateKey = getDataKey(day);
     return hoursPerDay[dateKey] || 0;
   };
 
