@@ -77,15 +77,13 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
       });
     } else {
       if (endDate && endDate > startDate) {
-        const startDay = new Date(startDate);
-        const endDay = new Date(endDate);
         const days = Math.ceil(
-          (endDay.getTime() - startDay.getTime()) / (1000 * 3600 * 24),
+          (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24),
         );
 
-        for (let i = 0; i <= days; i++) {
-          const currentDate = new Date(startDay);
-          currentDate.setDate(startDay.getDate() + i);
+        for (let i = 1; i <= days + 1; i++) {
+          const currentDate = new Date(startDate);
+          currentDate.setDate(startDate.getDate() + i);
           permits.push({
             type: data.type as PermitType,
             date: currentDate,
