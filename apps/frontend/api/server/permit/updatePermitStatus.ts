@@ -15,5 +15,3 @@ export async function updatePermitStatus(id: string, status: PermitStatus) {
     },
   });
 }
-
-export type UserTimesheet = Awaited<ReturnType<typeof updatePermitStatus>>;

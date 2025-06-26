@@ -32,5 +32,3 @@ export async function createUserPermits(
     },
   });
 }
-
-export type UserTimesheet = Awaited<ReturnType<typeof createUserPermits>>;

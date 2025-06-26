@@ -1,6 +1,9 @@
 "use client";
 
-import { createUserPermits } from "@/api/server/permit/createUserPermits";
+import {
+  CreateBulkPermitDTO,
+  createBulkPermits,
+} from "@/api/server/permit/createBulkPermits";
 import { fetchUserReviewers } from "@/api/server/permit/fetchUserReviewers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,17 +60,51 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
     },
   });
 
+  const prepareMultiplePermits = (
+    data: PermitFormValues,
+  ): CreateBulkPermitDTO => {
+    const permits: CreateBulkPermitDTO = [];
+    const startDate = new Date(data.startDate);
+    const endDate = data.endDate ? new Date(data.endDate) : null;
+
+    if (data.type === PermitType.PERMISSION) {
+      permits.push({
+        type: data.type as PermitType,
+        date: startDate,
+        duration: parseFloat(data.duration),
+        description: data.description,
+        reviewer_id: data.reviewerId,
+      });
+    } else {
+      if (endDate && endDate > startDate) {
+        const startDay = new Date(startDate);
+        const endDay = new Date(endDate);
+        const days = Math.ceil(
+          (endDay.getTime() - startDay.getTime()) / (1000 * 3600 * 24),
+        );
+
+        for (let i = 0; i <= days; i++) {
+          const currentDate = new Date(startDay);
+          currentDate.setDate(startDay.getDate() + i);
+          permits.push({
+            type: data.type as PermitType,
+            date: currentDate,
+            duration: 8, // Default duration for non-permission types
+            description: data.description,
+            reviewer_id: data.reviewerId,
+          });
+        }
+      }
+    }
+
+    return permits;
+  };
+
   const onSubmit = (data: PermitFormValues) => {
     setErrorMessage("");
 
-    createUserPermits({
-      type: data.type as PermitType,
-      date: data.startDate,
-      duration:
-        data.type === PermitType.PERMISSION ? parseFloat(data.duration) : 8,
-      description: data.description,
-      reviewer_id: data.reviewerId,
-    })
+    const permits = prepareMultiplePermits(data);
+    createBulkPermits(permits)
       .then((result) => {
         if (result) {
           form.reset();
