@@ -5,6 +5,10 @@ import {
 } from "../ai/geminiClient";
 import { supabase } from "../config/supabase";
 import { authenticateToken } from "../middleware/authMiddleware";
+import {
+  extractInfoFromToken,
+  getUserIdFromEmail,
+} from "../middleware/extractInfoFromToken";
 
 export const createAiController = (app: Express) => {
   app.post(
@@ -16,8 +20,14 @@ export const createAiController = (app: Express) => {
       console.log("🔍 AI Search Request:", question);
 
       try {
+        const user = await extractInfoFromToken(req);
+        if (!user) return res.status(403).json({ error: "Unauthorized" });
+
+        const userFromEmail = await getUserIdFromEmail(user.email);
+        if (!userFromEmail) return res.status(403).send("Unauthorized");
+
         // 1. Query Ollama locally
-        const sql = await generateSQLFromQuestion(question);
+        const sql = await generateSQLFromQuestion(question, userFromEmail);
 
         // Optional logging
         console.log("🧠 Generated SQL:", sql);

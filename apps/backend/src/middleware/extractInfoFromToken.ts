@@ -22,6 +22,5 @@ export const getUserIdFromEmail = async (email?: string) => {
   if (!email) return null;
   return db.user.findFirst({
     where: { email },
-    select: { id: true },
   });
 };

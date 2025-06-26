@@ -1,14 +1,15 @@
 // ai/geminiClient.ts
+import { user } from "@bitrock/db";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NATURAL_LANGUAGE_PROMPT, SYSTEM_PROMPT } from "./prompt";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-export async function generateSQLFromQuestion(question: string) {
+export async function generateSQLFromQuestion(question: string, user: user) {
   const result = await model.generateContent([
     {
-      text: SYSTEM_PROMPT,
+      text: SYSTEM_PROMPT(user),
     },
     { text: `Question: ${question}` },
   ]);
