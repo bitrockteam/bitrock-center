@@ -21,6 +21,7 @@ import {
   Briefcase,
   Calendar,
   Clock,
+  HandMetal,
   LogOut,
   Menu,
   Settings,
@@ -57,6 +58,11 @@ const navItems = [
     title: "Utenti",
     href: "/utenti",
     icon: Users,
+  },
+  {
+    title: "Team",
+    href: "/team",
+    icon: HandMetal,
   },
   {
     title: "AI Assistant",

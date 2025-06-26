@@ -40,6 +40,7 @@ export default async function UserTimesheet({
             user={user}
             projects={projects}
             timesheets={userTimesheet}
+            isReadOnly
           />
         </TabsContent>
         <TabsContent value="calendar">
@@ -47,6 +48,7 @@ export default async function UserTimesheet({
             user={user}
             projects={projects}
             timesheets={userTimesheet}
+            isReadyOnly
           />
         </TabsContent>
       </Tabs>
