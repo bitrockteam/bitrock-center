@@ -19,12 +19,12 @@ export function TeamMemberCard({ teamMember }: { teamMember?: FetchMyTeam }) {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 2 }}
+        transition={{ duration: 1 }}
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0"
       >
         <Card className="h-full min-w-2xs max-w-sm flex flex-col justify-center">
           <CardFooter className="flex-col items-center gap-4">
-            <p className="text-muted">Aggiungi membro</p>
+            <p>Aggiungi membro</p>
             <Button type="submit" className="w-full" variant="secondary">
               <PlusIcon />
             </Button>
