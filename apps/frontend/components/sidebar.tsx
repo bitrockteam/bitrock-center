@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import {
   BarChart3,
   Bot,
+  Brain,
   Briefcase,
   Calendar,
   Clock,
@@ -58,6 +59,11 @@ const navItems = [
     title: "Utenti",
     href: "/utenti",
     icon: Users,
+  },
+  {
+    title: "Skills",
+    href: "/skills",
+    icon: Brain,
   },
   {
     title: "Team",
