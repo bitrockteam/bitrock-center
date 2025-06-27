@@ -26,9 +26,12 @@ import {
 } from "../ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { addUserToTeam } from "@/api/server/user/addUserToTeam";
+import { toast } from "sonner";
 
 export function AddDialogMemberTeam() {
   const [users, fetchUsers] = useServerAction(findUsers);
+  const [open, setOpen] = useState(false);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const form = useForm({
@@ -37,12 +40,24 @@ export function AddDialogMemberTeam() {
     },
   });
 
+  const onSubmit = () => {
+    addUserToTeam(form.getValues("user_id"))
+      .then(() => {
+        setOpen(false);
+        form.reset();
+        toast.success("Membro aggiunto al team con successo");
+      })
+      .catch(() => {
+        toast.error(`Errore nell'aggiunta del membro`);
+      });
+  };
+
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="submit" className="w-full" variant="secondary">
           <PlusIcon />
@@ -53,7 +68,7 @@ export function AddDialogMemberTeam() {
           <DialogTitle>Aggiungi nuovo membro al team</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form>
+          <form onSubmit={onSubmit}>
             <div className="flex flex-col gap-4">
               <FormField
                 control={form.control}
@@ -122,7 +137,11 @@ export function AddDialogMemberTeam() {
                 )}
               />
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => {}}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
                   Annulla
                 </Button>
                 <motion.div
