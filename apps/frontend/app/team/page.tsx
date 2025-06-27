@@ -1,6 +1,7 @@
-import { fetchMyTeam } from "@/api/server/user/fetchMyTeam";
-import { fetchTeam } from "@/api/server/user/fetchTeam";
+import { fetchTeam } from "@/api/server/user/fetchMyTeam";
+import { fetchMyTeam } from "@/api/server/user/fetchTeam";
 import { TeamMemberContainer } from "@/components/team/team-member-container";
+import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,13 +10,15 @@ export const metadata: Metadata = {
 };
 
 export default async function Team() {
-  const myTeam = await fetchMyTeam();
+  const user = await getUserInfoFromCookie();
   const team = await fetchTeam();
+  const myTeam = await fetchMyTeam();
   return (
     <TeamMemberContainer
       myTeam={myTeam}
       team={team}
-      isOwner={myTeam.length > 0}
+      isOwner={team.length > 0}
+      user={user}
     />
   );
 }

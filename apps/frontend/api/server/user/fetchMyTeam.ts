@@ -1,7 +1,7 @@
 import { db } from "@/config/prisma";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
-export async function fetchMyTeam() {
+export async function fetchTeam() {
   const userInfo = await getUserInfoFromCookie();
 
   return await db.user.findMany({
@@ -11,4 +11,4 @@ export async function fetchMyTeam() {
   });
 }
 
-export type FetchMyTeam = Awaited<ReturnType<typeof fetchMyTeam>>[number];
+export type FetchTeam = Awaited<ReturnType<typeof fetchTeam>>[number];

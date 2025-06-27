@@ -1,18 +1,21 @@
 "use client";
-import { FetchMyTeam } from "@/api/server/user/fetchMyTeam";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { TeamMemberCard } from "./team-member-card";
-import { FetchTeam } from "@/api/server/user/fetchTeam";
+import { FetchMyTeam } from "@/api/server/user/fetchTeam";
+import { FetchTeam } from "@/api/server/user/fetchMyTeam";
+import { user } from "@bitrock/db";
 
 export function TeamMemberContainer({
   myTeam,
   team,
   isOwner = true,
+  user,
 }: {
-  myTeam: FetchMyTeam[];
-  team: FetchTeam;
+  myTeam: FetchMyTeam;
+  team: FetchTeam[];
   isOwner?: boolean;
+  user: user;
 }) {
   return (
     <motion.div
@@ -25,31 +28,34 @@ export function TeamMemberContainer({
         <h1 className="text-3xl font-bold tracking-tight">Team </h1>
         <p className="text-muted-foreground">Gestisci il tuo team</p>
       </div>
-      <Tabs defaultValue={`${isOwner ? "my-team" : "team-member"}`}>
+      <Tabs defaultValue={`${isOwner ? "team-member" : "my-team"}`}>
         <TabsList className="mb-6">
           {isOwner && (
-            <TabsTrigger className="w-2xs" value="my-team">
-              My Team
+            <TabsTrigger className="w-2xs" value="team-member">
+              {user.name}&apos;s Team
             </TabsTrigger>
           )}
-          <TabsTrigger className="w-2xs" value="team-member">
-            {team.referent?.name}&apos;s Team
+          <TabsTrigger className="w-2xs" value="my-team">
+            My Team
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="my-team">
+        <TabsContent value="team-member">
           <div className="flex flex-wrap gap-4">
-            {myTeam.map((member) => (
+            {team.map((member) => (
               <TeamMemberCard key={member.id} teamMember={member} />
             ))}
             <TeamMemberCard />
           </div>
         </TabsContent>
-        <TabsContent value="team-member">
-          <div className="flex flex-wrap gap-4">
-            {team.members.map((member) => (
-              <TeamMemberCard key={member.id} teamMember={member} />
-            ))}
+        <TabsContent value="my-team">
+          <div className="flex flex-col space-y-4">
+            <p>Referente: {myTeam.referent?.name}</p>
+            <div className="flex flex-wrap gap-4">
+              {myTeam.members.map((member) => (
+                <TeamMemberCard key={member.id} teamMember={member} />
+              ))}
+            </div>
           </div>
         </TabsContent>
       </Tabs>
