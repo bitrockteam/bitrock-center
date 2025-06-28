@@ -2,6 +2,7 @@ import { FetchTeam } from "@/api/server/user/fetchMyTeam";
 import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
+import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   Card,
@@ -38,7 +39,7 @@ export function TeamMemberCard({ teamMember }: { teamMember?: FetchTeam }) {
       transition={{ duration: 0.5 }}
       className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0"
     >
-      <>
+      <Link href={`/utenti/${teamMember.id}`} className="w-full">
         <Card className="min-w-2xs max-w-sm flex flex-col gap-4 h-fit">
           <CardHeader className="gap-4">
             <CardTitle className="flex flex-row items-center gap-4">
@@ -65,7 +66,7 @@ export function TeamMemberCard({ teamMember }: { teamMember?: FetchTeam }) {
             </div>
           </CardContent>
         </Card>
-      </>
+      </Link>
     </motion.div>
   );
 }
