@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getTimeEntriesByUser } from "@/lib/mock-data";
 import { formatDisplayName } from "@/services/users/utils";
 import { project, user } from "@bitrock/db";
 import { motion } from "framer-motion";
@@ -33,8 +32,6 @@ export default function UserDetail({
 
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const timeEntries = getTimeEntriesByUser(id);
-
   if (!userById) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh]">
@@ -49,9 +46,6 @@ export default function UserDetail({
       </div>
     );
   }
-
-  // Calcola il totale delle ore lavorate
-  const totalHours = timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
 
   return (
     <motion.div
@@ -144,7 +138,8 @@ export default function UserDetail({
               <div className="space-y-1">
                 <p className="text-sm font-medium">Ore Totali:</p>
                 <p className="text-sm text-muted-foreground flex items-center">
-                  <Clock className="mr-1 h-3 w-3" /> {totalHours} ore
+                  {/* TODO: add back worked hours here */}
+                  <Clock className="mr-1 h-3 w-3" /> {"-"} ore
                 </p>
               </div>
               <div className="space-y-1">

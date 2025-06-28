@@ -1,5 +1,7 @@
 "use client";
 
+import { createNewDevelopmentPlan } from "@/api/server/development-plan/createNewDevelopmentPlan";
+import { GetEmployeeDevelopmentPlan } from "@/api/server/development-plan/getEmployeeDevelopmentPlans.ts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,15 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { getUserById } from "@/lib/mock-data";
-import {
-  createNewDevelopmentPlan,
-  getGoalProgress,
-  getGoalStatus,
-  getLatestDevelopmentPlan,
-  getPlanProgress,
-  getPreviousDevelopmentPlans,
-} from "@/lib/mock-development-plan-data";
+import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -31,16 +25,19 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { GetDevelopmentPlan } from "../../api/server/development-plan/getDevelopmentPlanById";
+import { getGoalProgress, getGoalStatus, getPlanProgress } from "./utils";
 
 export default function DevelopmentPlanOverview({
-  userId,
+  user,
+  latestPlan,
+  previousPlans,
 }: {
-  userId: string;
+  user: GetEmployeeDevelopmentPlan["user"] | undefined;
+  latestPlan: GetDevelopmentPlan | null;
+  previousPlans: GetDevelopmentPlan[];
 }) {
   const router = useRouter();
-  const user = getUserById();
-  const latestPlan = getLatestDevelopmentPlan(userId);
-  const previousPlans = getPreviousDevelopmentPlans(userId);
 
   const [isCreating, setIsCreating] = useState(false);
 
@@ -59,10 +56,10 @@ export default function DevelopmentPlanOverview({
     );
   }
 
-  const handleCreateNewPlan = () => {
+  const handleCreateNewPlan = async () => {
     setIsCreating(true);
-    const newPlan = createNewDevelopmentPlan(userId);
-    router.push(`/utenti/${userId}/development-plan/${newPlan.id}`);
+    const newPlan = await createNewDevelopmentPlan(user.id);
+    router.push(`/utenti/${user.id}/development-plan/${newPlan.id}`);
   };
 
   return (
@@ -77,7 +74,7 @@ export default function DevelopmentPlanOverview({
           <Button
             variant="outline"
             size="icon"
-            onClick={() => router.push(`/utenti/${userId}`)}
+            onClick={() => router.push(`/utenti/${user.id}`)}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -86,7 +83,7 @@ export default function DevelopmentPlanOverview({
               Piano di Sviluppo
             </h1>
             <p className="text-muted-foreground">
-              {user.name} {user.surname} - {user.role}
+              {user.name} - {getRoleBadge(user.role)}
             </p>
           </div>
         </div>
@@ -114,7 +111,7 @@ export default function DevelopmentPlanOverview({
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
                       Creato il{" "}
-                      {new Date(latestPlan.createdDate).toLocaleDateString(
+                      {new Date(latestPlan.created_date).toLocaleDateString(
                         "it-IT",
                       )}
                     </span>
@@ -122,7 +119,7 @@ export default function DevelopmentPlanOverview({
                   <div className="flex items-center space-x-2">
                     <Target className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                      {latestPlan.goals.length} obiettivi
+                      {latestPlan.goal.length} obiettivi
                     </span>
                   </div>
                 </div>
@@ -130,7 +127,7 @@ export default function DevelopmentPlanOverview({
                   variant="outline"
                   onClick={() =>
                     router.push(
-                      `/utenti/${userId}/development-plan/${latestPlan.id}`,
+                      `/utenti/${user.id}/development-plan/${latestPlan.id}`,
                     )
                   }
                 >
@@ -140,7 +137,7 @@ export default function DevelopmentPlanOverview({
               </div>
 
               <div className="space-y-4">
-                {latestPlan.goals.slice(0, 5).map((goal, index) => {
+                {latestPlan.goal.slice(0, 5).map((goal, index) => {
                   const status = getGoalStatus(goal);
                   const progress = getGoalProgress(goal);
                   const progressPercentage =
@@ -194,7 +191,7 @@ export default function DevelopmentPlanOverview({
                       </div>
 
                       <div className="mt-3 space-y-1">
-                        {goal.todos.map((todo) => (
+                        {goal.todo_item.map((todo) => (
                           <div
                             key={todo.id}
                             className="flex items-center space-x-2 text-sm"
@@ -274,12 +271,12 @@ export default function DevelopmentPlanOverview({
                       <div className="flex items-center space-x-4 mb-2">
                         <span className="font-medium">
                           Piano del{" "}
-                          {new Date(plan.createdDate).toLocaleDateString(
+                          {new Date(plan.created_date).toLocaleDateString(
                             "it-IT",
                           )}
                         </span>
                         <Badge variant="outline">
-                          {plan.goals.length} obiettivi
+                          {plan.goal.length} obiettivi
                         </Badge>
                       </div>
                       <div className="space-y-2">
@@ -300,7 +297,7 @@ export default function DevelopmentPlanOverview({
                       className="ml-4 bg-transparent"
                       onClick={() =>
                         router.push(
-                          `/utenti/${userId}/development-plan/${plan.id}`,
+                          `/utenti/${user.id}/development-plan/${plan.id}`,
                         )
                       }
                     >

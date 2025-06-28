@@ -1,5 +1,6 @@
 "use client";
 
+import { addTodoGoal } from "@/api/server/development-plan/addTodoGoal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,25 +32,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { getUserById } from "@/lib/mock-data";
-import {
-  addGoal,
-  getDevelopmentPlanById,
-  getGoalProgress,
-  getGoalStatus,
-  getLatestDevelopmentPlan,
-  removeGoal,
-  updateGoal,
-  updateTodoStatus,
-  type Goal,
-  type TodoItem,
-} from "@/lib/mock-development-plan-data";
+import { getGoalBadge } from "@/utils/mapping";
+import { todo_item } from "@bitrock/db";
 import { motion } from "framer-motion";
 import {
   AlertCircle,
   ArrowLeft,
-  CheckCircle2,
-  Clock,
   Edit,
   Plus,
   Save,
@@ -59,28 +47,34 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { addGoal } from "../../api/server/development-plan/addGoal";
+import { GetDevelopmentPlan } from "../../api/server/development-plan/getDevelopmentPlanById";
+import { removeGoal } from "../../api/server/development-plan/removeGoal";
+import { updateGoal } from "../../api/server/development-plan/updateGoal";
+import { updateTodoStatus } from "../../api/server/development-plan/updateTodoStatus";
+import { getGoalProgress, getGoalStatus } from "./utils";
 
 export default function DevelopmentPlanDetail({
-  userId,
-  planId,
+  user,
+  plan,
+  isLatestPlan,
 }: {
-  userId: string;
-  planId: string;
+  user: GetDevelopmentPlan["user"];
+  plan: GetDevelopmentPlan;
+  isLatestPlan: boolean;
 }) {
   const router = useRouter();
-  const user = getUserById();
-  const plan = getDevelopmentPlanById(planId);
-  const latestPlan = getLatestDevelopmentPlan(userId);
-  const isLatestPlan = plan?.id === latestPlan?.id;
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [editingGoal, setEditingGoal] = useState<
+    GetDevelopmentPlan["goal"][number] | null
+  >(null);
   const [showAddGoalDialog, setShowAddGoalDialog] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState<string | null>(null);
   const [newGoal, setNewGoal] = useState({
     title: "",
     description: "",
-    todos: [] as TodoItem[],
+    todos: [] as Omit<todo_item, "goal_id">[],
   });
   const [newTodo, setNewTodo] = useState("");
 
@@ -92,7 +86,7 @@ export default function DevelopmentPlanDetail({
           Il piano di sviluppo richiesto non esiste.
         </p>
         <Button
-          onClick={() => router.push(`/utenti/${userId}/development-plan`)}
+          onClick={() => router.push(`/utenti/${user.id}/development-plan`)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Torna ai Piani
@@ -101,41 +95,44 @@ export default function DevelopmentPlanDetail({
     );
   }
 
-  const handleTodoToggle = (
+  const handleTodoToggle = async (
     goalId: string,
     todoId: string,
     completed: boolean,
   ) => {
     if (!isLatestPlan) return;
-    updateTodoStatus(planId, goalId, todoId, completed);
-    // Force re-render
-    window.location.reload();
+    await updateTodoStatus(goalId, todoId, completed);
+    router.refresh();
   };
 
-  const handleSaveGoal = () => {
+  const handleSaveGoal = async () => {
     if (!editingGoal) return;
-    updateGoal(planId, editingGoal.id, editingGoal);
+    await updateGoal(editingGoal);
     setEditingGoal(null);
-    window.location.reload();
+    router.refresh();
   };
 
-  const handleAddGoal = () => {
+  const handleAddGoal = async () => {
     if (!newGoal.title.trim()) return;
-    addGoal(planId, newGoal);
+    await addGoal(plan.id, {
+      title: newGoal.title,
+      description: newGoal.description,
+      development_plan_id: plan.id,
+    });
     setNewGoal({ title: "", description: "", todos: [] });
     setShowAddGoalDialog(false);
     window.location.reload();
   };
 
-  const handleDeleteGoal = (goalId: string) => {
-    removeGoal(planId, goalId);
+  const handleDeleteGoal = async (goalId: string) => {
+    await removeGoal(goalId);
     setGoalToDelete(null);
-    window.location.reload();
+    router.refresh();
   };
 
   const addTodoToNewGoal = () => {
     if (!newTodo.trim()) return;
-    const todo: TodoItem = {
+    const todo: Omit<todo_item, "goal_id"> = {
       id: `todo-${Date.now()}`,
       text: newTodo,
       completed: false,
@@ -151,6 +148,15 @@ export default function DevelopmentPlanDetail({
     }));
   };
 
+  const addTodoToEditingGoal = async () => {
+    if (!editingGoal) return;
+    await addTodoGoal(editingGoal.id, {
+      text: newTodo,
+      completed: false,
+    });
+    setNewTodo("");
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -163,7 +169,7 @@ export default function DevelopmentPlanDetail({
           <Button
             variant="outline"
             size="icon"
-            onClick={() => router.push(`/utenti/${userId}/development-plan`)}
+            onClick={() => router.push(`/utenti/${user.id}/development-plan`)}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -172,8 +178,8 @@ export default function DevelopmentPlanDetail({
               Piano di Sviluppo
             </h1>
             <p className="text-muted-foreground">
-              {user.name} {user.surname} -{" "}
-              {new Date(plan.createdDate).toLocaleDateString("it-IT")}
+              {user.name} -{" "}
+              {new Date(plan.created_date).toLocaleDateString("it-IT")}
             </p>
             <div className="flex items-center space-x-2 mt-1">
               {isLatestPlan ? (
@@ -182,7 +188,7 @@ export default function DevelopmentPlanDetail({
                 <Badge variant="outline">Piano Precedente</Badge>
               )}
               <span className="text-sm text-muted-foreground">
-                {plan.goals.length} obiettivi
+                {plan.goal.length} obiettivi
               </span>
             </div>
           </div>
@@ -231,7 +237,7 @@ export default function DevelopmentPlanDetail({
       )}
 
       <div className="space-y-6">
-        {plan.goals.length === 0 ? (
+        {plan.goal.length === 0 ? (
           <Card>
             <CardContent className="pt-6">
               <div className="text-center py-8">
@@ -252,7 +258,7 @@ export default function DevelopmentPlanDetail({
             </CardContent>
           </Card>
         ) : (
-          plan.goals.map((goal, index) => {
+          plan.goal.map((goal, index) => {
             const status = getGoalStatus(goal);
             const progress = getGoalProgress(goal);
             const progressPercentage =
@@ -304,23 +310,7 @@ export default function DevelopmentPlanDetail({
                         )}
                       </div>
                       <div className="flex items-center space-x-2 ml-4">
-                        <Badge
-                          variant={
-                            status === "completed" ? "default" : "secondary"
-                          }
-                        >
-                          {status === "completed" ? (
-                            <>
-                              <CheckCircle2 className="mr-1 h-3 w-3" />
-                              Completato
-                            </>
-                          ) : (
-                            <>
-                              <Clock className="mr-1 h-3 w-3" />
-                              In Corso
-                            </>
-                          )}
-                        </Badge>
+                        {getGoalBadge(status)}
                         {isLatestPlan && isEditing && (
                           <div className="flex space-x-1">
                             {isEditingThisGoal ? (
@@ -365,22 +355,48 @@ export default function DevelopmentPlanDetail({
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            Progresso
-                          </span>
-                          <span className="font-medium">
-                            {progress.completed}/{progress.total} attività
-                          </span>
+                      {status !== "not-started" && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Progresso
+                            </span>
+                            <span className="font-medium">
+                              {progress.completed}/{progress.total} attività
+                            </span>
+                          </div>
+                          <Progress
+                            value={progressPercentage}
+                            className="h-2"
+                          />
                         </div>
-                        <Progress value={progressPercentage} className="h-2" />
-                      </div>
+                      )}
 
                       <div className="space-y-3">
-                        <h4 className="font-medium">Attività</h4>
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Attività</h4>
+                          {/* aggiungi attività */}
+                          {isLatestPlan && isEditingThisGoal ? (
+                            <div className="flex space-x-2">
+                              <Input
+                                value={newTodo}
+                                onChange={(e) => setNewTodo(e.target.value)}
+                                placeholder="Aggiungi un'attività"
+                                onKeyPress={(e) =>
+                                  e.key === "Enter" && addTodoToEditingGoal()
+                                }
+                              />
+                              <Button
+                                onClick={addTodoToEditingGoal}
+                                disabled={!newTodo.trim()}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : null}
+                        </div>
                         <div className="space-y-2">
-                          {goal.todos.map((todo) => (
+                          {goal.todo_item.map((todo) => (
                             <div
                               key={todo.id}
                               className="flex items-center space-x-3"
