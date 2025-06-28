@@ -20,13 +20,17 @@ export const getGoalStatus = (goal: GetDevelopmentPlan["goal"][number]) => {
 
 export const getPlanProgress = (
   plan: GetDevelopmentPlan,
-): { completed: number; total: number } => {
+): { completed: number; total: number; percentage: number } => {
   if (!plan.goal || plan.goal.length === 0) {
-    return { completed: 0, total: 0 };
+    return { completed: 0, total: 0, percentage: 0 };
   }
   const completedGoals = plan.goal.filter(
     (goal) => getGoalStatus(goal) === "completed",
   ).length;
   const totalGoals = plan.goal.length;
-  return { completed: completedGoals, total: totalGoals };
+  return {
+    completed: completedGoals,
+    total: totalGoals,
+    percentage: totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0,
+  };
 };

@@ -1,76 +1,110 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
-import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Search, Filter, X, Eye } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  getActiveSkillsCatalog,
   getEmployeesWithSkills,
-  getSkillsCatalog,
-  getSkillById,
-  getSeniorityLevelLabel,
   getSeniorityLevelColor,
+  getSeniorityLevelLabel,
+  getSkillById,
   type SeniorityLevel,
-} from "@/lib/mock-skills-data"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+} from "@/lib/mock-skills-data";
+import { motion } from "framer-motion";
+import { Eye, Filter, Search, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
 export default function EmployeesSkillsList() {
-  const router = useRouter()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
-  const [selectedSeniorityLevels, setSelectedSeniorityLevels] = useState<SeniorityLevel[]>([])
-  const [showFilters, setShowFilters] = useState(false)
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedSeniorityLevels, setSelectedSeniorityLevels] = useState<
+    SeniorityLevel[]
+  >([]);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const employees = getEmployeesWithSkills()
-  const skillsCatalog = getSkillsCatalog()
+  const employees = getEmployeesWithSkills();
+  const skillsCatalog = getActiveSkillsCatalog(); // Solo skills attive
 
   // Filtra i dipendenti in base ai criteri
   const filteredEmployees = useMemo(() => {
     return employees.filter((employee) => {
       // Filtro per nome
-      const nameMatch = `${employee.name} ${employee.surname}`.toLowerCase().includes(searchTerm.toLowerCase())
+      const nameMatch = `${employee.name} ${employee.surname}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
-      // Filtro per competenze
+      // Filtro per competenze (solo skills attive)
       const skillsMatch =
         selectedSkills.length === 0 ||
-        selectedSkills.every((skillId) => employee.skills.some((empSkill) => empSkill.skillId === skillId))
+        selectedSkills.every((skillId) =>
+          employee.skills.some((empSkill) => {
+            const skill = getSkillById(empSkill.skillId);
+            return empSkill.skillId === skillId && skill?.active;
+          }),
+        );
 
       // Filtro per livello di seniority
       const seniorityMatch =
         selectedSeniorityLevels.length === 0 ||
-        employee.skills.some((empSkill) => selectedSeniorityLevels.includes(empSkill.seniorityLevel))
+        employee.skills.some((empSkill) => {
+          const skill = getSkillById(empSkill.skillId);
+          return (
+            skill?.active &&
+            selectedSeniorityLevels.includes(empSkill.seniorityLevel)
+          );
+        });
 
-      return nameMatch && skillsMatch && seniorityMatch
-    })
-  }, [employees, searchTerm, selectedSkills, selectedSeniorityLevels])
+      return nameMatch && skillsMatch && seniorityMatch;
+    });
+  }, [employees, searchTerm, selectedSkills, selectedSeniorityLevels]);
 
   const handleSkillToggle = (skillId: string) => {
-    setSelectedSkills((prev) => (prev.includes(skillId) ? prev.filter((id) => id !== skillId) : [...prev, skillId]))
-  }
+    setSelectedSkills((prev) =>
+      prev.includes(skillId)
+        ? prev.filter((id) => id !== skillId)
+        : [...prev, skillId],
+    );
+  };
 
   const handleSeniorityToggle = (level: SeniorityLevel) => {
-    setSelectedSeniorityLevels((prev) => (prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]))
-  }
+    setSelectedSeniorityLevels((prev) =>
+      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level],
+    );
+  };
 
   const clearFilters = () => {
-    setSelectedSkills([])
-    setSelectedSeniorityLevels([])
-    setSearchTerm("")
-  }
+    setSelectedSkills([]);
+    setSelectedSeniorityLevels([]);
+    setSearchTerm("");
+  };
 
-  const hasActiveFilters = selectedSkills.length > 0 || selectedSeniorityLevels.length > 0 || searchTerm
+  const hasActiveFilters =
+    selectedSkills.length > 0 ||
+    selectedSeniorityLevels.length > 0 ||
+    searchTerm;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
+      transition={{ duration: 0.5, delay: 0.3 }}
     >
       <Card>
         <CardHeader>
@@ -101,7 +135,9 @@ export default function EmployeesSkillsList() {
                   <Button variant="outline" className="relative bg-transparent">
                     <Filter className="mr-2 h-4 w-4" />
                     Filtri
-                    {hasActiveFilters && <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-primary" />}
+                    {hasActiveFilters && (
+                      <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-primary" />
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80" align="end">
@@ -109,7 +145,11 @@ export default function EmployeesSkillsList() {
                     <div className="flex items-center justify-between">
                       <h4 className="font-medium">Filtri</h4>
                       {hasActiveFilters && (
-                        <Button variant="ghost" size="sm" onClick={clearFilters}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={clearFilters}
+                        >
                           <X className="mr-1 h-3 w-3" />
                           Pulisci
                         </Button>
@@ -121,13 +161,22 @@ export default function EmployeesSkillsList() {
                       <label className="text-sm font-medium">Competenze</label>
                       <div className="mt-2 max-h-40 overflow-y-auto space-y-2">
                         {skillsCatalog.map((skill) => (
-                          <div key={skill.id} className="flex items-center space-x-2">
+                          <div
+                            key={skill.id}
+                            className="flex items-center space-x-2"
+                          >
                             <Checkbox
                               id={skill.id}
                               checked={selectedSkills.includes(skill.id)}
-                              onCheckedChange={() => handleSkillToggle(skill.id)}
+                              onCheckedChange={() =>
+                                handleSkillToggle(skill.id)
+                              }
                             />
-                            <label htmlFor={skill.id} className="text-sm font-normal cursor-pointer flex-1">
+                            <label
+                              htmlFor={skill.id}
+                              className="text-sm font-normal cursor-pointer flex-1 flex items-center gap-2"
+                            >
+                              <skill.icon className="h-3 w-3" />
                               {skill.name}
                             </label>
                             <Badge variant="outline" className="text-xs">
@@ -140,16 +189,28 @@ export default function EmployeesSkillsList() {
 
                     {/* Filtro per livello di seniority */}
                     <div>
-                      <label className="text-sm font-medium">Livello di Seniority</label>
+                      <label className="text-sm font-medium">
+                        Livello di Seniority
+                      </label>
                       <div className="mt-2 space-y-2">
-                        {(["junior", "middle", "senior"] as SeniorityLevel[]).map((level) => (
-                          <div key={level} className="flex items-center space-x-2">
+                        {(
+                          ["junior", "middle", "senior"] as SeniorityLevel[]
+                        ).map((level) => (
+                          <div
+                            key={level}
+                            className="flex items-center space-x-2"
+                          >
                             <Checkbox
                               id={level}
                               checked={selectedSeniorityLevels.includes(level)}
-                              onCheckedChange={() => handleSeniorityToggle(level)}
+                              onCheckedChange={() =>
+                                handleSeniorityToggle(level)
+                              }
                             />
-                            <label htmlFor={level} className="text-sm font-normal cursor-pointer flex-1">
+                            <label
+                              htmlFor={level}
+                              className="text-sm font-normal cursor-pointer flex-1"
+                            >
                               {getSeniorityLevelLabel(level)}
                             </label>
                           </div>
@@ -166,20 +227,31 @@ export default function EmployeesSkillsList() {
           {hasActiveFilters && (
             <div className="flex flex-wrap gap-2">
               {selectedSkills.map((skillId) => {
-                const skill = getSkillById(skillId)
+                const skill = getSkillById(skillId);
                 return skill ? (
-                  <Badge key={skillId} variant="secondary" className="text-xs">
+                  <Badge
+                    key={skillId}
+                    variant="secondary"
+                    className="text-xs flex items-center gap-1"
+                  >
+                    <skill.icon className="h-3 w-3" />
                     {skill.name}
-                    <button onClick={() => handleSkillToggle(skillId)} className="ml-1 hover:bg-muted rounded-full">
+                    <button
+                      onClick={() => handleSkillToggle(skillId)}
+                      className="ml-1 hover:bg-muted rounded-full"
+                    >
                       <X className="h-3 w-3" />
                     </button>
                   </Badge>
-                ) : null
+                ) : null;
               })}
               {selectedSeniorityLevels.map((level) => (
                 <Badge key={level} variant="secondary" className="text-xs">
                   {getSeniorityLevelLabel(level)}
-                  <button onClick={() => handleSeniorityToggle(level)} className="ml-1 hover:bg-muted rounded-full">
+                  <button
+                    onClick={() => handleSeniorityToggle(level)}
+                    className="ml-1 hover:bg-muted rounded-full"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -206,7 +278,12 @@ export default function EmployeesSkillsList() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-12 w-12">
-                        <AvatarImage src={employee.avatar || "/placeholder.svg?height=48&width=48"} />
+                        <AvatarImage
+                          src={
+                            employee.avatar ||
+                            "/placeholder.svg?height=48&width=48"
+                          }
+                        />
                         <AvatarFallback>
                           {employee.name.charAt(0)}
                           {employee.surname.charAt(0)}
@@ -216,40 +293,74 @@ export default function EmployeesSkillsList() {
                         <h3 className="font-medium">
                           {employee.name} {employee.surname}
                         </h3>
-                        <p className="text-sm text-muted-foreground">{employee.role}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {employee.role}
+                        </p>
                         <div className="flex items-center space-x-2 mt-1">
                           <Badge
                             variant={employee.active ? "outline" : "secondary"}
-                            className={employee.active ? "border-green-500 text-green-500" : ""}
+                            className={
+                              employee.active
+                                ? "border-green-500 text-green-500"
+                                : ""
+                            }
                           >
                             {employee.active ? "Attivo" : "Inattivo"}
                           </Badge>
-                          <span className="text-xs text-muted-foreground">{employee.skills.length} competenze</span>
+                          <span className="text-xs text-muted-foreground">
+                            {
+                              employee.skills.filter((empSkill) => {
+                                const skill = getSkillById(empSkill.skillId);
+                                return skill?.active;
+                              }).length
+                            }{" "}
+                            competenze
+                          </span>
                         </div>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => router.push(`/skills/${employee.id}`)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/skills/${employee.id}`)}
+                    >
                       <Eye className="mr-2 h-4 w-4" />
                       Dettagli
                     </Button>
                   </div>
 
-                  {/* Lista competenze */}
+                  {/* Lista competenze con nome + seniority integrati */}
                   <div className="mt-4">
                     <div className="flex flex-wrap gap-2">
-                      {employee.skills.map((empSkill) => {
-                        const skill = getSkillById(empSkill.skillId)
-                        return skill ? (
-                          <div key={empSkill.skillId} className="flex items-center space-x-1">
-                            <Badge variant="outline" className="text-xs">
-                              {skill.name}
-                            </Badge>
-                            <Badge className={`text-xs text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}>
-                              {getSeniorityLevelLabel(empSkill.seniorityLevel)}
-                            </Badge>
-                          </div>
-                        ) : null
-                      })}
+                      {employee.skills
+                        .filter((empSkill) => {
+                          const skill = getSkillById(empSkill.skillId);
+                          return skill?.active;
+                        })
+                        .map((empSkill) => {
+                          const skill = getSkillById(empSkill.skillId);
+                          return skill ? (
+                            <div
+                              key={empSkill.skillId}
+                              className="flex items-center"
+                            >
+                              <Badge
+                                variant="outline"
+                                className={`text-xs flex items-center gap-1 rounded-r-none border-r-0 ${getSeniorityLevelColor(empSkill.seniorityLevel)} text-white border-transparent`}
+                              >
+                                <skill.icon className="h-3 w-3" />
+                                {skill.name}
+                              </Badge>
+                              <Badge
+                                className={`text-xs rounded-l-none ${getSeniorityLevelColor(empSkill.seniorityLevel)} text-white opacity-80`}
+                              >
+                                {getSeniorityLevelLabel(
+                                  empSkill.seniorityLevel,
+                                )}
+                              </Badge>
+                            </div>
+                          ) : null;
+                        })}
                     </div>
                   </div>
                 </motion.div>
@@ -259,5 +370,5 @@ export default function EmployeesSkillsList() {
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }

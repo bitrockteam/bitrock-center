@@ -9,6 +9,21 @@ export async function findUserById(userId: string) {
     where: {
       id: userId,
     },
+    include: {
+      allocation: {
+        select: {
+          project: {
+            select: {
+              id: true,
+              name: true,
+              status: true,
+            },
+          },
+          start_date: true,
+          end_date: true,
+        },
+      },
+    },
   });
 }
 

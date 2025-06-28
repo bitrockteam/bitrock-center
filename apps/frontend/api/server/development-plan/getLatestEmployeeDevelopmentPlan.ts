@@ -14,9 +14,20 @@ export async function getLatestEmployeeDevelopmentPlan(userId: string) {
           todo_item: true,
         },
       },
+      user: {
+        select: {
+          id: true,
+          name: true,
+          role: true,
+        },
+      },
     },
     orderBy: {
       created_date: "desc",
     },
   });
 }
+
+export type GetLatestEmployeeDevelopmentPlan = Awaited<
+  ReturnType<typeof getLatestEmployeeDevelopmentPlan>
+>;
