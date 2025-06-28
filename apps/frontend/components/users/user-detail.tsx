@@ -13,7 +13,7 @@ import { getTimeEntriesByUser } from "@/lib/mock-data";
 import { formatDisplayName } from "@/services/users/utils";
 import { project, user } from "@bitrock/db";
 import { motion } from "framer-motion";
-import { ArrowLeft, Briefcase, Clock, Edit, Mail } from "lucide-react";
+import { ArrowLeft, Briefcase, Clock, Edit, Mail, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
@@ -85,15 +85,24 @@ export default function UserDetail({
           </div>
         </div>
 
-        {
+        <div className="flex space-x-2">
           <Button
-            className="cursor-pointer"
-            onClick={() => setShowEditDialog(true)}
+            variant="outline"
+            onClick={() => router.push(`/utenti/${id}/development-plan`)}
           >
-            <Edit className="mr-2 h-4 w-4" />
-            Modifica Utente
+            <Target className="mr-2 h-4 w-4" />
+            Development Plan
           </Button>
-        }
+          {
+            <Button
+              className="cursor-pointer"
+              onClick={() => setShowEditDialog(true)}
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Modifica Utente
+            </Button>
+          }
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
