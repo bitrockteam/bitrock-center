@@ -2,7 +2,9 @@ import { getLatestEmployeeDevelopmentPlan } from "@/api/server/development-plan/
 import { FindUserById } from "@/api/server/user/findUserById";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useServerAction } from "@/hooks/useServerAction";
+import { getContractByEmployeeId } from "@/lib/mock-data";
 import { useEffect } from "react";
+import ContractDetail from "./contract-detail";
 import UserDetailsActivity from "./user-details-sections/user-details-activity";
 import UserDetailsDevelopment from "./user-details-sections/user-details-development";
 import UserDetailsOverview from "./user-details-sections/user-details-overview";
@@ -25,13 +27,16 @@ export default function UserDetailsSections({ user }: { user: FindUserById }) {
     );
   }
 
+  const contract = getContractByEmployeeId();
+
   return (
     <Tabs defaultValue="overview" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="overview">Panoramica</TabsTrigger>
         <TabsTrigger value="skills">Competenze</TabsTrigger>
         <TabsTrigger value="development">Sviluppo</TabsTrigger>
         <TabsTrigger value="activity">Attività</TabsTrigger>
+        <TabsTrigger value="contract">Contratto</TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="space-y-6">
@@ -45,6 +50,9 @@ export default function UserDetailsSections({ user }: { user: FindUserById }) {
       </TabsContent>
       <TabsContent value="activity" className="space-y-6">
         <UserDetailsActivity />
+      </TabsContent>
+      <TabsContent value="contract">
+        <ContractDetail contract={contract} canEdit canView />
       </TabsContent>
     </Tabs>
   );
