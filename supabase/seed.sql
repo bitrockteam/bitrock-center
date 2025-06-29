@@ -103,6 +103,15 @@ INSERT INTO "public"."permit" ("created_at", "user_id", "duration", "id", "descr
 
 
 --
+-- Data for Name: skill; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."skill" ("id", "name", "category", "description", "icon", "active", "created_at", "updated_at") VALUES
+	('b163d22a-5d08-4234-ae23-b1741ae90e8f', 'Typescript', 'hard', 'Type definition for javascript - updated', 'Code', true, '2025-06-28 23:57:11.763+00', '2025-06-29 00:00:06.816151+00'),
+	('beae37fa-da4d-4a09-b80c-187c79af7051', 'Client Management', 'soft', '', 'Users', true, '2025-06-29 00:01:27.157+00', '2025-06-29 00:01:27.157+00');
+
+
+--
 -- Data for Name: timesheet; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -117,7 +126,16 @@ INSERT INTO "public"."timesheet" ("created_at", "date", "project_id", "user_id",
 
 INSERT INTO "public"."todo_item" ("id", "goal_id", "text", "completed") VALUES
 	('f7c5f038-3ef0-48dc-9bf9-6e929c0b9bd0', '762fbbac-74ab-4ec0-85c7-3e098365754d', 'seconda', true),
-	('8545e964-692d-41b9-b831-e400d3c03a0d', '762fbbac-74ab-4ec0-85c7-3e098365754d', 'prima attività', false);
+	('8545e964-692d-41b9-b831-e400d3c03a0d', '762fbbac-74ab-4ec0-85c7-3e098365754d', 'prima attività', true);
+
+
+--
+-- Data for Name: user_skill; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."user_skill" ("user_id", "skill_id", "seniorityLevel") VALUES
+	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'b163d22a-5d08-4234-ae23-b1741ae90e8f', 'senior'),
+	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'beae37fa-da4d-4a09-b80c-187c79af7051', 'junior');
 
 
 --
