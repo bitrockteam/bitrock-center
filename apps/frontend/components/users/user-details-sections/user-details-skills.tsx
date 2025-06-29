@@ -1,4 +1,9 @@
 import { FindUserById } from "@/api/server/user/findUserById";
+import {
+  getSeniorityLevelColor,
+  getSeniorityLevelLabel,
+  getSkillIcon,
+} from "@/components/skills/utils";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -7,21 +12,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  getEmployeeSkillsWithDetails,
-  getSeniorityLevelColor,
-  getSeniorityLevelLabel,
-} from "@/lib/mock-skills-data";
 
-export default function UserDetailsSkills({}: { user: FindUserById }) {
-  const employeeSkills = getEmployeeSkillsWithDetails();
-
-  const hardSkills = employeeSkills.filter(
-    (empSkill) => empSkill.skill.category === "hard",
-  );
-  const softSkills = employeeSkills.filter(
-    (empSkill) => empSkill.skill.category === "soft",
-  );
+export default function UserDetailsSkills({ user }: { user: FindUserById }) {
+  const hardSkills =
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ??
+    [];
+  const softSkills =
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ??
+    [];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -38,31 +36,34 @@ export default function UserDetailsSkills({}: { user: FindUserById }) {
                 Nessuna hard skill presente
               </p>
             ) : (
-              hardSkills.map((empSkill) => (
-                <div
-                  key={empSkill.skillId}
-                  className="flex items-center justify-between p-3 border rounded-md"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-md bg-primary/10">
-                      <empSkill.skill.icon className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">{empSkill.skill.name}</h4>
-                      {empSkill.skill.description && (
-                        <p className="text-sm text-muted-foreground">
-                          {empSkill.skill.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <Badge
-                    className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+              hardSkills.map((empSkill) => {
+                const SkillIcon = getSkillIcon(empSkill.skill.icon);
+                return (
+                  <div
+                    key={empSkill.skill.id}
+                    className="flex items-center justify-between p-3 border rounded-md"
                   >
-                    {getSeniorityLevelLabel(empSkill.seniorityLevel)}
-                  </Badge>
-                </div>
-              ))
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-md bg-primary/10">
+                        <SkillIcon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{empSkill.skill.name}</h4>
+                        {empSkill.skill.description && (
+                          <p className="text-sm text-muted-foreground">
+                            {empSkill.skill.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Badge
+                      className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                    >
+                      {getSeniorityLevelLabel(empSkill.seniorityLevel)}
+                    </Badge>
+                  </div>
+                );
+              })
             )}
           </div>
         </CardContent>
@@ -83,31 +84,34 @@ export default function UserDetailsSkills({}: { user: FindUserById }) {
                 Nessuna soft skill presente
               </p>
             ) : (
-              softSkills.map((empSkill) => (
-                <div
-                  key={empSkill.skillId}
-                  className="flex items-center justify-between p-3 border rounded-md"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-md bg-primary/10">
-                      <empSkill.skill.icon className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">{empSkill.skill.name}</h4>
-                      {empSkill.skill.description && (
-                        <p className="text-sm text-muted-foreground">
-                          {empSkill.skill.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <Badge
-                    className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+              softSkills.map((empSkill) => {
+                const SkillIcon = getSkillIcon(empSkill.skill.icon);
+                return (
+                  <div
+                    key={empSkill.skill.id}
+                    className="flex items-center justify-between p-3 border rounded-md"
                   >
-                    {getSeniorityLevelLabel(empSkill.seniorityLevel)}
-                  </Badge>
-                </div>
-              ))
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-md bg-primary/10">
+                        <SkillIcon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{empSkill.skill.name}</h4>
+                        {empSkill.skill.description && (
+                          <p className="text-sm text-muted-foreground">
+                            {empSkill.skill.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Badge
+                      className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                    >
+                      {getSeniorityLevelLabel(empSkill.seniorityLevel)}
+                    </Badge>
+                  </div>
+                );
+              })
             )}
           </div>
         </CardContent>

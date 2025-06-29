@@ -1,6 +1,10 @@
 import { GetLatestEmployeeDevelopmentPlan } from "@/api/server/development-plan/getLatestEmployeeDevelopmentPlan";
 import { FindUserById } from "@/api/server/user/findUserById";
 import { getPlanProgress } from "@/components/development-plan/utils";
+import {
+  getSeniorityLevelColor,
+  getSeniorityLevelLabel,
+} from "@/components/skills/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,12 +15,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+
 import {
-  getEmployeeSkillsWithDetails,
-  getSeniorityLevelColor,
-  getSeniorityLevelLabel,
-} from "@/lib/mock-skills-data";
-import { Award, Calendar, Mail, MapPin, Phone, Target } from "lucide-react";
+  Award,
+  Calendar,
+  LucideIcon,
+  Mail,
+  MapPin,
+  Phone,
+  Target,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function UserDetailsOverview({
@@ -27,14 +35,14 @@ export default function UserDetailsOverview({
   plan?: GetLatestEmployeeDevelopmentPlan;
 }) {
   const router = useRouter();
-  const employeeSkills = getEmployeeSkillsWithDetails();
+
   // Raggruppa le competenze per categoria
-  const hardSkills = employeeSkills.filter(
-    (empSkill) => empSkill.skill.category === "hard",
-  );
-  const softSkills = employeeSkills.filter(
-    (empSkill) => empSkill.skill.category === "soft",
-  );
+  const hardSkills =
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ??
+    [];
+  const softSkills =
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ??
+    [];
 
   const planProgress = activePlan ? getPlanProgress(activePlan) : null;
 
@@ -76,7 +84,7 @@ export default function UserDetailsOverview({
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Totale competenze</span>
               <span className="text-2xl font-bold">
-                {employeeSkills.length}
+                {user?.user_skill.length}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -176,24 +184,29 @@ export default function UserDetailsOverview({
             <div>
               <h4 className="font-medium mb-3">Hard Skills</h4>
               <div className="space-y-2">
-                {hardSkills.slice(0, 5).map((empSkill) => (
-                  <div
-                    key={empSkill.skillId}
-                    className="flex items-center justify-between p-2 border rounded"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <empSkill.skill.icon className="h-4 w-4" />
-                      <span className="text-sm font-medium">
-                        {empSkill.skill.name}
-                      </span>
-                    </div>
-                    <Badge
-                      className={`text-white text-xs ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                {hardSkills.slice(0, 5).map((empSkill) => {
+                  const SkillIcon =
+                    (empSkill.skill?.icon as unknown as LucideIcon) ||
+                    (() => <span>🔧</span>);
+                  return (
+                    <div
+                      key={empSkill.skill.id}
+                      className="flex items-center justify-between p-2 border rounded"
                     >
-                      {getSeniorityLevelLabel(empSkill.seniorityLevel)}
-                    </Badge>
-                  </div>
-                ))}
+                      <div className="flex items-center space-x-2">
+                        <SkillIcon className="h-4 w-4" />
+                        <span className="text-sm font-medium">
+                          {empSkill.skill.name}
+                        </span>
+                      </div>
+                      <Badge
+                        className={`text-white text-xs ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                      >
+                        {getSeniorityLevelLabel(empSkill.seniorityLevel)}
+                      </Badge>
+                    </div>
+                  );
+                })}
                 {hardSkills.length > 5 && (
                   <p className="text-xs text-muted-foreground text-center pt-2">
                     +{hardSkills.length - 5} altre competenze
@@ -206,24 +219,29 @@ export default function UserDetailsOverview({
             <div>
               <h4 className="font-medium mb-3">Soft Skills</h4>
               <div className="space-y-2">
-                {softSkills.slice(0, 5).map((empSkill) => (
-                  <div
-                    key={empSkill.skillId}
-                    className="flex items-center justify-between p-2 border rounded"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <empSkill.skill.icon className="h-4 w-4" />
-                      <span className="text-sm font-medium">
-                        {empSkill.skill.name}
-                      </span>
-                    </div>
-                    <Badge
-                      className={`text-white text-xs ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                {softSkills.slice(0, 5).map((empSkill) => {
+                  const SkillIcon =
+                    (empSkill.skill?.icon as unknown as LucideIcon) ||
+                    (() => <span>🔧</span>);
+                  return (
+                    <div
+                      key={empSkill.skill.id}
+                      className="flex items-center justify-between p-2 border rounded"
                     >
-                      {getSeniorityLevelLabel(empSkill.seniorityLevel)}
-                    </Badge>
-                  </div>
-                ))}
+                      <div className="flex items-center space-x-2">
+                        <SkillIcon className="h-4 w-4" />
+                        <span className="text-sm font-medium">
+                          {empSkill.skill.name}
+                        </span>
+                      </div>
+                      <Badge
+                        className={`text-white text-xs ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                      >
+                        {getSeniorityLevelLabel(empSkill.seniorityLevel)}
+                      </Badge>
+                    </div>
+                  );
+                })}
                 {softSkills.length > 5 && (
                   <p className="text-xs text-muted-foreground text-center pt-2">
                     +{softSkills.length - 5} altre competenze

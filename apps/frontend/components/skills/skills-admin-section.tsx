@@ -1,5 +1,10 @@
 "use client";
 
+import { createNewSkill } from "@/api/server/skills/createNewSkill";
+import { deleteSkill } from "@/api/server/skills/deleteSkill";
+import { getSkillsCatalog } from "@/api/server/skills/getSkillsCatalog";
+import { toggleSkillActive } from "@/api/server/skills/toggleSkillActive";
+import { updateSkill } from "@/api/server/skills/updateSkill";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,16 +50,9 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  createSkill,
-  deleteSkill,
-  getAvailableIcons,
-  getSkillsCatalog,
-  toggleSkillActive,
-  updateSkill,
-  type Skill,
-  type SkillCategory,
-} from "@/lib/mock-skills-data";
+import { useServerAction } from "@/hooks/useServerAction";
+import { skill, SkillCategory } from "@bitrock/db";
+import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
   Edit,
@@ -66,10 +64,11 @@ import {
   Settings,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getAvailableIcons, getSkillIcon } from "./utils";
 
 export default function SkillsAdminSection() {
-  const [skills, setSkills] = useState<Skill[]>(getSkillsCatalog());
+  const [skills, getSkills] = useServerAction(getSkillsCatalog);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<
     SkillCategory | "all"
@@ -77,7 +76,9 @@ export default function SkillsAdminSection() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<skill | null>(null);
+
+  const availableIcons = useMemo(() => getAvailableIcons(), []);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -89,7 +90,7 @@ export default function SkillsAdminSection() {
   });
 
   // Filtra le skills
-  const filteredSkills = skills.filter((skill) => {
+  const filteredSkills = skills?.filter((skill) => {
     const matchesSearch = skill.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -108,72 +109,71 @@ export default function SkillsAdminSection() {
     });
   };
 
-  const handleCreate = () => {
-    const availableIcons = getAvailableIcons();
+  const handleCreate = async () => {
     const selectedIcon = availableIcons.find(
       (icon) => icon.name === formData.icon,
     )?.icon;
 
     if (!selectedIcon) return;
 
-    const newSkill = createSkill({
+    await createNewSkill({
       name: formData.name,
       category: formData.category,
       description: formData.description,
-      icon: selectedIcon,
+      icon: formData.icon,
       active: formData.active,
     });
 
-    console.log("New skill created:", newSkill);
-
-    setSkills(getSkillsCatalog());
+    getSkills();
     setShowCreateDialog(false);
     resetForm();
   };
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (!selectedSkill) return;
 
-    const availableIcons = getAvailableIcons();
     const selectedIcon = availableIcons.find(
       (icon) => icon.name === formData.icon,
     )?.icon;
 
     if (!selectedIcon) return;
 
-    updateSkill(selectedSkill.id, {
+    await updateSkill({
+      id: selectedSkill.id,
       name: formData.name,
       category: formData.category,
       description: formData.description,
-      icon: selectedIcon,
+      icon: formData.icon,
       active: formData.active,
     });
 
-    setSkills(getSkillsCatalog());
+    getSkills(); // Refresh the page to show the updated skill
     setShowEditDialog(false);
     setSelectedSkill(null);
     resetForm();
   };
 
-  const handleToggleActive = (skill: Skill) => {
-    toggleSkillActive(skill.id);
-    setSkills(getSkillsCatalog());
+  const handleToggleActive = async (skill: skill) => {
+    await toggleSkillActive(skill.id, !skill.active);
+    getSkills(); // Refresh the page to reflect the change
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedSkill) return;
 
-    deleteSkill(selectedSkill.id);
-    setSkills(getSkillsCatalog());
+    await deleteSkill(selectedSkill.id);
+    getSkills(); // Refresh the page to remove the deleted skill
     setShowDeleteDialog(false);
     setSelectedSkill(null);
   };
 
-  const openEditDialog = (skill: Skill) => {
+  const openEditDialog = (skill: skill) => {
     setSelectedSkill(skill);
-    const availableIcons = getAvailableIcons();
+
     const iconName =
-      availableIcons.find((icon) => icon.icon === skill.icon)?.name || "Code";
+      availableIcons.find(
+        (icon) => (icon.icon as unknown as string) === skill.icon,
+      )?.name || "Code";
 
     setFormData({
       name: skill.name,
@@ -185,12 +185,15 @@ export default function SkillsAdminSection() {
     setShowEditDialog(true);
   };
 
-  const openDeleteDialog = (skill: Skill) => {
+  const openDeleteDialog = (skill: skill) => {
     setSelectedSkill(skill);
     setShowDeleteDialog(true);
   };
 
-  const availableIcons = getAvailableIcons();
+  useEffect(() => {
+    // Fetch skills when component mounts
+    getSkills();
+  }, [getSkills]);
 
   return (
     <motion.div
@@ -254,124 +257,133 @@ export default function SkillsAdminSection() {
             }
           >
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="all">Tutte ({skills.length})</TabsTrigger>
+              <TabsTrigger value="all">Tutte ({skills?.length})</TabsTrigger>
               <TabsTrigger value="hard">
                 Hard Skills (
-                {skills.filter((s) => s.category === "hard").length})
+                {skills?.filter((s) => s.category === "hard").length})
               </TabsTrigger>
               <TabsTrigger value="soft">
                 Soft Skills (
-                {skills.filter((s) => s.category === "soft").length})
+                {skills?.filter((s) => s.category === "soft").length})
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value={selectedCategory} className="mt-4">
               <div className="space-y-2">
-                {filteredSkills.length === 0 ? (
+                {filteredSkills?.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     Nessuna competenza trovata
                   </div>
                 ) : (
-                  filteredSkills.map((skill, index) => (
-                    <motion.div
-                      key={skill.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                      className={`border rounded-lg p-4 transition-colors ${
-                        skill.active ? "bg-background" : "bg-muted/50"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div
-                            className={`p-2 rounded-md ${skill.active ? "bg-primary/10" : "bg-muted"}`}
-                          >
-                            <skill.icon
-                              className={`h-4 w-4 ${skill.active ? "text-primary" : "text-muted-foreground"}`}
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <h4
-                                className={`font-medium ${!skill.active && "text-muted-foreground"}`}
-                              >
-                                {skill.name}
-                              </h4>
-                              <Badge
-                                variant={
-                                  skill.category === "hard"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                                className="text-xs"
-                              >
-                                {skill.category === "hard" ? "Hard" : "Soft"}
-                              </Badge>
-                              {!skill.active && (
-                                <Badge
-                                  variant="outline"
-                                  className="text-xs text-muted-foreground"
+                  filteredSkills?.map((skill, index) => {
+                    const LucideIcon = getSkillIcon(skill.icon);
+                    return (
+                      <motion.div
+                        key={skill.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        className={`border rounded-lg p-4 transition-colors ${
+                          skill.active ? "bg-background" : "bg-muted/50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div
+                              className={`p-2 rounded-md ${skill.active ? "bg-primary/10" : "bg-muted"}`}
+                            >
+                              <LucideIcon
+                                className={`h-4 w-4 ${skill.active ? "text-primary" : "text-muted-foreground"}`}
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2">
+                                <h4
+                                  className={`font-medium ${!skill.active && "text-muted-foreground"}`}
                                 >
-                                  Disattivata
+                                  {skill.name}
+                                </h4>
+                                <Badge
+                                  variant={
+                                    skill.category === "hard"
+                                      ? "default"
+                                      : "secondary"
+                                  }
+                                  className="text-xs"
+                                >
+                                  {skill.category === "hard" ? "Hard" : "Soft"}
                                 </Badge>
+                                {!skill.active && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs text-muted-foreground"
+                                  >
+                                    Disattivata
+                                  </Badge>
+                                )}
+                              </div>
+                              {skill.description && (
+                                <p
+                                  className={`text-sm mt-1 ${!skill.active && "text-muted-foreground"}`}
+                                >
+                                  {skill.description}
+                                </p>
                               )}
-                            </div>
-                            {skill.description && (
-                              <p
-                                className={`text-sm mt-1 ${!skill.active && "text-muted-foreground"}`}
-                              >
-                                {skill.description}
-                              </p>
-                            )}
-                            <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
-                              <span>Creata: {skill.createdAt}</span>
-                              <span>Aggiornata: {skill.updatedAt}</span>
+                              <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
+                                <span>
+                                  Creata:{" "}
+                                  {format(skill.created_at, "dd/MM/yyyy")}
+                                </span>
+                                <span>
+                                  Aggiornata:{" "}
+                                  {format(skill.updated_at, "dd/MM/yyyy")}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => openEditDialog(skill)}
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              Modifica
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleToggleActive(skill)}
-                            >
-                              {skill.active ? (
-                                <>
-                                  <EyeOff className="mr-2 h-4 w-4" />
-                                  Disattiva
-                                </>
-                              ) : (
-                                <>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  Attiva
-                                </>
-                              )}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => openDeleteDialog(skill)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Elimina
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </motion.div>
-                  ))
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => openEditDialog(skill)}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Modifica
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleToggleActive(skill)}
+                              >
+                                {skill.active ? (
+                                  <>
+                                    <EyeOff className="mr-2 h-4 w-4" />
+                                    Disattiva
+                                  </>
+                                ) : (
+                                  <>
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    Attiva
+                                  </>
+                                )}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => openDeleteDialog(skill)}
+                                className="text-destructive"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Elimina
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </motion.div>
+                    );
+                  })
                 )}
               </div>
             </TabsContent>

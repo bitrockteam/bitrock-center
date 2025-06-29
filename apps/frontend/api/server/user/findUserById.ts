@@ -23,6 +23,20 @@ export async function findUserById(userId: string) {
           end_date: true,
         },
       },
+      user_skill: {
+        select: {
+          skill: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              icon: true,
+              category: true,
+            },
+          },
+          seniorityLevel: true,
+        },
+      },
     },
   });
 }

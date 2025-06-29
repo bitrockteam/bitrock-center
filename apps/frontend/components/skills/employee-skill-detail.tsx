@@ -1,5 +1,10 @@
 "use client";
 
+import { addSkillToEmployee } from "@/api/server/skills/addSkillToEmployee";
+import { EmployeeSkill } from "@/api/server/skills/getEmployeeWithSkillsById";
+import { getSkillsCatalog } from "@/api/server/skills/getSkillsCatalog";
+import { removeSkillFromEmployee } from "@/api/server/skills/removeSkillFromEmployee";
+import { updateEmployeeSkillLevel } from "@/api/server/skills/updateEmployeeSkillLevel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,36 +40,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  getActiveSkillsCatalog,
-  getEmployeeWithSkillsById,
-  getSeniorityLevelColor,
-  getSeniorityLevelLabel,
-  getSkillById,
-  type EmployeeSkill,
-  type SeniorityLevel,
-} from "@/lib/mock-skills-data";
+import { useServerAction } from "@/hooks/useServerAction";
+import { formatDisplayName } from "@/services/users/utils";
+import { SeniorityLevel } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { ArrowLeft, Edit, Plus, Save, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  getSeniorityLevelColor,
+  getSeniorityLevelLabel,
+  getSkillIcon,
+} from "./utils";
 
-export default function EmployeeSkillDetail({}: { id: string }) {
+export default function EmployeeSkillDetail({
+  employee,
+}: {
+  employee: EmployeeSkill;
+}) {
   const router = useRouter();
-  const employee = getEmployeeWithSkillsById();
-  const skillsCatalog = getActiveSkillsCatalog(); // Solo skills attive
+  const [skillsCatalog, fetchSkillsCatalog] = useServerAction(getSkillsCatalog);
 
-  const [skills, setSkills] = useState<EmployeeSkill[]>(
-    employee?.skills.filter((empSkill) => {
-      const skill = getSkillById(empSkill.skillId);
-      return skill?.active;
-    }) || [],
-  );
   const [isEditing, setIsEditing] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newSkillId, setNewSkillId] = useState("");
   const [newSkillLevel, setNewSkillLevel] = useState<SeniorityLevel>("junior");
   const [skillToDelete, setSkillToDelete] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchSkillsCatalog();
+  }, [fetchSkillsCatalog]);
 
   if (!employee) {
     return (
@@ -82,67 +87,51 @@ export default function EmployeeSkillDetail({}: { id: string }) {
   }
 
   // Competenze disponibili per l'aggiunta (non già presenti e attive)
-  const availableSkills = skillsCatalog.filter(
-    (skill) => !skills.some((empSkill) => empSkill.skillId === skill.id),
+  const availableSkills = skillsCatalog?.filter(
+    (skill) =>
+      !employee.user_skill.some((empSkill) => empSkill.skill_id === skill.id),
   );
 
   const handleSave = () => {
-    // Qui normalmente salveresti i dati
-    console.log("Saving skills:", skills);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setSkills(
-      employee.skills.filter((empSkill) => {
-        const skill = getSkillById(empSkill.skillId);
-        return skill?.active;
-      }),
-    );
     setIsEditing(false);
   };
 
-  const handleAddSkill = () => {
+  const handleAddSkill = async () => {
     if (!newSkillId) return;
 
-    const newSkill: EmployeeSkill = {
-      skillId: newSkillId,
-      seniorityLevel: newSkillLevel,
-    };
+    await addSkillToEmployee(employee.id, newSkillId, newSkillLevel);
 
-    setSkills((prev) => [...prev, newSkill]);
+    router.refresh();
     setShowAddDialog(false);
     setNewSkillId("");
     setNewSkillLevel("junior");
   };
 
-  const handleRemoveSkill = (skillId: string) => {
-    setSkills((prev) => prev.filter((skill) => skill.skillId !== skillId));
+  const handleRemoveSkill = async (skillId: string) => {
+    await removeSkillFromEmployee(employee.id, skillId);
+    router.refresh();
     setSkillToDelete(null);
   };
 
-  const handleUpdateSkillLevel = (
+  const handleUpdateSkillLevel = async (
     skillId: string,
     newLevel: SeniorityLevel,
   ) => {
-    setSkills((prev) =>
-      prev.map((skill) =>
-        skill.skillId === skillId
-          ? { ...skill, seniorityLevel: newLevel }
-          : skill,
-      ),
-    );
+    await updateEmployeeSkillLevel(employee.id, skillId, newLevel);
+    router.refresh();
   };
 
   // Raggruppa le competenze per categoria
-  const hardSkills = skills.filter((empSkill) => {
-    const skill = getSkillById(empSkill.skillId);
-    return skill?.category === "hard" && skill?.active;
+  const hardSkills = employee.user_skill.filter((empSkill) => {
+    return empSkill?.skill.category === "hard" && empSkill.skill?.active;
   });
 
-  const softSkills = skills.filter((empSkill) => {
-    const skill = getSkillById(empSkill.skillId);
-    return skill?.category === "soft" && skill?.active;
+  const softSkills = employee.user_skill.filter((empSkill) => {
+    return empSkill?.skill.category === "soft" && empSkill.skill?.active;
   });
 
   return (
@@ -163,29 +152,25 @@ export default function EmployeeSkillDetail({}: { id: string }) {
           </Button>
           <Avatar className="h-16 w-16">
             <AvatarImage
-              src={employee.avatar || "/placeholder.svg?height=64&width=64"}
+              src={employee.avatar_url || "/placeholder.svg?height=64&width=64"}
             />
             <AvatarFallback>
-              {employee.name.charAt(0)}
-              {employee.surname.charAt(0)}
+              <AvatarFallback>
+                {formatDisplayName({
+                  name: employee.name,
+                  initials: true,
+                })}
+              </AvatarFallback>
             </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {employee.name} {employee.surname}
+              {employee.name}
             </h1>
             <p className="text-muted-foreground">{employee.role}</p>
             <div className="flex items-center space-x-2 mt-1">
-              <Badge
-                variant={employee.active ? "outline" : "secondary"}
-                className={
-                  employee.active ? "border-green-500 text-green-500" : ""
-                }
-              >
-                {employee.active ? "Attivo" : "Inattivo"}
-              </Badge>
               <span className="text-sm text-muted-foreground">
-                {skills.length} competenze
+                {employee.user_skill.length} competenze
               </span>
             </div>
           </div>
@@ -228,7 +213,7 @@ export default function EmployeeSkillDetail({}: { id: string }) {
                   size="sm"
                   onClick={() => setShowAddDialog(true)}
                   disabled={
-                    availableSkills.filter((s) => s.category === "hard")
+                    availableSkills?.filter((s) => s.category === "hard")
                       .length === 0
                   }
                 >
@@ -246,15 +231,16 @@ export default function EmployeeSkillDetail({}: { id: string }) {
                 </p>
               ) : (
                 hardSkills.map((empSkill) => {
-                  const skill = getSkillById(empSkill.skillId);
+                  const { skill } = empSkill;
+                  const SkillIcon = getSkillIcon(skill.icon);
                   return skill ? (
                     <div
-                      key={empSkill.skillId}
+                      key={empSkill.skill_id}
                       className="flex items-center justify-between p-3 border rounded-md"
                     >
                       <div className="flex-1 flex items-center space-x-3">
                         <div className="p-2 rounded-md bg-primary/10">
-                          <skill.icon className="h-4 w-4 text-primary" />
+                          <SkillIcon className="h-4 w-4 text-primary" />
                         </div>
                         <div>
                           <h4 className="font-medium">{skill.name}</h4>
@@ -271,7 +257,7 @@ export default function EmployeeSkillDetail({}: { id: string }) {
                             <Select
                               value={empSkill.seniorityLevel}
                               onValueChange={(value: SeniorityLevel) =>
-                                handleUpdateSkillLevel(empSkill.skillId, value)
+                                handleUpdateSkillLevel(empSkill.skill_id, value)
                               }
                             >
                               <SelectTrigger className="w-24">
@@ -286,7 +272,9 @@ export default function EmployeeSkillDetail({}: { id: string }) {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => setSkillToDelete(empSkill.skillId)}
+                              onClick={() =>
+                                setSkillToDelete(empSkill.skill_id)
+                              }
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
@@ -323,7 +311,7 @@ export default function EmployeeSkillDetail({}: { id: string }) {
                   size="sm"
                   onClick={() => setShowAddDialog(true)}
                   disabled={
-                    availableSkills.filter((s) => s.category === "soft")
+                    availableSkills?.filter((s) => s.category === "soft")
                       .length === 0
                   }
                 >
@@ -341,15 +329,16 @@ export default function EmployeeSkillDetail({}: { id: string }) {
                 </p>
               ) : (
                 softSkills.map((empSkill) => {
-                  const skill = getSkillById(empSkill.skillId);
+                  const { skill } = empSkill;
+                  const SkillIcon = getSkillIcon(skill.icon);
                   return skill ? (
                     <div
-                      key={empSkill.skillId}
+                      key={empSkill.skill_id}
                       className="flex items-center justify-between p-3 border rounded-md"
                     >
                       <div className="flex-1 flex items-center space-x-3">
                         <div className="p-2 rounded-md bg-primary/10">
-                          <skill.icon className="h-4 w-4 text-primary" />
+                          <SkillIcon className="h-4 w-4 text-primary" />
                         </div>
                         <div>
                           <h4 className="font-medium">{skill.name}</h4>
@@ -366,7 +355,7 @@ export default function EmployeeSkillDetail({}: { id: string }) {
                             <Select
                               value={empSkill.seniorityLevel}
                               onValueChange={(value: SeniorityLevel) =>
-                                handleUpdateSkillLevel(empSkill.skillId, value)
+                                handleUpdateSkillLevel(empSkill.skill_id, value)
                               }
                             >
                               <SelectTrigger className="w-24">
@@ -381,7 +370,9 @@ export default function EmployeeSkillDetail({}: { id: string }) {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => setSkillToDelete(empSkill.skillId)}
+                              onClick={() =>
+                                setSkillToDelete(empSkill.skill_id)
+                              }
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
@@ -410,7 +401,7 @@ export default function EmployeeSkillDetail({}: { id: string }) {
             <DialogTitle>Aggiungi Competenza</DialogTitle>
             <DialogDescription>
               Seleziona una competenza e il livello di seniority per{" "}
-              {employee.name} {employee.surname}.
+              {employee.name}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -421,17 +412,20 @@ export default function EmployeeSkillDetail({}: { id: string }) {
                   <SelectValue placeholder="Seleziona una competenza" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableSkills.map((skill) => (
-                    <SelectItem key={skill.id} value={skill.id}>
-                      <div className="flex items-center space-x-2">
-                        <skill.icon className="h-4 w-4" />
-                        <span>{skill.name}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {skill.category === "hard" ? "Hard" : "Soft"}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {availableSkills?.map((skill) => {
+                    const SkillIcon = getSkillIcon(skill.icon);
+                    return (
+                      <SelectItem key={skill.id} value={skill.id}>
+                        <div className="flex items-center space-x-2">
+                          <SkillIcon className="h-4 w-4" />
+                          <span>{skill.name}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {skill.category === "hard" ? "Hard" : "Soft"}
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>

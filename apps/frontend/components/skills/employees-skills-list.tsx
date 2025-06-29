@@ -1,5 +1,7 @@
 "use client";
 
+import { getEmployeesWithSkills } from "@/api/server/skills/getEmployeesWithSkills";
+import { getSkillsCatalog } from "@/api/server/skills/getSkillsCatalog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,18 +19,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  getActiveSkillsCatalog,
-  getEmployeesWithSkills,
-  getSeniorityLevelColor,
-  getSeniorityLevelLabel,
-  getSkillById,
-  type SeniorityLevel,
-} from "@/lib/mock-skills-data";
+import { useServerAction } from "@/hooks/useServerAction";
+import { formatDisplayName } from "@/services/users/utils";
+import { SeniorityLevel } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { Eye, Filter, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  getSeniorityLevelColor,
+  getSeniorityLevelLabel,
+  getSkillIcon,
+} from "./utils";
 
 export default function EmployeesSkillsList() {
   const router = useRouter();
@@ -39,14 +41,14 @@ export default function EmployeesSkillsList() {
   >([]);
   const [showFilters, setShowFilters] = useState(false);
 
-  const employees = getEmployeesWithSkills();
-  const skillsCatalog = getActiveSkillsCatalog(); // Solo skills attive
+  const [employees, fetchEmployees] = useServerAction(getEmployeesWithSkills);
+  const [skillsCatalog, fetchSkillsCatalog] = useServerAction(getSkillsCatalog); // Solo skills attive
 
   // Filtra i dipendenti in base ai criteri
   const filteredEmployees = useMemo(() => {
-    return employees.filter((employee) => {
+    return employees?.filter((employee) => {
       // Filtro per nome
-      const nameMatch = `${employee.name} ${employee.surname}`
+      const nameMatch = `${employee.name}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
@@ -54,17 +56,16 @@ export default function EmployeesSkillsList() {
       const skillsMatch =
         selectedSkills.length === 0 ||
         selectedSkills.every((skillId) =>
-          employee.skills.some((empSkill) => {
-            const skill = getSkillById(empSkill.skillId);
-            return empSkill.skillId === skillId && skill?.active;
+          employee.user_skill.some((empSkill) => {
+            return empSkill.skill.id === skillId && empSkill.skill.active;
           }),
         );
 
       // Filtro per livello di seniority
       const seniorityMatch =
         selectedSeniorityLevels.length === 0 ||
-        employee.skills.some((empSkill) => {
-          const skill = getSkillById(empSkill.skillId);
+        employee.user_skill.some((empSkill) => {
+          const { skill } = empSkill;
           return (
             skill?.active &&
             selectedSeniorityLevels.includes(empSkill.seniorityLevel)
@@ -100,6 +101,8 @@ export default function EmployeesSkillsList() {
     selectedSeniorityLevels.length > 0 ||
     searchTerm;
 
+  useEffect(() => fetchSkillsCatalog(), [fetchSkillsCatalog]);
+  useEffect(() => fetchEmployees(), [fetchEmployees]);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -112,7 +115,7 @@ export default function EmployeesSkillsList() {
             <div>
               <CardTitle>Dipendenti e Competenze</CardTitle>
               <CardDescription>
-                {filteredEmployees.length} di {employees.length} dipendenti
+                {filteredEmployees?.length} di {employees?.length} dipendenti
               </CardDescription>
             </div>
 
@@ -160,30 +163,33 @@ export default function EmployeesSkillsList() {
                     <div>
                       <label className="text-sm font-medium">Competenze</label>
                       <div className="mt-2 max-h-40 overflow-y-auto space-y-2">
-                        {skillsCatalog.map((skill) => (
-                          <div
-                            key={skill.id}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={skill.id}
-                              checked={selectedSkills.includes(skill.id)}
-                              onCheckedChange={() =>
-                                handleSkillToggle(skill.id)
-                              }
-                            />
-                            <label
-                              htmlFor={skill.id}
-                              className="text-sm font-normal cursor-pointer flex-1 flex items-center gap-2"
+                        {skillsCatalog?.map((skill) => {
+                          const LucideIcon = getSkillIcon(skill.icon);
+                          return (
+                            <div
+                              key={skill.id}
+                              className="flex items-center space-x-2"
                             >
-                              <skill.icon className="h-3 w-3" />
-                              {skill.name}
-                            </label>
-                            <Badge variant="outline" className="text-xs">
-                              {skill.category === "hard" ? "Hard" : "Soft"}
-                            </Badge>
-                          </div>
-                        ))}
+                              <Checkbox
+                                id={skill.id}
+                                checked={selectedSkills.includes(skill.id)}
+                                onCheckedChange={() =>
+                                  handleSkillToggle(skill.id)
+                                }
+                              />
+                              <label
+                                htmlFor={skill.id}
+                                className="text-sm font-normal cursor-pointer flex-1 flex items-center gap-2"
+                              >
+                                <LucideIcon className="h-3 w-3" />
+                                {skill.name}
+                              </label>
+                              <Badge variant="outline" className="text-xs">
+                                {skill.category === "hard" ? "Hard" : "Soft"}
+                              </Badge>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
 
@@ -227,14 +233,15 @@ export default function EmployeesSkillsList() {
           {hasActiveFilters && (
             <div className="flex flex-wrap gap-2">
               {selectedSkills.map((skillId) => {
-                const skill = getSkillById(skillId);
+                const skill = skillsCatalog?.find((s) => s.id === skillId);
+                const LucideIcon = getSkillIcon(skill?.icon);
                 return skill ? (
                   <Badge
                     key={skillId}
                     variant="secondary"
                     className="text-xs flex items-center gap-1"
                   >
-                    <skill.icon className="h-3 w-3" />
+                    <LucideIcon className="h-3 w-3" />
                     {skill.name}
                     <button
                       onClick={() => handleSkillToggle(skillId)}
@@ -262,12 +269,12 @@ export default function EmployeesSkillsList() {
 
         <CardContent>
           <div className="space-y-4">
-            {filteredEmployees.length === 0 ? (
+            {filteredEmployees?.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nessun dipendente trovato con i criteri selezionati
               </div>
             ) : (
-              filteredEmployees.map((employee, index) => (
+              filteredEmployees?.map((employee, index) => (
                 <motion.div
                   key={employee.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -280,39 +287,28 @@ export default function EmployeesSkillsList() {
                       <Avatar className="h-12 w-12">
                         <AvatarImage
                           src={
-                            employee.avatar ||
+                            employee.avatar_url ||
                             "/placeholder.svg?height=48&width=48"
                           }
                         />
                         <AvatarFallback>
-                          {employee.name.charAt(0)}
-                          {employee.surname.charAt(0)}
+                          {formatDisplayName({
+                            name: employee.name,
+                            initials: true,
+                          })}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h3 className="font-medium">
-                          {employee.name} {employee.surname}
-                        </h3>
+                        <h3 className="font-medium">{employee.name}</h3>
                         <p className="text-sm text-muted-foreground">
                           {employee.role}
                         </p>
                         <div className="flex items-center space-x-2 mt-1">
-                          <Badge
-                            variant={employee.active ? "outline" : "secondary"}
-                            className={
-                              employee.active
-                                ? "border-green-500 text-green-500"
-                                : ""
-                            }
-                          >
-                            {employee.active ? "Attivo" : "Inattivo"}
-                          </Badge>
                           <span className="text-xs text-muted-foreground">
                             {
-                              employee.skills.filter((empSkill) => {
-                                const skill = getSkillById(empSkill.skillId);
-                                return skill?.active;
-                              }).length
+                              employee.user_skill.filter(
+                                (empSkill) => empSkill?.skill.active,
+                              ).length
                             }{" "}
                             competenze
                           </span>
@@ -332,24 +328,21 @@ export default function EmployeesSkillsList() {
                   {/* Lista competenze con nome + seniority integrati */}
                   <div className="mt-4">
                     <div className="flex flex-wrap gap-2">
-                      {employee.skills
-                        .filter((empSkill) => {
-                          const skill = getSkillById(empSkill.skillId);
-                          return skill?.active;
-                        })
+                      {employee.user_skill
+                        .filter((empSkill) => empSkill.skill.active)
                         .map((empSkill) => {
-                          const skill = getSkillById(empSkill.skillId);
-                          return skill ? (
+                          const LucideIcon = getSkillIcon(empSkill.skill.icon);
+                          return empSkill.skill ? (
                             <div
-                              key={empSkill.skillId}
+                              key={empSkill.skill.id}
                               className="flex items-center"
                             >
                               <Badge
                                 variant="outline"
                                 className={`text-xs flex items-center gap-1 rounded-r-none border-r-0 ${getSeniorityLevelColor(empSkill.seniorityLevel)} text-white border-transparent`}
                               >
-                                <skill.icon className="h-3 w-3" />
-                                {skill.name}
+                                <LucideIcon className="h-3 w-3" />
+                                {empSkill.skill.name}
                               </Badge>
                               <Badge
                                 className={`text-xs rounded-l-none ${getSeniorityLevelColor(empSkill.seniorityLevel)} text-white opacity-80`}
