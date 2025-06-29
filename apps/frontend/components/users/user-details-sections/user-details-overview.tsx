@@ -4,6 +4,7 @@ import { getPlanProgress } from "@/components/development-plan/utils";
 import {
   getSeniorityLevelColor,
   getSeniorityLevelLabel,
+  getSkillIcon,
 } from "@/components/skills/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,15 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
-import {
-  Award,
-  Calendar,
-  LucideIcon,
-  Mail,
-  MapPin,
-  Phone,
-  Target,
-} from "lucide-react";
+import { Award, Calendar, Mail, MapPin, Phone, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function UserDetailsOverview({
@@ -185,9 +178,7 @@ export default function UserDetailsOverview({
               <h4 className="font-medium mb-3">Hard Skills</h4>
               <div className="space-y-2">
                 {hardSkills.slice(0, 5).map((empSkill) => {
-                  const SkillIcon =
-                    (empSkill.skill?.icon as unknown as LucideIcon) ||
-                    (() => <span>🔧</span>);
+                  const SkillIcon = getSkillIcon(empSkill.skill.icon);
                   return (
                     <div
                       key={empSkill.skill.id}
@@ -220,9 +211,7 @@ export default function UserDetailsOverview({
               <h4 className="font-medium mb-3">Soft Skills</h4>
               <div className="space-y-2">
                 {softSkills.slice(0, 5).map((empSkill) => {
-                  const SkillIcon =
-                    (empSkill.skill?.icon as unknown as LucideIcon) ||
-                    (() => <span>🔧</span>);
+                  const SkillIcon = getSkillIcon(empSkill.skill.icon);
                   return (
                     <div
                       key={empSkill.skill.id}
