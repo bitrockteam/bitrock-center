@@ -55,6 +55,12 @@ INSERT INTO "public"."allocation" ("created_at", "user_id", "project_id", "start
 
 
 --
+-- Data for Name: contract; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
 -- Data for Name: development_plan; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -108,7 +114,8 @@ INSERT INTO "public"."permit" ("created_at", "user_id", "duration", "id", "descr
 
 INSERT INTO "public"."skill" ("id", "name", "category", "description", "icon", "active", "created_at", "updated_at") VALUES
 	('b163d22a-5d08-4234-ae23-b1741ae90e8f', 'Typescript', 'hard', 'Type definition for javascript - updated', 'Code', true, '2025-06-28 23:57:11.763+00', '2025-06-29 00:00:06.816151+00'),
-	('beae37fa-da4d-4a09-b80c-187c79af7051', 'Client Management', 'soft', '', 'Users', true, '2025-06-29 00:01:27.157+00', '2025-06-29 00:01:27.157+00');
+	('beae37fa-da4d-4a09-b80c-187c79af7051', 'Client Management', 'soft', '', 'Users', true, '2025-06-29 00:01:27.157+00', '2025-06-29 00:01:27.157+00'),
+	('ebf6a21a-ac5c-47fd-8a71-04e05a7af916', 'Screen Sharing', 'soft', '', 'Monitor', true, '2025-06-30 11:24:34.411+00', '2025-06-30 11:24:34.411+00');
 
 
 --
@@ -134,8 +141,8 @@ INSERT INTO "public"."todo_item" ("id", "goal_id", "text", "completed") VALUES
 --
 
 INSERT INTO "public"."user_skill" ("user_id", "skill_id", "seniorityLevel") VALUES
-	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'b163d22a-5d08-4234-ae23-b1741ae90e8f', 'senior'),
-	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'beae37fa-da4d-4a09-b80c-187c79af7051', 'junior');
+	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'beae37fa-da4d-4a09-b80c-187c79af7051', 'junior'),
+	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'b163d22a-5d08-4234-ae23-b1741ae90e8f', 'middle');
 
 
 --
