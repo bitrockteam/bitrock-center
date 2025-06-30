@@ -18,7 +18,7 @@ model allocation {
   start_date DateTime  @default(now()) @db.Timestamp(6)
   end_date   DateTime? @db.Timestamp(6)
   percentage Int       @default(100) @db.SmallInt
-  project    project   @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  project    project   @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   user       user      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_id, project_id])
@@ -46,13 +46,15 @@ model project {
   id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   created_at  DateTime      @default(now()) @db.Timestamptz(6)
   name        String        @db.VarChar
-  client      String        @db.VarChar
   description String?
   start_date  DateTime      @db.Timestamp(6)
   end_date    DateTime?     @db.Timestamp(6)
   status      ProjectStatus @default(PLANNED)
+  client_id   String        @db.Uuid
   allocation  allocation[]
+  client      client        @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_client")
   timesheet   timesheet[]
+  work_items  work_items[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -65,30 +67,31 @@ model timesheet {
   description String?  @db.VarChar
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   hours       Int      @db.SmallInt
-  project     project  @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  project     project  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   user        user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model user {
-  id                                  String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at                          DateTime           @default(now()) @db.Timestamptz(6)
+  id                                  String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                          DateTime                  @default(now()) @db.Timestamptz(6)
   email                               String
   name                                String
   avatar_url                          String?
-  referent_id                         String?            @db.Uuid
-  role                                Role               @default(Employee)
+  referent_id                         String?                   @db.Uuid
+  role                                Role                      @default(Employee)
   allocation                          allocation[]
-  contract_contract_employee_idTouser contract[]         @relation("contract_employee_idTouser")
-  contract_contract_modified_byTouser contract[]         @relation("contract_modified_byTouser")
+  contract_contract_employee_idTouser contract[]                @relation("contract_employee_idTouser")
+  contract_contract_modified_byTouser contract[]                @relation("contract_modified_byTouser")
   development_plan                    development_plan[]
-  permit_permit_reviewer_idTouser     permit[]           @relation("permit_reviewer_idTouser")
-  permit_permit_user_idTouser         permit[]           @relation("permit_user_idTouser")
+  permit_permit_reviewer_idTouser     permit[]                  @relation("permit_reviewer_idTouser")
+  permit_permit_user_idTouser         permit[]                  @relation("permit_user_idTouser")
   timesheet                           timesheet[]
-  user                                user?              @relation("userTouser", fields: [referent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  other_user                          user[]             @relation("userTouser")
+  user                                user?                     @relation("userTouser", fields: [referent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_user                          user[]                    @relation("userTouser")
   user_skill                          user_skill[]
+  work_item_enabled_users             work_item_enabled_users[]
 }
 
 model development_plan {
@@ -156,6 +159,53 @@ model contract {
   user_contract_modified_byTouser user           @relation("contract_modified_byTouser", fields: [modified_by], references: [id], onDelete: SetNull, onUpdate: NoAction)
 }
 
+model work_item_enabled_users {
+  work_item_id String     @db.Uuid
+  user_id      String     @db.Uuid
+  user         user       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  work_items   work_items @relation(fields: [work_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([work_item_id, user_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model work_items {
+  id                      String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                   String                    @db.VarChar
+  client_id               String                    @db.Uuid
+  project_id              String?                   @db.Uuid
+  type                    work_item_type
+  start_date              DateTime                  @db.Date
+  end_date                DateTime?                 @db.Date
+  status                  work_item_status          @default(active)
+  description             String?
+  hourly_rate             Int?
+  estimated_hours         Int?
+  fixed_price             Int?
+  created_at              DateTime?                 @default(now()) @db.Timestamptz(6)
+  work_item_enabled_users work_item_enabled_users[]
+  client                  client                    @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_work_items_client")
+  project                 project?                  @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model client {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String       @db.VarChar
+  code           String       @unique(map: "idx_client_code") @db.VarChar
+  email          String       @db.VarChar
+  phone          String?      @db.VarChar
+  address        String?      @db.VarChar
+  vat_number     String?      @db.VarChar
+  contact_person String?      @db.VarChar
+  status         ClientStatus @default(active)
+  created_at     DateTime     @default(now()) @db.Timestamptz(6)
+  notes          String?
+  project        project[]
+  work_items     work_items[]
+
+  @@index([name], map: "idx_client_name")
+}
+
 enum PermitType {
   VACATION
   SICKNESS
@@ -213,4 +263,20 @@ enum remotepolicy {
 enum workinghours {
   full_time @map("full-time")
   part_time @map("part-time")
+}
+
+enum work_item_status {
+  active
+  completed
+  on_hold   @map("on-hold")
+}
+
+enum work_item_type {
+  time_material @map("time-material")
+  fixed_price   @map("fixed-price")
+}
+
+enum ClientStatus {
+  active
+  inactive
 }

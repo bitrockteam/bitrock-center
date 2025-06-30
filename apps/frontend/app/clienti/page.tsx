@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Gestione dei clienti aziendali",
 };
 
-export default function ClientsPage() {
+export default async function ClientsPage() {
   return (
     <div className="space-y-6">
       <ClientsHeader />

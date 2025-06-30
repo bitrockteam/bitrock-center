@@ -6,14 +6,15 @@ export const metadata: Metadata = {
   description: "Visualizza i dettagli della commessa",
 };
 
-export default function WorkItemDetailPage({
+export default async function WorkItemDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   return (
     <div className="space-y-6">
-      <WorkItemDetail id={params.id} />
+      <WorkItemDetail id={id} />
     </div>
   );
 }

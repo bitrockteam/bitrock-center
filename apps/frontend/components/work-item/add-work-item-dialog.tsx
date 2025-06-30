@@ -1,5 +1,9 @@
 "use client";
 
+import { fetchAllProjects } from "@/api/server/project/fetchAllProjects";
+import { findUsers } from "@/api/server/user/findUsers";
+import { createWorkItem } from "@/api/server/work-item/createWorkItem";
+import { updateWorkItem } from "@/api/server/work-item/updateWorkItem";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -28,12 +32,12 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  createWorkItem,
-  getAllClients,
-  getAllUsers,
-  getProjectsByClient,
-  updateWorkItem,
-} from "@/lib/mock-data";
+  project,
+  Role,
+  user,
+  work_item_status,
+  work_item_type,
+} from "@bitrock/db";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
@@ -42,20 +46,21 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const workItemSchema = z.object({
+  id: z.string().nullable(),
   title: z.string().min(1, "Il titolo è obbligatorio"),
-  clientId: z.string().min(1, "Il cliente è obbligatorio"),
-  projectId: z.string().optional(),
-  type: z.enum(["time-material", "fixed-price"]),
-  startDate: z.string().min(1, "La data di inizio è obbligatoria"),
-  endDate: z.string().optional(),
-  enabledUsers: z
+  client_id: z.string().min(1, "Il cliente è obbligatorio"),
+  project_id: z.string().nullable(),
+  type: z.nativeEnum(work_item_type),
+  start_date: z.date(),
+  end_date: z.date().nullable(),
+  enabled_users: z
     .array(z.string())
     .min(1, "Almeno un utente deve essere abilitato"),
-  status: z.enum(["active", "completed", "on-hold"]),
-  description: z.string().optional(),
-  hourlyRate: z.number().optional(),
-  estimatedHours: z.number().optional(),
-  fixedPrice: z.number().optional(),
+  status: z.nativeEnum(work_item_status),
+  description: z.string().nullable(),
+  hourly_rate: z.number().nullable(),
+  estimated_hours: z.number().nullable(),
+  fixed_price: z.number().nullable(),
 });
 
 type WorkItemFormData = z.infer<typeof workItemSchema>;
@@ -63,7 +68,7 @@ type WorkItemFormData = z.infer<typeof workItemSchema>;
 interface AddWorkItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editData?: any;
+  editData?: Partial<WorkItemFormData>;
 }
 
 export default function AddWorkItemDialog({
@@ -73,48 +78,57 @@ export default function AddWorkItemDialog({
 }: AddWorkItemDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedClient, setSelectedClient] = useState<string>("");
-  const [availableProjects, setAvailableProjects] = useState<any[]>([]);
+  const [availableProjects, setAvailableProjects] = useState<project[]>([]);
+  const [clients, setClients] = useState<user[]>([]);
+  const [users, setUsers] = useState<user[]>([]);
   const isEditing = !!editData;
-
-  const clients = getAllClients();
-  const users = getAllUsers();
 
   const form = useForm<WorkItemFormData>({
     resolver: zodResolver(workItemSchema),
     defaultValues: {
       title: editData?.title || "",
-      clientId: editData?.clientId || "defaultClientId", // Updated default value
-      projectId: editData?.projectId || "",
-      type: editData?.type || "time-material",
-      startDate: editData?.startDate || "",
-      endDate: editData?.endDate || "",
-      enabledUsers: editData?.enabledUsers || [],
-      status: editData?.status || "active",
+      client_id: editData?.client_id || "",
+      project_id: editData?.project_id || "",
+      type: editData?.type || work_item_type.time_material,
+      start_date: editData?.start_date,
+      end_date: editData?.end_date,
+      enabled_users: editData?.enabled_users || [],
+      status: editData?.status || work_item_status.active,
       description: editData?.description || "",
-      hourlyRate: editData?.hourlyRate || 0,
-      estimatedHours: editData?.estimatedHours || 0,
-      fixedPrice: editData?.fixedPrice || 0,
+      hourly_rate: editData?.hourly_rate || 0,
+      estimated_hours: editData?.estimated_hours || 0,
+      fixed_price: editData?.fixed_price || 0,
     },
   });
 
   const watchedType = form.watch("type");
-  const watchedClientId = form.watch("clientId");
 
   useEffect(() => {
-    if (watchedClientId) {
-      setSelectedClient(watchedClientId);
-      const projects = getProjectsByClient(watchedClientId);
-      setAvailableProjects(projects);
-    } else {
-      setAvailableProjects([]);
+    async function fetchData() {
+      const allUsers = await findUsers();
+      setUsers(allUsers);
+      setClients(allUsers.filter((u) => u.role === Role.Key_Client));
     }
-  }, [watchedClientId]);
+    fetchData();
+  }, []);
 
   useEffect(() => {
-    if (editData?.clientId) {
-      setSelectedClient(editData.clientId);
-      const projects = getProjectsByClient(editData.clientId);
-      setAvailableProjects(projects);
+    async function fetchProjects() {
+      if (selectedClient) {
+        const allProjects = await fetchAllProjects();
+        setAvailableProjects(
+          allProjects.filter((p) => p.client.id === selectedClient),
+        );
+      } else {
+        setAvailableProjects([]);
+      }
+    }
+    fetchProjects();
+  }, [selectedClient]);
+
+  useEffect(() => {
+    if (editData?.client_id) {
+      setSelectedClient(editData.client_id);
     }
   }, [editData]);
 
@@ -123,11 +137,20 @@ export default function AddWorkItemDialog({
     try {
       const submitData = {
         ...data,
-        projectId: data.projectId || null,
-        endDate: data.endDate || null,
+        start_date: data.start_date ? new Date(data.start_date) : new Date(),
+        end_date: data.end_date ? new Date(data.end_date) : null,
+        fixed_price:
+          typeof data.fixed_price === "number" ? data.fixed_price : null,
+        project_id: data.project_id || null,
+        description: data.description ?? null,
+        hourly_rate:
+          typeof data.hourly_rate === "number" ? data.hourly_rate : null,
+        estimated_hours:
+          typeof data.estimated_hours === "number"
+            ? data.estimated_hours
+            : null,
       };
-
-      if (isEditing) {
+      if (isEditing && editData?.id) {
         await updateWorkItem(editData.id, submitData);
       } else {
         await createWorkItem(submitData);
@@ -177,7 +200,7 @@ export default function AddWorkItemDialog({
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="clientId"
+                name="client_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cliente</FormLabel>
@@ -205,13 +228,13 @@ export default function AddWorkItemDialog({
 
               <FormField
                 control={form.control}
-                name="projectId"
+                name="project_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Progetto (Opzionale)</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      defaultValue={field.value ?? ""}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -250,10 +273,10 @@ export default function AddWorkItemDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="time-material">
+                        <SelectItem value={work_item_type.time_material}>
                           Time & Material
                         </SelectItem>
-                        <SelectItem value="fixed-price">
+                        <SelectItem value={work_item_type.fixed_price}>
                           Prezzo Fisso
                         </SelectItem>
                       </SelectContent>
@@ -279,9 +302,15 @@ export default function AddWorkItemDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="active">Attiva</SelectItem>
-                        <SelectItem value="completed">Completata</SelectItem>
-                        <SelectItem value="on-hold">In Pausa</SelectItem>
+                        <SelectItem value={work_item_status.active}>
+                          Attiva
+                        </SelectItem>
+                        <SelectItem value={work_item_status.completed}>
+                          Completata
+                        </SelectItem>
+                        <SelectItem value={work_item_status.on_hold}>
+                          In Pausa
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -293,12 +322,16 @@ export default function AddWorkItemDialog({
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="startDate"
+                name="start_date"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Data Inizio</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input
+                        type="date"
+                        {...field}
+                        value={field.value?.toISOString().split("T")[0]}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -307,12 +340,16 @@ export default function AddWorkItemDialog({
 
               <FormField
                 control={form.control}
-                name="endDate"
+                name="end_date"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Data Fine (Opzionale)</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input
+                        type="date"
+                        {...field}
+                        value={field.value?.toISOString().split("T")[0]}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -320,11 +357,11 @@ export default function AddWorkItemDialog({
               />
             </div>
 
-            {watchedType === "time-material" ? (
+            {watchedType === work_item_type.time_material ? (
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="hourlyRate"
+                  name="hourly_rate"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tariffa Oraria (€)</FormLabel>
@@ -333,6 +370,7 @@ export default function AddWorkItemDialog({
                           type="number"
                           placeholder="65"
                           {...field}
+                          value={field.value?.toString() ?? ""}
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
                           }
@@ -345,7 +383,7 @@ export default function AddWorkItemDialog({
 
                 <FormField
                   control={form.control}
-                  name="estimatedHours"
+                  name="estimated_hours"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Ore Stimate</FormLabel>
@@ -354,6 +392,7 @@ export default function AddWorkItemDialog({
                           type="number"
                           placeholder="800"
                           {...field}
+                          value={field.value?.toString() ?? ""}
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
                           }
@@ -367,7 +406,7 @@ export default function AddWorkItemDialog({
             ) : (
               <FormField
                 control={form.control}
-                name="fixedPrice"
+                name="fixed_price"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Prezzo Fisso (€)</FormLabel>
@@ -376,6 +415,7 @@ export default function AddWorkItemDialog({
                         type="number"
                         placeholder="15000"
                         {...field}
+                        value={field.value?.toString() ?? ""}
                         onChange={(e) => field.onChange(Number(e.target.value))}
                       />
                     </FormControl>
@@ -387,7 +427,7 @@ export default function AddWorkItemDialog({
 
             <FormField
               control={form.control}
-              name="enabledUsers"
+              name="enabled_users"
               render={() => (
                 <FormItem>
                   <div className="mb-4">
@@ -404,7 +444,7 @@ export default function AddWorkItemDialog({
                       <FormField
                         key={user.id}
                         control={form.control}
-                        name="enabledUsers"
+                        name="enabled_users"
                         render={({ field }) => {
                           return (
                             <FormItem
@@ -429,7 +469,7 @@ export default function AddWorkItemDialog({
                                 />
                               </FormControl>
                               <FormLabel className="text-sm font-normal">
-                                {user.name} {user.surname}
+                                {user.name}
                               </FormLabel>
                             </FormItem>
                           );
@@ -453,6 +493,7 @@ export default function AddWorkItemDialog({
                       placeholder="Descrizione dettagliata della commessa..."
                       className="resize-none"
                       {...field}
+                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormMessage />

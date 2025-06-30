@@ -1,6 +1,7 @@
 "use client";
 
 import { createProject } from "@/api/server/project/createProject";
+import { Project } from "@/api/server/project/fetchAllProjects";
 import { updateProject } from "@/api/server/project/updateProject";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,7 +39,7 @@ import { addProjectSchema } from "./schema";
 interface AddProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editData?: project;
+  editData?: Project;
   projectId?: string;
 }
 
@@ -65,7 +66,7 @@ export default function AddProjectDialog({
     if (editData) {
       form.reset({
         name: editData.name,
-        client: editData.client,
+        client: editData.client.id,
         description: editData.description ?? undefined,
         status: editData.status,
         start_date: String(editData.start_date).slice(0, 10),
@@ -83,6 +84,7 @@ export default function AddProjectDialog({
       start_date: new Date(data.start_date),
       end_date: data.end_date ? new Date(data.end_date) : null,
       status: data.status as ProjectStatus,
+      client_id: data.client, // Assuming client is a string ID
     };
 
     if (editData && projectId) {

@@ -3,20 +3,21 @@
 import { db } from "@/config/prisma";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
-export async function fetchAllProjects(params?: string | null) {
+export async function fetchAllWorkItems(params?: string | null) {
   const user = await getUserInfoFromCookie();
 
+  // Example: restrict to user's enabled work items if not admin
   if (user.role !== "Admin" && user.role !== "Super_Admin") {
-    return db.project.findMany({
+    return db.work_items.findMany({
       where: {
-        allocation: {
+        work_item_enabled_users: {
           some: {
             user_id: user.id,
           },
         },
         ...(params
           ? {
-              name: {
+              title: {
                 contains: params || "",
                 mode: "insensitive",
               },
@@ -24,30 +25,29 @@ export async function fetchAllProjects(params?: string | null) {
           : {}),
       },
       include: {
-        client: true,
+        work_item_enabled_users: true,
       },
     });
   }
 
   if (!params)
-    return db.project.findMany({
+    return db.work_items.findMany({
       include: {
-        client: true,
+        work_item_enabled_users: true,
       },
     });
 
-  console.info("Fetching projects with params:", params);
-  return db.project.findMany({
+  return db.work_items.findMany({
     where: {
-      name: {
+      title: {
         contains: params,
         mode: "insensitive",
       },
     },
     include: {
-      client: true,
+      work_item_enabled_users: true,
     },
   });
 }
 
-export type Project = Awaited<ReturnType<typeof fetchAllProjects>>[number];
+export type WorkItem = Awaited<ReturnType<typeof fetchAllWorkItems>>[number];

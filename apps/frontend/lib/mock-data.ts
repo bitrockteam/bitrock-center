@@ -60,8 +60,23 @@ const users = [
   },
 ];
 
-// Mock clients data
-const clientsData = [
+type ClientStatus = "active" | "inactive";
+
+export interface Client {
+  id: string;
+  name: string;
+  code: string;
+  email: string;
+  phone: string;
+  address: string;
+  vatNumber: string;
+  contactPerson: string;
+  status: ClientStatus;
+  createdAt: string; // ISO date string
+  notes: string;
+}
+
+export const clientsData: Client[] = [
   {
     id: "client-1",
     name: "Acme Corporation",
@@ -113,99 +128,6 @@ const clientsData = [
     status: "inactive",
     createdAt: "2023-06-01",
     notes: "Cliente locale con progetti stagionali",
-  },
-];
-
-// Mock work items data
-const workItemsData = [
-  {
-    id: "work-1",
-    title: "Sviluppo E-commerce Platform",
-    clientId: "client-1",
-    projectId: "project-1",
-    type: "time-material",
-    startDate: "2023-01-15",
-    endDate: "2023-12-31",
-    enabledUsers: ["user-1", "user-2", "user-3"],
-    status: "active",
-    description:
-      "Sviluppo completo della piattaforma e-commerce con gestione inventario",
-    hourlyRate: 65,
-    estimatedHours: 800,
-    createdAt: "2023-01-10",
-  },
-  {
-    id: "work-2",
-    title: "UI/UX Design Sistema",
-    clientId: "client-1",
-    projectId: "project-1",
-    type: "fixed-price",
-    startDate: "2023-02-01",
-    endDate: "2023-04-30",
-    enabledUsers: ["user-2"],
-    status: "completed",
-    description: "Design completo dell'interfaccia utente e esperienza utente",
-    fixedPrice: 15000,
-    createdAt: "2023-01-25",
-  },
-  {
-    id: "work-3",
-    title: "Sistema Gestione Documentale",
-    clientId: "client-2",
-    projectId: "project-2",
-    type: "time-material",
-    startDate: "2023-03-10",
-    endDate: null,
-    enabledUsers: ["user-1", "user-3", "user-5"],
-    status: "active",
-    description: "Implementazione sistema DMS con workflow approvativo",
-    hourlyRate: 70,
-    estimatedHours: 600,
-    createdAt: "2023-03-05",
-  },
-  {
-    id: "work-4",
-    title: "App Mobile Presenze",
-    clientId: "client-3",
-    projectId: "project-3",
-    type: "fixed-price",
-    startDate: "2023-02-01",
-    endDate: "2023-08-31",
-    enabledUsers: ["user-1", "user-3"],
-    status: "on-hold",
-    description: "Sviluppo app mobile per gestione presenze aziendali",
-    fixedPrice: 25000,
-    createdAt: "2023-01-28",
-  },
-  {
-    id: "work-5",
-    title: "Consulenza Tecnica",
-    clientId: "client-2",
-    projectId: null,
-    type: "time-material",
-    startDate: "2023-04-01",
-    endDate: "2023-12-31",
-    enabledUsers: ["user-3", "user-5"],
-    status: "active",
-    description: "Consulenza tecnica generale e supporto",
-    hourlyRate: 80,
-    estimatedHours: 200,
-    createdAt: "2023-03-28",
-  },
-  {
-    id: "work-6",
-    title: "Portale HR",
-    clientId: "client-3",
-    projectId: "project-4",
-    type: "time-material",
-    startDate: "2022-11-01",
-    endDate: "2023-05-30",
-    enabledUsers: ["user-2", "user-3"],
-    status: "completed",
-    description: "Realizzazione portale web per gestione risorse umane",
-    hourlyRate: 65,
-    estimatedHours: 400,
-    createdAt: "2022-10-25",
   },
 ];
 
@@ -871,48 +793,6 @@ export const deleteClient = (id: string) => {
   return false;
 };
 
-// Work Items functions
-export const getAllWorkItems = () => workItemsData;
-export const getWorkItemById = (id: string) =>
-  workItemsData.find((item) => item.id === id);
-export const getWorkItemsByClient = (clientId: string) =>
-  workItemsData.filter((item) => item.clientId === clientId);
-export const getWorkItemsByProject = (projectId: string) =>
-  workItemsData.filter((item) => item.projectId === projectId);
-
-export const createWorkItem = (
-  workItemData: Omit<(typeof workItemsData)[0], "id" | "createdAt">,
-) => {
-  const newWorkItem = {
-    ...workItemData,
-    id: `work-${Date.now()}`,
-    createdAt: new Date().toISOString().split("T")[0],
-  };
-  workItemsData.push(newWorkItem);
-  return newWorkItem;
-};
-
-export const updateWorkItem = (
-  id: string,
-  updates: Partial<(typeof workItemsData)[0]>,
-) => {
-  const itemIndex = workItemsData.findIndex((item) => item.id === id);
-  if (itemIndex !== -1) {
-    workItemsData[itemIndex] = { ...workItemsData[itemIndex], ...updates };
-    return workItemsData[itemIndex];
-  }
-  return null;
-};
-
-export const deleteWorkItem = (id: string) => {
-  const itemIndex = workItemsData.findIndex((item) => item.id === id);
-  if (itemIndex !== -1) {
-    workItemsData.splice(itemIndex, 1);
-    return true;
-  }
-  return false;
-};
-
 // Contract functions
 export const getContractByEmployeeId = (employeeId: string) =>
   contractsData.find((contract) => contract.employeeId === employeeId);
@@ -965,7 +845,6 @@ export const getTimeEntriesByProject = (projectId: string) => {
         id: entry.project,
         name: entry.project,
       },
-      workItem: workItemsData.find((w) => w.id === entry.workItemId),
     }));
 };
 
@@ -978,7 +857,6 @@ export const getTimeEntriesByUser = (userId: string) => {
         id: entry.project,
         name: entry.project,
       },
-      workItem: workItemsData.find((w) => w.id === entry.workItemId),
     }));
 };
 

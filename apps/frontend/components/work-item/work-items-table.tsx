@@ -1,5 +1,10 @@
 "use client";
 
+import { findUsers } from "@/api/server/user/findUsers";
+import {
+  fetchAllWorkItems,
+  WorkItem,
+} from "@/api/server/work-item/fetchAllWorkItems";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,32 +35,39 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  getAllClients,
-  getAllUsers,
-  getAllWorkItems,
-  getProjectById,
-} from "@/lib/mock-data";
+import { Role, user, work_item_type, work_items } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { Clock, Edit, Euro, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
 import WorkItemsHeader from "./work-items-header";
 
 export default function WorkItemsTable() {
   const router = useRouter();
-  const [editWorkItem, setEditWorkItem] = useState<any>(null);
-  const [deleteWorkItem, setDeleteWorkItem] = useState<any>(null);
+  const [editWorkItem, setEditWorkItem] = useState<work_items | null>(null);
+  const [deleteWorkItem, setDeleteWorkItem] = useState<work_items | null>(null);
   const [clientFilter, setClientFilter] = useState<string | null>(null);
+  const [workItems, setWorkItems] = useState<WorkItem[]>([]);
+  const [clients, setClients] = useState<user[]>([]);
+  const [users, setUsers] = useState<user[]>([]);
 
-  const allWorkItems = getAllWorkItems();
-  const clients = getAllClients();
-  const users = getAllUsers();
+  useEffect(() => {
+    async function fetchData() {
+      const [workItemsData, usersData] = await Promise.all([
+        fetchAllWorkItems(),
+        findUsers(),
+      ]);
+      setWorkItems(workItemsData);
+      setUsers(usersData);
+      setClients(usersData.filter((u) => u.role === Role.Key_Client));
+    }
+    fetchData();
+  }, []);
 
-  const workItems = clientFilter
-    ? allWorkItems.filter((item) => item.clientId === clientFilter)
-    : allWorkItems;
+  const filteredWorkItems = clientFilter
+    ? workItems.filter((item) => item.client_id === clientFilter)
+    : workItems;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -100,11 +112,6 @@ export default function WorkItemsTable() {
     return clients.find((c) => c.id === clientId)?.name || "N/A";
   };
 
-  const getProjectName = (projectId: string | null) => {
-    if (!projectId) return null;
-    return getProjectById(projectId)?.name || "N/A";
-  };
-
   return (
     <div className="space-y-6">
       <WorkItemsHeader onClientFilter={setClientFilter} />
@@ -131,7 +138,7 @@ export default function WorkItemsTable() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {workItems.length === 0 ? (
+                  {filteredWorkItems.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={8}
@@ -141,7 +148,7 @@ export default function WorkItemsTable() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    workItems.map((item) => (
+                    filteredWorkItems.map((item) => (
                       <TableRow
                         key={item.id}
                         className="cursor-pointer hover:bg-muted/50"
@@ -150,12 +157,10 @@ export default function WorkItemsTable() {
                         <TableCell className="font-medium">
                           {item.title}
                         </TableCell>
-                        <TableCell>{getClientName(item.clientId)}</TableCell>
+                        <TableCell>{getClientName(item.client_id)}</TableCell>
                         <TableCell>
-                          {item.projectId ? (
-                            <span className="text-sm">
-                              {getProjectName(item.projectId)}
-                            </span>
+                          {item.project_id ? (
+                            <span className="text-sm">{item.project_id}</span>
                           ) : (
                             <span className="text-sm text-muted-foreground">
                               Nessun progetto
@@ -166,10 +171,12 @@ export default function WorkItemsTable() {
                         <TableCell>{getStatusBadge(item.status)}</TableCell>
                         <TableCell>
                           <div className="flex -space-x-2">
-                            {item.enabledUsers
+                            {(item.work_item_enabled_users ?? [])
                               .slice(0, 3)
-                              .map((userId, index) => {
-                                const user = users.find((u) => u.id === userId);
+                              .map(({ user_id }, index: number) => {
+                                const user = users.find(
+                                  (u) => u.id === user_id,
+                                );
                                 return (
                                   <Avatar
                                     key={index}
@@ -177,35 +184,39 @@ export default function WorkItemsTable() {
                                   >
                                     <AvatarImage
                                       src={
-                                        user?.avatar ||
+                                        user?.avatar_url ||
                                         "/placeholder.svg?height=24&width=24"
                                       }
                                     />
                                     <AvatarFallback className="text-xs">
                                       {user?.name.charAt(0)}
-                                      {user?.surname.charAt(0)}
                                     </AvatarFallback>
                                   </Avatar>
                                 );
                               })}
-                            {item.enabledUsers.length > 3 && (
+                            {(item.work_item_enabled_users.length ?? 0) > 3 && (
                               <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium">
-                                +{item.enabledUsers.length - 3}
+                                +
+                                {((
+                                  item as work_items & {
+                                    enabled_users?: string[];
+                                  }
+                                ).enabled_users?.length ?? 0) - 3}
                               </div>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center text-sm">
-                            {item.type === "fixed-price" ? (
+                            {item.type === work_item_type.fixed_price ? (
                               <>
                                 <Euro className="mr-1 h-3 w-3" />
-                                {item.fixedPrice?.toLocaleString("it-IT")}
+                                {item.fixed_price?.toLocaleString("it-IT")}
                               </>
                             ) : (
                               <>
                                 <Clock className="mr-1 h-3 w-3" />€
-                                {item.hourlyRate}/h
+                                {item.hourly_rate}/h
                               </>
                             )}
                           </div>
@@ -268,7 +279,29 @@ export default function WorkItemsTable() {
           <AddWorkItemDialog
             open={!!editWorkItem}
             onOpenChange={(open) => !open && setEditWorkItem(null)}
-            editData={editWorkItem}
+            editData={
+              editWorkItem
+                ? {
+                    ...editWorkItem,
+                    start_date: editWorkItem.start_date,
+                    end_date: editWorkItem.end_date,
+                    project_id: editWorkItem.project_id ?? "",
+                    description: editWorkItem.description ?? "",
+                    hourly_rate:
+                      editWorkItem.hourly_rate === null
+                        ? undefined
+                        : editWorkItem.hourly_rate,
+                    estimated_hours:
+                      editWorkItem.estimated_hours === null
+                        ? undefined
+                        : editWorkItem.estimated_hours,
+                    fixed_price:
+                      editWorkItem.fixed_price === null
+                        ? undefined
+                        : editWorkItem.fixed_price,
+                  }
+                : undefined
+            }
           />
         )}
 

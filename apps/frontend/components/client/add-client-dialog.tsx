@@ -1,10 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+import { createClient } from "@/api/server/client/createClient";
+import { FindClientByIdResponse } from "@/api/server/client/findClientById";
+import { updateClient } from "@/api/server/client/updateClient";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,18 +11,37 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { createClient, updateClient } from "@/lib/mock-data"
-import { Loader2 } from "lucide-react"
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const clientSchema = z.object({
   name: z.string().min(1, "Il nome è obbligatorio"),
-  code: z.string().min(1, "Il codice è obbligatorio").max(10, "Il codice deve essere massimo 10 caratteri"),
+  code: z
+    .string()
+    .min(1, "Il codice è obbligatorio")
+    .max(10, "Il codice deve essere massimo 10 caratteri"),
   email: z.string().email("Email non valida"),
   phone: z.string().min(1, "Il telefono è obbligatorio"),
   address: z.string().min(1, "L'indirizzo è obbligatorio"),
@@ -31,19 +49,23 @@ const clientSchema = z.object({
   contactPerson: z.string().min(1, "La persona di contatto è obbligatoria"),
   status: z.enum(["active", "inactive"]),
   notes: z.string().optional(),
-})
+});
 
-type ClientFormData = z.infer<typeof clientSchema>
+type ClientFormData = z.infer<typeof clientSchema>;
 
 interface AddClientDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  editData?: any
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  editData?: FindClientByIdResponse;
 }
 
-export default function AddClientDialog({ open, onOpenChange, editData }: AddClientDialogProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const isEditing = !!editData
+export default function AddClientDialog({
+  open,
+  onOpenChange,
+  editData,
+}: AddClientDialogProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const isEditing = !!editData;
 
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
@@ -53,37 +75,61 @@ export default function AddClientDialog({ open, onOpenChange, editData }: AddCli
       email: editData?.email || "",
       phone: editData?.phone || "",
       address: editData?.address || "",
-      vatNumber: editData?.vatNumber || "",
-      contactPerson: editData?.contactPerson || "",
+      vatNumber: editData?.vat_number || "",
+      contactPerson: editData?.contact_person || "",
       status: editData?.status || "active",
       notes: editData?.notes || "",
     },
-  })
+  });
 
   const onSubmit = async (data: ClientFormData) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       if (isEditing) {
-        await updateClient(editData.id, data)
+        await updateClient(editData.id, {
+          name: data.name,
+          code: data.code,
+          email: data.email,
+          phone: data.phone,
+          address: data.address,
+          vat_number: data.vatNumber,
+          contact_person: data.contactPerson,
+          status: data.status,
+          notes: data.notes || "",
+        });
       } else {
-        await createClient(data)
+        await createClient({
+          name: data.name,
+          code: data.code,
+          email: data.email,
+          phone: data.phone,
+          address: data.address,
+          vat_number: data.vatNumber,
+          contact_person: data.contactPerson,
+          status: data.status,
+          notes: data.notes || "",
+        });
       }
-      onOpenChange(false)
-      form.reset()
+      onOpenChange(false);
+      form.reset();
     } catch (error) {
-      console.error("Errore durante il salvataggio:", error)
+      console.error("Errore durante il salvataggio:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Modifica Cliente" : "Nuovo Cliente"}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Modifica Cliente" : "Nuovo Cliente"}
+          </DialogTitle>
           <DialogDescription>
-            {isEditing ? "Modifica i dati del cliente esistente." : "Inserisci i dati per creare un nuovo cliente."}
+            {isEditing
+              ? "Modifica i dati del cliente esistente."
+              : "Inserisci i dati per creare un nuovo cliente."}
           </DialogDescription>
         </DialogHeader>
 
@@ -127,7 +173,11 @@ export default function AddClientDialog({ open, onOpenChange, editData }: AddCli
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="contact@acme.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder="contact@acme.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -156,7 +206,10 @@ export default function AddClientDialog({ open, onOpenChange, editData }: AddCli
                 <FormItem>
                   <FormLabel>Indirizzo</FormLabel>
                   <FormControl>
-                    <Input placeholder="Via Milano 123, 20100 Milano" {...field} />
+                    <Input
+                      placeholder="Via Milano 123, 20100 Milano"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -199,7 +252,10 @@ export default function AddClientDialog({ open, onOpenChange, editData }: AddCli
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Stato</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona lo stato" />
@@ -222,7 +278,11 @@ export default function AddClientDialog({ open, onOpenChange, editData }: AddCli
                 <FormItem>
                   <FormLabel>Note</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Note aggiuntive sul cliente..." className="resize-none" {...field} />
+                    <Textarea
+                      placeholder="Note aggiuntive sul cliente..."
+                      className="resize-none"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -230,12 +290,21 @@ export default function AddClientDialog({ open, onOpenChange, editData }: AddCli
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
                 Annulla
               </Button>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isLoading && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
                   {isEditing ? "Salva Modifiche" : "Crea Cliente"}
                 </Button>
               </motion.div>
@@ -244,5 +313,5 @@ export default function AddClientDialog({ open, onOpenChange, editData }: AddCli
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

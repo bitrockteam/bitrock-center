@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchWorkItemById } from "@/api/server/work-item/fetchWorkItemById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,13 +20,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  getAllUsers,
-  getClientById,
-  getProjectById,
-  getTimeEntriesByWorkItem,
-  getWorkItemById,
-} from "@/lib/mock-data";
+import { useServerAction } from "@/hooks/useServerAction";
+import { formatDisplayName } from "@/services/users/utils";
+import { work_item_type } from "@bitrock/db";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -37,20 +34,17 @@ import {
   Euro,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
 
 export default function WorkItemDetail({ id }: { id: string }) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [workItem, getWorkItem] = useServerAction(fetchWorkItemById);
 
-  const workItem = getWorkItemById(id);
-  const client = workItem ? getClientById(workItem.clientId) : null;
-  const project = workItem?.projectId
-    ? getProjectById(workItem.projectId)
-    : null;
-  const users = getAllUsers();
-  const timeEntries = getTimeEntriesByWorkItem(id);
+  useEffect(() => {
+    getWorkItem({ workItemId: id });
+  }, [getWorkItem, id]);
 
   if (!workItem) {
     return (
@@ -102,10 +96,16 @@ export default function WorkItemDetail({ id }: { id: string }) {
     }
   };
 
-  const enabledUsers = users.filter((user) =>
-    workItem.enabledUsers.includes(user.id),
+  const project = workItem.project;
+  const client = workItem.client;
+
+  const totalHours = workItem.project?.timesheet.reduce(
+    (sum, entry) => sum + entry.hours,
+    0,
   );
-  const totalHours = timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
+
+  const enabledUsers = workItem.work_item_enabled_users;
+  const timeEntries = workItem.project?.timesheet;
 
   return (
     <motion.div
@@ -175,7 +175,8 @@ export default function WorkItemDetail({ id }: { id: string }) {
                   Periodo:
                 </p>
                 <p className="text-sm text-muted-foreground ml-6">
-                  {workItem.startDate} - {workItem.endDate || "In corso"}
+                  {workItem.start_date.toDateString()} -{" "}
+                  {workItem.end_date?.toDateString() || "In corso"}
                 </p>
               </div>
               {workItem.description && (
@@ -199,7 +200,7 @@ export default function WorkItemDetail({ id }: { id: string }) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {workItem.type === "time-material" ? (
+              {workItem.type === work_item_type.time_material ? (
                 <>
                   <div className="space-y-2">
                     <p className="text-sm font-medium flex items-center">
@@ -207,7 +208,7 @@ export default function WorkItemDetail({ id }: { id: string }) {
                       Tariffa Oraria:
                     </p>
                     <p className="text-sm text-muted-foreground ml-6">
-                      €{workItem.hourlyRate}/ora
+                      €{workItem.hourly_rate}/ora
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -216,7 +217,7 @@ export default function WorkItemDetail({ id }: { id: string }) {
                       Ore Stimate:
                     </p>
                     <p className="text-sm text-muted-foreground ml-6">
-                      {workItem.estimatedHours} ore
+                      {workItem.estimated_hours} ore
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -236,7 +237,7 @@ export default function WorkItemDetail({ id }: { id: string }) {
                     Prezzo Fisso:
                   </p>
                   <p className="text-sm text-muted-foreground ml-6">
-                    €{workItem.fixedPrice?.toLocaleString("it-IT")}
+                    €{workItem.fixed_price?.toLocaleString("it-IT")}
                   </p>
                 </div>
               )}
@@ -254,21 +255,23 @@ export default function WorkItemDetail({ id }: { id: string }) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {enabledUsers.map((user) => (
+            {enabledUsers.map(({ user }) => (
               <div key={user.id} className="flex items-center space-x-3">
                 <Avatar className="h-10 w-10">
                   <AvatarImage
-                    src={user.avatar || "/placeholder.svg?height=40&width=40"}
+                    src={
+                      user.avatar_url || "/placeholder.svg?height=40&width=40"
+                    }
                   />
                   <AvatarFallback>
-                    {user.name.charAt(0)}
-                    {user.surname.charAt(0)}
+                    {formatDisplayName({
+                      name: user.name,
+                      initials: true,
+                    })}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium">
-                    {user.name} {user.surname}
-                  </p>
+                  <p className="text-sm font-medium">{user.name}</p>
                   <p className="text-xs text-muted-foreground capitalize">
                     {user.role}
                   </p>
@@ -298,11 +301,11 @@ export default function WorkItemDetail({ id }: { id: string }) {
                     <TableHead>Utente</TableHead>
                     <TableHead>Ore</TableHead>
                     <TableHead>Descrizione</TableHead>
-                    <TableHead>Stato</TableHead>
+                    {/* <TableHead>Stato</TableHead> */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {timeEntries.length === 0 ? (
+                  {timeEntries?.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={5}
@@ -312,31 +315,31 @@ export default function WorkItemDetail({ id }: { id: string }) {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    timeEntries.map((entry, index) => (
+                    timeEntries?.map((entry, index) => (
                       <TableRow key={index}>
-                        <TableCell>{entry.date}</TableCell>
+                        <TableCell>{entry.date.toDateString()}</TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Avatar className="h-6 w-6">
                               <AvatarImage
                                 src={
-                                  entry.user.avatar ||
+                                  entry.user.avatar_url ||
                                   "/placeholder.svg?height=24&width=24"
                                 }
                               />
                               <AvatarFallback>
-                                {entry.user.name.charAt(0)}
-                                {entry.user.surname.charAt(0)}
+                                {formatDisplayName({
+                                  name: entry.user.name,
+                                  initials: true,
+                                })}
                               </AvatarFallback>
                             </Avatar>
-                            <span>
-                              {entry.user.name} {entry.user.surname}
-                            </span>
+                            <span>{entry.user.name}</span>
                           </div>
                         </TableCell>
                         <TableCell>{entry.hours}</TableCell>
                         <TableCell>{entry.description}</TableCell>
-                        <TableCell>
+                        {/* <TableCell>
                           <Badge
                             variant={
                               entry.status === "approved"
@@ -352,7 +355,7 @@ export default function WorkItemDetail({ id }: { id: string }) {
                                 ? "In attesa"
                                 : "Rifiutato"}
                           </Badge>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     ))
                   )}
@@ -387,10 +390,11 @@ export default function WorkItemDetail({ id }: { id: string }) {
                 </div>
                 <div className="text-center p-4 border rounded-lg">
                   <div className="text-2xl font-bold">
-                    {workItem.type === "time-material" && workItem.hourlyRate
-                      ? `€${(totalHours * workItem.hourlyRate).toLocaleString("it-IT")}`
-                      : workItem.type === "fixed-price"
-                        ? `€${workItem.fixedPrice?.toLocaleString("it-IT")}`
+                    {workItem.type === work_item_type.time_material &&
+                    workItem.hourly_rate
+                      ? `€${(totalHours ?? 0 * workItem.hourly_rate).toLocaleString("it-IT")}`
+                      : workItem.type === work_item_type.fixed_price
+                        ? `€${workItem.fixed_price?.toLocaleString("it-IT")}`
                         : "N/A"}
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -404,11 +408,13 @@ export default function WorkItemDetail({ id }: { id: string }) {
       </Tabs>
 
       {/* Dialog per modificare la commessa */}
-      <AddWorkItemDialog
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        editData={workItem}
-      />
+      {workItem && (
+        <AddWorkItemDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          editData={workItem}
+        />
+      )}
     </motion.div>
   );
 }

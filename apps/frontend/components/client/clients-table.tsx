@@ -1,23 +1,5 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Edit, MoreHorizontal, Trash2, Eye, Building2 } from "lucide-react"
-import { getAllClients } from "@/lib/mock-data"
-import AddClientDialog from "./add-client-dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,29 +9,60 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import { getAllClients } from "@/api/server/client/getAllClients";
+import { useServerAction } from "@/hooks/useServerAction";
+import { motion } from "framer-motion";
+import { Building2, Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import AddClientDialog from "./add-client-dialog";
 
 export default function ClientsTable() {
-  const router = useRouter()
-  const [editClient, setEditClient] = useState<any>(null)
-  const [deleteClient, setDeleteClient] = useState<any>(null)
+  const router = useRouter();
+  const [editClient, setEditClient] = useState<string>();
+  const [deleteClient, setDeleteClient] = useState<string>();
 
-  const clients = getAllClients()
+  const [clients, getClients] = useServerAction(getAllClients);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-500">Attivo</Badge>
+        return <Badge className="bg-green-500">Attivo</Badge>;
       case "inactive":
-        return <Badge variant="secondary">Inattivo</Badge>
+        return <Badge variant="secondary">Inattivo</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>
+        return <Badge variant="secondary">{status}</Badge>;
     }
-  }
+  };
 
   const handleViewClient = (id: string) => {
-    router.push(`/clienti/${id}`)
-  }
+    router.push(`/clienti/${id}`);
+  };
+
+  useEffect(() => {
+    getClients();
+  }, [getClients]);
 
   return (
     <motion.div
@@ -73,14 +86,17 @@ export default function ClientsTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {clients.length === 0 ? (
+                {clients?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                    <TableCell
+                      colSpan={7}
+                      className="text-center py-6 text-muted-foreground"
+                    >
                       Nessun cliente trovato
                     </TableCell>
                   </TableRow>
                 ) : (
-                  clients.map((client) => (
+                  clients?.map((client) => (
                     <TableRow
                       key={client.id}
                       className="cursor-pointer hover:bg-muted/50"
@@ -95,13 +111,16 @@ export default function ClientsTable() {
                       <TableCell>
                         <Badge variant="outline">{client.code}</Badge>
                       </TableCell>
-                      <TableCell>{client.contactPerson}</TableCell>
+                      <TableCell>{client.contact_person}</TableCell>
                       <TableCell>{client.email}</TableCell>
                       <TableCell>{client.phone}</TableCell>
                       <TableCell>{getStatusBadge(client.status)}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
-                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenuTrigger
+                            asChild
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Button variant="ghost" size="icon">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
@@ -111,8 +130,8 @@ export default function ClientsTable() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={(e) => {
-                                e.stopPropagation()
-                                handleViewClient(client.id)
+                                e.stopPropagation();
+                                handleViewClient(client.id);
                               }}
                             >
                               <Eye className="mr-2 h-4 w-4" />
@@ -120,8 +139,8 @@ export default function ClientsTable() {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => {
-                                e.stopPropagation()
-                                setEditClient(client)
+                                e.stopPropagation();
+                                setEditClient(client.id);
                               }}
                             >
                               <Edit className="mr-2 h-4 w-4" />
@@ -130,8 +149,8 @@ export default function ClientsTable() {
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive"
                               onClick={(e) => {
-                                e.stopPropagation()
-                                setDeleteClient(client)
+                                e.stopPropagation();
+                                setDeleteClient(client.id);
                               }}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
@@ -153,26 +172,34 @@ export default function ClientsTable() {
       {editClient && (
         <AddClientDialog
           open={!!editClient}
-          onOpenChange={(open) => !open && setEditClient(null)}
-          editData={editClient}
+          onOpenChange={(open) => !open && setEditClient(undefined)}
+          editData={clients?.find((c) => c.id === editClient)}
         />
       )}
 
       {/* Dialog di conferma eliminazione */}
-      <AlertDialog open={!!deleteClient} onOpenChange={(open) => !open && setDeleteClient(null)}>
+      <AlertDialog
+        open={!!deleteClient}
+        onOpenChange={(open) => !open && setDeleteClient(undefined)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Sei sicuro di voler eliminare questo cliente?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Sei sicuro di voler eliminare questo cliente?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Questa azione non può essere annullata. Il cliente verrà eliminato permanentemente dal sistema.
+              Questa azione non può essere annullata. Il cliente verrà eliminato
+              permanentemente dal sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground">Elimina</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground">
+              Elimina
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </motion.div>
-  )
+  );
 }

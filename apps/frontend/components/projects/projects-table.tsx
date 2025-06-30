@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { deleteProject } from "@/api/server/project/deleteProject";
+import { Project } from "@/api/server/project/fetchAllProjects";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -39,9 +40,9 @@ import { useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import AddProjectDialog from "./add-project-dialog";
 
-export default function ProjectsTable({ projects }: { projects: project[] }) {
+export default function ProjectsTable({ projects }: { projects: Project[] }) {
   const router = useRouter();
-  const [editProjectDialog, setEditProjectDialog] = useState<project | null>(
+  const [editProjectDialog, setEditProjectDialog] = useState<Project | null>(
     null,
   );
   const [deleteProjectDialog, setDeleteProjectDialog] =
@@ -94,7 +95,7 @@ export default function ProjectsTable({ projects }: { projects: project[] }) {
                     <TableCell className="font-medium">
                       {project?.name}
                     </TableCell>
-                    <TableCell>{project?.client}</TableCell>
+                    <TableCell>{project?.client.name}</TableCell>
                     <TableCell>
                       {getProjectStatusBadge(project?.status)}
                     </TableCell>

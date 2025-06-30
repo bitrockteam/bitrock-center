@@ -20,13 +20,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getWorkItemsByProject } from "@/lib/mock-data";
 import { formatDisplayName } from "@/services/users/utils";
 import {
   getProjectStatusBadge,
   getWorkItemStatusBadge,
   getWorkItemTypeBadge,
 } from "@/utils/mapping";
+import { work_item_type } from "@bitrock/db";
 import { format, parse } from "date-fns";
 import { motion } from "framer-motion";
 import {
@@ -82,7 +82,7 @@ export default function ProjectDetail({
     user_id: "",
   });
 
-  const workItems = getWorkItemsByProject(id);
+  const workItems = project?.work_items;
   const users = allocations.map((allocation) => allocation.user);
 
   if (!project) {
@@ -124,7 +124,9 @@ export default function ProjectDetail({
               {project.name}
             </h1>
             <div className="flex items-center space-x-2">
-              <p className="text-muted-foreground">Cliente: {project.client}</p>
+              <p className="text-muted-foreground">
+                Cliente: {project.client.name}
+              </p>
               {getProjectStatusBadge(project.status)}
             </div>
           </div>
@@ -221,7 +223,7 @@ export default function ProjectDetail({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {workItems.length === 0 ? (
+                  {workItems?.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}
@@ -231,7 +233,7 @@ export default function ProjectDetail({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    workItems.map((item) => (
+                    workItems?.map((item) => (
                       <TableRow
                         key={item.id}
                         className="cursor-pointer hover:bg-muted/50"
@@ -246,30 +248,33 @@ export default function ProjectDetail({
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
-                            {item.startDate} - {item.endDate || "In corso"}
+                            {item.start_date.toDateString()} -{" "}
+                            {item.end_date?.toDateString() || "In corso"}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center text-sm">
-                            {item.type === "fixed-price" ? (
+                            {item.type === work_item_type.fixed_price ? (
                               <>
                                 <Euro className="mr-1 h-3 w-3" />
-                                {item.fixedPrice?.toLocaleString("it-IT")}
+                                {item.fixed_price?.toLocaleString("it-IT")}
                               </>
                             ) : (
                               <>
                                 <Clock className="mr-1 h-3 w-3" />€
-                                {item.hourlyRate}/h
+                                {item.hourly_rate}/h
                               </>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex -space-x-2">
-                            {item.enabledUsers
+                            {item.work_item_enabled_users
                               .slice(0, 3)
-                              .map((userId, index) => {
-                                const user = users.find((u) => u.id === userId);
+                              .map(({ user_id }, index) => {
+                                const user = users.find(
+                                  (u) => u.id === user_id,
+                                );
                                 return (
                                   <Avatar
                                     key={index}
@@ -290,9 +295,9 @@ export default function ProjectDetail({
                                   </Avatar>
                                 );
                               })}
-                            {item.enabledUsers.length > 3 && (
+                            {item.work_item_enabled_users.length > 3 && (
                               <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium">
-                                +{item.enabledUsers.length - 3}
+                                +{item.work_item_enabled_users.length - 3}
                               </div>
                             )}
                           </div>

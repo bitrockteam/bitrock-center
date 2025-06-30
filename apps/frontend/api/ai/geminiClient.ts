@@ -17,7 +17,7 @@ export async function generateSQLFromQuestion(question: string, user: user) {
   return result.response.text().trim();
 }
 
-export async function generateNaturalLanguageFromSQLOutput(sqlResults: any) {
+export async function generateNaturalLanguageFromSQLOutput(sqlResults: string) {
   const result = await model.generateContent([
     {
       text: NATURAL_LANGUAGE_PROMPT,

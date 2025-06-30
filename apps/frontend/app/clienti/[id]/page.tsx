@@ -6,14 +6,15 @@ export const metadata: Metadata = {
   description: "Visualizza i dettagli del cliente",
 };
 
-export default function ClientDetailPage({
+export default async function ClientDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   return (
     <div className="space-y-6">
-      <ClientDetail id={params.id} />
+      <ClientDetail id={id} />
     </div>
   );
 }
