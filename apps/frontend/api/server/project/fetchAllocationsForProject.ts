@@ -16,6 +16,7 @@ export async function fetchAllocationsForProject({
           name: true,
           email: true,
           role: true,
+          avatar_url: true,
         },
       },
     },

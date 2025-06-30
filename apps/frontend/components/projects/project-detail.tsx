@@ -20,8 +20,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getWorkItemsByProject } from "@/lib/mock-data";
 import { formatDisplayName } from "@/services/users/utils";
-import { getProjectStatusBadge } from "@/utils/mapping";
+import {
+  getProjectStatusBadge,
+  getWorkItemStatusBadge,
+  getWorkItemTypeBadge,
+} from "@/utils/mapping";
 import { format, parse } from "date-fns";
 import { motion } from "framer-motion";
 import {
@@ -29,6 +34,7 @@ import {
   Calendar,
   Clock,
   Edit,
+  Euro,
   GanttChart,
   Pencil,
   PlusIcon,
@@ -75,6 +81,9 @@ export default function ProjectDetail({
   }>({
     user_id: "",
   });
+
+  const workItems = getWorkItemsByProject(id);
+  const users = allocations.map((allocation) => allocation.user);
 
   if (!project) {
     return (
@@ -184,12 +193,118 @@ export default function ProjectDetail({
         </Card>
       </div>
 
-      <Tabs defaultValue="teams" className="w-full">
+      <Tabs defaultValue="commesse" className="w-full">
         <TabsList>
+          <TabsTrigger value="commesse">Commesse</TabsTrigger>
           <TabsTrigger value="teams">Team</TabsTrigger>
           <TabsTrigger value="timesheet">Timesheet</TabsTrigger>
           <TabsTrigger value="tasks">Attività</TabsTrigger>
         </TabsList>
+        <TabsContent value="commesse">
+          <Card>
+            <CardHeader>
+              <CardTitle>Commesse del Progetto</CardTitle>
+              <CardDescription>
+                Attività lavorative associate a questo progetto
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Titolo</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Stato</TableHead>
+                    <TableHead>Periodo</TableHead>
+                    <TableHead>Valore</TableHead>
+                    <TableHead>Team</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {workItems.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-6 text-muted-foreground"
+                      >
+                        Nessuna commessa associata
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    workItems.map((item) => (
+                      <TableRow
+                        key={item.id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => router.push(`/commesse/${item.id}`)}
+                      >
+                        <TableCell className="font-medium">
+                          {item.title}
+                        </TableCell>
+                        <TableCell>{getWorkItemTypeBadge(item.type)}</TableCell>
+                        <TableCell>
+                          {getWorkItemStatusBadge(item.status)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            {item.startDate} - {item.endDate || "In corso"}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center text-sm">
+                            {item.type === "fixed-price" ? (
+                              <>
+                                <Euro className="mr-1 h-3 w-3" />
+                                {item.fixedPrice?.toLocaleString("it-IT")}
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="mr-1 h-3 w-3" />€
+                                {item.hourlyRate}/h
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex -space-x-2">
+                            {item.enabledUsers
+                              .slice(0, 3)
+                              .map((userId, index) => {
+                                const user = users.find((u) => u.id === userId);
+                                return (
+                                  <Avatar
+                                    key={index}
+                                    className="h-6 w-6 border-2 border-background"
+                                  >
+                                    <AvatarImage
+                                      src={
+                                        user?.avatar_url ||
+                                        "/placeholder.svg?height=24&width=24"
+                                      }
+                                    />
+                                    <AvatarFallback className="text-xs">
+                                      {formatDisplayName({
+                                        name: user?.name || "Utente",
+                                        initials: true,
+                                      })}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                );
+                              })}
+                            {item.enabledUsers.length > 3 && (
+                              <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium">
+                                +{item.enabledUsers.length - 3}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
         <TabsContent value="teams">
           <Card>
             <CardHeader>

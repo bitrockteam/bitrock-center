@@ -60,6 +60,233 @@ const users = [
   },
 ];
 
+// Mock clients data
+const clientsData = [
+  {
+    id: "client-1",
+    name: "Acme Corporation",
+    code: "ACME",
+    email: "contact@acme.com",
+    phone: "+39 02 1234 5678",
+    address: "Via Milano 123, 20100 Milano",
+    vatNumber: "IT12345678901",
+    contactPerson: "Mario Rossi",
+    status: "active",
+    createdAt: "2023-01-15",
+    notes: "Cliente principale per progetti enterprise",
+  },
+  {
+    id: "client-2",
+    name: "TechStart SRL",
+    code: "TECH",
+    email: "info@techstart.it",
+    phone: "+39 06 9876 5432",
+    address: "Via Roma 456, 00100 Roma",
+    vatNumber: "IT98765432109",
+    contactPerson: "Laura Bianchi",
+    status: "active",
+    createdAt: "2023-03-10",
+    notes: "Startup tecnologica in crescita",
+  },
+  {
+    id: "client-3",
+    name: "Global Industries",
+    code: "GLOB",
+    email: "projects@global.com",
+    phone: "+39 011 5555 7777",
+    address: "Corso Torino 789, 10100 Torino",
+    vatNumber: "IT11223344556",
+    contactPerson: "Giuseppe Verdi",
+    status: "active",
+    createdAt: "2022-11-01",
+    notes: "Multinazionale con progetti complessi",
+  },
+  {
+    id: "client-4",
+    name: "Local Business",
+    code: "LOCAL",
+    email: "admin@localbiz.it",
+    phone: "+39 051 3333 4444",
+    address: "Via Bologna 321, 40100 Bologna",
+    vatNumber: "IT66778899001",
+    contactPerson: "Anna Neri",
+    status: "inactive",
+    createdAt: "2023-06-01",
+    notes: "Cliente locale con progetti stagionali",
+  },
+];
+
+// Mock work items data
+const workItemsData = [
+  {
+    id: "work-1",
+    title: "Sviluppo E-commerce Platform",
+    clientId: "client-1",
+    projectId: "project-1",
+    type: "time-material",
+    startDate: "2023-01-15",
+    endDate: "2023-12-31",
+    enabledUsers: ["user-1", "user-2", "user-3"],
+    status: "active",
+    description:
+      "Sviluppo completo della piattaforma e-commerce con gestione inventario",
+    hourlyRate: 65,
+    estimatedHours: 800,
+    createdAt: "2023-01-10",
+  },
+  {
+    id: "work-2",
+    title: "UI/UX Design Sistema",
+    clientId: "client-1",
+    projectId: "project-1",
+    type: "fixed-price",
+    startDate: "2023-02-01",
+    endDate: "2023-04-30",
+    enabledUsers: ["user-2"],
+    status: "completed",
+    description: "Design completo dell'interfaccia utente e esperienza utente",
+    fixedPrice: 15000,
+    createdAt: "2023-01-25",
+  },
+  {
+    id: "work-3",
+    title: "Sistema Gestione Documentale",
+    clientId: "client-2",
+    projectId: "project-2",
+    type: "time-material",
+    startDate: "2023-03-10",
+    endDate: null,
+    enabledUsers: ["user-1", "user-3", "user-5"],
+    status: "active",
+    description: "Implementazione sistema DMS con workflow approvativo",
+    hourlyRate: 70,
+    estimatedHours: 600,
+    createdAt: "2023-03-05",
+  },
+  {
+    id: "work-4",
+    title: "App Mobile Presenze",
+    clientId: "client-3",
+    projectId: "project-3",
+    type: "fixed-price",
+    startDate: "2023-02-01",
+    endDate: "2023-08-31",
+    enabledUsers: ["user-1", "user-3"],
+    status: "on-hold",
+    description: "Sviluppo app mobile per gestione presenze aziendali",
+    fixedPrice: 25000,
+    createdAt: "2023-01-28",
+  },
+  {
+    id: "work-5",
+    title: "Consulenza Tecnica",
+    clientId: "client-2",
+    projectId: null,
+    type: "time-material",
+    startDate: "2023-04-01",
+    endDate: "2023-12-31",
+    enabledUsers: ["user-3", "user-5"],
+    status: "active",
+    description: "Consulenza tecnica generale e supporto",
+    hourlyRate: 80,
+    estimatedHours: 200,
+    createdAt: "2023-03-28",
+  },
+  {
+    id: "work-6",
+    title: "Portale HR",
+    clientId: "client-3",
+    projectId: "project-4",
+    type: "time-material",
+    startDate: "2022-11-01",
+    endDate: "2023-05-30",
+    enabledUsers: ["user-2", "user-3"],
+    status: "completed",
+    description: "Realizzazione portale web per gestione risorse umane",
+    hourlyRate: 65,
+    estimatedHours: 400,
+    createdAt: "2022-10-25",
+  },
+];
+
+// Mock contract data
+const contractsData = [
+  {
+    employeeId: "user-1",
+    ral: 45000,
+    contractType: "permanent",
+    startDate: "2023-01-15",
+    endDate: null,
+    workingHours: "full-time",
+    remotePolicy: "hybrid",
+    notes:
+      "Contratto standard con possibilità di smart working 3 giorni a settimana.",
+    status: "active",
+    contractVisibleToEmployee: true,
+    lastModified: "2024-01-15T10:30:00Z",
+    modifiedBy: "user-3",
+  },
+  {
+    employeeId: "user-2",
+    ral: 38000,
+    contractType: "permanent",
+    startDate: "2022-09-01",
+    endDate: null,
+    workingHours: "full-time",
+    remotePolicy: "full-remote",
+    notes:
+      "Designer senior con esperienza in UX/UI. Lavoro completamente remoto.",
+    status: "active",
+    contractVisibleToEmployee: true,
+    lastModified: "2023-12-01T14:20:00Z",
+    modifiedBy: "user-3",
+  },
+  {
+    employeeId: "user-3",
+    ral: 65000,
+    contractType: "permanent",
+    startDate: "2021-03-10",
+    endDate: null,
+    workingHours: "full-time",
+    remotePolicy: "hybrid",
+    notes:
+      "Team Manager con responsabilità su 8 persone. Bonus annuale variabile.",
+    status: "active",
+    contractVisibleToEmployee: false,
+    lastModified: "2024-01-01T09:00:00Z",
+    modifiedBy: "user-4",
+  },
+  {
+    employeeId: "user-4",
+    ral: 75000,
+    contractType: "permanent",
+    startDate: "2020-06-01",
+    endDate: null,
+    workingHours: "full-time",
+    remotePolicy: "on-site",
+    notes: "HR Manager con accesso completo ai sistemi aziendali.",
+    status: "active",
+    contractVisibleToEmployee: false,
+    lastModified: "2023-11-15T16:45:00Z",
+    modifiedBy: "user-4",
+  },
+  {
+    employeeId: "user-5",
+    ral: 42000,
+    contractType: "fixed-term",
+    startDate: "2023-06-01",
+    endDate: "2024-05-31",
+    workingHours: "full-time",
+    remotePolicy: "hybrid",
+    notes:
+      "Contratto a tempo determinato per progetto specifico. Possibile rinnovo.",
+    status: "not-active",
+    contractVisibleToEmployee: true,
+    lastModified: "2024-01-10T11:15:00Z",
+    modifiedBy: "user-3",
+  },
+];
+
 // Mock user summary data
 const userSummary = {
   hoursWorked: 120,
@@ -130,12 +357,13 @@ const projects = [
   { id: "project-5", name: "Progetto Epsilon" },
 ];
 
-// Mock detailed projects
+// Mock detailed projects - Updated with clientId
 const projectsDetailed = [
   {
     id: "project-1",
     name: "Progetto Alpha",
-    client: "Cliente A",
+    clientId: "client-1",
+    client: "Acme Corporation",
     description:
       "Sviluppo di una piattaforma di e-commerce con funzionalità avanzate di gestione inventario e analisi delle vendite.",
     status: "active",
@@ -168,7 +396,8 @@ const projectsDetailed = [
   {
     id: "project-2",
     name: "Progetto Beta",
-    client: "Cliente B",
+    clientId: "client-2",
+    client: "TechStart SRL",
     description:
       "Implementazione di un sistema di gestione documentale con workflow approvativo e integrazione con sistemi esterni.",
     status: "active",
@@ -201,7 +430,8 @@ const projectsDetailed = [
   {
     id: "project-3",
     name: "Progetto Gamma",
-    client: "Cliente C",
+    clientId: "client-3",
+    client: "Global Industries",
     description:
       "Sviluppo di un'applicazione mobile per la gestione delle presenze e delle attività aziendali.",
     status: "on-hold",
@@ -227,7 +457,8 @@ const projectsDetailed = [
   {
     id: "project-4",
     name: "Progetto Delta",
-    client: "Cliente D",
+    clientId: "client-3",
+    client: "Global Industries",
     description:
       "Realizzazione di un portale web per la gestione delle risorse umane con funzionalità di reportistica avanzata.",
     status: "completed",
@@ -253,7 +484,8 @@ const projectsDetailed = [
   {
     id: "project-5",
     name: "Progetto Epsilon",
-    client: "Cliente E",
+    clientId: "client-2",
+    client: "TechStart SRL",
     description:
       "Sviluppo di un sistema di business intelligence per l'analisi dei dati aziendali.",
     status: "planned",
@@ -278,7 +510,7 @@ const projectsDetailed = [
   },
 ];
 
-// Mock time entries - Aggiornati per includere date recenti
+// Mock time entries - Updated to include workItemId
 const currentYear = new Date().getFullYear();
 const currentMonth = new Date().getMonth();
 
@@ -286,6 +518,7 @@ const timeEntries = [
   {
     date: `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-10`,
     project: "project-1",
+    workItemId: "work-1",
     hours: 8,
     description: "Sviluppo frontend dashboard",
     status: "approved",
@@ -299,6 +532,7 @@ const timeEntries = [
   {
     date: `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-11`,
     project: "project-1",
+    workItemId: "work-1",
     hours: 7.5,
     description: "Implementazione API",
     status: "approved",
@@ -312,6 +546,7 @@ const timeEntries = [
   {
     date: `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-12`,
     project: "project-2",
+    workItemId: "work-3",
     hours: 8,
     description: "Meeting e pianificazione sprint",
     status: "approved",
@@ -325,6 +560,7 @@ const timeEntries = [
   {
     date: `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-13`,
     project: "project-2",
+    workItemId: "work-3",
     hours: 6,
     description: "Debugging e fix",
     status: "pending",
@@ -338,6 +574,7 @@ const timeEntries = [
   {
     date: `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-14`,
     project: "project-3",
+    workItemId: "work-4",
     hours: 8,
     description: "Sviluppo nuove funzionalità",
     status: "pending",
@@ -351,6 +588,7 @@ const timeEntries = [
   {
     date: `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-10`,
     project: "project-1",
+    workItemId: "work-2",
     hours: 7,
     description: "Design UI componenti",
     status: "approved",
@@ -364,6 +602,7 @@ const timeEntries = [
   {
     date: `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-11`,
     project: "project-4",
+    workItemId: "work-6",
     hours: 8,
     description: "Revisione design sistema",
     status: "approved",
@@ -592,6 +831,130 @@ export const getUserById = (id: string) => users.find((user) => user.id === id);
 export const getProjectById = (id: string) =>
   projectsDetailed.find((project) => project.id === id);
 
+// Client functions
+export const getAllClients = () => clientsData;
+export const getClientById = (id: string) =>
+  clientsData.find((client) => client.id === id);
+export const getActiveClients = () =>
+  clientsData.filter((client) => client.status === "active");
+
+export const createClient = (
+  clientData: Omit<(typeof clientsData)[0], "id" | "createdAt">,
+) => {
+  const newClient = {
+    ...clientData,
+    id: `client-${Date.now()}`,
+    createdAt: new Date().toISOString().split("T")[0],
+  };
+  clientsData.push(newClient);
+  return newClient;
+};
+
+export const updateClient = (
+  id: string,
+  updates: Partial<(typeof clientsData)[0]>,
+) => {
+  const clientIndex = clientsData.findIndex((client) => client.id === id);
+  if (clientIndex !== -1) {
+    clientsData[clientIndex] = { ...clientsData[clientIndex], ...updates };
+    return clientsData[clientIndex];
+  }
+  return null;
+};
+
+export const deleteClient = (id: string) => {
+  const clientIndex = clientsData.findIndex((client) => client.id === id);
+  if (clientIndex !== -1) {
+    clientsData.splice(clientIndex, 1);
+    return true;
+  }
+  return false;
+};
+
+// Work Items functions
+export const getAllWorkItems = () => workItemsData;
+export const getWorkItemById = (id: string) =>
+  workItemsData.find((item) => item.id === id);
+export const getWorkItemsByClient = (clientId: string) =>
+  workItemsData.filter((item) => item.clientId === clientId);
+export const getWorkItemsByProject = (projectId: string) =>
+  workItemsData.filter((item) => item.projectId === projectId);
+
+export const createWorkItem = (
+  workItemData: Omit<(typeof workItemsData)[0], "id" | "createdAt">,
+) => {
+  const newWorkItem = {
+    ...workItemData,
+    id: `work-${Date.now()}`,
+    createdAt: new Date().toISOString().split("T")[0],
+  };
+  workItemsData.push(newWorkItem);
+  return newWorkItem;
+};
+
+export const updateWorkItem = (
+  id: string,
+  updates: Partial<(typeof workItemsData)[0]>,
+) => {
+  const itemIndex = workItemsData.findIndex((item) => item.id === id);
+  if (itemIndex !== -1) {
+    workItemsData[itemIndex] = { ...workItemsData[itemIndex], ...updates };
+    return workItemsData[itemIndex];
+  }
+  return null;
+};
+
+export const deleteWorkItem = (id: string) => {
+  const itemIndex = workItemsData.findIndex((item) => item.id === id);
+  if (itemIndex !== -1) {
+    workItemsData.splice(itemIndex, 1);
+    return true;
+  }
+  return false;
+};
+
+// Contract functions
+export const getContractByEmployeeId = (employeeId: string) =>
+  contractsData.find((contract) => contract.employeeId === employeeId);
+
+export const updateContract = (
+  employeeId: string,
+  updates: Partial<(typeof contractsData)[0]>,
+) => {
+  const contractIndex = contractsData.findIndex(
+    (contract) => contract.employeeId === employeeId,
+  );
+  if (contractIndex !== -1) {
+    contractsData[contractIndex] = {
+      ...contractsData[contractIndex],
+      ...updates,
+      lastModified: new Date().toISOString(),
+    };
+    return contractsData[contractIndex];
+  }
+  return null;
+};
+
+export const closeContract = (employeeId: string, closedBy: string) => {
+  const contractIndex = contractsData.findIndex(
+    (contract) => contract.employeeId === employeeId,
+  );
+  const userIndex = users.findIndex((user) => user.id === employeeId);
+
+  if (contractIndex !== -1 && userIndex !== -1) {
+    contractsData[contractIndex] = {
+      ...contractsData[contractIndex],
+      status: "not-active",
+      endDate: new Date().toISOString().split("T")[0],
+      lastModified: new Date().toISOString(),
+      modifiedBy: closedBy,
+    };
+    users[userIndex].active = false;
+    return contractsData[contractIndex];
+  }
+  return null;
+};
+
 // Functions to get related data
 export const getTimeEntriesByProject = (projectId: string) => {
   return timeEntries
@@ -602,12 +965,26 @@ export const getTimeEntriesByProject = (projectId: string) => {
         id: entry.project,
         name: entry.project,
       },
+      workItem: workItemsData.find((w) => w.id === entry.workItemId),
     }));
 };
 
 export const getTimeEntriesByUser = (userId: string) => {
   return timeEntries
     .filter((entry) => entry.user.id === userId)
+    .map((entry) => ({
+      ...entry,
+      project: projects.find((p) => p.id === entry.project) || {
+        id: entry.project,
+        name: entry.project,
+      },
+      workItem: workItemsData.find((w) => w.id === entry.workItemId),
+    }));
+};
+
+export const getTimeEntriesByWorkItem = (workItemId: string) => {
+  return timeEntries
+    .filter((entry) => entry.workItemId === workItemId)
     .map((entry) => ({
       ...entry,
       project: projects.find((p) => p.id === entry.project) || {
@@ -628,4 +1005,8 @@ export const getProjectsByUser = (userId: string) => {
   return user.projects
     .map((projectId) => projectsDetailed.find((p) => p.id === projectId))
     .filter(Boolean) as typeof projectsDetailed;
+};
+
+export const getProjectsByClient = (clientId: string) => {
+  return projectsDetailed.filter((project) => project.clientId === clientId);
 };

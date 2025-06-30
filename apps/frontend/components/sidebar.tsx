@@ -20,8 +20,10 @@ import {
   Bot,
   Brain,
   Briefcase,
+  Building2,
   Calendar,
   Clock,
+  FileText,
   HandMetal,
   LogOut,
   Menu,
@@ -54,6 +56,16 @@ const navItems = [
     title: "Progetti",
     href: "/progetti",
     icon: Briefcase,
+  },
+  {
+    title: "Clienti",
+    href: "/clienti",
+    icon: Building2,
+  },
+  {
+    title: "Commesse",
+    href: "/commesse",
+    icon: FileText,
   },
   {
     title: "Utenti",
