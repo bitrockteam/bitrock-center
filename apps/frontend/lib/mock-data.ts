@@ -60,84 +60,6 @@ const users = [
   },
 ];
 
-// Mock contract data
-const contractsData = [
-  {
-    employeeId: "user-1",
-    ral: 45000,
-    contractType: "permanent",
-    startDate: "2023-01-15",
-    endDate: null,
-    workingHours: "full-time",
-    remotePolicy: "hybrid",
-    notes:
-      "Contratto standard con possibilità di smart working 3 giorni a settimana.",
-    status: "active",
-    contractVisibleToEmployee: true,
-    lastModified: "2024-01-15T10:30:00Z",
-    modifiedBy: "user-3",
-  },
-  {
-    employeeId: "user-2",
-    ral: 38000,
-    contractType: "permanent",
-    startDate: "2022-09-01",
-    endDate: null,
-    workingHours: "full-time",
-    remotePolicy: "full-remote",
-    notes:
-      "Designer senior con esperienza in UX/UI. Lavoro completamente remoto.",
-    status: "active",
-    contractVisibleToEmployee: true,
-    lastModified: "2023-12-01T14:20:00Z",
-    modifiedBy: "user-3",
-  },
-  {
-    employeeId: "user-3",
-    ral: 65000,
-    contractType: "permanent",
-    startDate: "2021-03-10",
-    endDate: null,
-    workingHours: "full-time",
-    remotePolicy: "hybrid",
-    notes:
-      "Team Manager con responsabilità su 8 persone. Bonus annuale variabile.",
-    status: "active",
-    contractVisibleToEmployee: false,
-    lastModified: "2024-01-01T09:00:00Z",
-    modifiedBy: "user-4",
-  },
-  {
-    employeeId: "user-4",
-    ral: 75000,
-    contractType: "permanent",
-    startDate: "2020-06-01",
-    endDate: null,
-    workingHours: "full-time",
-    remotePolicy: "on-site",
-    notes: "HR Manager con accesso completo ai sistemi aziendali.",
-    status: "active",
-    contractVisibleToEmployee: false,
-    lastModified: "2023-11-15T16:45:00Z",
-    modifiedBy: "user-4",
-  },
-  {
-    employeeId: "user-5",
-    ral: 42000,
-    contractType: "fixed-term",
-    startDate: "2023-06-01",
-    endDate: "2024-05-31",
-    workingHours: "full-time",
-    remotePolicy: "hybrid",
-    notes:
-      "Contratto a tempo determinato per progetto specifico. Possibile rinnovo.",
-    status: "not-active",
-    contractVisibleToEmployee: true,
-    lastModified: "2024-01-10T11:15:00Z",
-    modifiedBy: "user-3",
-  },
-];
-
 // Mock user summary data
 const userSummary = {
   hoursWorked: 120,
@@ -669,47 +591,6 @@ export const getProjectsDetailed = () => projectsDetailed;
 export const getUserById = (id: string) => users.find((user) => user.id === id);
 export const getProjectById = (id: string) =>
   projectsDetailed.find((project) => project.id === id);
-
-// Contract functions
-export const getContractByEmployeeId = () => contractsData?.[0];
-
-export const updateContract = (
-  employeeId: string,
-  updates: Partial<(typeof contractsData)[0]>,
-) => {
-  const contractIndex = contractsData.findIndex(
-    (contract) => contract.employeeId === employeeId,
-  );
-  if (contractIndex !== -1) {
-    contractsData[contractIndex] = {
-      ...contractsData[contractIndex],
-      ...updates,
-      lastModified: new Date().toISOString(),
-    };
-    return contractsData[contractIndex];
-  }
-  return null;
-};
-
-export const closeContract = (employeeId: string, closedBy: string) => {
-  const contractIndex = contractsData.findIndex(
-    (contract) => contract.employeeId === employeeId,
-  );
-  const userIndex = users.findIndex((user) => user.id === employeeId);
-
-  if (contractIndex !== -1 && userIndex !== -1) {
-    contractsData[contractIndex] = {
-      ...contractsData[contractIndex],
-      status: "not-active",
-      endDate: new Date().toISOString().split("T")[0],
-      lastModified: new Date().toISOString(),
-      modifiedBy: closedBy,
-    };
-    users[userIndex].active = false;
-    return contractsData[contractIndex];
-  }
-  return null;
-};
 
 // Functions to get related data
 export const getTimeEntriesByProject = (projectId: string) => {

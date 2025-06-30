@@ -1,8 +1,8 @@
+import { getContractByEmployeeId } from "@/api/server/contract/getContractByEmployeeId";
 import { getLatestEmployeeDevelopmentPlan } from "@/api/server/development-plan/getLatestEmployeeDevelopmentPlan";
 import { FindUserById } from "@/api/server/user/findUserById";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useServerAction } from "@/hooks/useServerAction";
-import { getContractByEmployeeId } from "@/lib/mock-data";
 import { useEffect } from "react";
 import ContractDetail from "./contract-detail";
 import UserDetailsActivity from "./user-details-sections/user-details-activity";
@@ -15,9 +15,15 @@ export default function UserDetailsSections({ user }: { user: FindUserById }) {
     getLatestEmployeeDevelopmentPlan,
   );
 
+  const [contract, getContract] = useServerAction(getContractByEmployeeId);
+
   useEffect(() => {
     if (user?.id) getDevelopmentPlan(user.id);
   }, [getDevelopmentPlan, user?.id]);
+
+  useEffect(() => {
+    if (user?.id) getContract(user.id);
+  }, [getContract, user?.id]);
 
   if (!user) {
     return (
@@ -26,8 +32,6 @@ export default function UserDetailsSections({ user }: { user: FindUserById }) {
       </div>
     );
   }
-
-  const contract = getContractByEmployeeId();
 
   return (
     <Tabs defaultValue="overview" className="space-y-6">

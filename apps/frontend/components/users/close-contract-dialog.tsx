@@ -1,5 +1,6 @@
 "use client";
 
+import { closeContract } from "@/api/server/contract/closeContract";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { closeContract } from "@/lib/mock-data";
+import { contract } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { AlertTriangle, Calendar, User, XCircle } from "lucide-react";
 import { useState } from "react";
@@ -19,12 +20,7 @@ import { useState } from "react";
 interface CloseContractDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  contract: {
-    ral: number;
-    contractType: string;
-    startDate: string;
-    // Add other fields as necessary
-  };
+  contract: contract;
   employeeId: string;
 }
 
@@ -39,11 +35,7 @@ export default function CloseContractDialog({
   const handleCloseContract = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      closeContract(employeeId, "current-user-id"); // This would come from auth context
-
+      await closeContract(employeeId, contract.id);
       onOpenChange(false);
       // In a real app, you'd trigger a refetch or update the UI
     } catch (error) {
@@ -138,7 +130,7 @@ export default function CloseContractDialog({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tipo:</span>
                   <span className="font-medium">
-                    {getContractTypeLabel(contract.contractType)}
+                    {getContractTypeLabel(contract.contract_type)}
                   </span>
                 </div>
               </div>
@@ -147,7 +139,7 @@ export default function CloseContractDialog({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Inizio:</span>
                   <span className="font-medium">
-                    {formatDate(contract.startDate)}
+                    {formatDate(contract.start_date.toDateString())}
                   </span>
                 </div>
                 <div className="flex justify-between">

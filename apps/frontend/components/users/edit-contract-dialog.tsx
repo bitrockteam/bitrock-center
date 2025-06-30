@@ -1,5 +1,6 @@
 "use client";
 
+import { updateEmployeeContract } from "@/api/server/contract/updateEmployeeContract";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,7 +27,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { updateContract } from "@/lib/mock-data";
+import {
+  contract,
+  contracttype,
+  remotepolicy,
+  workinghours,
+} from "@bitrock/db";
 import { motion } from "framer-motion";
 import { Building, Clock, DollarSign, FileText, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -35,14 +41,7 @@ import { useForm } from "react-hook-form";
 interface EditContractDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  contract: {
-    ral: number;
-    contractType: string;
-    workingHours: string;
-    remotePolicy: string;
-    notes: string;
-    modifiedBy?: string; // Optional, for tracking who modified the contract
-  } | null; // Contract can be null if not yet created
+  contract: contract;
   employeeId: string;
 }
 
@@ -57,9 +56,9 @@ export default function EditContractDialog({
   const form = useForm({
     defaultValues: {
       ral: contract?.ral || 0,
-      contractType: contract?.contractType || "permanent",
-      workingHours: contract?.workingHours || "full-time",
-      remotePolicy: contract?.remotePolicy || "hybrid",
+      contract_type: contract?.contract_type || "permanent",
+      working_hours: contract?.working_hours || "full-time",
+      remote_policy: contract?.remote_policy || "hybrid",
       notes: contract?.notes || "",
     },
   });
@@ -68,33 +67,30 @@ export default function EditContractDialog({
     if (contract) {
       form.reset({
         ral: contract.ral,
-        contractType: contract.contractType,
-        workingHours: contract.workingHours,
-        remotePolicy: contract.remotePolicy,
-        notes: contract.notes,
+        contract_type: contract.contract_type,
+        working_hours: contract.working_hours,
+        remote_policy: contract.remote_policy,
+        notes: contract.notes ?? "",
       });
     }
   }, [contract, form]);
 
   const onSubmit = async (data: {
     ral: number;
-    contractType: string;
-    workingHours: string;
-    remotePolicy: string;
+    contract_type: contracttype;
+    working_hours: workinghours;
+    remote_policy: remotepolicy;
     notes: string;
   }) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      updateContract(employeeId, {
+      await updateEmployeeContract(employeeId, {
+        id: contract.id, // Ensure to pass the contract ID
         ral: data.ral,
-        contractType: data.contractType,
-        workingHours: data.workingHours,
-        remotePolicy: data.remotePolicy,
+        contract_type: data.contract_type,
+        working_hours: data.working_hours,
+        remote_policy: data.remote_policy,
         notes: data.notes,
-        modifiedBy: "current-user-id", // This would come from auth context
       });
 
       onOpenChange(false);
@@ -154,7 +150,7 @@ export default function EditContractDialog({
               {/* Contract Type */}
               <FormField
                 control={form.control}
-                name="contractType"
+                name="contract_type"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
@@ -185,7 +181,7 @@ export default function EditContractDialog({
               {/* Working Hours */}
               <FormField
                 control={form.control}
-                name="workingHours"
+                name="working_hours"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
@@ -213,7 +209,7 @@ export default function EditContractDialog({
             {/* Remote Policy */}
             <FormField
               control={form.control}
-              name="remotePolicy"
+              name="remote_policy"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">

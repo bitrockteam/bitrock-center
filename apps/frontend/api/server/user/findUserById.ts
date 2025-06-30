@@ -37,6 +37,12 @@ export async function findUserById(userId: string) {
           seniorityLevel: true,
         },
       },
+      contract_contract_employee_idTouser: {
+        take: 1,
+        orderBy: {
+          start_date: "desc",
+        },
+      },
     },
   });
 }

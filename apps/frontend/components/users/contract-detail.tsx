@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getContractByEmployeeId } from "@/lib/mock-data";
+import { contract, contractstatus, contracttype } from "@bitrock/db";
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -33,7 +33,7 @@ export default function ContractDetail({
   canView,
   canEdit,
 }: {
-  contract: ReturnType<typeof getContractByEmployeeId>;
+  contract: contract | null | undefined;
   canView?: boolean;
   canEdit?: boolean;
 }) {
@@ -212,7 +212,7 @@ export default function ContractDetail({
                 Tipo Contratto
               </div>
               <div className="text-lg font-semibold">
-                {getContractTypeLabel(contract.contractType)}
+                {getContractTypeLabel(contract.contract_type)}
               </div>
             </div>
 
@@ -222,7 +222,7 @@ export default function ContractDetail({
                 Orario di Lavoro
               </div>
               <div className="text-lg font-semibold">
-                {getWorkingHoursLabel(contract.workingHours)}
+                {getWorkingHoursLabel(contract.working_hours)}
               </div>
             </div>
 
@@ -232,7 +232,7 @@ export default function ContractDetail({
                 Modalità Lavoro
               </div>
               <div className="text-lg font-semibold">
-                {getRemotePolicyLabel(contract.remotePolicy)}
+                {getRemotePolicyLabel(contract.remote_policy)}
               </div>
             </div>
           </div>
@@ -251,18 +251,18 @@ export default function ContractDetail({
                     Data Inizio
                   </div>
                   <div className="text-sm">
-                    {formatDate(contract.startDate)}
+                    {formatDate(contract.start_date.toDateString())}
                   </div>
                 </div>
 
-                {contract.endDate && (
+                {contract.end_date && (
                   <div className="flex items-center justify-between py-2 border-b border-border/50">
                     <div className="flex items-center text-sm font-medium">
                       <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
                       Data Fine
                     </div>
                     <div className="text-sm">
-                      {formatDate(contract.endDate)}
+                      {formatDate(contract.end_date.toDateString())}
                     </div>
                   </div>
                 )}
@@ -273,7 +273,7 @@ export default function ContractDetail({
                     Ultima Modifica
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {formatDate(contract.lastModified)}
+                    {formatDate(contract.last_modified.toDateString())}
                   </div>
                 </div>
               </div>
@@ -297,7 +297,7 @@ export default function ContractDetail({
           </div>
 
           {/* Contract Status Information */}
-          {contract.status === "not-active" && (
+          {contract.status === contractstatus.not_active && (
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle className="h-5 w-5 text-destructive" />
@@ -307,44 +307,48 @@ export default function ContractDetail({
               </div>
               <p className="text-sm text-muted-foreground">
                 Questo contratto è stato chiuso il{" "}
-                {contract.endDate && formatDate(contract.endDate)}. Il
-                dipendente non può più essere assegnato a nuovi progetti.
+                {contract.end_date &&
+                  formatDate(contract.end_date.toDateString())}
+                . Il dipendente non può più essere assegnato a nuovi progetti.
               </p>
             </div>
           )}
 
           {/* Contract Type Specific Information */}
-          {contract.contractType === "fixed-term" && !contract.endDate && (
-            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="h-5 w-5 text-amber-600" />
-                <h4 className="font-semibold text-amber-800 dark:text-amber-200">
-                  Contratto a Tempo Determinato
-                </h4>
+          {contract.contract_type === contracttype.fixed_term &&
+            !contract.end_date && (
+              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                  <h4 className="font-semibold text-amber-800 dark:text-amber-200">
+                    Contratto a Tempo Determinato
+                  </h4>
+                </div>
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  Ricorda di impostare una data di fine per questo contratto a
+                  tempo determinato.
+                </p>
               </div>
-              <p className="text-sm text-amber-700 dark:text-amber-300">
-                Ricorda di impostare una data di fine per questo contratto a
-                tempo determinato.
-              </p>
-            </div>
-          )}
+            )}
         </CardContent>
       </Card>
 
       {/* Edit Contract Dialog */}
-      <EditContractDialog
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        contract={contract}
-        employeeId={contract.employeeId}
-      />
+      {contract && (
+        <EditContractDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          contract={contract}
+          employeeId={contract.employee_id}
+        />
+      )}
 
       {/* Close Contract Dialog */}
       <CloseContractDialog
         open={showCloseDialog}
         onOpenChange={setShowCloseDialog}
         contract={contract}
-        employeeId={contract.employeeId}
+        employeeId={contract.employee_id}
       />
     </motion.div>
   );
