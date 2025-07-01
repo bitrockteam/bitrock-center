@@ -44,8 +44,6 @@ export async function fetchUserReviewers() {
         id: userInfo.referent_id,
       },
     });
-    console.log({ userKeyClient, userManagers });
-    console.log("ciao");
 
     return [...userKeyClient, userManagers];
   }

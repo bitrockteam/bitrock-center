@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchAllWorkItems } from "@/api/server/work-item/fetchAllWorkItems";
+import { WorkItem } from "@/api/server/work-item/fetchAllWorkItems";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,21 +31,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useServerAction } from "@/hooks/useServerAction";
 import { work_item_type, work_items } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { Clock, Edit, Euro, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
 import WorkItemsHeader from "./work-items-header";
+import { FindUsers } from "@/api/server/user/findUsers";
+import { GetAllClientsResponse } from "@/api/server/client/getAllClients";
 
-export default function WorkItemsTable() {
+export default function WorkItemsTable({
+  workItems,
+  allClients,
+  clients,
+}: {
+  workItems: WorkItem[];
+  allClients: FindUsers[];
+  clients: GetAllClientsResponse[];
+}) {
   const router = useRouter();
   const [editWorkItem, setEditWorkItem] = useState<work_items | null>(null);
   const [deleteWorkItem, setDeleteWorkItem] = useState<work_items | null>(null);
   const [clientFilter, setClientFilter] = useState<string | null>(null);
-  const [workItems, getWorkItems] = useServerAction(fetchAllWorkItems);
 
   const filteredWorkItems = clientFilter
     ? workItems?.filter((item) => item.client_id === clientFilter)
@@ -90,11 +98,13 @@ export default function WorkItemsTable() {
     router.push(`/commesse/${id}`);
   };
 
-  useEffect(() => getWorkItems(), [getWorkItems]);
-
   return (
     <div className="space-y-6">
-      <WorkItemsHeader onClientFilter={setClientFilter} />
+      <WorkItemsHeader
+        onClientFilter={setClientFilter}
+        allClients={allClients}
+        clientsData={clients}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -256,7 +266,9 @@ export default function WorkItemsTable() {
         {/* Dialog per modificare una commessa */}
         {editWorkItem && (
           <AddWorkItemDialog
+            users={allClients}
             open={!!editWorkItem}
+            clients={clients}
             onOpenChange={(open) => !open && setEditWorkItem(null)}
             editData={
               editWorkItem

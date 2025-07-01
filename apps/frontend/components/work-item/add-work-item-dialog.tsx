@@ -1,7 +1,6 @@
 "use client";
 
-import { getAllClients } from "@/api/server/client/getAllClients";
-import { findUsers } from "@/api/server/user/findUsers";
+import { GetAllClientsResponse } from "@/api/server/client/getAllClients";
 import { createWorkItem } from "@/api/server/work-item/createWorkItem";
 import { updateWorkItem } from "@/api/server/work-item/updateWorkItem";
 import { Button } from "@/components/ui/button";
@@ -31,12 +30,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useServerAction } from "@/hooks/useServerAction";
 import { user, work_item_status, work_item_type } from "@bitrock/db";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -113,22 +111,19 @@ interface AddWorkItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editData?: Partial<WorkItemFormData>;
+  clients: GetAllClientsResponse[];
+  users: user[];
 }
 
 export default function AddWorkItemDialog({
   open,
   onOpenChange,
   editData,
+  clients,
+  users,
 }: AddWorkItemDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [users, setUsers] = useState<user[]>([]);
   const isEditing = !!editData;
-
-  const [clients, fetchAllClients] = useServerAction(getAllClients);
-
-  useEffect(() => {
-    fetchAllClients();
-  }, [fetchAllClients]);
 
   const form = useForm<WorkItemFormData>({
     resolver: zodResolver(workItemSchema),
@@ -170,14 +165,6 @@ export default function AddWorkItemDialog({
   const startDate = form.watch("start_date");
 
   console.log({ startDate });
-
-  useEffect(() => {
-    async function fetchData() {
-      const allUsers = await findUsers();
-      setUsers(allUsers);
-    }
-    fetchData();
-  }, []);
 
   const onSubmit = async (data: WorkItemFormData) => {
     setIsLoading(true);
