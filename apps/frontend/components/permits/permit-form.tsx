@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useServerAction } from "@/hooks/useServerAction";
-import { PermitType } from "@bitrock/db";
+import { PermitType, user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
@@ -44,6 +44,8 @@ interface PermitFormValues {
 export default function PermitRequestForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [reviewers, fetchReviewers] = useServerAction(fetchUserReviewers);
+  console.log({ reviewers });
+
   const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
@@ -72,7 +74,7 @@ export default function PermitRequestForm() {
           date: startDate,
           duration: parseFloat(data.duration),
           description: data.description,
-          reviewer_id: reviewer.id,
+          reviewer_id: (reviewer as user).id,
         });
       });
     } else {
@@ -90,7 +92,7 @@ export default function PermitRequestForm() {
               date: currentDate,
               duration: 8,
               description: data.description,
-              reviewer_id: reviewer.id,
+              reviewer_id: reviewer?.id ?? "",
             });
           });
         }
@@ -258,7 +260,7 @@ export default function PermitRequestForm() {
 
               <p>
                 I tuoi referenti sono:{" "}
-                {reviewers?.map((r) => r.name).join(", ")}
+                {reviewers?.map((r) => (r as user).name).join(", ")}
               </p>
 
               <FormField

@@ -11,7 +11,7 @@ export async function fetchUserReviewers() {
     },
   });
 
-  return await db.user.findMany({
+  const userKeyClient = await db.user.findMany({
     where: {
       role: "Key_Client",
       allocation: {
@@ -37,6 +37,20 @@ export async function fetchUserReviewers() {
       },
     },
   });
+
+  if (userInfo.referent_id) {
+    const userManagers = await db.user.findUnique({
+      where: {
+        id: userInfo.referent_id,
+      },
+    });
+    console.log({ userKeyClient, userManagers });
+    console.log("ciao");
+
+    return [...userKeyClient, userManagers];
+  }
+
+  return userKeyClient;
 }
 
 export type FetchUserReviewersResponse = Awaited<
