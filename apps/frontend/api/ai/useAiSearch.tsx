@@ -13,6 +13,7 @@ export function useAiSearch() {
 
     try {
       const data = await smartSearch(question);
+      console.log("AI search result:", data);
       setResult(data);
     } catch (err) {
       console.error("Error during AI search:", err);
