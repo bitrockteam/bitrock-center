@@ -29,10 +29,12 @@ export default function TimeTrackingTable({
   user,
   projects,
   timesheets,
+  isReadOnly = false,
 }: {
   user: user;
   projects: Project[];
   timesheets: UserTimesheet[];
+  isReadOnly?: boolean;
 }) {
   const [month, setMonth] = useState("current");
   const [project, setProject] = useState("all");
@@ -85,7 +87,9 @@ export default function TimeTrackingTable({
                   <TableHead>Progetto</TableHead>
                   <TableHead>Ore</TableHead>
                   <TableHead>Descrizione</TableHead>
-                  <TableHead className="text-right">Azioni</TableHead>
+                  {!isReadOnly && (
+                    <TableHead className="text-right">Azioni</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -112,21 +116,22 @@ export default function TimeTrackingTable({
                       <TableCell className="max-w-[200px] truncate">
                         {entry.description}
                       </TableCell>
-
-                      <TableCell className="text-right">
-                        <div className="flex justify-end space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditEntry(entry)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+                      {!isReadOnly && (
+                        <TableCell className="text-right">
+                          <div className="flex justify-end space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setEditEntry(entry)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}

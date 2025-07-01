@@ -23,10 +23,18 @@ export async function fetchAllProjects(params?: string | null) {
             }
           : {}),
       },
+      include: {
+        client: true,
+      },
     });
   }
 
-  if (!params) return db.project.findMany();
+  if (!params)
+    return db.project.findMany({
+      include: {
+        client: true,
+      },
+    });
 
   console.info("Fetching projects with params:", params);
   return db.project.findMany({
@@ -35,6 +43,9 @@ export async function fetchAllProjects(params?: string | null) {
         contains: params,
         mode: "insensitive",
       },
+    },
+    include: {
+      client: true,
     },
   });
 }

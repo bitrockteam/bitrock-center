@@ -34,10 +34,12 @@ export default function TimeTrackingCalendar({
   user,
   projects,
   timesheets,
+  isReadyOnly = false,
 }: {
   user: user;
   projects: Project[];
   timesheets: UserTimesheet[];
+  isReadyOnly?: boolean;
 }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedProject, setSelectedProject] = useState("all");
@@ -277,8 +279,9 @@ export default function TimeTrackingCalendar({
               return (
                 <div
                   key={`day-${day}`}
-                  className={`h-24 p-1 cursor-pointer border rounded-md ${isToday ? "border-primary" : "border-border"} ${getBackgroundColor(totalHours)} ${isWeekend ? "bg-opacity-50 dark:bg-opacity-50" : ""} overflow-hidden relative`}
+                  className={`h-24 p-1 ${!isReadyOnly && "cursor-pointer"} border rounded-md ${isToday ? "border-primary" : "border-border"} ${getBackgroundColor(totalHours)} ${isWeekend ? "bg-opacity-50 dark:bg-opacity-50" : ""} overflow-hidden relative`}
                   onClick={() => {
+                    if (isReadyOnly) return;
                     setSelectedDate(
                       `${currentDate.getFullYear()}-${currentDate.getMonth() < 10 ? `0${currentDate.getMonth() + 1}` : currentDate.getMonth() + 1}-${day < 10 ? `0${day}` : day}`,
                     );

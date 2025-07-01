@@ -9,9 +9,6 @@ export async function fetchUserReviewers() {
     where: {
       user_id: userInfo.id,
     },
-    select: {
-      project_id: true,
-    },
   });
 
   return await db.user.findMany({

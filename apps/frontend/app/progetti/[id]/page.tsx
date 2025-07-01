@@ -1,6 +1,7 @@
 import { fetchAllocationsForProject } from "@/api/server/project/fetchAllocationsForProject";
 import { fetchProjectById } from "@/api/server/project/fetchProjectById";
 import ProjectDetail from "@/components/projects/project-detail";
+import { allowRoles } from "@/services/users/server.utils";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,10 +15,19 @@ export default async function ProjectDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const canDealProjects = true; // Replace with actual permission check logic
-  const canAllocateResources = true; // Replace with actual permission check logic
+  const canDealProjects = await allowRoles(["Admin", "Super_Admin"]);
+  const canAllocateResources = await allowRoles([
+    "Admin",
+    "Super_Admin",
+    "Key_Client",
+  ]);
   const project = await fetchProjectById({ projectId: id });
   const allocations = await fetchAllocationsForProject({ projectId: id });
+  const canSeeUsersTimesheets = await allowRoles([
+    "Admin",
+    "Super_Admin",
+    "Key_Client",
+  ]);
 
   return (
     <div className="space-y-6">
@@ -27,9 +37,8 @@ export default async function ProjectDetailPage({
         canDealProjects={canDealProjects}
         project={project}
         allocations={allocations}
+        canSeeUsersTimesheets={canSeeUsersTimesheets}
       />
     </div>
   );
 }
-
-export const dynamic = "force-dynamic";

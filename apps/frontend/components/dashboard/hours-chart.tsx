@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -10,11 +8,28 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getHoursData } from "@/lib/mock-data";
+import { motion } from "framer-motion";
+import { useState } from "react";
 
 export default function HoursChart() {
   const [view, setView] = useState("weekly");
-  const hoursData = getHoursData();
+  const hoursData = {
+    weekly: [
+      { label: "Lun", hours: 8 },
+      { label: "Mar", hours: 7.5 },
+      { label: "Mer", hours: 8 },
+      { label: "Gio", hours: 10 },
+      { label: "Ven", hours: 8 },
+      { label: "Sab", hours: 1 },
+      { label: "Dom", hours: 1.5 },
+    ],
+    monthly: [
+      { label: "Sett 1", hours: 38 },
+      { label: "Sett 2", hours: 40 },
+      { label: "Sett 3", hours: 50 },
+      { label: "Sett 4", hours: 42 },
+    ],
+  };
 
   // Get data based on selected view
   const chartData = view === "weekly" ? hoursData.weekly : hoursData.monthly;
@@ -51,7 +66,7 @@ export default function HoursChart() {
               {chartData.map((item, index) => (
                 <div
                   key={index}
-                  className="relative flex h-full w-full flex-col justify-end h-full"
+                  className="relative flex w-full flex-col justify-end h-full"
                 >
                   <motion.div
                     className="w-full bg-primary rounded-md"

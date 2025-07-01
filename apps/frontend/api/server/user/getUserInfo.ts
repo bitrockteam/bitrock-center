@@ -1,18 +1,22 @@
-import { SERVERL_BASE_URL } from "@/config";
-import { user } from "@bitrock/db";
+"use server";
 
-// *** AUTH
+import { createClient } from "@/utils/supabase/server";
 
-export async function getUserInfo({ token }: { token: string }) {
-  const res = await fetch(`${SERVERL_BASE_URL}/user`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  }).then((res) => {
-    if (res.status !== 200) throw Error("Error fetching user info");
-    return res.json();
-  });
-  return res as user;
+export async function getUserInfo(email?: string) {
+  const supabase = await createClient();
+  try {
+    const res = await supabase
+      .from("user")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (res.error) {
+      throw new Error(`Error fetching user info: ${res.error.message}`);
+    }
+    return res.data;
+  } catch (error) {
+    console.error("Error in getUserInfo:", error);
+    throw error;
+  }
 }

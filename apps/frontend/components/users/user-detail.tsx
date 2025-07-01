@@ -1,41 +1,22 @@
 "use client";
 
+import { FindUserById } from "@/api/server/user/findUserById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { getTimeEntriesByUser } from "@/lib/mock-data";
 import { formatDisplayName } from "@/services/users/utils";
-import { project, user } from "@bitrock/db";
 import { motion } from "framer-motion";
-import { ArrowLeft, Briefcase, Clock, Edit, Mail } from "lucide-react";
+import { ArrowLeft, Edit, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
+import UserDetailsSections from "./user-details-sections";
 
-export default function UserDetail({
-  id,
-  users,
-  userById,
-  projects,
-}: Readonly<{
-  id: string;
-  users: user[];
-  userById: user;
-  projects: project[];
-}>) {
+export default function UserDetail({ user }: Readonly<{ user: FindUserById }>) {
   const router = useRouter();
 
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const timeEntries = getTimeEntriesByUser(id);
-
-  if (!userById) {
+  if (!user) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh]">
         <h2 className="text-2xl font-bold">Utente non trovato</h2>
@@ -49,9 +30,6 @@ export default function UserDetail({
       </div>
     );
   }
-
-  // Calcola il totale delle ore lavorate
-  const totalHours = timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
 
   return (
     <motion.div
@@ -70,94 +48,52 @@ export default function UserDetail({
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
-            {userById.avatar_url && <AvatarImage src={userById?.avatar_url} />}
+            {user.avatar_url && <AvatarImage src={user?.avatar_url} />}
             <AvatarFallback>
-              {formatDisplayName({ name: userById.name, initials: true })}
+              {formatDisplayName({ name: user.name, initials: true })}
             </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {formatDisplayName({ name: userById.name })}
+              {formatDisplayName({ name: user.name })}
             </h1>
-            {userById.role && (
-              <div className="flex items-center space-x-2">{userById.role}</div>
+            {user.role && (
+              <div className="flex items-center space-x-2">{user.role}</div>
             )}
           </div>
         </div>
 
-        {
+        <div className="flex space-x-2">
           <Button
-            className="cursor-pointer"
-            onClick={() => setShowEditDialog(true)}
+            variant="outline"
+            onClick={() => router.push(`/utenti/${user.id}/development-plan`)}
           >
-            <Edit className="mr-2 h-4 w-4" />
-            Modifica Utente
+            <Target className="mr-2 h-4 w-4" />
+            Development Plan
           </Button>
-        }
+          {
+            <Button
+              className="cursor-pointer"
+              onClick={() => setShowEditDialog(true)}
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Modifica Utente
+            </Button>
+          }
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="col-span-3">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Informazioni Contatto
-            </CardTitle>
-            <CardDescription>Dettagli dell&apos;utente</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <p className="text-sm font-medium">Email:</p>
-                <p className="text-sm text-muted-foreground flex items-center">
-                  <Mail className="mr-1 h-3 w-3" /> {userById.email}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium">Telefono:</p>
-                {/* <p className="text-sm text-muted-foreground flex items-center">
-                  <Phone className="mr-1 h-3 w-3" />{" "}
-                  {user.phone || "Non disponibile"}
-                </p> */}
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium">Ruolo:</p>
-                <p className="text-sm text-muted-foreground capitalize">
-                  {userById.role}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium">Referente:</p>
-                <p className="text-sm text-muted-foreground capitalize">
-                  {users.find((us) => us.id === userById.referent_id)?.name ||
-                    "Nessuno"}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium">Ore Totali:</p>
-                <p className="text-sm text-muted-foreground flex items-center">
-                  <Clock className="mr-1 h-3 w-3" /> {totalHours} ore
-                </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium">Progetti Attivi:</p>
-                <p className="text-sm text-muted-foreground flex items-center">
-                  <Briefcase className="mr-1 h-3 w-3" /> {projects.length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <UserDetailsSections user={user} />
 
       {/* Dialog per modificare l'utente */}
-      {userById && (
+      {user && (
         <AddUserDialog
           open={showEditDialog}
           onComplete={(isOpen) => {
             setShowEditDialog(isOpen);
           }}
-          editData={userById}
-          user={userById}
+          editData={user}
+          user={user}
         />
       )}
     </motion.div>

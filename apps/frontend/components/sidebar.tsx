@@ -18,9 +18,13 @@ import { motion } from "framer-motion";
 import {
   BarChart3,
   Bot,
+  Brain,
   Briefcase,
+  Building2,
   Calendar,
   Clock,
+  FileText,
+  HandMetal,
   LogOut,
   Menu,
   Settings,
@@ -54,9 +58,29 @@ const navItems = [
     icon: Briefcase,
   },
   {
+    title: "Clienti",
+    href: "/clienti",
+    icon: Building2,
+  },
+  {
+    title: "Commesse",
+    href: "/commesse",
+    icon: FileText,
+  },
+  {
     title: "Utenti",
     href: "/utenti",
     icon: Users,
+  },
+  {
+    title: "Skills",
+    href: "/skills",
+    icon: Brain,
+  },
+  {
+    title: "Team",
+    href: "/team",
+    icon: HandMetal,
   },
   {
     title: "AI Assistant",

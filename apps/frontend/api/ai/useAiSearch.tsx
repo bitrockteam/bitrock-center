@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { smartSearch, SmartSearchResult } from "../server/ai/smartSearch";
+import { smartSearch, SmartSearchResult } from "./service";
 
 export function useAiSearch() {
   const [loading, setLoading] = useState(false);
@@ -12,7 +12,8 @@ export function useAiSearch() {
     setResult(undefined);
 
     try {
-      const data = await smartSearch({ question });
+      const data = await smartSearch(question);
+      console.log("AI search result:", data);
       setResult(data);
     } catch (err) {
       console.error("Error during AI search:", err);

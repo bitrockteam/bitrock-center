@@ -78,5 +78,3 @@ export default function Error({
     </div>
   );
 }
-
-export const dynamic = "force-dynamic";

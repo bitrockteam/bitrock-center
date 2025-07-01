@@ -1,5 +1,6 @@
 import { getUserInfo } from "@/api/server/user/getUserInfo";
 import { createServerClient } from "@supabase/ssr";
+import { jwtDecode } from "jwt-decode";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
@@ -70,7 +71,8 @@ export async function updateSession(request: NextRequest) {
   const token = session.data.session?.access_token;
   if (token) {
     try {
-      const userInfo = await getUserInfo({ token });
+      const decodedToken = jwtDecode(token) as { email: string };
+      const userInfo = await getUserInfo(decodedToken.email);
 
       // Option 1: Add to a secure cookie
       supabaseResponse.cookies.set("x-user-info", JSON.stringify(userInfo), {

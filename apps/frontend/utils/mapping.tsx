@@ -47,3 +47,50 @@ export const getRoleBadge = (role: Role) => {
       return <Badge className="bg-blue-500 text-white">Employee</Badge>;
   }
 };
+
+export function getGoalBadge(
+  status: "not-started" | "in-progress" | "completed",
+) {
+  switch (status) {
+    case "not-started":
+      return <Badge className="bg-gray-500 text-white">Non Iniziato</Badge>;
+    case "in-progress":
+      return <Badge className="bg-yellow-500 text-white">In Corso</Badge>;
+    case "completed":
+      return <Badge className="bg-green-500 text-white">Completato</Badge>;
+    default:
+      return <Badge className="bg-gray-300 text-black">Sconosciuto</Badge>;
+  }
+}
+
+export const getWorkItemStatusBadge = (status: string) => {
+  switch (status) {
+    case "active":
+      return <Badge className="bg-green-500">Attiva</Badge>;
+    case "completed":
+      return <Badge variant="outline">Completata</Badge>;
+    case "on-hold":
+      return <Badge variant="secondary">In Pausa</Badge>;
+    default:
+      return <Badge variant="secondary">{status}</Badge>;
+  }
+};
+
+export const getWorkItemTypeBadge = (type: string) => {
+  switch (type) {
+    case "time-material":
+      return (
+        <Badge variant="outline" className="border-blue-500 text-blue-500">
+          T&M
+        </Badge>
+      );
+    case "fixed-price":
+      return (
+        <Badge variant="outline" className="border-purple-500 text-purple-500">
+          Prezzo Fisso
+        </Badge>
+      );
+    default:
+      return <Badge variant="secondary">{type}</Badge>;
+  }
+};

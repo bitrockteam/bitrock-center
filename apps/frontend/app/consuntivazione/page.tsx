@@ -43,5 +43,3 @@ export default async function TimeTrackingPage() {
     </div>
   );
 }
-
-export const dynamic = "force-dynamic";
