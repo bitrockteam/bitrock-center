@@ -16,15 +16,15 @@ import { cn } from "@/lib/utils";
 import { user } from "@bitrock/db";
 import { motion } from "framer-motion";
 import {
-  BarChart3,
   Bot,
-  Brain,
   Briefcase,
   Building2,
   Calendar,
   Clock,
-  FileText,
+  FolderOpen,
+  GraduationCap,
   HandMetal,
+  LayoutDashboard,
   LogOut,
   Menu,
   Settings,
@@ -40,7 +40,7 @@ const navItems = [
   {
     title: "Dashboard",
     href: "/dashboard",
-    icon: BarChart3,
+    icon: LayoutDashboard,
   },
   {
     title: "Consuntivazione",
@@ -55,7 +55,7 @@ const navItems = [
   {
     title: "Progetti",
     href: "/progetti",
-    icon: Briefcase,
+    icon: FolderOpen,
   },
   {
     title: "Clienti",
@@ -65,7 +65,7 @@ const navItems = [
   {
     title: "Commesse",
     href: "/commesse",
-    icon: FileText,
+    icon: Briefcase,
   },
   {
     title: "Utenti",
@@ -75,7 +75,7 @@ const navItems = [
   {
     title: "Skills",
     href: "/skills",
-    icon: Brain,
+    icon: GraduationCap,
   },
   {
     title: "Team",

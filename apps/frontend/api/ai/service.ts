@@ -1,5 +1,7 @@
 "use server";
+import { db } from "@/config/prisma";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import { message } from "@bitrock/db";
 import {
   generateNaturalLanguageFromSQLOutput,
   generateSQLFromQuestion,
@@ -13,9 +15,17 @@ type AiSearchResult = {
     key: string;
   }[];
   output: string | undefined;
+  isJson: boolean;
+  jsonData?: unknown;
 };
 
-export async function smartSearch(question: string): Promise<AiSearchResult> {
+export async function smartSearch({
+  question,
+  chat_session_id,
+}: {
+  question: string;
+  chat_session_id: string;
+}): Promise<AiSearchResult> {
   const user = await getUserInfoFromCookie();
   const sql = await generateSQLFromQuestion(question, user);
   // Optional logging
@@ -33,11 +43,40 @@ export async function smartSearch(question: string): Promise<AiSearchResult> {
     result.data,
   );
 
+  const userMessage: Omit<message, "id"> = {
+    content: question,
+    type: "user",
+    chat_session_id: chat_session_id,
+    json_data: null, // Assuming no JSON data for user messages
+    timestamp: new Date(),
+    is_json: false, // Assuming the input is not JSON
+    confirmed: false, // Assuming user messages are not confirmed
+  };
+  const botMessage: Omit<message, "id"> = {
+    content: formattedResult,
+    type: "bot",
+    chat_session_id: chat_session_id,
+    json_data: result.data, // Assuming the output is JSON data
+    timestamp: new Date(),
+    is_json: false, // Assuming the output is not JSON
+    confirmed: false, // Assuming bot messages are confirmed
+  };
+
+  // Fix for Prisma JSON type compatibility: convert null to undefined for json_data
+  await db.message.createMany({
+    data: [userMessage, botMessage].map((msg) => ({
+      ...msg,
+      json_data: msg.json_data === null ? undefined : msg.json_data,
+    })),
+    skipDuplicates: true, // Avoid duplicates if the same message is sent again
+  });
+
   return {
     sql,
     data: result.data,
     error: result.error,
     output: formattedResult,
+    isJson: false,
   };
 }
 
