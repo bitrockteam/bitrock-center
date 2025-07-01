@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { smartSearch } from "@/api/ai/service";
 import { confirmChatAction } from "@/api/server/ai/confirmChatAction";
 import { createNewChatSession } from "@/api/server/ai/createNewChatSession";
 import { ChatSession } from "@/api/server/ai/getChatSessions";
+import { smartSearch } from "@/api/server/ai/service/service";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,10 +13,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { message } from "@bitrock/db";
-import { JsonValue } from "@bitrock/db/generated/prisma/runtime/library";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, Check, Clock, History, Plus, Send, User, X } from "lucide-react";
+import {
+  Bot,
+  Check,
+  Clock,
+  History,
+  InfinityIcon,
+  Plus,
+  Send,
+  User,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Switch } from "../ui/switch";
+import AiActionRecap from "./ai-action-recap";
 import BlobAnimation from "./blob-animation";
 
 export default function AIAssistant({
@@ -28,6 +39,7 @@ export default function AIAssistant({
   const [currentMessage, setCurrentMessage] = useState("");
   const [messages, setMessages] = useState<message[]>([]);
   const [isThinking, setIsThinking] = useState(false);
+  const [agenticMode, setAgenticMode] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -119,28 +131,6 @@ export default function AIAssistant({
     router.refresh();
   };
 
-  const formatJsonData = (data: JsonValue) => {
-    if (!data) return null;
-
-    return (
-      <div className="mt-3 p-3 bg-muted rounded-lg">
-        <h4 className="font-semibold mb-2">Dettagli:</h4>
-        <div className="space-y-2 text-sm">
-          {Object.entries(data || {}).map(([key, value]) => (
-            <div key={key} className="flex justify-between">
-              <span className="font-medium capitalize">
-                {key.replace(/([A-Z])/g, " $1")}:
-              </span>
-              <span className="text-muted-foreground">
-                {Array.isArray(value) ? value.join(", ") : String(value)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="flex h-full w-full">
       {/* Chat History Sidebar */}
@@ -163,13 +153,15 @@ export default function AIAssistant({
               <Card
                 key={session.id}
                 className={cn(
-                  "cursor-pointer transition-colors bg-transparent hover:bg-muted/30",
-                  currentSessionId === session.id && "border-amber-300",
+                  "cursor-pointer transition-colors bg-transparent hover:bg-muted/30 hover:border-cyan-300/30",
+                  currentSessionId === session.id && "border-cyan-300",
                 )}
                 onClick={() => setCurrentSessionId(session.id)}
               >
                 <CardContent className="p-3">
-                  <h3 className="font-medium text-sm mb-1">{session.title}</h3>
+                  <h3 className="font-medium text-sm mb-1 text-ellipsis overflow-hidden whitespace-nowrap hover:underline hover:cursor-pointer max-w-[16rem]">
+                    {session.message[0]?.content || "Nuova Chat"}
+                  </h3>
                   <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                     {session.last_message}
                   </p>
@@ -189,9 +181,25 @@ export default function AIAssistant({
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col relative overflow-hidden">
+        {/* Floating Blob Background */}
+        <AnimatePresence mode="wait">
+          {!isThinking && (
+            <motion.div
+              key="blob"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 0.7, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 1.5 }}
+              className="pointer-events-none z-0 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{ width: "22rem", height: "22rem" }}
+            >
+              <BlobAnimation />
+            </motion.div>
+          )}
+        </AnimatePresence>
         {/* Chat Header */}
-        <div className="p-4 border-b">
+        <div className="p-4 border-b z-10 bg-transparent flex flex-row items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-primary/10 rounded-full p-2">
               <Bot className="h-6 w-6 text-primary" />
@@ -203,23 +211,24 @@ export default function AIAssistant({
               </p>
             </div>
           </div>
-        </div>
-
-        <AnimatePresence mode="wait">
-          {!isThinking && (
-            <motion.div
-              key="blob"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 1.5 }}
-              className="relative"
+          <div className="mt-2 flex items-center gap-2">
+            <Switch
+              id="diary-mode"
+              checked={agenticMode}
+              onCheckedChange={(checked) => setAgenticMode(checked)}
+            />
+            <label
+              htmlFor="diary-mode"
+              className={cn(
+                "text-xs text-muted-foreground flex items-center gap-1 cursor-pointer select-none",
+                agenticMode ? "text-primary" : "text-muted-foreground",
+              )}
             >
-              {/* <AIBlob /> */}
-              <BlobAnimation />
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <InfinityIcon className="h-4 w-4 inline-block" />
+              Agentic
+            </label>
+          </div>
+        </div>
 
         {/* Messages Area */}
         <ScrollArea className="flex-1 p-4 overflow-auto">
@@ -263,7 +272,9 @@ export default function AIAssistant({
 
                   {message.is_json && message.json_data && (
                     <>
-                      {formatJsonData(message.json_data)}
+                      {message.json_data && (
+                        <AiActionRecap data={message.json_data} />
+                      )}
                       {message.confirmed === undefined && (
                         <div className="flex gap-2 mt-3">
                           <Button
