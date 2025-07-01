@@ -120,7 +120,7 @@ export default function AddUserDialog({
         fileFormData.append("file", file);
 
         await uploadFile({ file: fileFormData }).then((data) => {
-          handleUpdateUser(data.avatar_url)
+          handleUpdateUser(data.data?.fullPath)
             .then(() => toast.success("Utente aggiornato con successo"))
             .finally(() => {
               handleComplete(false);

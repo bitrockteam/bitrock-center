@@ -19,12 +19,17 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Data for Name: client; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."client" ("id", "name", "code", "email", "phone", "address", "vat_number", "contact_person", "status", "created_at", "notes") VALUES
+	('767baaa4-5ce7-4792-b1e2-fc354f495f2f', 'Luxottica', 'LUX', 'info@luxottica.com', '12312312312', 'Via Piazzale Cadorna, 3, Milan, Lombardia', 'LUX1231243', 'Francesco Milleri', 'active', '2025-06-30 20:23:39.472+00', '');
+
+
+--
 -- Data for Name: project; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."project" ("id", "created_at", "name", "client", "description", "start_date", "end_date", "status") VALUES
-	('9fb633b2-7892-4f84-b9fa-d15d58efe663', '2025-06-17 15:18:53.604966+00', 'New Booking System', 'Luxottica', '', '2025-05-26 00:00:00', NULL, 'ACTIVE'),
-	('95db656b-c8d6-4000-80bb-27f96c996281', '2025-06-03 14:51:10.857563+00', 'Light Vehicle Fleet Management', 'Amman', '', '2001-06-02 22:00:00', NULL, 'COMPLETED');
 
 
 --
@@ -45,13 +50,6 @@ INSERT INTO "public"."user" ("id", "created_at", "email", "name", "avatar_url", 
 -- Data for Name: allocation; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."allocation" ("created_at", "user_id", "project_id", "start_date", "end_date", "percentage") VALUES
-	('2025-06-17 15:29:10.632+00', '108ddaad-82c5-4689-b36f-c20ae2bc6a36', '9fb633b2-7892-4f84-b9fa-d15d58efe663', '2025-05-31 22:00:00', NULL, 100),
-	('2025-06-19 07:52:21.862+00', '108ddaad-82c5-4689-b36f-c20ae2bc6a36', '95db656b-c8d6-4000-80bb-27f96c996281', '2025-06-18 22:00:00', NULL, 100),
-	('2025-06-19 07:52:29.927+00', 'e8874482-8365-4973-8c72-6c2d2933c7c9', '95db656b-c8d6-4000-80bb-27f96c996281', '2025-06-19 07:52:29.834', NULL, 100),
-	('2025-06-24 10:57:47.663+00', '660e6bdb-000d-4ba9-b368-e26f6d879a49', '95db656b-c8d6-4000-80bb-27f96c996281', '2025-06-10 22:00:00', '2025-06-26 22:00:00', 100),
-	('2025-06-26 13:29:40.996+00', '386a8f27-cf71-4ed0-b1d7-b78d547028a9', '9fb633b2-7892-4f84-b9fa-d15d58efe663', '2025-06-26 13:29:40.92', NULL, 100),
-	('2025-06-26 13:33:16.017+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', '9fb633b2-7892-4f84-b9fa-d15d58efe663', '2025-06-26 13:33:15.955', NULL, 100);
 
 
 --
@@ -122,9 +120,6 @@ INSERT INTO "public"."skill" ("id", "name", "category", "description", "icon", "
 -- Data for Name: timesheet; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."timesheet" ("created_at", "date", "project_id", "user_id", "description", "id", "hours") VALUES
-	('2025-06-27 15:57:24.958+00', '2025-06-27', '95db656b-c8d6-4000-80bb-27f96c996281', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', NULL, '117c7677-3fef-4715-9aef-da887a8dbe96', 8),
-	('2025-06-27 15:57:33.408+00', '2025-06-27', '9fb633b2-7892-4f84-b9fa-d15d58efe663', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', NULL, 'b0b8f2c4-b967-47f8-aa25-2bb7d60f6de4', 8);
 
 
 --
@@ -143,6 +138,18 @@ INSERT INTO "public"."todo_item" ("id", "goal_id", "text", "completed") VALUES
 INSERT INTO "public"."user_skill" ("user_id", "skill_id", "seniorityLevel") VALUES
 	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'beae37fa-da4d-4a09-b80c-187c79af7051', 'junior'),
 	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'b163d22a-5d08-4234-ae23-b1741ae90e8f', 'middle');
+
+
+--
+-- Data for Name: work_items; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: work_item_enabled_users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
 
 
 --

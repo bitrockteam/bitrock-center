@@ -42,5 +42,3 @@ export default async function ProjectDetailPage({
     </div>
   );
 }
-
-export const dynamic = "force-dynamic";

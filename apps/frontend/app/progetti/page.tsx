@@ -19,5 +19,3 @@ export default async function ProjectsPage() {
     </div>
   );
 }
-
-export const dynamic = "force-dynamic";

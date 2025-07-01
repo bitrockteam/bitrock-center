@@ -55,5 +55,3 @@ export default async function UserTimesheet({
     </div>
   );
 }
-
-export const dynamic = "force-dynamic";

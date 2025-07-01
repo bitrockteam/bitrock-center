@@ -1,18 +1,10 @@
-import { SERVERL_BASE_URL } from "@/config";
-import { user } from "@bitrock/db";
+"use server";
+import { db } from "@/config/prisma";
 
-// *** AUTH
-
-export async function getUserInfo({ token }: { token: string }) {
-  const res = await fetch(`${SERVERL_BASE_URL}/user`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+export async function getUserInfo(email?: string) {
+  return db.user.findFirst({
+    where: {
+      email,
     },
-  }).then((res) => {
-    if (res.status !== 200) throw Error("Error fetching user info");
-    return res.json();
   });
-  return res as user;
 }
