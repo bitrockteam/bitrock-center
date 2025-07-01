@@ -40,23 +40,72 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-const workItemSchema = z.object({
-  id: z.string().optional(),
-  title: z.string().min(1, "Il titolo è obbligatorio"),
-  client_id: z.string().min(1, "Il cliente è obbligatorio"),
-  project_id: z.string().nullable(),
-  type: z.nativeEnum(work_item_type),
-  start_date: z.date(),
-  end_date: z.date().nullable().optional(),
-  enabled_users: z
-    .array(z.string())
-    .min(1, "Almeno un utente deve essere abilitato"),
-  status: z.nativeEnum(work_item_status),
-  description: z.string().nullable(),
-  hourly_rate: z.number().nullable(),
-  estimated_hours: z.number().nullable(),
-  fixed_price: z.number().nullable(),
-});
+const workItemSchema = z
+  .object({
+    id: z.string().optional(),
+    title: z.string().min(1, "Il titolo è obbligatorio"),
+    client_id: z.string().min(1, "Il cliente è obbligatorio"),
+    project_id: z.string().nullable(),
+    type: z.nativeEnum(work_item_type),
+    start_date: z.string().min(1, "La data di inizio è obbligatoria"),
+    end_date: z.string().nullable().optional(),
+    enabled_users: z
+      .array(z.string())
+      .min(1, "Almeno un utente deve essere abilitato"),
+    status: z.nativeEnum(work_item_status),
+    description: z.string().nullable(),
+    hourly_rate: z.number().nullable(),
+    estimated_hours: z.number().nullable(),
+    fixed_price: z.number().nullable(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === work_item_type.time_material) {
+      if (data.hourly_rate == null || data.hourly_rate <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "La tariffa oraria deve essere maggiore di 0",
+          path: ["hourly_rate"],
+        });
+      }
+      if (data.estimated_hours == null || data.estimated_hours <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Le ore stimate devono essere maggiori di 0",
+          path: ["estimated_hours"],
+        });
+      }
+      if (data.fixed_price != null && data.fixed_price !== 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Il prezzo fisso deve essere vuoto per Time & Material",
+          path: ["fixed_price"],
+        });
+      }
+    }
+    if (data.type === work_item_type.fixed_price) {
+      if (data.fixed_price == null || data.fixed_price <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Il prezzo fisso deve essere maggiore di 0",
+          path: ["fixed_price"],
+        });
+      }
+      if (data.hourly_rate != null && data.hourly_rate !== 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "La tariffa oraria deve essere vuota per Prezzo Fisso",
+          path: ["hourly_rate"],
+        });
+      }
+      if (data.estimated_hours != null && data.estimated_hours !== 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Le ore stimate devono essere vuote per Prezzo Fisso",
+          path: ["estimated_hours"],
+        });
+      }
+    }
+  });
 
 type WorkItemFormData = z.infer<typeof workItemSchema>;
 
@@ -89,14 +138,30 @@ export default function AddWorkItemDialog({
       client_id: editData?.client_id || "",
       project_id: editData?.project_id || "",
       type: editData?.type || work_item_type.time_material,
-      start_date: editData?.start_date,
-      end_date: editData?.end_date,
+      start_date: editData?.start_date
+        ? typeof editData.start_date === "string"
+          ? editData.start_date
+          : typeof editData.start_date === "object" &&
+              editData.start_date !== null &&
+              "toISOString" in editData.start_date
+            ? (editData.start_date as Date).toISOString().substring(0, 10)
+            : ""
+        : "",
+      end_date: editData?.end_date
+        ? typeof editData.end_date === "string"
+          ? editData.end_date
+          : typeof editData.end_date === "object" &&
+              editData.end_date !== null &&
+              "toISOString" in editData.end_date
+            ? (editData.end_date as Date).toISOString().substring(0, 10)
+            : ""
+        : "",
       enabled_users: editData?.enabled_users || [],
       status: editData?.status || work_item_status.active,
       description: editData?.description || "",
-      hourly_rate: editData?.hourly_rate || 0,
-      estimated_hours: editData?.estimated_hours || 0,
-      fixed_price: editData?.fixed_price || 0,
+      hourly_rate: editData?.hourly_rate ?? null,
+      estimated_hours: editData?.estimated_hours ?? null,
+      fixed_price: editData?.fixed_price ?? null,
     },
   });
 
@@ -121,14 +186,24 @@ export default function AddWorkItemDialog({
         start_date: data.start_date ? new Date(data.start_date) : new Date(),
         end_date: data.end_date ? new Date(data.end_date) : null,
         fixed_price:
-          typeof data.fixed_price === "number" ? data.fixed_price : null,
+          data.type === work_item_type.fixed_price
+            ? typeof data.fixed_price === "number"
+              ? data.fixed_price
+              : null
+            : null,
         project_id: data.project_id || null,
         description: data.description ?? null,
         hourly_rate:
-          typeof data.hourly_rate === "number" ? data.hourly_rate : null,
+          data.type === work_item_type.time_material
+            ? typeof data.hourly_rate === "number"
+              ? data.hourly_rate
+              : null
+            : null,
         estimated_hours:
-          typeof data.estimated_hours === "number"
-            ? data.estimated_hours
+          data.type === work_item_type.time_material
+            ? typeof data.estimated_hours === "number"
+              ? data.estimated_hours
+              : null
             : null,
         title: data.title,
         client_id: data.client_id,
@@ -320,11 +395,7 @@ export default function AddWorkItemDialog({
                   <FormItem>
                     <FormLabel>Data Inizio</FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                        value={field.value.toDateString()}
-                      />
+                      <Input type="date" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -338,11 +409,7 @@ export default function AddWorkItemDialog({
                   <FormItem>
                     <FormLabel>Data Fine (Opzionale)</FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                        value={field.value?.toDateString() ?? undefined}
-                      />
+                      <Input type="date" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -364,9 +431,10 @@ export default function AddWorkItemDialog({
                           placeholder="65"
                           {...field}
                           value={field.value?.toString() ?? ""}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === "" ? null : Number(val));
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -386,9 +454,10 @@ export default function AddWorkItemDialog({
                           placeholder="800"
                           {...field}
                           value={field.value?.toString() ?? ""}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === "" ? null : Number(val));
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -409,7 +478,10 @@ export default function AddWorkItemDialog({
                         placeholder="15000"
                         {...field}
                         value={field.value?.toString() ?? ""}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          field.onChange(val === "" ? null : Number(val));
+                        }}
                       />
                     </FormControl>
                     <FormMessage />

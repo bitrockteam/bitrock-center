@@ -78,8 +78,7 @@ The `push` command will not reset the data on the remote instance.
 - `yarn`
 - `yarn build`
 - `yarn dev`:
-  - frontend on `localhost:3001`
-  - backend on `localhost:3000`
+  - frontend on `localhost:3000`
 
 ## Development Workflow
 

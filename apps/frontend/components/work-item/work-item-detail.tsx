@@ -22,7 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useServerAction } from "@/hooks/useServerAction";
 import { formatDisplayName } from "@/services/users/utils";
-import { work_item_type } from "@bitrock/db";
+import { work_item_status, work_item_type } from "@bitrock/db";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -63,11 +63,11 @@ export default function WorkItemDetail({ id }: { id: string }) {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "active":
+      case work_item_status.active:
         return <Badge className="bg-green-500">Attiva</Badge>;
-      case "completed":
+      case work_item_status.completed:
         return <Badge variant="outline">Completata</Badge>;
-      case "on-hold":
+      case work_item_status.on_hold:
         return <Badge variant="secondary">In Pausa</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
@@ -76,13 +76,13 @@ export default function WorkItemDetail({ id }: { id: string }) {
 
   const getTypeBadge = (type: string) => {
     switch (type) {
-      case "time-material":
+      case work_item_type.time_material:
         return (
           <Badge variant="outline" className="border-blue-500 text-blue-500">
             Time & Material
           </Badge>
         );
-      case "fixed-price":
+      case work_item_type.fixed_price:
         return (
           <Badge
             variant="outline"
@@ -412,7 +412,15 @@ export default function WorkItemDetail({ id }: { id: string }) {
         <AddWorkItemDialog
           open={showEditDialog}
           onOpenChange={setShowEditDialog}
-          editData={workItem}
+          editData={{
+            ...workItem,
+            start_date: workItem.start_date
+              ? workItem.start_date.toISOString().substring(0, 10)
+              : "",
+            end_date: workItem.end_date
+              ? workItem.end_date.toISOString().substring(0, 10)
+              : "",
+          }}
         />
       )}
     </motion.div>
