@@ -1,9 +1,6 @@
 "use client";
 
-import { useOffline } from "@/hooks/useOffline";
 import { tryGetUserInfoFromCookie } from "@/utils/supabase/server";
-import { useEffect } from "react";
-import { toast } from "sonner";
 import Sidebar from "./sidebar";
 
 export default function MainContainer({
@@ -13,16 +10,16 @@ export default function MainContainer({
   children: React.ReactNode;
   user: Awaited<ReturnType<typeof tryGetUserInfoFromCookie>>;
 }) {
-  const offline = useOffline();
+  // const offline = useOffline();
 
-  useEffect(() => {
-    if (offline)
-      toast.warning("You are offline. Some features may not be available.", {
-        duration: Infinity,
-        position: "top-right",
-      });
-    if (!offline) toast.dismiss();
-  }, [offline]);
+  // useEffect(() => {
+  //   if (offline)
+  //     toast.warning("You are offline. Some features may not be available.", {
+  //       duration: Infinity,
+  //       position: "top-right",
+  //     });
+  //   if (!offline) toast.dismiss();
+  // }, [offline]);
   return (
     <div className="flex h-screen">
       {user && <Sidebar user={user} />}
