@@ -284,7 +284,7 @@ export default function WorkItemsTable() {
                 ? {
                     ...editWorkItem,
                     start_date: editWorkItem.start_date,
-                    end_date: editWorkItem.end_date,
+                    end_date: editWorkItem.end_date ?? undefined,
                     project_id: editWorkItem.project_id ?? "",
                     description: editWorkItem.description ?? "",
                     hourly_rate:

@@ -35,6 +35,8 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { addProjectSchema } from "./schema";
+import { getAllClients } from "@/api/server/client/getAllClients";
+import { useServerAction } from "@/hooks/useServerAction";
 
 interface AddProjectDialogProps {
   open: boolean;
@@ -49,6 +51,12 @@ export default function AddProjectDialog({
   editData,
   projectId,
 }: AddProjectDialogProps) {
+  const [clients, fetchAllClients] = useServerAction(getAllClients);
+
+  useEffect(() => {
+    fetchAllClients();
+  }, [fetchAllClients]);
+
   const form = useForm<z.infer<typeof addProjectSchema>>({
     defaultValues: {
       name: "",
@@ -80,12 +88,15 @@ export default function AddProjectDialog({
 
   const onSubmit = async (data: z.infer<typeof addProjectSchema>) => {
     const formattedData: Omit<project, "id" | "created_at"> = {
-      ...data,
       start_date: new Date(data.start_date),
       end_date: data.end_date ? new Date(data.end_date) : null,
       status: data.status as ProjectStatus,
+      name: data.name,
+      description: data.description || null,
       client_id: data.client, // Assuming client is a string ID
     };
+
+    console.log({ formattedData });
 
     if (editData && projectId) {
       await updateProject({ id: projectId, ...formattedData })
@@ -153,9 +164,23 @@ export default function AddProjectDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cliente</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome del cliente" {...field} />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona il cliente" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {clients?.map((client) => (
+                          <SelectItem key={client.id} value={client.id}>
+                            {client.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

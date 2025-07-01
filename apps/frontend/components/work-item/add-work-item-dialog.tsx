@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchAllProjects } from "@/api/server/project/fetchAllProjects";
+import { getAllClients } from "@/api/server/client/getAllClients";
 import { findUsers } from "@/api/server/user/findUsers";
 import { createWorkItem } from "@/api/server/work-item/createWorkItem";
 import { updateWorkItem } from "@/api/server/work-item/updateWorkItem";
@@ -31,13 +31,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  project,
-  Role,
-  user,
-  work_item_status,
-  work_item_type,
-} from "@bitrock/db";
+import { useServerAction } from "@/hooks/useServerAction";
+import { user, work_item_status, work_item_type } from "@bitrock/db";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
@@ -46,13 +41,13 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const workItemSchema = z.object({
-  id: z.string().nullable(),
+  id: z.string().optional(),
   title: z.string().min(1, "Il titolo è obbligatorio"),
   client_id: z.string().min(1, "Il cliente è obbligatorio"),
   project_id: z.string().nullable(),
   type: z.nativeEnum(work_item_type),
   start_date: z.date(),
-  end_date: z.date().nullable(),
+  end_date: z.date().nullable().optional(),
   enabled_users: z
     .array(z.string())
     .min(1, "Almeno un utente deve essere abilitato"),
@@ -77,15 +72,19 @@ export default function AddWorkItemDialog({
   editData,
 }: AddWorkItemDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<string>("");
-  const [availableProjects, setAvailableProjects] = useState<project[]>([]);
-  const [clients, setClients] = useState<user[]>([]);
   const [users, setUsers] = useState<user[]>([]);
   const isEditing = !!editData;
+
+  const [clients, fetchAllClients] = useServerAction(getAllClients);
+
+  useEffect(() => {
+    fetchAllClients();
+  }, [fetchAllClients]);
 
   const form = useForm<WorkItemFormData>({
     resolver: zodResolver(workItemSchema),
     defaultValues: {
+      id: editData?.id || "",
       title: editData?.title || "",
       client_id: editData?.client_id || "",
       project_id: editData?.project_id || "",
@@ -102,41 +101,23 @@ export default function AddWorkItemDialog({
   });
 
   const watchedType = form.watch("type");
+  const watchedClientId = form.watch("client_id");
+  const startDate = form.watch("start_date");
+
+  console.log({ startDate });
 
   useEffect(() => {
     async function fetchData() {
       const allUsers = await findUsers();
       setUsers(allUsers);
-      setClients(allUsers.filter((u) => u.role === Role.Key_Client));
     }
     fetchData();
   }, []);
-
-  useEffect(() => {
-    async function fetchProjects() {
-      if (selectedClient) {
-        const allProjects = await fetchAllProjects();
-        setAvailableProjects(
-          allProjects.filter((p) => p.client.id === selectedClient),
-        );
-      } else {
-        setAvailableProjects([]);
-      }
-    }
-    fetchProjects();
-  }, [selectedClient]);
-
-  useEffect(() => {
-    if (editData?.client_id) {
-      setSelectedClient(editData.client_id);
-    }
-  }, [editData]);
 
   const onSubmit = async (data: WorkItemFormData) => {
     setIsLoading(true);
     try {
       const submitData = {
-        ...data,
         start_date: data.start_date ? new Date(data.start_date) : new Date(),
         end_date: data.end_date ? new Date(data.end_date) : null,
         fixed_price:
@@ -149,7 +130,14 @@ export default function AddWorkItemDialog({
           typeof data.estimated_hours === "number"
             ? data.estimated_hours
             : null,
+        title: data.title,
+        client_id: data.client_id,
+        type: data.type,
+        status: data.status,
       };
+
+      console.log({ submitData });
+
       if (isEditing && editData?.id) {
         await updateWorkItem(editData.id, submitData);
       } else {
@@ -179,7 +167,10 @@ export default function AddWorkItemDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit, (err) => console.log(err))}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="title"
@@ -214,7 +205,7 @@ export default function AddWorkItemDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {clients.map((client) => (
+                        {clients?.map((client) => (
                           <SelectItem key={client.id} value={client.id}>
                             {client.name}
                           </SelectItem>
@@ -234,7 +225,7 @@ export default function AddWorkItemDialog({
                     <FormLabel>Progetto (Opzionale)</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value ?? ""}
+                      defaultValue={field.value ?? undefined}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -242,12 +233,14 @@ export default function AddWorkItemDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nessun progetto</SelectItem>
-                        {availableProjects.map((project) => (
-                          <SelectItem key={project.id} value={project.id}>
-                            {project.name}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="-">Non Assegnato</SelectItem>
+                        {clients
+                          ?.find((client) => client.id === watchedClientId)
+                          ?.project.map((project) => (
+                            <SelectItem key={project.id} value={project.id}>
+                              {project.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -330,7 +323,7 @@ export default function AddWorkItemDialog({
                       <Input
                         type="date"
                         {...field}
-                        value={field.value?.toISOString().split("T")[0]}
+                        value={field.value.toDateString()}
                       />
                     </FormControl>
                     <FormMessage />
@@ -348,7 +341,7 @@ export default function AddWorkItemDialog({
                       <Input
                         type="date"
                         {...field}
-                        value={field.value?.toISOString().split("T")[0]}
+                        value={field.value?.toDateString() ?? undefined}
                       />
                     </FormControl>
                     <FormMessage />
