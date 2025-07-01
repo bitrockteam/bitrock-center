@@ -1,5 +1,6 @@
 "use client";
 
+import { createEmployeeContract } from "@/api/server/contract/createEmployeeContract";
 import { updateEmployeeContract } from "@/api/server/contract/updateEmployeeContract";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,14 +36,23 @@ import {
 } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { Building, Clock, DollarSign, FileText, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface EditContractDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  contract: contract;
+  contract?: contract | null;
   employeeId: string;
+}
+
+interface EditContractFormData {
+  ral: number;
+  contract_type: contracttype;
+  working_hours: workinghours;
+  remote_policy: remotepolicy;
+  notes: string;
 }
 
 export default function EditContractDialog({
@@ -53,11 +63,13 @@ export default function EditContractDialog({
 }: EditContractDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm({
+  const router = useRouter();
+
+  const form = useForm<EditContractFormData>({
     defaultValues: {
       ral: contract?.ral || 0,
       contract_type: contract?.contract_type || "permanent",
-      working_hours: contract?.working_hours || "full-time",
+      working_hours: contract?.working_hours || "full_time",
       remote_policy: contract?.remote_policy || "hybrid",
       notes: contract?.notes || "",
     },
@@ -75,26 +87,30 @@ export default function EditContractDialog({
     }
   }, [contract, form]);
 
-  const onSubmit = async (data: {
-    ral: number;
-    contract_type: contracttype;
-    working_hours: workinghours;
-    remote_policy: remotepolicy;
-    notes: string;
-  }) => {
+  const onSubmit = async (data: EditContractFormData) => {
     setIsLoading(true);
     try {
-      await updateEmployeeContract(employeeId, {
-        id: contract.id, // Ensure to pass the contract ID
-        ral: data.ral,
-        contract_type: data.contract_type,
-        working_hours: data.working_hours,
-        remote_policy: data.remote_policy,
-        notes: data.notes,
-      });
+      if (!contract) {
+        await createEmployeeContract(employeeId, {
+          ral: data.ral,
+          contract_type: data.contract_type,
+          working_hours: data.working_hours,
+          remote_policy: data.remote_policy,
+          notes: data.notes,
+        });
+      } else {
+        await updateEmployeeContract(employeeId, {
+          id: contract.id, // Ensure to pass the contract ID
+          ral: data.ral,
+          contract_type: data.contract_type,
+          working_hours: data.working_hours,
+          remote_policy: data.remote_policy,
+          notes: data.notes,
+        });
+      }
 
       onOpenChange(false);
-      // In a real app, you'd trigger a refetch or update the UI
+      router.refresh();
     } catch (error) {
       console.error("Error updating contract:", error);
     } finally {
@@ -195,8 +211,12 @@ export default function EditContractDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="full-time">Full-time</SelectItem>
-                        <SelectItem value="part-time">Part-time</SelectItem>
+                        <SelectItem value={workinghours["full_time"]}>
+                          Full-time
+                        </SelectItem>
+                        <SelectItem value={workinghours["part_time"]}>
+                          Part-time
+                        </SelectItem>
                         <SelectItem value="custom">Personalizzato</SelectItem>
                       </SelectContent>
                     </Select>
@@ -223,9 +243,15 @@ export default function EditContractDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="full-remote">Full Remote</SelectItem>
-                      <SelectItem value="hybrid">Ibrido</SelectItem>
-                      <SelectItem value="on-site">In Sede</SelectItem>
+                      <SelectItem value={remotepolicy["full_remote"]}>
+                        Full Remote
+                      </SelectItem>
+                      <SelectItem value={remotepolicy["hybrid"]}>
+                        Ibrido
+                      </SelectItem>
+                      <SelectItem value={remotepolicy["on_site"]}>
+                        In Sede
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

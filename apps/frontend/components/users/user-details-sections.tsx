@@ -56,7 +56,12 @@ export default function UserDetailsSections({ user }: { user: FindUserById }) {
         <UserDetailsActivity />
       </TabsContent>
       <TabsContent value="contract">
-        <ContractDetail contract={contract} canEdit canView />
+        <ContractDetail
+          contract={contract}
+          canEdit
+          canView
+          employeeId={user.id}
+        />
       </TabsContent>
     </Tabs>
   );
