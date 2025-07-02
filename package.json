@@ -8,6 +8,8 @@
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
+    "changeset": "changeset",
+    "changeset:release": "changeset version",
     "prepare": "husky",
     "seed": "npx supabase db dump -f supabase/seed.sql --data-only --schema public --local ",
     "seed:remote": "npx supabase db dump -f supabase/seed.sql --data-only --schema public",
@@ -31,5 +33,8 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@changesets/cli": "^2.29.5"
+  }
 }
