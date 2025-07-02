@@ -30,6 +30,8 @@ INSERT INTO "public"."client" ("id", "name", "code", "email", "phone", "address"
 -- Data for Name: project; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+INSERT INTO "public"."project" ("id", "created_at", "name", "description", "start_date", "end_date", "status", "client_id") VALUES
+	('b536e876-9f5e-4f24-9901-98169b72313d', '2025-07-01 16:15:52.249+00', 'New Booking System', NULL, '2025-07-01 00:00:00', NULL, 'ACTIVE', '767baaa4-5ce7-4792-b1e2-fc354f495f2f');
 
 
 --
@@ -41,15 +43,27 @@ INSERT INTO "public"."user" ("id", "created_at", "email", "name", "avatar_url", 
 	('e8874482-8365-4973-8c72-6c2d2933c7c9', '2025-06-19 07:51:48.042+00', 'daniel.zotti@bitrock.it', 'Daniel Zotti', NULL, '386a8f27-cf71-4ed0-b1d7-b78d547028a9', 'Key Client'),
 	('660e6bdb-000d-4ba9-b368-e26f6d879a49', '2025-06-19 08:18:40.873+00', 'test@test.com', 'test test', NULL, '59f579f0-8c04-4938-8ea3-e5dad19fc87a', 'Manager'),
 	('59f579f0-8c04-4938-8ea3-e5dad19fc87a', '2025-06-19 07:49:17.141+00', 'miguel.deleon@bitrock.it', 'Miguel De Leon', NULL, NULL, 'Employee'),
-	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', '2025-06-01 15:18:48.439214+00', 'davide.ghiotto@bitrock.it', 'Davide Ghiotto', 'https://ca.slack-edge.com/TBUKN04GN-U04RURP3SL8-6c85b7bb5bca-512', '386a8f27-cf71-4ed0-b1d7-b78d547028a9', 'Super Admin'),
 	('108ddaad-82c5-4689-b36f-c20ae2bc6a36', '2025-06-03 14:51:55.25+00', 'niccolo.naso@bitrock.it', 'Niccolò Naso', NULL, 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'Admin'),
-	('386a8f27-cf71-4ed0-b1d7-b78d547028a9', '2025-06-01 15:20:00.527163+00', 'yi.zhang@bitrock.it', 'Yi Zhang', NULL, NULL, 'Key Client');
+	('386a8f27-cf71-4ed0-b1d7-b78d547028a9', '2025-06-01 15:20:00.527163+00', 'yi.zhang@bitrock.it', 'Yi Zhang', NULL, NULL, 'Key Client'),
+	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', '2025-06-01 15:18:48.439214+00', 'davide.ghiotto@bitrock.it', 'Davide Ghiotto', 'https://ca.slack-edge.com/TBUKN04GN-U04RURP3SL8-6c85b7bb5bca-512', '386a8f27-cf71-4ed0-b1d7-b78d547028a9', 'Admin');
 
 
 --
 -- Data for Name: allocation; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+INSERT INTO "public"."allocation" ("created_at", "user_id", "project_id", "start_date", "end_date", "percentage") VALUES
+	('2025-07-01 18:47:17.359+00', '386a8f27-cf71-4ed0-b1d7-b78d547028a9', 'b536e876-9f5e-4f24-9901-98169b72313d', '2025-07-01 18:47:17.193', NULL, 100),
+	('2025-07-01 18:47:45.536+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'b536e876-9f5e-4f24-9901-98169b72313d', '2025-07-01 18:47:45.447', NULL, 100);
+
+
+--
+-- Data for Name: chat_session; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."chat_session" ("id", "user_id", "title", "last_message", "last_updated") VALUES
+	('5b78d24c-9de1-464a-90c6-f524215f1784', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'New Chat', NULL, '2025-07-01 18:52:11.233+00'),
+	('4309e098-fe62-45d8-987e-f84681f1570e', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'New Chat', NULL, '2025-07-02 06:19:58.742+00');
 
 
 --
@@ -76,13 +90,27 @@ INSERT INTO "public"."goal" ("id", "development_plan_id", "title", "description"
 
 
 --
+-- Data for Name: message; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."message" ("id", "chat_session_id", "type", "content", "timestamp", "is_json", "json_data", "confirmed") VALUES
+	('f85bc928-78dd-419e-acfc-21523fc2fd41', '5b78d24c-9de1-464a-90c6-f524215f1784', 'user', 'per quando sono programmate le mie prossime ferie?', '2025-07-01 18:52:34.951+00', false, NULL, false),
+	('b387db47-8dfb-404e-bf89-bd13f70f3441', '5b78d24c-9de1-464a-90c6-f524215f1784', 'bot', 'Le date registrate sono il 2025-07-24, 2025-07-25, 2025-07-26 e 2025-07-27. 📅', '2025-07-01 18:52:34.951+00', false, '[{"date": "2025-07-24"}, {"date": "2025-07-25"}, {"date": "2025-07-26"}, {"date": "2025-07-27"}]', false),
+	('d00964d9-f4a0-4196-8b16-c0202ed2c2ae', '5b78d24c-9de1-464a-90c6-f524215f1784', 'user', 'ritornami solo il primo giorno', '2025-07-02 06:19:46.406+00', false, NULL, false),
+	('e4015cca-a649-488c-a199-374f649a9c36', '5b78d24c-9de1-464a-90c6-f524215f1784', 'bot', 'Il 31 maggio 2025 📅', '2025-07-02 06:19:46.406+00', false, '[{"date": "2025-05-31"}]', false),
+	('98a45566-ad30-497d-8c17-403d7553b138', '4309e098-fe62-45d8-987e-f84681f1570e', 'user', 'chi sono io?', '2025-07-02 06:20:08.32+00', false, NULL, false),
+	('e6ff7a34-d52e-45d4-bc8c-856ee6168ff8', '4309e098-fe62-45d8-987e-f84681f1570e', 'bot', 'Ecco a te, Davide Ghiotto! 😊', '2025-07-02 06:20:08.32+00', false, '[{"name": "Davide Ghiotto"}]', false),
+	('6cb2b273-6308-471b-b9ab-9c989d49b48c', '4309e098-fe62-45d8-987e-f84681f1570e', 'user', 'trovami tutte le skill dell''utente appena trovato', '2025-07-02 06:20:24.52+00', false, NULL, false),
+	('8a594469-c7a9-4910-a762-4785ef4aab4e', '4309e098-fe62-45d8-987e-f84681f1570e', 'bot', 'Ecco le competenze indicate: Gestione Clienti e Typescript 😊', '2025-07-02 06:20:24.52+00', false, '[{"name": "Client Management"}, {"name": "Typescript"}]', false),
+	('3c123759-f0e1-4bae-9946-9ebfb51dd817', '4309e098-fe62-45d8-987e-f84681f1570e', 'user', 'delle due competenze appena trovate, fai una lista di skill + tipologia (hard/soft)', '2025-07-02 06:20:56.858+00', false, NULL, false),
+	('f821ab85-3abe-40b4-aafe-8c9c4f13e726', '4309e098-fe62-45d8-987e-f84681f1570e', 'bot', 'Le competenze includono  "Client Management" (categoria soft) e "Typescript" (categoria hard). 😊', '2025-07-02 06:20:56.858+00', false, '[{"name": "Client Management", "category": "soft"}, {"name": "Typescript", "category": "hard"}]', false);
+
+
+--
 -- Data for Name: permit; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 INSERT INTO "public"."permit" ("created_at", "user_id", "duration", "id", "description", "type", "date", "status", "reviewer_id") VALUES
-	('2025-06-26 13:33:35.504+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '29f028bc-cce9-4d7f-ac12-fe042e72f71b', 'testozzo', 'VACATION', '2025-06-16', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
-	('2025-06-26 13:33:35.504+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '03f3153f-e81b-4a69-88b5-9391713f685e', 'testozzo', 'VACATION', '2025-06-17', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
-	('2025-06-26 13:33:35.504+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '78853736-7e56-496f-a0e4-c62996b34199', 'testozzo', 'VACATION', '2025-06-18', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
 	('2025-06-26 13:33:35.504+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '9c519e50-64ed-4250-b64b-6d9c1ed76ed2', 'testozzo', 'VACATION', '2025-06-19', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
 	('2025-06-26 13:33:35.504+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, 'f5ddf501-3104-4020-80ab-dd12df846ce9', 'testozzo', 'VACATION', '2025-06-20', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
 	('2025-06-26 13:33:35.504+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '6269d97e-a086-41fe-93f4-81b5f4f78009', 'testozzo', 'VACATION', '2025-06-21', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
@@ -103,7 +131,14 @@ INSERT INTO "public"."permit" ("created_at", "user_id", "duration", "id", "descr
 	('2025-06-26 13:40:24.711+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '4e225a60-59ed-468e-99f0-0a2ef2ede6f9', 'imbroglino', 'VACATION', '2025-06-15', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
 	('2025-06-26 13:40:24.711+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '00834703-5f9c-4e4f-b9f2-974bb1322253', 'imbroglino', 'VACATION', '2025-06-16', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
 	('2025-06-26 13:40:24.711+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '0e90b07e-8195-41da-834e-09c30d8b5e21', 'imbroglino', 'VACATION', '2025-06-17', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
-	('2025-06-26 13:40:24.711+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '0ef3a94f-b838-47b4-9d0e-d61c5dd6207f', 'imbroglino', 'VACATION', '2025-06-18', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9');
+	('2025-06-26 13:40:24.711+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '0ef3a94f-b838-47b4-9d0e-d61c5dd6207f', 'imbroglino', 'VACATION', '2025-06-18', 'PENDING', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
+	('2025-06-26 13:33:35.504+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '29f028bc-cce9-4d7f-ac12-fe042e72f71b', 'testozzo', 'VACATION', '2025-06-16', 'APPROVED', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
+	('2025-06-26 13:33:35.504+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '03f3153f-e81b-4a69-88b5-9391713f685e', 'testozzo', 'VACATION', '2025-06-17', 'APPROVED', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
+	('2025-06-26 13:33:35.504+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '78853736-7e56-496f-a0e4-c62996b34199', 'testozzo', 'VACATION', '2025-06-18', 'APPROVED', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
+	('2025-07-01 18:48:07.563+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '2a4f313e-0889-4448-9708-62c3e0d426b1', 'Vacanza in centro Italia', 'VACATION', '2025-07-24', 'APPROVED', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
+	('2025-07-01 18:48:07.563+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '438ab037-5fa9-4400-9c17-13308eaf30e8', 'Vacanza in centro Italia', 'VACATION', '2025-07-26', 'APPROVED', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
+	('2025-07-01 18:48:07.563+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '88a93343-4db9-426f-96a1-0636a1c6b8a1', 'Vacanza in centro Italia', 'VACATION', '2025-07-25', 'APPROVED', '386a8f27-cf71-4ed0-b1d7-b78d547028a9'),
+	('2025-07-01 18:48:07.563+00', 'a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 8, '9fcb37a8-ce08-431e-be56-6a09d0a0cced', 'Vacanza in centro Italia', 'VACATION', '2025-07-27', 'APPROVED', '386a8f27-cf71-4ed0-b1d7-b78d547028a9');
 
 
 --
@@ -144,6 +179,8 @@ INSERT INTO "public"."user_skill" ("user_id", "skill_id", "seniorityLevel") VALU
 -- Data for Name: work_items; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+INSERT INTO "public"."work_items" ("id", "title", "client_id", "project_id", "type", "start_date", "end_date", "status", "description", "hourly_rate", "estimated_hours", "fixed_price", "created_at") VALUES
+	('192692d5-2087-4d85-8e8e-04bceb4c5205', 'Disruptive UX/UI', '767baaa4-5ce7-4792-b1e2-fc354f495f2f', 'b536e876-9f5e-4f24-9901-98169b72313d', 'time-material', '2025-07-01', NULL, 'active', '', 65, 800, NULL, '2025-07-01 16:18:02.139+00');
 
 
 --
