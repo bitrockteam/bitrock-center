@@ -1,5 +1,6 @@
 "use client";
 
+import { FindUsers } from "@/api/server/user/findUsers";
 import { WorkItem } from "@/api/server/work-item/fetchAllWorkItems";
 import {
   AlertDialog,
@@ -38,17 +39,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
 import WorkItemsHeader from "./work-items-header";
-import { FindUsers } from "@/api/server/user/findUsers";
-import { GetAllClientsResponse } from "@/api/server/client/getAllClients";
 
 export default function WorkItemsTable({
   workItems,
   allClients,
-  clients,
 }: {
   workItems: WorkItem[];
   allClients: FindUsers[];
-  clients: GetAllClientsResponse[];
 }) {
   const router = useRouter();
   const [editWorkItem, setEditWorkItem] = useState<work_items | null>(null);
@@ -103,7 +100,6 @@ export default function WorkItemsTable({
       <WorkItemsHeader
         onClientFilter={setClientFilter}
         allClients={allClients}
-        clientsData={clients}
       />
 
       <motion.div
@@ -266,9 +262,7 @@ export default function WorkItemsTable({
         {/* Dialog per modificare una commessa */}
         {editWorkItem && (
           <AddWorkItemDialog
-            users={allClients}
             open={!!editWorkItem}
-            clients={clients}
             onOpenChange={(open) => !open && setEditWorkItem(null)}
             editData={
               editWorkItem

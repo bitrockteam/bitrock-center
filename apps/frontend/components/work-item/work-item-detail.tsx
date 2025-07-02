@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchWorkItemById } from "@/api/server/work-item/fetchWorkItemById";
+import { WorkItemById } from "@/api/server/work-item/fetchWorkItemById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useServerAction } from "@/hooks/useServerAction";
 import { formatDisplayName } from "@/services/users/utils";
 import { work_item_status, work_item_type } from "@bitrock/db";
 import { motion } from "framer-motion";
@@ -34,32 +33,16 @@ import {
   Euro,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
 
-export default function WorkItemDetail({ id }: { id: string }) {
+export default function WorkItemDetail({
+  workItem,
+}: {
+  workItem: NonNullable<WorkItemById>;
+}) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [workItem, getWorkItem] = useServerAction(fetchWorkItemById);
-
-  useEffect(() => {
-    getWorkItem({ workItemId: id });
-  }, [getWorkItem, id]);
-
-  if (!workItem) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[50vh]">
-        <h2 className="text-2xl font-bold">Commessa non trovata</h2>
-        <p className="text-muted-foreground mb-4">
-          La commessa richiesta non esiste o è stata rimossa.
-        </p>
-        <Button onClick={() => router.push("/commesse")}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Torna alle Commesse
-        </Button>
-      </div>
-    );
-  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {

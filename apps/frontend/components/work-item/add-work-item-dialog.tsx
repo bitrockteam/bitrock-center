@@ -1,6 +1,7 @@
 "use client";
 
-import { GetAllClientsResponse } from "@/api/server/client/getAllClients";
+import { getAllClients } from "@/api/server/client/getAllClients";
+import { findUsers } from "@/api/server/user/findUsers";
 import { createWorkItem } from "@/api/server/work-item/createWorkItem";
 import { updateWorkItem } from "@/api/server/work-item/updateWorkItem";
 import { Button } from "@/components/ui/button";
@@ -30,11 +31,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { user, work_item_status, work_item_type } from "@bitrock/db";
+import { useServerAction } from "@/hooks/useServerAction";
+import { work_item_status, work_item_type } from "@bitrock/db";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -111,19 +113,17 @@ interface AddWorkItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editData?: Partial<WorkItemFormData>;
-  clients: GetAllClientsResponse[];
-  users: user[];
 }
 
 export default function AddWorkItemDialog({
   open,
   onOpenChange,
   editData,
-  clients,
-  users,
 }: AddWorkItemDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!editData;
+  const [clients, getClients, loadingClients] = useServerAction(getAllClients);
+  const [users, getUsers, loadingUsers] = useServerAction(findUsers);
 
   const form = useForm<WorkItemFormData>({
     resolver: zodResolver(workItemSchema),
@@ -162,9 +162,6 @@ export default function AddWorkItemDialog({
 
   const watchedType = form.watch("type");
   const watchedClientId = form.watch("client_id");
-  const startDate = form.watch("start_date");
-
-  console.log({ startDate });
 
   const onSubmit = async (data: WorkItemFormData) => {
     setIsLoading(true);
@@ -214,6 +211,14 @@ export default function AddWorkItemDialog({
     }
   };
 
+  useEffect(() => {
+    getClients();
+  }, [getClients]);
+
+  useEffect(() => {
+    getUsers();
+  }, [getUsers]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
@@ -254,29 +259,37 @@ export default function AddWorkItemDialog({
               <FormField
                 control={form.control}
                 name="client_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cliente</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                render={({ field }) =>
+                  loadingClients ? (
+                    <FormItem>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona cliente" />
-                        </SelectTrigger>
+                        <Input disabled value="Caricamento clienti..." />
                       </FormControl>
-                      <SelectContent>
-                        {clients?.map((client) => (
-                          <SelectItem key={client.id} value={client.id}>
-                            {client.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                    </FormItem>
+                  ) : (
+                    <FormItem>
+                      <FormLabel>Cliente</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona cliente" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {clients?.map((client) => (
+                            <SelectItem key={client.id} value={client.id}>
+                              {client.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }
               />
 
               <FormField
@@ -480,58 +493,66 @@ export default function AddWorkItemDialog({
             <FormField
               control={form.control}
               name="enabled_users"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">
-                      Utenti Abilitati
-                    </FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Seleziona gli utenti che possono registrare ore su questa
-                      commessa.
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {users.map((user) => (
-                      <FormField
-                        key={user.id}
-                        control={form.control}
-                        name="enabled_users"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={user.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(user.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          user.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== user.id,
-                                          ),
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm font-normal">
-                                {user.name}
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={() =>
+                loadingUsers ? (
+                  <FormItem>
+                    <FormControl>
+                      <Input disabled value="Caricamento utenti..." />
+                    </FormControl>
+                  </FormItem>
+                ) : (
+                  <FormItem>
+                    <div className="mb-4">
+                      <FormLabel className="text-base">
+                        Utenti Abilitati
+                      </FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Seleziona gli utenti che possono registrare ore su
+                        questa commessa.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {users?.map((user) => (
+                        <FormField
+                          key={user.id}
+                          control={form.control}
+                          name="enabled_users"
+                          render={({ field }) => {
+                            return (
+                              <FormItem
+                                key={user.id}
+                                className="flex flex-row items-start space-x-3 space-y-0"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(user.id)}
+                                    onCheckedChange={(checked) => {
+                                      return checked
+                                        ? field.onChange([
+                                            ...field.value,
+                                            user.id,
+                                          ])
+                                        : field.onChange(
+                                            field.value?.filter(
+                                              (value) => value !== user.id,
+                                            ),
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-normal">
+                                  {user.name}
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }
             />
 
             <FormField

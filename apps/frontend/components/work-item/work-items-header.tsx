@@ -15,18 +15,15 @@ import { motion } from "framer-motion";
 import { Filter, PlusCircle, Search } from "lucide-react";
 import { useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
-import { GetAllClientsResponse } from "@/api/server/client/getAllClients";
 
 interface WorkItemsHeaderProps {
   onClientFilter?: (clientId: string | null) => void;
   allClients: FindUsers[];
-  clientsData: GetAllClientsResponse[];
 }
 
 export default function WorkItemsHeader({
   onClientFilter,
   allClients,
-  clientsData,
 }: WorkItemsHeaderProps) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const clients = allClients.filter((u) => u.role === Role.Key_Client);
@@ -79,11 +76,7 @@ export default function WorkItemsHeader({
         </motion.div>
       </div>
 
-      <AddWorkItemDialog
-        open={showAddDialog}
-        onOpenChange={setShowAddDialog}
-        clients={clientsData}
-      />
+      <AddWorkItemDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
     </motion.div>
   );
 }

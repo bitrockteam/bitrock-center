@@ -1,4 +1,3 @@
-import { getAllClients } from "@/api/server/client/getAllClients";
 import { findUsers } from "@/api/server/user/findUsers";
 import { fetchAllWorkItems } from "@/api/server/work-item/fetchAllWorkItems";
 import WorkItemsTable from "@/components/work-item/work-items-table";
@@ -12,15 +11,10 @@ export const metadata: Metadata = {
 export default async function WorkItemsPage() {
   const workItems = await fetchAllWorkItems();
   const allClients = await findUsers();
-  const clients = await getAllClients();
 
   return (
     <div className="space-y-6">
-      <WorkItemsTable
-        workItems={workItems}
-        allClients={allClients}
-        clients={clients}
-      />
+      <WorkItemsTable workItems={workItems} allClients={allClients} />
     </div>
   );
 }
