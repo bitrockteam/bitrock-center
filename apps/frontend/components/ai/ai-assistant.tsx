@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { confirmChatAction } from "@/api/server/ai/confirmChatAction";
 import { createNewChatSession } from "@/api/server/ai/createNewChatSession";
+import { deleteChatSession } from "@/api/server/ai/deleteChatSession";
 import { ChatSession } from "@/api/server/ai/getChatSessions";
 import { smartSearch } from "@/api/server/ai/service/service";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ import {
   InfinityIcon,
   Plus,
   Send,
+  Trash2,
   User,
   X,
 } from "lucide-react";
@@ -88,8 +90,6 @@ export default function AIAssistant({
     setCurrentMessage("");
     setIsThinking(true);
 
-    // Simulate AI response
-
     const response = await smartSearch({
       question: currentMessage,
       chat_session_id: currentSessionId,
@@ -131,6 +131,11 @@ export default function AIAssistant({
     router.refresh();
   };
 
+  const handleDeleteChat = async (chatSessionId: string) => {
+    await deleteChatSession(chatSessionId);
+    router.refresh();
+  };
+
   return (
     <div className="flex h-full w-full">
       {/* Chat History Sidebar */}
@@ -158,21 +163,34 @@ export default function AIAssistant({
                 )}
                 onClick={() => setCurrentSessionId(session.id)}
               >
-                <CardContent className="p-3">
-                  <h3 className="font-medium text-sm mb-1 text-ellipsis overflow-hidden whitespace-nowrap hover:underline hover:cursor-pointer max-w-[16rem]">
-                    {session.message[0]?.content || "Nuova Chat"}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
-                    {session.last_message}
-                  </p>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    {session.last_updated.toLocaleDateString()}{" "}
-                    {session.last_updated.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                <CardContent className="p-3 flex items-center justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-sm mb-1 text-ellipsis overflow-hidden whitespace-nowrap hover:underline hover:cursor-pointer max-w-[14rem]">
+                      {session.message[0]?.content || "Nuova Chat"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+                      {session.last_message}
+                    </p>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {session.last_updated.toLocaleDateString()}{" "}
+                      {session.last_updated.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    className="ml-2 p-1 rounded hover:bg-destructive/10 text-destructive"
+                    title="Elimina chat"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteChat(session.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </CardContent>
               </Card>
             ))}
@@ -213,12 +231,12 @@ export default function AIAssistant({
           </div>
           <div className="mt-2 flex items-center gap-2">
             <Switch
-              id="diary-mode"
+              id="agentic-mode"
               checked={agenticMode}
               onCheckedChange={(checked) => setAgenticMode(checked)}
             />
             <label
-              htmlFor="diary-mode"
+              htmlFor="agentic-mode"
               className={cn(
                 "text-xs text-muted-foreground flex items-center gap-1 cursor-pointer select-none",
                 agenticMode ? "text-primary" : "text-muted-foreground",

@@ -1,5 +1,5 @@
 import { getChatSessions } from "@/api/server/ai/getChatSessions";
-import AIAssistantClientWrapper from "@/components/ai/ai-assistant-client-wrapper";
+import AIAssistant from "@/components/ai/ai-assistant";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 
@@ -25,7 +25,7 @@ export default async function AIAssistantPage() {
       className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 via-blue-900 to-violet-900"
       style={{ minHeight: "100vh", margin: -16 }}
     >
-      <AIAssistantClientWrapper chatSessions={chatSessions} />
+      <AIAssistant chatSessions={chatSessions} />
     </div>
   );
 }

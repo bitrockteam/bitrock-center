@@ -27,7 +27,17 @@ export async function smartSearch({
   chat_session_id: string;
 }): Promise<AiSearchResult> {
   const user = await getUserInfoFromCookie();
-  const sql = await generateSQLFromQuestion(question, user);
+  // Fetch last 10 messages for memory
+  const previousMessages = await db.message.findMany({
+    where: { chat_session_id },
+    orderBy: { timestamp: "asc" },
+    take: 10,
+  });
+  // Format messages as context
+  const contextMessages = previousMessages.map((msg) => {
+    return `${msg.type === "user" ? "User" : "Assistant"}: ${msg.content}`;
+  });
+  const sql = await generateSQLFromQuestion(question, user, contextMessages);
   // Optional logging
   console.log("🧠 Generated SQL:", sql);
   // 2. Run the SQL against local Supabase (Postgres)
