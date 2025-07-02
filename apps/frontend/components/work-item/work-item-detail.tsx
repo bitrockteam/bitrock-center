@@ -396,7 +396,19 @@ export default function WorkItemDetail({
           open={showEditDialog}
           onOpenChange={setShowEditDialog}
           editData={{
-            ...workItem,
+            title: workItem.title,
+            client_id: workItem.client_id,
+            project_id: workItem.project_id,
+            description: workItem.description || "",
+            type: workItem.type,
+            status: workItem.status,
+            hourly_rate: workItem.hourly_rate || 0,
+            fixed_price: workItem.fixed_price || 0,
+            estimated_hours: workItem.estimated_hours || 0,
+            enabled_users: workItem.work_item_enabled_users.map(
+              (user) => user.user_id,
+            ),
+            id: workItem.id,
             start_date: workItem.start_date
               ? workItem.start_date.toISOString().substring(0, 10)
               : "",

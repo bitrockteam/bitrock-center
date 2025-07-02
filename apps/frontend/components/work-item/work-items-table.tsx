@@ -48,8 +48,8 @@ export default function WorkItemsTable({
   allClients: FindUsers[];
 }) {
   const router = useRouter();
-  const [editWorkItem, setEditWorkItem] = useState<work_items | null>(null);
-  const [deleteWorkItem, setDeleteWorkItem] = useState<work_items | null>(null);
+  const [editWorkItem, setEditWorkItem] = useState<WorkItem | null>(null);
+  const [deleteWorkItem, setDeleteWorkItem] = useState<WorkItem | null>(null);
   const [clientFilter, setClientFilter] = useState<string | null>(null);
 
   const filteredWorkItems = clientFilter
@@ -267,7 +267,14 @@ export default function WorkItemsTable({
             editData={
               editWorkItem
                 ? {
-                    ...editWorkItem,
+                    id: editWorkItem.id,
+                    title: editWorkItem.title,
+                    client_id: editWorkItem.client_id ?? "",
+                    type: editWorkItem.type,
+                    status: editWorkItem.status,
+                    enabled_users: editWorkItem.work_item_enabled_users.map(
+                      (user) => user.user_id,
+                    ),
                     start_date: editWorkItem.start_date
                       ? editWorkItem.start_date.toISOString().substring(0, 10)
                       : "",
@@ -276,18 +283,9 @@ export default function WorkItemsTable({
                       : "",
                     project_id: editWorkItem.project_id ?? "",
                     description: editWorkItem.description ?? "",
-                    hourly_rate:
-                      editWorkItem.hourly_rate === null
-                        ? undefined
-                        : editWorkItem.hourly_rate,
-                    estimated_hours:
-                      editWorkItem.estimated_hours === null
-                        ? undefined
-                        : editWorkItem.estimated_hours,
-                    fixed_price:
-                      editWorkItem.fixed_price === null
-                        ? undefined
-                        : editWorkItem.fixed_price,
+                    hourly_rate: editWorkItem.hourly_rate,
+                    estimated_hours: editWorkItem.estimated_hours,
+                    fixed_price: editWorkItem.fixed_price,
                   }
                 : undefined
             }

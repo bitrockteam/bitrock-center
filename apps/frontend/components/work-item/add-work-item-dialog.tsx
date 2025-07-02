@@ -36,7 +36,8 @@ import { work_item_status, work_item_type } from "@bitrock/db";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -112,7 +113,7 @@ type WorkItemFormData = z.infer<typeof workItemSchema>;
 interface AddWorkItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editData?: Partial<WorkItemFormData>;
+  editData?: WorkItemFormData;
 }
 
 export default function AddWorkItemDialog({
@@ -120,35 +121,35 @@ export default function AddWorkItemDialog({
   onOpenChange,
   editData,
 }: AddWorkItemDialogProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!editData;
   const [clients, getClients, loadingClients] = useServerAction(getAllClients);
   const [users, getUsers, loadingUsers] = useServerAction(findUsers);
 
-  const form = useForm<WorkItemFormData>({
-    resolver: zodResolver(workItemSchema),
-    defaultValues: {
+  const getNewFormValues = useCallback((): WorkItemFormData => {
+    return {
       id: editData?.id || "",
       title: editData?.title || "",
       client_id: editData?.client_id || "",
       project_id: editData?.project_id || "",
       type: editData?.type || work_item_type.time_material,
       start_date: editData?.start_date
-        ? typeof editData.start_date === "string"
-          ? editData.start_date
-          : typeof editData.start_date === "object" &&
-              editData.start_date !== null &&
-              "toISOString" in editData.start_date
-            ? (editData.start_date as Date).toISOString().substring(0, 10)
+        ? typeof editData?.start_date === "string"
+          ? editData?.start_date
+          : typeof editData?.start_date === "object" &&
+              editData?.start_date !== null &&
+              "toISOString" in editData?.start_date
+            ? (editData?.start_date as Date).toISOString().substring(0, 10)
             : ""
         : "",
       end_date: editData?.end_date
-        ? typeof editData.end_date === "string"
-          ? editData.end_date
-          : typeof editData.end_date === "object" &&
-              editData.end_date !== null &&
-              "toISOString" in editData.end_date
-            ? (editData.end_date as Date).toISOString().substring(0, 10)
+        ? typeof editData?.end_date === "string"
+          ? editData?.end_date
+          : typeof editData?.end_date === "object" &&
+              editData?.end_date !== null &&
+              "toISOString" in editData?.end_date
+            ? (editData?.end_date as Date).toISOString().substring(0, 10)
             : ""
         : "",
       enabled_users: editData?.enabled_users || [],
@@ -157,7 +158,12 @@ export default function AddWorkItemDialog({
       hourly_rate: editData?.hourly_rate ?? null,
       estimated_hours: editData?.estimated_hours ?? null,
       fixed_price: editData?.fixed_price ?? null,
-    },
+    };
+  }, [editData]);
+
+  const form = useForm<WorkItemFormData>({
+    resolver: zodResolver(workItemSchema),
+    defaultValues: getNewFormValues(),
   });
 
   const watchedType = form.watch("type");
@@ -195,12 +201,14 @@ export default function AddWorkItemDialog({
         status: data.status,
       };
 
-      console.log({ submitData });
+      console.log({ isEditing, editData, cond: isEditing && editData?.id });
 
       if (isEditing && editData?.id) {
-        await updateWorkItem(editData.id, submitData);
+        console.log("updateworkitem");
+
+        await updateWorkItem(editData.id, submitData, data.enabled_users);
       } else {
-        await createWorkItem(submitData);
+        await createWorkItem(submitData, data.enabled_users);
       }
       onOpenChange(false);
       form.reset();
@@ -208,16 +216,23 @@ export default function AddWorkItemDialog({
       console.error("Errore durante il salvataggio:", error);
     } finally {
       setIsLoading(false);
+      router.refresh();
     }
   };
 
   useEffect(() => {
-    getClients();
-  }, [getClients]);
+    if (open && !clients) getClients();
+  }, [clients, getClients, open]);
 
   useEffect(() => {
-    getUsers();
-  }, [getUsers]);
+    if (open && !users) getUsers();
+  }, [getUsers, open, users]);
+
+  useEffect(() => {
+    if (editData) {
+      form.reset(getNewFormValues());
+    }
+  }, [editData, form, getNewFormValues]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
