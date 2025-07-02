@@ -1,6 +1,6 @@
 "use client";
 
-import { findUsers } from "@/api/server/user/findUsers";
+import { FindUsers } from "@/api/server/user/findUsers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,29 +10,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Role, user } from "@bitrock/db";
+import { Role } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { Filter, PlusCircle, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
+import { GetAllClientsResponse } from "@/api/server/client/getAllClients";
 
 interface WorkItemsHeaderProps {
   onClientFilter?: (clientId: string | null) => void;
+  allClients: FindUsers[];
+  clientsData: GetAllClientsResponse[];
 }
 
 export default function WorkItemsHeader({
   onClientFilter,
+  allClients,
+  clientsData,
 }: WorkItemsHeaderProps) {
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [clients, setClients] = useState<user[]>([]);
-
-  useEffect(() => {
-    async function fetchData() {
-      const allClients = await findUsers();
-      setClients(allClients.filter((u) => u.role === Role.Key_Client));
-    }
-    fetchData();
-  }, []);
+  const clients = allClients.filter((u) => u.role === Role.Key_Client);
 
   return (
     <motion.div
@@ -82,7 +79,11 @@ export default function WorkItemsHeader({
         </motion.div>
       </div>
 
-      <AddWorkItemDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
+      <AddWorkItemDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        clients={clientsData}
+      />
     </motion.div>
   );
 }
