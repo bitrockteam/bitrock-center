@@ -82,6 +82,7 @@ model user {
   referent_id                         String?                   @db.Uuid
   role                                Role                      @default(Employee)
   allocation                          allocation[]
+  chat_session                        chat_session[]
   contract_contract_employee_idTouser contract[]                @relation("contract_employee_idTouser")
   contract_contract_modified_byTouser contract[]                @relation("contract_modified_byTouser")
   development_plan                    development_plan[]
@@ -204,6 +205,31 @@ model client {
   work_items     work_items[]
 
   @@index([name], map: "idx_client_name")
+}
+
+model chat_session {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      String    @db.Uuid
+  title        String
+  last_message String?
+  last_updated DateTime  @default(now()) @db.Timestamptz(6)
+  user         user      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  message      message[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model message {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  chat_session_id String       @db.Uuid
+  type            String
+  content         String
+  timestamp       DateTime     @default(now()) @db.Timestamptz(6)
+  is_json         Boolean?     @default(false)
+  json_data       Json?
+  confirmed       Boolean?
+  chat_session    chat_session @relation(fields: [chat_session_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([chat_session_id], map: "idx_message_chat_session_id")
 }
 
 enum PermitType {

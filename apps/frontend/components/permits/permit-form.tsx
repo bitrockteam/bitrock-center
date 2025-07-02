@@ -39,12 +39,13 @@ interface PermitFormValues {
   endDate: Date;
   duration: string;
   description: string;
-  reviewerId: string;
 }
 
-export default function PermitRequestForm({ user }: { user: user | null }) {
+export default function PermitRequestForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [reviewers, fetchReviewers] = useServerAction(fetchUserReviewers);
+  console.log({ reviewers });
+
   const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
@@ -56,7 +57,6 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
       endDate: undefined,
       duration: "",
       description: "",
-      reviewerId: "",
     },
   });
 
@@ -68,12 +68,14 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
     const endDate = data.endDate ? new Date(data.endDate) : null;
 
     if (data.type === PermitType.PERMISSION) {
-      permits.push({
-        type: data.type as PermitType,
-        date: startDate,
-        duration: parseFloat(data.duration),
-        description: data.description,
-        reviewer_id: data.reviewerId,
+      reviewers?.map((reviewer) => {
+        permits.push({
+          type: data.type as PermitType,
+          date: startDate,
+          duration: parseFloat(data.duration),
+          description: data.description,
+          reviewer_id: (reviewer as user).id,
+        });
       });
     } else {
       if (endDate && endDate > startDate) {
@@ -84,12 +86,14 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
         for (let i = 1; i <= days + 1; i++) {
           const currentDate = new Date(startDate);
           currentDate.setDate(startDate.getDate() + i);
-          permits.push({
-            type: data.type as PermitType,
-            date: currentDate,
-            duration: 8, // Default duration for non-permission types
-            description: data.description,
-            reviewer_id: data.reviewerId,
+          reviewers?.map((reviewer) => {
+            permits.push({
+              type: data.type as PermitType,
+              date: currentDate,
+              duration: 8,
+              description: data.description,
+              reviewer_id: reviewer?.id ?? "",
+            });
           });
         }
       }
@@ -254,37 +258,10 @@ export default function PermitRequestForm({ user }: { user: user | null }) {
                 />
               )}
 
-              <FormField
-                control={form.control}
-                rules={{ required: "Responsabile richiesto" }}
-                name="reviewerId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Responsabile</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona Responsabile" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {reviewers
-                          ?.filter((u) => u.id !== user?.id)
-                          .map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <p>
+                I tuoi referenti sono:{" "}
+                {reviewers?.map((r) => (r as user).name).join(", ")}
+              </p>
 
               <FormField
                 control={form.control}

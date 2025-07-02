@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchAllProjects } from "@/api/server/project/fetchAllProjects";
+import { getAllClients } from "@/api/server/client/getAllClients";
 import { findUsers } from "@/api/server/user/findUsers";
 import { createWorkItem } from "@/api/server/work-item/createWorkItem";
 import { updateWorkItem } from "@/api/server/work-item/updateWorkItem";
@@ -31,44 +31,89 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  project,
-  Role,
-  user,
-  work_item_status,
-  work_item_type,
-} from "@bitrock/db";
+import { useServerAction } from "@/hooks/useServerAction";
+import { work_item_status, work_item_type } from "@bitrock/db";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-const workItemSchema = z.object({
-  id: z.string().nullable(),
-  title: z.string().min(1, "Il titolo è obbligatorio"),
-  client_id: z.string().min(1, "Il cliente è obbligatorio"),
-  project_id: z.string().nullable(),
-  type: z.nativeEnum(work_item_type),
-  start_date: z.date(),
-  end_date: z.date().nullable(),
-  enabled_users: z
-    .array(z.string())
-    .min(1, "Almeno un utente deve essere abilitato"),
-  status: z.nativeEnum(work_item_status),
-  description: z.string().nullable(),
-  hourly_rate: z.number().nullable(),
-  estimated_hours: z.number().nullable(),
-  fixed_price: z.number().nullable(),
-});
+const workItemSchema = z
+  .object({
+    id: z.string().optional(),
+    title: z.string().min(1, "Il titolo è obbligatorio"),
+    client_id: z.string().min(1, "Il cliente è obbligatorio"),
+    project_id: z.string().nullable(),
+    type: z.nativeEnum(work_item_type),
+    start_date: z.string().min(1, "La data di inizio è obbligatoria"),
+    end_date: z.string().nullable().optional(),
+    enabled_users: z
+      .array(z.string())
+      .min(1, "Almeno un utente deve essere abilitato"),
+    status: z.nativeEnum(work_item_status),
+    description: z.string().nullable(),
+    hourly_rate: z.number().nullable(),
+    estimated_hours: z.number().nullable(),
+    fixed_price: z.number().nullable(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === work_item_type.time_material) {
+      if (data.hourly_rate == null || data.hourly_rate <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "La tariffa oraria deve essere maggiore di 0",
+          path: ["hourly_rate"],
+        });
+      }
+      if (data.estimated_hours == null || data.estimated_hours <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Le ore stimate devono essere maggiori di 0",
+          path: ["estimated_hours"],
+        });
+      }
+      if (data.fixed_price != null && data.fixed_price !== 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Il prezzo fisso deve essere vuoto per Time & Material",
+          path: ["fixed_price"],
+        });
+      }
+    }
+    if (data.type === work_item_type.fixed_price) {
+      if (data.fixed_price == null || data.fixed_price <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Il prezzo fisso deve essere maggiore di 0",
+          path: ["fixed_price"],
+        });
+      }
+      if (data.hourly_rate != null && data.hourly_rate !== 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "La tariffa oraria deve essere vuota per Prezzo Fisso",
+          path: ["hourly_rate"],
+        });
+      }
+      if (data.estimated_hours != null && data.estimated_hours !== 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Le ore stimate devono essere vuote per Prezzo Fisso",
+          path: ["estimated_hours"],
+        });
+      }
+    }
+  });
 
 type WorkItemFormData = z.infer<typeof workItemSchema>;
 
 interface AddWorkItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editData?: Partial<WorkItemFormData>;
+  editData?: WorkItemFormData;
 }
 
 export default function AddWorkItemDialog({
@@ -76,84 +121,94 @@ export default function AddWorkItemDialog({
   onOpenChange,
   editData,
 }: AddWorkItemDialogProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<string>("");
-  const [availableProjects, setAvailableProjects] = useState<project[]>([]);
-  const [clients, setClients] = useState<user[]>([]);
-  const [users, setUsers] = useState<user[]>([]);
   const isEditing = !!editData;
+  const [clients, getClients, loadingClients] = useServerAction(getAllClients);
+  const [users, getUsers, loadingUsers] = useServerAction(findUsers);
 
-  const form = useForm<WorkItemFormData>({
-    resolver: zodResolver(workItemSchema),
-    defaultValues: {
+  const getNewFormValues = useCallback((): WorkItemFormData => {
+    return {
+      id: editData?.id || "",
       title: editData?.title || "",
       client_id: editData?.client_id || "",
       project_id: editData?.project_id || "",
       type: editData?.type || work_item_type.time_material,
-      start_date: editData?.start_date,
-      end_date: editData?.end_date,
+      start_date: editData?.start_date
+        ? typeof editData?.start_date === "string"
+          ? editData?.start_date
+          : typeof editData?.start_date === "object" &&
+              editData?.start_date !== null &&
+              "toISOString" in editData?.start_date
+            ? (editData?.start_date as Date).toISOString().substring(0, 10)
+            : ""
+        : "",
+      end_date: editData?.end_date
+        ? typeof editData?.end_date === "string"
+          ? editData?.end_date
+          : typeof editData?.end_date === "object" &&
+              editData?.end_date !== null &&
+              "toISOString" in editData?.end_date
+            ? (editData?.end_date as Date).toISOString().substring(0, 10)
+            : ""
+        : "",
       enabled_users: editData?.enabled_users || [],
       status: editData?.status || work_item_status.active,
       description: editData?.description || "",
-      hourly_rate: editData?.hourly_rate || 0,
-      estimated_hours: editData?.estimated_hours || 0,
-      fixed_price: editData?.fixed_price || 0,
-    },
+      hourly_rate: editData?.hourly_rate ?? null,
+      estimated_hours: editData?.estimated_hours ?? null,
+      fixed_price: editData?.fixed_price ?? null,
+    };
+  }, [editData]);
+
+  const form = useForm<WorkItemFormData>({
+    resolver: zodResolver(workItemSchema),
+    defaultValues: getNewFormValues(),
   });
 
   const watchedType = form.watch("type");
-
-  useEffect(() => {
-    async function fetchData() {
-      const allUsers = await findUsers();
-      setUsers(allUsers);
-      setClients(allUsers.filter((u) => u.role === Role.Key_Client));
-    }
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    async function fetchProjects() {
-      if (selectedClient) {
-        const allProjects = await fetchAllProjects();
-        setAvailableProjects(
-          allProjects.filter((p) => p.client.id === selectedClient),
-        );
-      } else {
-        setAvailableProjects([]);
-      }
-    }
-    fetchProjects();
-  }, [selectedClient]);
-
-  useEffect(() => {
-    if (editData?.client_id) {
-      setSelectedClient(editData.client_id);
-    }
-  }, [editData]);
+  const watchedClientId = form.watch("client_id");
 
   const onSubmit = async (data: WorkItemFormData) => {
     setIsLoading(true);
     try {
       const submitData = {
-        ...data,
         start_date: data.start_date ? new Date(data.start_date) : new Date(),
         end_date: data.end_date ? new Date(data.end_date) : null,
         fixed_price:
-          typeof data.fixed_price === "number" ? data.fixed_price : null,
+          data.type === work_item_type.fixed_price
+            ? typeof data.fixed_price === "number"
+              ? data.fixed_price
+              : null
+            : null,
         project_id: data.project_id || null,
         description: data.description ?? null,
         hourly_rate:
-          typeof data.hourly_rate === "number" ? data.hourly_rate : null,
-        estimated_hours:
-          typeof data.estimated_hours === "number"
-            ? data.estimated_hours
+          data.type === work_item_type.time_material
+            ? typeof data.hourly_rate === "number"
+              ? data.hourly_rate
+              : null
             : null,
+        estimated_hours:
+          data.type === work_item_type.time_material
+            ? typeof data.estimated_hours === "number"
+              ? data.estimated_hours
+              : null
+            : null,
+        title: data.title,
+        client_id: data.client_id,
+        type: data.type,
+        status: data.status,
       };
+
+      console.log({ isEditing, editData, cond: isEditing && editData?.id });
+
       if (isEditing && editData?.id) {
-        await updateWorkItem(editData.id, submitData);
+        console.log("updateworkitem");
+
+        await updateWorkItem(editData.id, submitData, data.enabled_users);
       } else {
-        await createWorkItem(submitData);
+        await createWorkItem(submitData, data.enabled_users);
       }
       onOpenChange(false);
       form.reset();
@@ -161,8 +216,23 @@ export default function AddWorkItemDialog({
       console.error("Errore durante il salvataggio:", error);
     } finally {
       setIsLoading(false);
+      router.refresh();
     }
   };
+
+  useEffect(() => {
+    if (open && !clients) getClients();
+  }, [clients, getClients, open]);
+
+  useEffect(() => {
+    if (open && !users) getUsers();
+  }, [getUsers, open, users]);
+
+  useEffect(() => {
+    if (editData) {
+      form.reset(getNewFormValues());
+    }
+  }, [editData, form, getNewFormValues]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -179,7 +249,10 @@ export default function AddWorkItemDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit, (err) => console.log(err))}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="title"
@@ -201,29 +274,37 @@ export default function AddWorkItemDialog({
               <FormField
                 control={form.control}
                 name="client_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cliente</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                render={({ field }) =>
+                  loadingClients ? (
+                    <FormItem>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona cliente" />
-                        </SelectTrigger>
+                        <Input disabled value="Caricamento clienti..." />
                       </FormControl>
-                      <SelectContent>
-                        {clients.map((client) => (
-                          <SelectItem key={client.id} value={client.id}>
-                            {client.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                    </FormItem>
+                  ) : (
+                    <FormItem>
+                      <FormLabel>Cliente</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona cliente" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {clients?.map((client) => (
+                            <SelectItem key={client.id} value={client.id}>
+                              {client.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }
               />
 
               <FormField
@@ -234,7 +315,7 @@ export default function AddWorkItemDialog({
                     <FormLabel>Progetto (Opzionale)</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value ?? ""}
+                      defaultValue={field.value ?? undefined}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -242,12 +323,14 @@ export default function AddWorkItemDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nessun progetto</SelectItem>
-                        {availableProjects.map((project) => (
-                          <SelectItem key={project.id} value={project.id}>
-                            {project.name}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="-">Non Assegnato</SelectItem>
+                        {clients
+                          ?.find((client) => client.id === watchedClientId)
+                          ?.project.map((project) => (
+                            <SelectItem key={project.id} value={project.id}>
+                              {project.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -327,11 +410,7 @@ export default function AddWorkItemDialog({
                   <FormItem>
                     <FormLabel>Data Inizio</FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                        value={field.value?.toISOString().split("T")[0]}
-                      />
+                      <Input type="date" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -345,11 +424,7 @@ export default function AddWorkItemDialog({
                   <FormItem>
                     <FormLabel>Data Fine (Opzionale)</FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                        value={field.value?.toISOString().split("T")[0]}
-                      />
+                      <Input type="date" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -371,9 +446,10 @@ export default function AddWorkItemDialog({
                           placeholder="65"
                           {...field}
                           value={field.value?.toString() ?? ""}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === "" ? null : Number(val));
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -393,9 +469,10 @@ export default function AddWorkItemDialog({
                           placeholder="800"
                           {...field}
                           value={field.value?.toString() ?? ""}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === "" ? null : Number(val));
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -416,7 +493,10 @@ export default function AddWorkItemDialog({
                         placeholder="15000"
                         {...field}
                         value={field.value?.toString() ?? ""}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          field.onChange(val === "" ? null : Number(val));
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -428,58 +508,66 @@ export default function AddWorkItemDialog({
             <FormField
               control={form.control}
               name="enabled_users"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">
-                      Utenti Abilitati
-                    </FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Seleziona gli utenti che possono registrare ore su questa
-                      commessa.
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {users.map((user) => (
-                      <FormField
-                        key={user.id}
-                        control={form.control}
-                        name="enabled_users"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={user.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(user.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          user.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== user.id,
-                                          ),
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm font-normal">
-                                {user.name}
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={() =>
+                loadingUsers ? (
+                  <FormItem>
+                    <FormControl>
+                      <Input disabled value="Caricamento utenti..." />
+                    </FormControl>
+                  </FormItem>
+                ) : (
+                  <FormItem>
+                    <div className="mb-4">
+                      <FormLabel className="text-base">
+                        Utenti Abilitati
+                      </FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Seleziona gli utenti che possono registrare ore su
+                        questa commessa.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {users?.map((user) => (
+                        <FormField
+                          key={user.id}
+                          control={form.control}
+                          name="enabled_users"
+                          render={({ field }) => {
+                            return (
+                              <FormItem
+                                key={user.id}
+                                className="flex flex-row items-start space-x-3 space-y-0"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(user.id)}
+                                    onCheckedChange={(checked) => {
+                                      return checked
+                                        ? field.onChange([
+                                            ...field.value,
+                                            user.id,
+                                          ])
+                                        : field.onChange(
+                                            field.value?.filter(
+                                              (value) => value !== user.id,
+                                            ),
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-normal">
+                                  {user.name}
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }
             />
 
             <FormField

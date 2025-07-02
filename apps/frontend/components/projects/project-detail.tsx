@@ -2,6 +2,7 @@
 
 import { UserAllocated } from "@/api/server/project/fetchAllocationsForProject";
 import { ProjectById } from "@/api/server/project/fetchProjectById";
+import { FindUsers } from "@/api/server/user/findUsers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +28,7 @@ import {
   getWorkItemTypeBadge,
 } from "@/utils/mapping";
 import { work_item_type } from "@bitrock/db";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -36,16 +37,12 @@ import {
   Edit,
   Euro,
   GanttChart,
-  Pencil,
-  PlusIcon,
-  Trash2,
   Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 import { AddProjectMemberDialog } from "./add-project-member-dialog";
-import { DeleteAllocationDialog } from "./delete-allocation-dialog";
 
 export default function ProjectDetail({
   id,
@@ -54,6 +51,7 @@ export default function ProjectDetail({
   project,
   allocations,
   canSeeUsersTimesheets = false,
+  users,
 }: Readonly<{
   id: string;
   canDealProjects?: boolean;
@@ -61,6 +59,7 @@ export default function ProjectDetail({
   project: ProjectById;
   allocations: UserAllocated[];
   canSeeUsersTimesheets?: boolean;
+  users: FindUsers[];
 }>) {
   const router = useRouter();
 
@@ -75,15 +74,11 @@ export default function ProjectDetail({
     user_id: "",
   });
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [deletedMemberId, setDeletedMemberId] = useState<{
-    user_id: string;
-  }>({
-    user_id: "",
-  });
 
   const workItems = project?.work_items;
-  const users = allocations.map((allocation) => allocation.user);
+  const allAllocatedUsers = allocations?.flatMap(
+    (all) => all.work_item_enabled_users,
+  );
 
   if (!project) {
     return (
@@ -272,7 +267,7 @@ export default function ProjectDetail({
                             {item.work_item_enabled_users
                               .slice(0, 3)
                               .map(({ user_id }, index) => {
-                                const user = users.find(
+                                const user = users?.find(
                                   (u) => u.id === user_id,
                                 );
                                 return (
@@ -318,12 +313,6 @@ export default function ProjectDetail({
                   <CardTitle>Team</CardTitle>
                   <CardDescription>Sviluppatori del team</CardDescription>
                 </div>
-                {canAllocateResources && (
-                  <Button onClick={() => setShowAddMemberDialog(true)}>
-                    <PlusIcon />
-                    Aggiungi Membro
-                  </Button>
-                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -334,12 +323,12 @@ export default function ProjectDetail({
                     <TableHead>Ruolo</TableHead>
                     <TableHead>Data Inizio</TableHead>
                     <TableHead>Data Fine</TableHead>
-                    <TableHead>Percentuale Allocazione</TableHead>
+                    <TableHead>Commessa</TableHead>
                     {canAllocateResources && <TableHead>{""}</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {allocations.length === 0 ? (
+                  {workItems?.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={5}
@@ -349,14 +338,14 @@ export default function ProjectDetail({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    allocations?.map((entry) => (
+                    allAllocatedUsers?.map((entry) => (
                       <TableRow
-                        key={`${entry.project_id}-${entry.user_id}`}
+                        key={`${entry?.user_id} ${entry?.work_item_id}`}
                         onClick={() => {
                           if (!canSeeUsersTimesheets) return;
 
                           router.push(
-                            `/progetti/${id}/consuntivazione/${entry.user_id}`,
+                            `/progetti/${id}/consuntivazione/${entry?.user_id}`,
                           );
                         }}
                       >
@@ -365,99 +354,56 @@ export default function ProjectDetail({
                             <Avatar className="h-6 w-6">
                               <AvatarImage
                                 src={
-                                  entry.user_id ??
+                                  entry?.user_id ??
                                   "/placeholder.svg?height=24&width=24"
                                 }
                               />
                               <AvatarFallback>
                                 {formatDisplayName({
-                                  name: entry.user.name,
+                                  name: entry?.user.name ?? "",
                                   initials: true,
                                 })}
                               </AvatarFallback>
                             </Avatar>
                             <span>
-                              {formatDisplayName({ name: entry.user.name })}
+                              {formatDisplayName({
+                                name: entry?.user.name ?? "",
+                              })}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>{entry.user.role}</TableCell>
+                        <TableCell>{entry?.user.role}</TableCell>
                         <TableCell>
-                          {entry.start_date
-                            ? format(entry.start_date, "dd-MM-yyyy")
+                          {workItems?.find(
+                            (wi) => wi.id === entry?.work_item_id,
+                          )?.start_date
+                            ? format(
+                                workItems?.find(
+                                  (wi) => wi.id === entry?.work_item_id,
+                                )?.start_date ?? "",
+                                "dd-MM-yyyy",
+                              )
                             : "-"}
                         </TableCell>
                         <TableCell>
-                          {entry.end_date
-                            ? format(entry.end_date, "dd-MM-yyyy")
+                          {workItems?.find(
+                            (wi) => wi.id === entry?.work_item_id,
+                          )?.end_date
+                            ? format(
+                                workItems?.find(
+                                  (wi) => wi.id === entry?.work_item_id,
+                                )?.end_date ?? "",
+                                "dd-MM-yyyy",
+                              )
                             : "-"}
                         </TableCell>
-                        <TableCell>{entry.percentage}</TableCell>
-                        {canAllocateResources && (
-                          <TableCell>
-                            <div className="flex flex-row items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                className="cursor-pointer"
-                                size="icon"
-                                onClick={() => {
-                                  console.log({
-                                    startDate: entry.start_date
-                                      ? parse(
-                                          format(
-                                            entry.start_date,
-                                            "dd-MM-yyyy",
-                                          ),
-                                          "dd-MM-yyyy",
-                                          new Date(),
-                                        )
-                                      : undefined,
-                                    startDate2: entry.start_date,
-                                  });
-
-                                  setEditedMember({
-                                    user_id: entry.user_id,
-                                    percentage: entry.percentage ?? 100,
-                                    start_date: entry.start_date
-                                      ? parse(
-                                          format(
-                                            entry.start_date,
-                                            "dd-MM-yyyy",
-                                          ),
-                                          "dd-MM-yyyy",
-                                          new Date(),
-                                        )
-                                      : undefined,
-                                    end_date: entry.end_date
-                                      ? parse(
-                                          format(entry.end_date, "dd-MM-yyyy"),
-                                          "dd-MM-yyyy",
-                                          new Date(),
-                                        )
-                                      : undefined,
-                                  });
-                                  setIsEditMode(true);
-                                  setShowAddMemberDialog(true);
-                                }}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                className="cursor-pointer"
-                                size="icon"
-                                onClick={() => {
-                                  setDeletedMemberId({
-                                    user_id: entry.user_id,
-                                  });
-                                  setShowDeleteDialog(true);
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        )}
+                        <TableCell>
+                          {
+                            workItems?.find(
+                              (wi) => wi.id === entry?.work_item_id,
+                            )?.title
+                          }
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -536,17 +482,6 @@ export default function ProjectDetail({
         }}
         isEdit={isEditMode}
         initialData={editedMember}
-      />
-      <DeleteAllocationDialog
-        open={showDeleteDialog}
-        onOpenChange={setShowDeleteDialog}
-        project_id={project.id}
-        user_id={deletedMemberId.user_id}
-        refetch={() => {
-          // todo
-          console.info("Refetching allocations...");
-        }}
-        project_name={project.name}
       />
     </motion.div>
   );

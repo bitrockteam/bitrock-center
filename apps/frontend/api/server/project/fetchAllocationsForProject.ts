@@ -7,16 +7,14 @@ export async function fetchAllocationsForProject({
 }: {
   projectId: string;
 }) {
-  return db.allocation.findMany({
-    where: { project_id: projectId },
+  return db.work_items.findMany({
+    where: {
+      project_id: projectId,
+    },
     include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          avatar_url: true,
+      work_item_enabled_users: {
+        include: {
+          user: true,
         },
       },
     },

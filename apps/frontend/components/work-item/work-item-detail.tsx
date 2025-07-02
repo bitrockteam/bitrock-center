@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchWorkItemById } from "@/api/server/work-item/fetchWorkItemById";
+import { WorkItemById } from "@/api/server/work-item/fetchWorkItemById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,9 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useServerAction } from "@/hooks/useServerAction";
 import { formatDisplayName } from "@/services/users/utils";
-import { work_item_type } from "@bitrock/db";
+import { work_item_status, work_item_type } from "@bitrock/db";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -34,40 +33,24 @@ import {
   Euro,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
 
-export default function WorkItemDetail({ id }: { id: string }) {
+export default function WorkItemDetail({
+  workItem,
+}: {
+  workItem: NonNullable<WorkItemById>;
+}) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [workItem, getWorkItem] = useServerAction(fetchWorkItemById);
-
-  useEffect(() => {
-    getWorkItem({ workItemId: id });
-  }, [getWorkItem, id]);
-
-  if (!workItem) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[50vh]">
-        <h2 className="text-2xl font-bold">Commessa non trovata</h2>
-        <p className="text-muted-foreground mb-4">
-          La commessa richiesta non esiste o è stata rimossa.
-        </p>
-        <Button onClick={() => router.push("/commesse")}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Torna alle Commesse
-        </Button>
-      </div>
-    );
-  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "active":
+      case work_item_status.active:
         return <Badge className="bg-green-500">Attiva</Badge>;
-      case "completed":
+      case work_item_status.completed:
         return <Badge variant="outline">Completata</Badge>;
-      case "on-hold":
+      case work_item_status.on_hold:
         return <Badge variant="secondary">In Pausa</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
@@ -76,13 +59,13 @@ export default function WorkItemDetail({ id }: { id: string }) {
 
   const getTypeBadge = (type: string) => {
     switch (type) {
-      case "time-material":
+      case work_item_type.time_material:
         return (
           <Badge variant="outline" className="border-blue-500 text-blue-500">
             Time & Material
           </Badge>
         );
-      case "fixed-price":
+      case work_item_type.fixed_price:
         return (
           <Badge
             variant="outline"
@@ -412,7 +395,27 @@ export default function WorkItemDetail({ id }: { id: string }) {
         <AddWorkItemDialog
           open={showEditDialog}
           onOpenChange={setShowEditDialog}
-          editData={workItem}
+          editData={{
+            title: workItem.title,
+            client_id: workItem.client_id,
+            project_id: workItem.project_id,
+            description: workItem.description || "",
+            type: workItem.type,
+            status: workItem.status,
+            hourly_rate: workItem.hourly_rate || 0,
+            fixed_price: workItem.fixed_price || 0,
+            estimated_hours: workItem.estimated_hours || 0,
+            enabled_users: workItem.work_item_enabled_users.map(
+              (user) => user.user_id,
+            ),
+            id: workItem.id,
+            start_date: workItem.start_date
+              ? workItem.start_date.toISOString().substring(0, 10)
+              : "",
+            end_date: workItem.end_date
+              ? workItem.end_date.toISOString().substring(0, 10)
+              : "",
+          }}
         />
       )}
     </motion.div>

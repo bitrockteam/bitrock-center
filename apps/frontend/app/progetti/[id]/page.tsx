@@ -1,5 +1,6 @@
 import { fetchAllocationsForProject } from "@/api/server/project/fetchAllocationsForProject";
 import { fetchProjectById } from "@/api/server/project/fetchProjectById";
+import { findUsers } from "@/api/server/user/findUsers";
 import ProjectDetail from "@/components/projects/project-detail";
 import { allowRoles } from "@/services/users/server.utils";
 import type { Metadata } from "next";
@@ -22,6 +23,7 @@ export default async function ProjectDetailPage({
     "Key_Client",
   ]);
   const project = await fetchProjectById({ projectId: id });
+  const users = await findUsers();
   const allocations = await fetchAllocationsForProject({ projectId: id });
   const canSeeUsersTimesheets = await allowRoles([
     "Admin",
@@ -32,6 +34,7 @@ export default async function ProjectDetailPage({
   return (
     <div className="space-y-6">
       <ProjectDetail
+        users={users}
         id={id}
         canAllocateResources={canAllocateResources}
         canDealProjects={canDealProjects}

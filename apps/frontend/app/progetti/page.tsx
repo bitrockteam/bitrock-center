@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 export default async function ProjectsPage() {
   const projects = await fetchAllProjects();
   const canDealProjects = await allowRoles(["Admin", "Super_Admin"]);
+  console.log("Projects:", projects);
+  console.log("Can deal projects:", canDealProjects);
   return (
     <div className="space-y-6">
       <ProjectsHeader canDealProjects={canDealProjects} />

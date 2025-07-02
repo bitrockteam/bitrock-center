@@ -25,7 +25,13 @@ export async function fetchAllWorkItems(params?: string | null) {
           : {}),
       },
       include: {
-        work_item_enabled_users: true,
+        work_item_enabled_users: {
+          include: {
+            user: true,
+          },
+        },
+        client: true,
+        project: true,
       },
     });
   }
@@ -33,7 +39,13 @@ export async function fetchAllWorkItems(params?: string | null) {
   if (!params)
     return db.work_items.findMany({
       include: {
-        work_item_enabled_users: true,
+        work_item_enabled_users: {
+          include: {
+            user: true,
+          },
+        },
+        client: true,
+        project: true,
       },
     });
 
@@ -45,7 +57,13 @@ export async function fetchAllWorkItems(params?: string | null) {
       },
     },
     include: {
-      work_item_enabled_users: true,
+      work_item_enabled_users: {
+        include: {
+          user: true,
+        },
+      },
+      client: true,
+      project: true,
     },
   });
 }
