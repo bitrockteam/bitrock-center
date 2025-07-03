@@ -1,6 +1,6 @@
 "use client";
 
-import { FindUsers } from "@/api/server/user/findUsers";
+import { GetAllClientsResponse } from "@/api/server/client/getAllClients";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Role } from "@bitrock/db";
 import { motion } from "framer-motion";
 import { Filter, PlusCircle, Search } from "lucide-react";
 import { useState } from "react";
@@ -18,7 +17,7 @@ import AddWorkItemDialog from "./add-work-item-dialog";
 
 interface WorkItemsHeaderProps {
   onClientFilter?: (clientId: string | null) => void;
-  allClients: FindUsers[];
+  allClients: GetAllClientsResponse[];
   canCreateWorkItem?: boolean;
 }
 
@@ -28,7 +27,6 @@ export default function WorkItemsHeader({
   canCreateWorkItem = false,
 }: WorkItemsHeaderProps) {
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const clients = allClients.filter((u) => u.role === Role.Key_Client);
 
   return (
     <motion.div
@@ -63,7 +61,7 @@ export default function WorkItemsHeader({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tutti i clienti</SelectItem>
-            {clients.map((client) => (
+            {allClients.map((client) => (
               <SelectItem key={client.id} value={client.id}>
                 {client.name}
               </SelectItem>

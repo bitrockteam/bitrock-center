@@ -1,6 +1,6 @@
 "use client";
 
-import { FindUsers } from "@/api/server/user/findUsers";
+import { GetAllClientsResponse } from "@/api/server/client/getAllClients";
 import { WorkItem } from "@/api/server/work-item/fetchAllWorkItems";
 import {
   AlertDialog,
@@ -46,7 +46,7 @@ export default function WorkItemsTable({
   isAdminOrSuperAdmin = false,
 }: {
   workItems: WorkItem[];
-  allClients: FindUsers[];
+  allClients: GetAllClientsResponse[];
   isAdminOrSuperAdmin?: boolean;
 }) {
   const router = useRouter();
