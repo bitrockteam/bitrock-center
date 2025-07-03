@@ -43,9 +43,11 @@ import WorkItemsHeader from "./work-items-header";
 export default function WorkItemsTable({
   workItems,
   allClients,
+  isAdminOrSuperAdmin = false,
 }: {
   workItems: WorkItem[];
   allClients: FindUsers[];
+  isAdminOrSuperAdmin?: boolean;
 }) {
   const router = useRouter();
   const [editWorkItem, setEditWorkItem] = useState<WorkItem | null>(null);
@@ -100,6 +102,7 @@ export default function WorkItemsTable({
       <WorkItemsHeader
         onClientFilter={setClientFilter}
         allClients={allClients}
+        canCreateWorkItem={isAdminOrSuperAdmin}
       />
 
       <motion.div
