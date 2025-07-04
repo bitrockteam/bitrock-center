@@ -1,10 +1,5 @@
 "use client";
 
-import { createNewSkill } from "@/app/server-actions/skills/createNewSkill";
-import { deleteSkill } from "@/app/server-actions/skills/deleteSkill";
-import { getSkillsCatalog } from "@/app/server-actions/skills/getSkillsCatalog";
-import { toggleSkillActive } from "@/app/server-actions/skills/toggleSkillActive";
-import { updateSkill } from "@/app/server-actions/skills/updateSkill";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,7 +46,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { skill, SkillCategory } from "@/db";
-import { useServerAction } from "@/hooks/useServerAction";
+import {
+  skillsApi,
+  useCreateSkill,
+  useDeleteSkill,
+  useSkillsCatalog,
+  useToggleSkillActive,
+  useUpdateSkill,
+  type Skill,
+} from "@/hooks/useSkillsApi";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
@@ -68,7 +71,11 @@ import { useEffect, useMemo, useState } from "react";
 import { getAvailableIcons, getSkillIcon } from "./utils";
 
 export default function SkillsAdminSection() {
-  const [skills, getSkills] = useServerAction(getSkillsCatalog);
+  const skillsCatalogApi = useSkillsCatalog();
+  const createSkillApi = useCreateSkill();
+  const updateSkillApi = useUpdateSkill();
+  const deleteSkillApi = useDeleteSkill();
+  const toggleSkillActiveApi = useToggleSkillActive();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<
     SkillCategory | "all"
@@ -90,7 +97,7 @@ export default function SkillsAdminSection() {
   });
 
   // Filtra le skills
-  const filteredSkills = skills?.filter((skill) => {
+  const filteredSkills = skillsCatalogApi.data?.filter((skill: Skill) => {
     const matchesSearch = skill.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -113,32 +120,26 @@ export default function SkillsAdminSection() {
     const selectedIcon = availableIcons.find(
       (icon) => icon.name === formData.icon,
     )?.icon;
-
     if (!selectedIcon) return;
-
-    await createNewSkill({
+    await skillsApi.createSkill(createSkillApi, {
       name: formData.name,
       category: formData.category,
       description: formData.description,
       icon: formData.icon,
       active: formData.active,
     });
-
-    getSkills();
+    await skillsApi.fetchSkillsCatalog(skillsCatalogApi);
     setShowCreateDialog(false);
     resetForm();
   };
 
   const handleEdit = async () => {
     if (!selectedSkill) return;
-
     const selectedIcon = availableIcons.find(
       (icon) => icon.name === formData.icon,
     )?.icon;
-
     if (!selectedIcon) return;
-
-    await updateSkill({
+    await skillsApi.updateSkill(updateSkillApi, {
       id: selectedSkill.id,
       name: formData.name,
       category: formData.category,
@@ -146,35 +147,35 @@ export default function SkillsAdminSection() {
       icon: formData.icon,
       active: formData.active,
     });
-
-    getSkills(); // Refresh the page to show the updated skill
+    await skillsApi.fetchSkillsCatalog(skillsCatalogApi);
     setShowEditDialog(false);
     setSelectedSkill(null);
     resetForm();
   };
 
   const handleToggleActive = async (skill: skill) => {
-    await toggleSkillActive(skill.id, !skill.active);
-    getSkills(); // Refresh the page to reflect the change
+    await skillsApi.toggleSkillActive(
+      toggleSkillActiveApi,
+      skill.id,
+      !skill.active,
+    );
+    await skillsApi.fetchSkillsCatalog(skillsCatalogApi);
   };
 
   const handleDelete = async () => {
     if (!selectedSkill) return;
-
-    await deleteSkill(selectedSkill.id);
-    getSkills(); // Refresh the page to remove the deleted skill
+    await skillsApi.deleteSkill(deleteSkillApi, selectedSkill.id);
+    await skillsApi.fetchSkillsCatalog(skillsCatalogApi);
     setShowDeleteDialog(false);
     setSelectedSkill(null);
   };
 
   const openEditDialog = (skill: skill) => {
     setSelectedSkill(skill);
-
     const iconName =
       availableIcons.find(
         (icon) => (icon.icon as unknown as string) === skill.icon,
       )?.name || "Code";
-
     setFormData({
       name: skill.name,
       category: skill.category,
@@ -191,9 +192,14 @@ export default function SkillsAdminSection() {
   };
 
   useEffect(() => {
-    // Fetch skills when component mounts
-    getSkills();
-  }, [getSkills]);
+    skillsApi.fetchSkillsCatalog(skillsCatalogApi);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // For tab counts and filters
+  const allSkills = skillsCatalogApi.data || [];
+  const hardSkills = allSkills.filter((s: Skill) => s.category === "hard");
+  const softSkills = allSkills.filter((s: Skill) => s.category === "soft");
 
   return (
     <motion.div
@@ -257,14 +263,12 @@ export default function SkillsAdminSection() {
             }
           >
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="all">Tutte ({skills?.length})</TabsTrigger>
+              <TabsTrigger value="all">Tutte ({allSkills.length})</TabsTrigger>
               <TabsTrigger value="hard">
-                Hard Skills (
-                {skills?.filter((s) => s.category === "hard").length})
+                Hard Skills ({hardSkills.length})
               </TabsTrigger>
               <TabsTrigger value="soft">
-                Soft Skills (
-                {skills?.filter((s) => s.category === "soft").length})
+                Soft Skills ({softSkills.length})
               </TabsTrigger>
             </TabsList>
 

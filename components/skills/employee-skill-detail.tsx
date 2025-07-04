@@ -1,10 +1,6 @@
 "use client";
 
-import { addSkillToEmployee } from "@/app/server-actions/skills/addSkillToEmployee";
 import { EmployeeSkill } from "@/app/server-actions/skills/getEmployeeWithSkillsById";
-import { getSkillsCatalog } from "@/app/server-actions/skills/getSkillsCatalog";
-import { removeSkillFromEmployee } from "@/app/server-actions/skills/removeSkillFromEmployee";
-import { updateEmployeeSkillLevel } from "@/app/server-actions/skills/updateEmployeeSkillLevel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,7 +37,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SeniorityLevel } from "@/db";
-import { useServerAction } from "@/hooks/useServerAction";
+import {
+  skillsApi,
+  useAddSkillToEmployee,
+  useRemoveSkillFromEmployee,
+  useSkillsCatalog,
+  useUpdateEmployeeSkillLevel,
+  type Skill,
+} from "@/hooks/useSkillsApi";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, Edit, Plus, Save, Trash2, X } from "lucide-react";
@@ -59,7 +62,10 @@ export default function EmployeeSkillDetail({
   employee: EmployeeSkill;
 }) {
   const router = useRouter();
-  const [skillsCatalog, fetchSkillsCatalog] = useServerAction(getSkillsCatalog);
+  const skillsCatalogApi = useSkillsCatalog();
+  const addSkillApi = useAddSkillToEmployee();
+  const removeSkillApi = useRemoveSkillFromEmployee();
+  const updateSkillLevelApi = useUpdateEmployeeSkillLevel();
 
   const [isEditing, setIsEditing] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -68,8 +74,8 @@ export default function EmployeeSkillDetail({
   const [skillToDelete, setSkillToDelete] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSkillsCatalog();
-  }, [fetchSkillsCatalog]);
+    skillsApi.fetchSkillsCatalog(skillsCatalogApi);
+  }, [skillsCatalogApi]);
 
   if (!employee) {
     return (
@@ -87,8 +93,8 @@ export default function EmployeeSkillDetail({
   }
 
   // Competenze disponibili per l'aggiunta (non già presenti e attive)
-  const availableSkills = skillsCatalog?.filter(
-    (skill) =>
+  const availableSkills = skillsCatalogApi.data?.filter(
+    (skill: Skill) =>
       !employee.user_skill.some((empSkill) => empSkill.skill_id === skill.id),
   );
 
@@ -102,9 +108,11 @@ export default function EmployeeSkillDetail({
 
   const handleAddSkill = async () => {
     if (!newSkillId) return;
-
-    await addSkillToEmployee(employee.id, newSkillId, newSkillLevel);
-
+    await skillsApi.addSkillToEmployee(addSkillApi, {
+      employeeId: employee.id,
+      skillId: newSkillId,
+      seniorityLevel: newSkillLevel,
+    });
     router.refresh();
     setShowAddDialog(false);
     setNewSkillId("");
@@ -112,7 +120,10 @@ export default function EmployeeSkillDetail({
   };
 
   const handleRemoveSkill = async (skillId: string) => {
-    await removeSkillFromEmployee(employee.id, skillId);
+    await skillsApi.removeSkillFromEmployee(removeSkillApi, {
+      employeeId: employee.id,
+      skillId,
+    });
     router.refresh();
     setSkillToDelete(null);
   };
@@ -121,7 +132,11 @@ export default function EmployeeSkillDetail({
     skillId: string,
     newLevel: SeniorityLevel,
   ) => {
-    await updateEmployeeSkillLevel(employee.id, skillId, newLevel);
+    await skillsApi.updateEmployeeSkillLevel(updateSkillLevelApi, {
+      employeeId: employee.id,
+      skillId,
+      seniorityLevel: newLevel,
+    });
     router.refresh();
   };
 
