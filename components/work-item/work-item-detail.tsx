@@ -79,6 +79,15 @@ export default function WorkItemDetail({
     }
   };
 
+  // Helper function to safely convert date strings to Date objects
+  const safeDateString = (
+    dateValue: string | Date | null | undefined,
+  ): string => {
+    if (!dateValue) return "";
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    return date.toDateString();
+  };
+
   const project = workItem.project;
   const client = workItem.client;
 
@@ -158,8 +167,10 @@ export default function WorkItemDetail({
                   Periodo:
                 </p>
                 <p className="text-sm text-muted-foreground ml-6">
-                  {workItem.start_date.toDateString()} -{" "}
-                  {workItem.end_date?.toDateString() || "In corso"}
+                  {safeDateString(workItem.start_date)} -{" "}
+                  {workItem.end_date
+                    ? safeDateString(workItem.end_date)
+                    : "In corso"}
                 </p>
               </div>
               {workItem.description && (
@@ -177,50 +188,60 @@ export default function WorkItemDetail({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
-              Dettagli Economici
+              Informazioni Economiche
             </CardTitle>
-            <CardDescription>Informazioni su costi e ore</CardDescription>
+            <CardDescription>Dettagli finanziari</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-sm font-medium flex items-center">
+                  <Euro className="mr-2 h-4 w-4" />
+                  Tipo di Contratto:
+                </p>
+                <p className="text-sm text-muted-foreground ml-6">
+                  {workItem.type === work_item_type.time_material
+                    ? "Time & Material"
+                    : "Prezzo Fisso"}
+                </p>
+              </div>
               {workItem.type === work_item_type.time_material ? (
                 <>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium flex items-center">
-                      <Euro className="mr-2 h-4 w-4" />
-                      Tariffa Oraria:
-                    </p>
-                    <p className="text-sm text-muted-foreground ml-6">
-                      €{workItem.hourly_rate}/ora
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium flex items-center">
-                      <Clock className="mr-2 h-4 w-4" />
-                      Ore Stimate:
-                    </p>
-                    <p className="text-sm text-muted-foreground ml-6">
-                      {workItem.estimated_hours} ore
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium flex items-center">
-                      <Clock className="mr-2 h-4 w-4" />
-                      Ore Registrate:
-                    </p>
-                    <p className="text-sm text-muted-foreground ml-6">
-                      {totalHours} ore
-                    </p>
-                  </div>
+                  {workItem.hourly_rate && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Tariffa Oraria:</p>
+                      <p className="text-sm text-muted-foreground ml-6">
+                        €{workItem.hourly_rate}/ora
+                      </p>
+                    </div>
+                  )}
+                  {workItem.estimated_hours && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Ore Stimate:</p>
+                      <p className="text-sm text-muted-foreground ml-6">
+                        {workItem.estimated_hours} ore
+                      </p>
+                    </div>
+                  )}
                 </>
               ) : (
+                workItem.fixed_price && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Prezzo Fisso:</p>
+                    <p className="text-sm text-muted-foreground ml-6">
+                      €{workItem.fixed_price.toLocaleString("it-IT")}
+                    </p>
+                  </div>
+                )
+              )}
+              {totalHours !== undefined && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium flex items-center">
-                    <Euro className="mr-2 h-4 w-4" />
-                    Prezzo Fisso:
+                    <Clock className="mr-2 h-4 w-4" />
+                    Ore Totali:
                   </p>
                   <p className="text-sm text-muted-foreground ml-6">
-                    €{workItem.fixed_price?.toLocaleString("it-IT")}
+                    {totalHours} ore
                   </p>
                 </div>
               )}
@@ -231,34 +252,25 @@ export default function WorkItemDetail({
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Team Abilitato</CardTitle>
+          <CardTitle className="text-sm font-medium">Team</CardTitle>
           <CardDescription>
-            Utenti che possono registrare ore su questa commessa
+            Utenti abilitati a registrare ore su questa commessa
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {enabledUsers.map(({ user }) => (
-              <div key={user.id} className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage
-                    src={
-                      user.avatar_url || "/placeholder.svg?height=40&width=40"
-                    }
-                  />
-                  <AvatarFallback>
-                    {formatDisplayName({
-                      name: user.name,
-                      initials: true,
-                    })}
+          <div className="flex flex-wrap gap-2">
+            {enabledUsers?.map(({ user }) => (
+              <div
+                key={user.id}
+                className="flex items-center space-x-2 bg-muted/50 rounded-lg px-3 py-2"
+              >
+                <Avatar className="h-6 w-6">
+                  {user.avatar_url && <AvatarImage src={user.avatar_url} />}
+                  <AvatarFallback className="text-xs">
+                    {formatDisplayName({ name: user.name, initials: true })}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <p className="text-sm font-medium">{user.name}</p>
-                  <p className="text-xs text-muted-foreground capitalize">
-                    {user.role}
-                  </p>
-                </div>
+                <span className="text-sm font-medium">{user.name}</span>
               </div>
             ))}
           </div>
@@ -291,53 +303,40 @@ export default function WorkItemDetail({
                   {timeEntries?.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={5}
+                        colSpan={4}
                         className="text-center py-6 text-muted-foreground"
                       >
-                        Nessuna registrazione trovata
+                        Nessuna ora registrata
                       </TableCell>
                     </TableRow>
                   ) : (
-                    timeEntries?.map((entry, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{entry.date.toDateString()}</TableCell>
+                    timeEntries?.map((entry) => (
+                      <TableRow key={entry.id}>
+                        <TableCell>{safeDateString(entry.date)}</TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Avatar className="h-6 w-6">
-                              <AvatarImage
-                                src={
-                                  entry.user.avatar_url ||
-                                  "/placeholder.svg?height=24&width=24"
-                                }
-                              />
-                              <AvatarFallback>
+                              {entry.user.avatar_url && (
+                                <AvatarImage src={entry.user.avatar_url} />
+                              )}
+                              <AvatarFallback className="text-xs">
                                 {formatDisplayName({
                                   name: entry.user.name,
                                   initials: true,
                                 })}
                               </AvatarFallback>
                             </Avatar>
-                            <span>{entry.user.name}</span>
+                            <span className="text-sm font-medium">
+                              {entry.user.name}
+                            </span>
                           </div>
                         </TableCell>
-                        <TableCell>{entry.hours}</TableCell>
-                        <TableCell>{entry.description}</TableCell>
+                        <TableCell>{entry.hours} ore</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {entry.description || "-"}
+                        </TableCell>
                         {/* <TableCell>
-                          <Badge
-                            variant={
-                              entry.status === "approved"
-                                ? "outline"
-                                : entry.status === "pending"
-                                  ? "secondary"
-                                  : "destructive"
-                            }
-                          >
-                            {entry.status === "approved"
-                              ? "Approvato"
-                              : entry.status === "pending"
-                                ? "In attesa"
-                                : "Rifiutato"}
-                          </Badge>
+                          <Badge variant="outline">Approvato</Badge>
                         </TableCell> */}
                       </TableRow>
                     ))
@@ -357,32 +356,25 @@ export default function WorkItemDetail({
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold">{totalHours}</div>
-                  <div className="text-sm text-muted-foreground">
-                    Ore Totali
-                  </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Ore Totali</p>
+                  <p className="text-2xl font-bold">{totalHours || 0}</p>
                 </div>
-                <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold">
-                    {enabledUsers.length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Utenti Abilitati
-                  </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Membri del Team</p>
+                  <p className="text-2xl font-bold">
+                    {enabledUsers?.length || 0}
+                  </p>
                 </div>
-                <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold">
-                    {workItem.type === work_item_type.time_material &&
-                    workItem.hourly_rate
-                      ? `€${(totalHours ?? 0 * workItem.hourly_rate).toLocaleString("it-IT")}`
-                      : workItem.type === work_item_type.fixed_price
-                        ? `€${workItem.fixed_price?.toLocaleString("it-IT")}`
-                        : "N/A"}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Valore Totale
-                  </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Stato</p>
+                  <p className="text-2xl font-bold">
+                    {workItem.status === work_item_status.active
+                      ? "Attiva"
+                      : workItem.status === work_item_status.completed
+                        ? "Completata"
+                        : "In Pausa"}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -390,7 +382,6 @@ export default function WorkItemDetail({
         </TabsContent>
       </Tabs>
 
-      {/* Dialog per modificare la commessa */}
       {workItem && (
         <AddWorkItemDialog
           open={showEditDialog}
@@ -398,7 +389,7 @@ export default function WorkItemDetail({
           editData={{
             title: workItem.title,
             client_id: workItem.client_id,
-            project_id: workItem.project_id,
+            project_id: workItem.project_id || "",
             description: workItem.description || "",
             type: workItem.type,
             status: workItem.status,
@@ -410,10 +401,14 @@ export default function WorkItemDetail({
             ),
             id: workItem.id,
             start_date: workItem.start_date
-              ? workItem.start_date.toISOString().substring(0, 10)
+              ? workItem.start_date instanceof Date
+                ? workItem.start_date.toISOString().substring(0, 10)
+                : new Date(workItem.start_date).toISOString().substring(0, 10)
               : "",
             end_date: workItem.end_date
-              ? workItem.end_date.toISOString().substring(0, 10)
+              ? workItem.end_date instanceof Date
+                ? workItem.end_date.toISOString().substring(0, 10)
+                : new Date(workItem.end_date).toISOString().substring(0, 10)
               : "",
           }}
         />

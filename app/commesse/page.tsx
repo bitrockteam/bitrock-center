@@ -11,8 +11,12 @@ export const metadata: Metadata = {
   description: "Gestione delle commesse e attività lavorative",
 };
 
-export default async function WorkItemsPage() {
-  const workItems = await fetchAllWorkItems();
+export default async function WorkItemsPage({
+  searchParams,
+}: {
+  searchParams: { q?: string };
+}) {
+  const workItems = await fetchAllWorkItems(searchParams.q);
   const allClients = await getAllClients();
   const isAdminOrSuperAdmin = await allowRoles(["Admin", "Super_Admin"]);
 

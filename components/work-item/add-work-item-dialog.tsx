@@ -1,9 +1,7 @@
 "use client";
 
-import { getAllClients } from "@/app/server-actions/client/getAllClients";
-import { findUsers } from "@/app/server-actions/user/findUsers";
-import { createWorkItem } from "@/app/server-actions/work-item/createWorkItem";
-import { updateWorkItem } from "@/app/server-actions/work-item/updateWorkItem";
+import { GetAllClientsResponse } from "@/app/server-actions/client/getAllClients";
+import { FindUsers } from "@/app/server-actions/user/findUsers";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -32,13 +30,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { work_item_status, work_item_type } from "@/db";
-import { useServerAction } from "@/hooks/useServerAction";
+import { useApi } from "@/hooks/useApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 
 const workItemSchema = z
@@ -46,36 +45,38 @@ const workItemSchema = z
     id: z.string().optional(),
     title: z.string().min(1, "Il titolo è obbligatorio"),
     client_id: z.string().min(1, "Il cliente è obbligatorio"),
-    project_id: z.string().nullable(),
-    type: z.nativeEnum(work_item_type),
-    start_date: z.string().min(1, "La data di inizio è obbligatoria"),
-    end_date: z.string().nullable().optional(),
-    enabled_users: z
-      .array(z.string())
-      .min(1, "Almeno un utente deve essere abilitato"),
-    status: z.nativeEnum(work_item_status),
-    description: z.string().nullable(),
-    hourly_rate: z.number().nullable(),
-    estimated_hours: z.number().nullable(),
-    fixed_price: z.number().nullable(),
+    project_id: z.string().optional(),
+    type: z.enum([work_item_type.time_material, work_item_type.fixed_price]),
+    status: z.enum([
+      work_item_status.active,
+      work_item_status.completed,
+      work_item_status.on_hold,
+    ]),
+    description: z.string().optional(),
+    hourly_rate: z.number().nullable().optional(),
+    estimated_hours: z.number().nullable().optional(),
+    fixed_price: z.number().nullable().optional(),
+    enabled_users: z.array(z.string()).min(1, "Seleziona almeno un utente"),
+    start_date: z.string().optional(),
+    end_date: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.type === work_item_type.time_material) {
-      if (data.hourly_rate == null || data.hourly_rate <= 0) {
+      if (!data.hourly_rate || data.hourly_rate <= 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "La tariffa oraria deve essere maggiore di 0",
           path: ["hourly_rate"],
         });
       }
-      if (data.estimated_hours == null || data.estimated_hours <= 0) {
+      if (!data.estimated_hours || data.estimated_hours <= 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Le ore stimate devono essere maggiori di 0",
           path: ["estimated_hours"],
         });
       }
-      if (data.fixed_price != null && data.fixed_price !== 0) {
+      if (data.fixed_price && data.fixed_price > 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Il prezzo fisso deve essere vuoto per Time & Material",
@@ -84,21 +85,21 @@ const workItemSchema = z
       }
     }
     if (data.type === work_item_type.fixed_price) {
-      if (data.fixed_price == null || data.fixed_price <= 0) {
+      if (!data.fixed_price || data.fixed_price <= 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Il prezzo fisso deve essere maggiore di 0",
           path: ["fixed_price"],
         });
       }
-      if (data.hourly_rate != null && data.hourly_rate !== 0) {
+      if (data.hourly_rate && data.hourly_rate > 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "La tariffa oraria deve essere vuota per Prezzo Fisso",
           path: ["hourly_rate"],
         });
       }
-      if (data.estimated_hours != null && data.estimated_hours !== 0) {
+      if (data.estimated_hours && data.estimated_hours > 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Le ore stimate devono essere vuote per Prezzo Fisso",
@@ -124,8 +125,19 @@ export default function AddWorkItemDialog({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!editData;
-  const [clients, getClients, loadingClients] = useServerAction(getAllClients);
-  const [users, getUsers, loadingUsers] = useServerAction(findUsers);
+
+  const {
+    data: clients,
+    callApi: fetchClients,
+    loading: loadingClients,
+  } = useApi<GetAllClientsResponse[]>();
+  const {
+    data: users,
+    callApi: fetchUsers,
+    loading: loadingUsers,
+  } = useApi<FindUsers[]>();
+  const { callApi: createWorkItemApi } = useApi();
+  const { callApi: updateWorkItemApi } = useApi();
 
   const getNewFormValues = useCallback((): WorkItemFormData => {
     return {
@@ -134,24 +146,8 @@ export default function AddWorkItemDialog({
       client_id: editData?.client_id || "",
       project_id: editData?.project_id || "",
       type: editData?.type || work_item_type.time_material,
-      start_date: editData?.start_date
-        ? typeof editData?.start_date === "string"
-          ? editData?.start_date
-          : typeof editData?.start_date === "object" &&
-              editData?.start_date !== null &&
-              "toISOString" in editData?.start_date
-            ? (editData?.start_date as Date).toISOString().substring(0, 10)
-            : ""
-        : "",
-      end_date: editData?.end_date
-        ? typeof editData?.end_date === "string"
-          ? editData?.end_date
-          : typeof editData?.end_date === "object" &&
-              editData?.end_date !== null &&
-              "toISOString" in editData?.end_date
-            ? (editData?.end_date as Date).toISOString().substring(0, 10)
-            : ""
-        : "",
+      start_date: editData?.start_date || "",
+      end_date: editData?.end_date || "",
       enabled_users: editData?.enabled_users || [],
       status: editData?.status || work_item_status.active,
       description: editData?.description || "",
@@ -167,66 +163,73 @@ export default function AddWorkItemDialog({
   });
 
   const watchedType = form.watch("type");
-  const watchedClientId = form.watch("client_id");
 
   const onSubmit = async (data: WorkItemFormData) => {
     setIsLoading(true);
     try {
-      const submitData = {
-        start_date: data.start_date ? new Date(data.start_date) : new Date(),
-        end_date: data.end_date ? new Date(data.end_date) : null,
-        fixed_price:
-          data.type === work_item_type.fixed_price
-            ? typeof data.fixed_price === "number"
-              ? data.fixed_price
-              : null
-            : null,
-        project_id: data.project_id || null,
-        description: data.description ?? null,
-        hourly_rate:
-          data.type === work_item_type.time_material
-            ? typeof data.hourly_rate === "number"
-              ? data.hourly_rate
-              : null
-            : null,
-        estimated_hours:
-          data.type === work_item_type.time_material
-            ? typeof data.estimated_hours === "number"
-              ? data.estimated_hours
-              : null
-            : null,
+      // Prepare work item data based on type
+      const workItemData = {
         title: data.title,
         client_id: data.client_id,
+        project_id: data.project_id || null,
         type: data.type,
         status: data.status,
+        description: data.description || null,
+        start_date: data.start_date ? new Date(data.start_date) : null,
+        end_date: data.end_date ? new Date(data.end_date) : null,
+        // Set fields based on type to match database constraints
+        hourly_rate:
+          data.type === work_item_type.time_material ? data.hourly_rate : null,
+        estimated_hours:
+          data.type === work_item_type.time_material
+            ? data.estimated_hours
+            : null,
+        fixed_price:
+          data.type === work_item_type.fixed_price ? data.fixed_price : null,
       };
 
-      console.log({ isEditing, editData, cond: isEditing && editData?.id });
-
-      if (isEditing && editData?.id) {
-        console.log("updateworkitem");
-
-        await updateWorkItem(editData.id, submitData, data.enabled_users);
+      if (isEditing) {
+        await updateWorkItemApi("/api/work-item/update", {
+          method: "PUT",
+          body: JSON.stringify({
+            id: data.id,
+            updates: workItemData,
+            enabled_users: data.enabled_users,
+          }),
+        });
+        toast.success("Commessa aggiornata con successo");
       } else {
-        await createWorkItem(submitData, data.enabled_users);
+        await createWorkItemApi("/api/work-item/create", {
+          method: "POST",
+          body: JSON.stringify({
+            workItem: workItemData,
+            enabled_users: data.enabled_users,
+          }),
+        });
+        toast.success("Commessa creata con successo");
       }
+
       onOpenChange(false);
       form.reset();
+      router.refresh();
     } catch (error) {
-      console.error("Errore durante il salvataggio:", error);
+      console.error("Error saving work item:", error);
+      toast.error(
+        isEditing
+          ? "Errore durante l'aggiornamento"
+          : "Errore durante la creazione",
+      );
     } finally {
       setIsLoading(false);
-      router.refresh();
     }
   };
 
   useEffect(() => {
-    if (open && !clients) getClients();
-  }, [clients, getClients, open]);
-
-  useEffect(() => {
-    if (open && !users) getUsers();
-  }, [getUsers, open, users]);
+    if (open) {
+      fetchClients("/api/client/search");
+      fetchUsers("/api/user/search");
+    }
+  }, [open, fetchClients, fetchUsers]);
 
   useEffect(() => {
     if (editData) {
@@ -236,23 +239,20 @@ export default function AddWorkItemDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Modifica Commessa" : "Nuova Commessa"}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "Modifica i dati della commessa esistente."
-              : "Inserisci i dati per creare una nuova commessa."}
+              ? "Modifica i dettagli della commessa."
+              : "Inserisci i dettagli per creare una nuova commessa."}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit, (err) => console.log(err))}
-            className="space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="title"
@@ -260,84 +260,12 @@ export default function AddWorkItemDialog({
                 <FormItem>
                   <FormLabel>Titolo</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Sviluppo E-commerce Platform"
-                      {...field}
-                    />
+                    <Input placeholder="Titolo della commessa" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="client_id"
-                render={({ field }) =>
-                  loadingClients ? (
-                    <FormItem>
-                      <FormControl>
-                        <Input disabled value="Caricamento clienti..." />
-                      </FormControl>
-                    </FormItem>
-                  ) : (
-                    <FormItem>
-                      <FormLabel>Cliente</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleziona cliente" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {clients?.map((client) => (
-                            <SelectItem key={client.id} value={client.id}>
-                              {client.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )
-                }
-              />
-
-              <FormField
-                control={form.control}
-                name="project_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Progetto (Opzionale)</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value ?? undefined}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona progetto" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="-">Non Assegnato</SelectItem>
-                        {clients
-                          ?.find((client) => client.id === watchedClientId)
-                          ?.project.map((project) => (
-                            <SelectItem key={project.id} value={project.id}>
-                              {project.name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -405,12 +333,92 @@ export default function AddWorkItemDialog({
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
+                name="client_id"
+                render={({ field }) =>
+                  loadingClients ? (
+                    <FormItem>
+                      <FormControl>
+                        <Input disabled value="Caricamento clienti..." />
+                      </FormControl>
+                    </FormItem>
+                  ) : (
+                    <FormItem>
+                      <FormLabel>Cliente</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          form.setValue("project_id", ""); // Reset project when client changes
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona cliente" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {clients?.map((client: GetAllClientsResponse) => (
+                            <SelectItem key={client.id} value={client.id}>
+                              {client.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }
+              />
+
+              <FormField
+                control={form.control}
+                name="project_id"
+                render={({ field }) => {
+                  const selectedClient = clients?.find(
+                    (c) => c.id === form.watch("client_id"),
+                  );
+                  const projects = selectedClient?.project || [];
+                  return (
+                    <FormItem>
+                      <FormLabel>Progetto (Opzionale)</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={!selectedClient || projects.length === 0}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona progetto" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {projects.map(
+                            (
+                              project: GetAllClientsResponse["project"][number],
+                            ) => (
+                              <SelectItem key={project.id} value={project.id}>
+                                {project.name}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
                 name="start_date"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Data Inizio</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} value={field.value ?? ""} />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -424,7 +432,7 @@ export default function AddWorkItemDialog({
                   <FormItem>
                     <FormLabel>Data Fine (Opzionale)</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} value={field.value ?? ""} />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -432,7 +440,7 @@ export default function AddWorkItemDialog({
               />
             </div>
 
-            {watchedType === work_item_type.time_material ? (
+            {watchedType === work_item_type.time_material && (
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -443,13 +451,16 @@ export default function AddWorkItemDialog({
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="65"
-                          {...field}
-                          value={field.value?.toString() ?? ""}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            field.onChange(val === "" ? null : Number(val));
-                          }}
+                          step="0.01"
+                          placeholder="0.00"
+                          value={field.value?.toString() || ""}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseFloat(e.target.value)
+                                : null,
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -466,13 +477,16 @@ export default function AddWorkItemDialog({
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="800"
-                          {...field}
-                          value={field.value?.toString() ?? ""}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            field.onChange(val === "" ? null : Number(val));
-                          }}
+                          step="0.5"
+                          placeholder="0"
+                          value={field.value?.toString() || ""}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseFloat(e.target.value)
+                                : null,
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -480,7 +494,9 @@ export default function AddWorkItemDialog({
                   )}
                 />
               </div>
-            ) : (
+            )}
+
+            {watchedType === work_item_type.fixed_price && (
               <FormField
                 control={form.control}
                 name="fixed_price"
@@ -490,13 +506,14 @@ export default function AddWorkItemDialog({
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="15000"
-                        {...field}
-                        value={field.value?.toString() ?? ""}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          field.onChange(val === "" ? null : Number(val));
-                        }}
+                        step="0.01"
+                        placeholder="0.00"
+                        value={field.value?.toString() || ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ? parseFloat(e.target.value) : null,
+                          )
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -504,6 +521,24 @@ export default function AddWorkItemDialog({
                 )}
               />
             )}
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrizione (Opzionale)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Descrizione della commessa..."
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -527,7 +562,7 @@ export default function AddWorkItemDialog({
                       </p>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      {users?.map((user) => (
+                      {users?.map((user: FindUsers) => (
                         <FormField
                           key={user.id}
                           control={form.control}
@@ -570,42 +605,24 @@ export default function AddWorkItemDialog({
               }
             />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrizione</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Descrizione dettagliata della commessa..."
-                      className="resize-none"
-                      {...field}
-                      value={field.value ?? ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
+                disabled={isLoading}
               >
                 Annulla
               </Button>
               <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <Button type="submit" disabled={isLoading}>
                   {isLoading && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  {isEditing ? "Salva Modifiche" : "Crea Commessa"}
+                  {isEditing ? "Aggiorna" : "Crea"} Commessa
                 </Button>
               </motion.div>
             </DialogFooter>
