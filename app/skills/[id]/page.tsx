@@ -1,5 +1,5 @@
+import { getEmployeeWithSkillsById } from "@/app/server-actions/skills/getEmployeeWithSkillsById";
 import EmployeeSkillDetail from "@/components/skills/employee-skill-detail";
-import { getEmployeeWithSkillsById } from "@/server/skills/getEmployeeWithSkillsById";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";

@@ -2,6 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { confirmChatAction } from "@/app/server-actions/ai/confirmChatAction";
+import { createNewChatSession } from "@/app/server-actions/ai/createNewChatSession";
+import { deleteChatSession } from "@/app/server-actions/ai/deleteChatSession";
+import { ChatSession } from "@/app/server-actions/ai/getChatSessions";
+import { smartSearch } from "@/app/server-actions/ai/service/service";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,11 +14,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { message } from "@/db";
 import { cn } from "@/lib/utils";
-import { confirmChatAction } from "@/server/ai/confirmChatAction";
-import { createNewChatSession } from "@/server/ai/createNewChatSession";
-import { deleteChatSession } from "@/server/ai/deleteChatSession";
-import { ChatSession } from "@/server/ai/getChatSessions";
-import { smartSearch } from "@/server/ai/service/service";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bot,

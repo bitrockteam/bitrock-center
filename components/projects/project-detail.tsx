@@ -1,5 +1,8 @@
 "use client";
 
+import { UserAllocated } from "@/app/server-actions/project/fetchAllocationsForProject";
+import { ProjectById } from "@/app/server-actions/project/fetchProjectById";
+import { FindUsers } from "@/app/server-actions/user/findUsers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,9 +22,6 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { work_item_type } from "@/db";
-import { UserAllocated } from "@/server/project/fetchAllocationsForProject";
-import { ProjectById } from "@/server/project/fetchProjectById";
-import { FindUsers } from "@/server/user/findUsers";
 import { formatDisplayName } from "@/services/users/utils";
 import {
   getProjectStatusBadge,

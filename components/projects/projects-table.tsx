@@ -11,6 +11,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+import { deleteProject } from "@/app/server-actions/project/deleteProject";
+import { Project } from "@/app/server-actions/project/fetchAllProjects";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -29,8 +31,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { project } from "@/db";
-import { deleteProject } from "@/server/project/deleteProject";
-import { Project } from "@/server/project/fetchAllProjects";
 import { getProjectStatusBadge } from "@/utils/mapping";
 import { format } from "date-fns";
 import { motion } from "framer-motion";

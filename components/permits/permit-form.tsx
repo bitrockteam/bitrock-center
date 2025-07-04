@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  CreateBulkPermitDTO,
+  createBulkPermits,
+} from "@/app/server-actions/permit/createBulkPermits";
+import { fetchUserReviewers } from "@/app/server-actions/permit/fetchUserReviewers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -21,11 +26,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { PermitType, user } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
-import {
-  CreateBulkPermitDTO,
-  createBulkPermits,
-} from "@/server/permit/createBulkPermits";
-import { fetchUserReviewers } from "@/server/permit/fetchUserReviewers";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";

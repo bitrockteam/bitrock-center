@@ -1,5 +1,6 @@
 "use client";
 
+import { UserPermit } from "@/app/server-actions/permit/fetchUserPermits";
 import {
   Card,
   CardContent,
@@ -16,7 +17,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PermitType } from "@/db";
-import { UserPermit } from "@/server/permit/fetchUserPermits";
 import { getStatusBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import {

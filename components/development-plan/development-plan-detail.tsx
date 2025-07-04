@@ -1,5 +1,11 @@
 "use client";
 
+import { addGoal } from "@/app/server-actions/development-plan/addGoal";
+import { addTodoGoal } from "@/app/server-actions/development-plan/addTodoGoal";
+import { GetDevelopmentPlan } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
+import { removeGoal } from "@/app/server-actions/development-plan/removeGoal";
+import { updateGoal } from "@/app/server-actions/development-plan/updateGoal";
+import { updateTodoStatus } from "@/app/server-actions/development-plan/updateTodoStatus";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,12 +38,6 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { todo_item } from "@/db";
-import { addGoal } from "@/server/development-plan/addGoal";
-import { addTodoGoal } from "@/server/development-plan/addTodoGoal";
-import { GetDevelopmentPlan } from "@/server/development-plan/getDevelopmentPlanById";
-import { removeGoal } from "@/server/development-plan/removeGoal";
-import { updateGoal } from "@/server/development-plan/updateGoal";
-import { updateTodoStatus } from "@/server/development-plan/updateTodoStatus";
 import { getGoalBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import {

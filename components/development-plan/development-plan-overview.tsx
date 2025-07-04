@@ -1,5 +1,8 @@
 "use client";
 
+import { createNewDevelopmentPlan } from "@/app/server-actions/development-plan/createNewDevelopmentPlan";
+import { GetDevelopmentPlan } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
+import { GetEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getEmployeeDevelopmentPlans.ts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { createNewDevelopmentPlan } from "@/server/development-plan/createNewDevelopmentPlan";
-import { GetDevelopmentPlan } from "@/server/development-plan/getDevelopmentPlanById";
-import { GetEmployeeDevelopmentPlan } from "@/server/development-plan/getEmployeeDevelopmentPlans.ts";
 import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import {

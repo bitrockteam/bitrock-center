@@ -1,6 +1,6 @@
+import { fetchTeam } from "@/app/server-actions/user/fetchMyTeam";
+import { fetchMyTeam } from "@/app/server-actions/user/fetchTeam";
 import { TeamMemberContainer } from "@/components/team/team-member-container";
-import { fetchTeam } from "@/server/user/fetchMyTeam";
-import { fetchMyTeam } from "@/server/user/fetchTeam";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { Metadata } from "next";
 

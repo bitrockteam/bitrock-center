@@ -1,5 +1,7 @@
 "use client";
 
+import { createEmployeeContract } from "@/app/server-actions/contract/createEmployeeContract";
+import { updateEmployeeContract } from "@/app/server-actions/contract/updateEmployeeContract";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,8 +29,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { contract, contracttype, remotepolicy, workinghours } from "@/db";
-import { createEmployeeContract } from "@/server/contract/createEmployeeContract";
-import { updateEmployeeContract } from "@/server/contract/updateEmployeeContract";
 import { motion } from "framer-motion";
 import { Building, Clock, DollarSign, FileText, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";

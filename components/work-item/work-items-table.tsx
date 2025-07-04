@@ -1,5 +1,7 @@
 "use client";
 
+import { GetAllClientsResponse } from "@/app/server-actions/client/getAllClients";
+import { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,8 +33,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { work_item_type, work_items } from "@/db";
-import { GetAllClientsResponse } from "@/server/client/getAllClients";
-import { WorkItem } from "@/server/work-item/fetchAllWorkItems";
 import { motion } from "framer-motion";
 import { Clock, Edit, Euro, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";

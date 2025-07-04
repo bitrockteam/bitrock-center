@@ -1,5 +1,7 @@
 "use client";
 
+import { getEmployeesWithSkills } from "@/app/server-actions/skills/getEmployeesWithSkills";
+import { getSkillsCatalog } from "@/app/server-actions/skills/getSkillsCatalog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,8 +21,6 @@ import {
 } from "@/components/ui/popover";
 import { SeniorityLevel } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
-import { getEmployeesWithSkills } from "@/server/skills/getEmployeesWithSkills";
-import { getSkillsCatalog } from "@/server/skills/getSkillsCatalog";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { Eye, Filter, Search, X } from "lucide-react";

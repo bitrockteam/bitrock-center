@@ -1,5 +1,6 @@
 "use client";
 
+import { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +25,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { permit, PermitStatus, PermitType } from "@/db";
-import { UserTimesheet } from "@/server/timesheet/fetchUserTimesheet";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { useMemo, useState } from "react";

@@ -1,6 +1,6 @@
+import { getAllClients } from "@/app/server-actions/client/getAllClients";
+import { fetchAllWorkItems } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import WorkItemsTable from "@/components/work-item/work-items-table";
-import { getAllClients } from "@/server/client/getAllClients";
-import { fetchAllWorkItems } from "@/server/work-item/fetchAllWorkItems";
 import { allowRoles } from "@/services/users/server.utils";
 import type { Metadata } from "next";
 

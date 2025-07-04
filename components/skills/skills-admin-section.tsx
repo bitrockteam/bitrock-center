@@ -1,5 +1,10 @@
 "use client";
 
+import { createNewSkill } from "@/app/server-actions/skills/createNewSkill";
+import { deleteSkill } from "@/app/server-actions/skills/deleteSkill";
+import { getSkillsCatalog } from "@/app/server-actions/skills/getSkillsCatalog";
+import { toggleSkillActive } from "@/app/server-actions/skills/toggleSkillActive";
+import { updateSkill } from "@/app/server-actions/skills/updateSkill";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,11 +52,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { skill, SkillCategory } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
-import { createNewSkill } from "@/server/skills/createNewSkill";
-import { deleteSkill } from "@/server/skills/deleteSkill";
-import { getSkillsCatalog } from "@/server/skills/getSkillsCatalog";
-import { toggleSkillActive } from "@/server/skills/toggleSkillActive";
-import { updateSkill } from "@/server/skills/updateSkill";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {

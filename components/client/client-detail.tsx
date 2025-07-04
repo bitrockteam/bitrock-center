@@ -1,5 +1,6 @@
 "use client";
 
+import { findClientById } from "@/app/server-actions/client/findClientById";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectStatus } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
-import { findClientById } from "@/server/client/findClientById";
 import { motion } from "framer-motion";
 import { ArrowLeft, Edit, Mail, MapPin, Phone, User } from "lucide-react";
 import { useRouter } from "next/navigation";

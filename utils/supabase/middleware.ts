@@ -1,4 +1,4 @@
-import { getUserInfo } from "@/server/user/getUserInfo";
+import { getUserInfo } from "@/app/server-actions/user/getUserInfo";
 import { createServerClient } from "@supabase/ssr";
 import { jwtDecode } from "jwt-decode";
 import { NextResponse, type NextRequest } from "next/server";

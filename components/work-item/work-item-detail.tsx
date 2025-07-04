@@ -1,5 +1,6 @@
 "use client";
 
+import { WorkItemById } from "@/app/server-actions/work-item/fetchWorkItemById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,6 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { work_item_status, work_item_type } from "@/db";
-import { WorkItemById } from "@/server/work-item/fetchWorkItemById";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import {

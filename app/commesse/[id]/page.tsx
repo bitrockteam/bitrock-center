@@ -1,5 +1,5 @@
+import { fetchWorkItemById } from "@/app/server-actions/work-item/fetchWorkItemById";
 import WorkItemDetail from "@/components/work-item/work-item-detail";
-import { fetchWorkItemById } from "@/server/work-item/fetchWorkItemById";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";

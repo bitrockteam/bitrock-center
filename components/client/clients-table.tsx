@@ -30,8 +30,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { getAllClients } from "@/app/server-actions/client/getAllClients";
 import { useServerAction } from "@/hooks/useServerAction";
-import { getAllClients } from "@/server/client/getAllClients";
 import { motion } from "framer-motion";
 import { Building2, Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";

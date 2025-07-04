@@ -1,5 +1,5 @@
+import { findUserById } from "@/app/server-actions/user/findUserById";
 import UserDetail from "@/components/users/user-detail";
-import { findUserById } from "@/server/user/findUserById";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";

@@ -1,5 +1,9 @@
 "use client";
 
+import { getAllClients } from "@/app/server-actions/client/getAllClients";
+import { createProject } from "@/app/server-actions/project/createProject";
+import { Project } from "@/app/server-actions/project/fetchAllProjects";
+import { updateProject } from "@/app/server-actions/project/updateProject";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,10 +32,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { project, ProjectStatus } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
-import { getAllClients } from "@/server/client/getAllClients";
-import { createProject } from "@/server/project/createProject";
-import { Project } from "@/server/project/fetchAllProjects";
-import { updateProject } from "@/server/project/updateProject";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";

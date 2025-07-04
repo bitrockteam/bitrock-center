@@ -1,6 +1,6 @@
+import { fetchAllProjects } from "@/app/server-actions/project/fetchAllProjects";
 import ProjectsHeader from "@/components/projects/projects-header";
 import ProjectsTable from "@/components/projects/projects-table";
-import { fetchAllProjects } from "@/server/project/fetchAllProjects";
 import { allowRoles } from "@/services/users/server.utils";
 import type { Metadata } from "next";
 

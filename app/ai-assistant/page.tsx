@@ -1,5 +1,5 @@
+import { getChatSessions } from "@/app/server-actions/ai/getChatSessions";
 import AIAssistant from "@/components/ai/ai-assistant";
-import { getChatSessions } from "@/server/ai/getChatSessions";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 

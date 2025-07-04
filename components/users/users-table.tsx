@@ -11,9 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { FindUsersWithProjects } from "@/app/server-actions/user/findUsersWithProjects";
+import { updateUserRole } from "@/app/server-actions/user/updateUserRole";
 import { Role, user } from "@/db";
-import { FindUsersWithProjects } from "@/server/user/findUsersWithProjects";
-import { updateUserRole } from "@/server/user/updateUserRole";
 import { canUserEdit, formatDisplayName } from "@/services/users/utils";
 import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";

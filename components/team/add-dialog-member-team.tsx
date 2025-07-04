@@ -1,9 +1,9 @@
 "use client";
 
+import { addUserToTeam } from "@/app/server-actions/user/addUserToTeam";
+import { findUsers } from "@/app/server-actions/user/findUsers";
 import { useServerAction } from "@/hooks/useServerAction";
 import { cn } from "@/lib/utils";
-import { addUserToTeam } from "@/server/user/addUserToTeam";
-import { findUsers } from "@/server/user/findUsers";
 import { motion } from "framer-motion";
 import { Check, ChevronsUpDown, PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";

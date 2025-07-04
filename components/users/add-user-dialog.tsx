@@ -1,5 +1,10 @@
 "use client";
 
+import { createUser } from "@/app/server-actions/user/createUser";
+import { FindUserById } from "@/app/server-actions/user/findUserById";
+import { findUsers } from "@/app/server-actions/user/findUsers";
+import { updateUser } from "@/app/server-actions/user/updateUser";
+import { uploadFile } from "@/app/server-actions/user/uploadFile";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,11 +26,6 @@ import { Input } from "@/components/ui/input";
 import { Role, user } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
 import { cn } from "@/lib/utils";
-import { createUser } from "@/server/user/createUser";
-import { FindUserById } from "@/server/user/findUserById";
-import { findUsers } from "@/server/user/findUsers";
-import { updateUser } from "@/server/user/updateUser";
-import { uploadFile } from "@/server/user/uploadFile";
 import { getFirstnameAndLastname } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { Check, ChevronsUpDown } from "lucide-react";

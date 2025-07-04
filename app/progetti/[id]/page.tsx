@@ -1,7 +1,7 @@
+import { fetchAllocationsForProject } from "@/app/server-actions/project/fetchAllocationsForProject";
+import { fetchProjectById } from "@/app/server-actions/project/fetchProjectById";
+import { findUsers } from "@/app/server-actions/user/findUsers";
 import ProjectDetail from "@/components/projects/project-detail";
-import { fetchAllocationsForProject } from "@/server/project/fetchAllocationsForProject";
-import { fetchProjectById } from "@/server/project/fetchProjectById";
-import { findUsers } from "@/server/user/findUsers";
 import { allowRoles } from "@/services/users/server.utils";
 import type { Metadata } from "next";
 

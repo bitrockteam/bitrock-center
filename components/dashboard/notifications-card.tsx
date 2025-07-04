@@ -1,5 +1,6 @@
 "use client";
 
+import { LastestNotification } from "@/app/server-actions/dashboard/fetchLatestNotifications";
 import {
   Card,
   CardContent,
@@ -7,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { LastestNotification } from "@/server/dashboard/fetchLatestNotifications";
 import { getStatusBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { Bell } from "lucide-react";

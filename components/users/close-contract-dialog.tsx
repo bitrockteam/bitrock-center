@@ -1,5 +1,6 @@
 "use client";
 
+import { closeContract } from "@/app/server-actions/contract/closeContract";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { contract } from "@/db";
-import { closeContract } from "@/server/contract/closeContract";
 import { motion } from "framer-motion";
 import { AlertTriangle, Calendar, User, XCircle } from "lucide-react";
 import { useState } from "react";

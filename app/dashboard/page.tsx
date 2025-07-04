@@ -1,13 +1,13 @@
+import { fetchLatestNotifications } from "@/app/server-actions/dashboard/fetchLatestNotifications";
+import { fetchUserStats } from "@/app/server-actions/dashboard/fetchUserStats";
+import { fetchUserPermits } from "@/app/server-actions/permit/fetchUserPermits";
+import { fetchUserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
 import CalendarView from "@/components/dashboard/calendar-view";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import DashboardSummary from "@/components/dashboard/dashboard-summary";
 import HoursChart from "@/components/dashboard/hours-chart";
 import NotificationsCard from "@/components/dashboard/notifications-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fetchLatestNotifications } from "@/server/dashboard/fetchLatestNotifications";
-import { fetchUserStats } from "@/server/dashboard/fetchUserStats";
-import { fetchUserPermits } from "@/server/permit/fetchUserPermits";
-import { fetchUserTimesheet } from "@/server/timesheet/fetchUserTimesheet";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 

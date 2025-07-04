@@ -1,5 +1,5 @@
+import { getPermitsByReviewer } from "@/app/server-actions/permit/getPermitsByReviewer";
 import PermitApprovalTable from "@/components/permits/permit-approval";
-import { getPermitsByReviewer } from "@/server/permit/getPermitsByReviewer";
 
 export default async function PermitApproval() {
   const permitsByReviewers = await getPermitsByReviewer();

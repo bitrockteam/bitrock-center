@@ -1,5 +1,5 @@
+import { getDevelopmentPlanById } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
 import DevelopmentPlanDetail from "@/components/development-plan/development-plan-detail";
-import { getDevelopmentPlanById } from "@/server/development-plan/getDevelopmentPlanById";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 

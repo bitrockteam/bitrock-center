@@ -1,5 +1,5 @@
+import { getEmployeeDevelopmentPlans } from "@/app/server-actions/development-plan/getEmployeeDevelopmentPlans.ts";
 import DevelopmentPlanOverview from "@/components/development-plan/development-plan-overview";
-import { getEmployeeDevelopmentPlans } from "@/server/development-plan/getEmployeeDevelopmentPlans.ts";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";

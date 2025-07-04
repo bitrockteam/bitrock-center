@@ -1,5 +1,7 @@
 "use client";
 
+import { PermitByReviewer } from "@/app/server-actions/permit/getPermitsByReviewer";
+import { updatePermitStatus } from "@/app/server-actions/permit/updatePermitStatus";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,8 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PermitStatus, PermitType } from "@/db";
-import { PermitByReviewer } from "@/server/permit/getPermitsByReviewer";
-import { updatePermitStatus } from "@/server/permit/updatePermitStatus";
 import { getStatusBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { toast } from "sonner";

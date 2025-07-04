@@ -1,5 +1,10 @@
 "use client";
 
+import { addSkillToEmployee } from "@/app/server-actions/skills/addSkillToEmployee";
+import { EmployeeSkill } from "@/app/server-actions/skills/getEmployeeWithSkillsById";
+import { getSkillsCatalog } from "@/app/server-actions/skills/getSkillsCatalog";
+import { removeSkillFromEmployee } from "@/app/server-actions/skills/removeSkillFromEmployee";
+import { updateEmployeeSkillLevel } from "@/app/server-actions/skills/updateEmployeeSkillLevel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,11 +42,6 @@ import {
 } from "@/components/ui/select";
 import { SeniorityLevel } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
-import { addSkillToEmployee } from "@/server/skills/addSkillToEmployee";
-import { EmployeeSkill } from "@/server/skills/getEmployeeWithSkillsById";
-import { getSkillsCatalog } from "@/server/skills/getSkillsCatalog";
-import { removeSkillFromEmployee } from "@/server/skills/removeSkillFromEmployee";
-import { updateEmployeeSkillLevel } from "@/server/skills/updateEmployeeSkillLevel";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, Edit, Plus, Save, Trash2, X } from "lucide-react";
