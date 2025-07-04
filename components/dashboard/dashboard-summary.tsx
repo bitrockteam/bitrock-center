@@ -3,8 +3,14 @@ import { UserStats } from "@/app/server-actions/dashboard/fetchUserStats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { AlertCircle, Briefcase, Calendar, Clock } from "lucide-react";
+import { use } from "react";
 
-export default function DashboardSummary({ summary }: { summary: UserStats }) {
+export default function DashboardSummary({
+  summaryData,
+}: {
+  summaryData: Promise<UserStats>;
+}) {
+  const summary = use(summaryData);
   const container = {
     hidden: { opacity: 0 },
     show: {

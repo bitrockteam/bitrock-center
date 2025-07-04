@@ -2,8 +2,10 @@
 import { user } from "@/db";
 import { getFirstnameAndLastname } from "@/services/users/utils";
 import { motion } from "framer-motion";
+import { use } from "react";
 
-export function DashboardHeader({ user }: { user: user }) {
+export function DashboardHeader({ userData }: { userData: Promise<user> }) {
+  const user = use(userData);
   const currentDate = new Date();
   const formattedDate = new Intl.DateTimeFormat("it-IT", {
     weekday: "long",

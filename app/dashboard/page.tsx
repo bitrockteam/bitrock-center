@@ -19,16 +19,16 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const user = await getUserInfoFromCookie();
-  const summary = await fetchUserStats();
-  const latestNotifications = await fetchLatestNotifications();
+  const user = getUserInfoFromCookie();
+  const summary = fetchUserStats();
+  const latestNotifications = fetchLatestNotifications();
 
-  const latestTimesheets = await fetchUserTimesheet();
-  const permits = await fetchUserPermits();
+  const latestTimesheets = fetchUserTimesheet();
+  const permits = fetchUserPermits();
   return (
     <div className="space-y-6">
-      <DashboardHeader user={user} />
-      <DashboardSummary summary={summary} />
+      <DashboardHeader userData={user} />
+      <DashboardSummary summaryData={summary} />
 
       <Tabs defaultValue="chart" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">
@@ -39,12 +39,15 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <HoursChart />
             <div className="space-y-6">
-              <NotificationsCard notifications={latestNotifications} />
+              <NotificationsCard notificationsData={latestNotifications} />
             </div>
           </div>
         </TabsContent>
         <TabsContent value="calendar">
-          <CalendarView timesheet={latestTimesheets} permits={permits} />
+          <CalendarView
+            timesheetData={latestTimesheets}
+            permitsData={permits}
+          />
         </TabsContent>
       </Tabs>
     </div>

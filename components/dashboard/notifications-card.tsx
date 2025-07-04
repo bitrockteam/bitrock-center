@@ -11,12 +11,14 @@ import {
 import { getStatusBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { Bell } from "lucide-react";
+import { use } from "react";
 
 export default function NotificationsCard({
-  notifications,
+  notificationsData,
 }: {
-  notifications?: LastestNotification[];
+  notificationsData: Promise<LastestNotification[]>;
 }) {
+  const notifications = use(notificationsData);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
