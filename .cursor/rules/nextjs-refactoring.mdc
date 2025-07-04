@@ -5,7 +5,9 @@ alwaysApply: false
 
 # Rule Description
 
-## 1. Server Actions Must Not Be Called Directly from Client Components
+## Steps
+
+### 1. Server Actions Must Not Be Called Directly from Client Components
 
 - **Anti-pattern:** Importing and calling server actions (e.g., from `app/server-actions/`) directly in client components.
 - **Required:** All server actions must be wrapped by API routes in `app/api/` and only called from the server or via HTTP from the client.
