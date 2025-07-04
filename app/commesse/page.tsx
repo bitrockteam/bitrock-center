@@ -1,4 +1,4 @@
-import { findUsers } from "@/api/server/user/findUsers";
+import { getAllClients } from "@/api/server/client/getAllClients";
 import { fetchAllWorkItems } from "@/api/server/work-item/fetchAllWorkItems";
 import WorkItemsTable from "@/components/work-item/work-items-table";
 import type { Metadata } from "next";
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default async function WorkItemsPage() {
   const workItems = await fetchAllWorkItems();
-  const allClients = await findUsers();
+  const allClients = await getAllClients();
   const isAdminOrSuperAdmin = await allowRoles(["Admin", "Super_Admin"]);
 
   return (
