@@ -1,7 +1,5 @@
 "use client";
 
-import { PermitByReviewer } from "@/app/server-actions/permit/getPermitsByReviewer";
-import { updatePermitStatus } from "@/app/server-actions/permit/updatePermitStatus";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,15 +17,56 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PermitStatus, PermitType } from "@/db";
+import { useApi } from "@/hooks/useApi";
 import { getStatusBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
-export default function PermitApprovalTable({
-  permits,
-}: {
-  permits: PermitByReviewer[];
-}) {
+type PermitByReviewer = {
+  id: string;
+  type: PermitType;
+  date: Date;
+  duration: number;
+  description: string | null;
+  status: PermitStatus;
+  user_permit_user_idTouser: {
+    id: string;
+    name: string;
+  };
+};
+
+export default function PermitApprovalTable() {
+  const {
+    data: permits,
+    loading,
+    error,
+    callApi,
+  } = useApi<PermitByReviewer[]>();
+
+  useEffect(() => {
+    callApi("/api/permit/get-permits-by-reviewer");
+  }, [callApi]);
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-8">
+          <div>Loading...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-8">
+          <div className="text-red-500">Error: {error}</div>
+        </CardContent>
+      </Card>
+    );
+  }
   const getTypeLabel = (type: string) => {
     switch (type) {
       case PermitType.VACATION:
@@ -42,13 +81,31 @@ export default function PermitApprovalTable({
   };
 
   const approvePermit = async (permitId: string) => {
-    await updatePermitStatus(permitId, PermitStatus.APPROVED);
-    toast.success("Permesso approvato");
+    try {
+      await callApi("/api/permit/update-permit-status", {
+        method: "PUT",
+        body: JSON.stringify({ permitId, status: PermitStatus.APPROVED }),
+      });
+      toast.success("Permesso approvato");
+      // Refresh the data
+      callApi("/api/permit/get-permits-by-reviewer");
+    } catch {
+      toast.error("Errore nell'approvazione del permesso");
+    }
   };
 
   const rejectPermit = async (permitId: string) => {
-    await updatePermitStatus(permitId, PermitStatus.REJECTED);
-    toast.success("Permesso rigettato");
+    try {
+      await callApi("/api/permit/update-permit-status", {
+        method: "PUT",
+        body: JSON.stringify({ permitId, status: PermitStatus.REJECTED }),
+      });
+      toast.success("Permesso rigettato");
+      // Refresh the data
+      callApi("/api/permit/get-permits-by-reviewer");
+    } catch {
+      toast.error("Errore nel rigetto del permesso");
+    }
   };
 
   return (
@@ -77,7 +134,7 @@ export default function PermitApprovalTable({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {permits.length === 0 ? (
+                {!permits || permits.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={6}
