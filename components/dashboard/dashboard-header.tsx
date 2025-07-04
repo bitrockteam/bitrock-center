@@ -1,7 +1,7 @@
 "use client";
+import { user } from "@/db";
 import { getFirstnameAndLastname } from "@/services/users/utils";
 import { motion } from "framer-motion";
-import { user } from "../../db";
 
 export function DashboardHeader({ user }: { user: user }) {
   const currentDate = new Date();

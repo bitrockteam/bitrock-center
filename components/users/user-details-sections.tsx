@@ -1,8 +1,8 @@
-import { getContractByEmployeeId } from "@/api/server/contract/getContractByEmployeeId";
-import { getLatestEmployeeDevelopmentPlan } from "@/api/server/development-plan/getLatestEmployeeDevelopmentPlan";
-import { FindUserById } from "@/api/server/user/findUserById";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useServerAction } from "@/hooks/useServerAction";
+import { getContractByEmployeeId } from "@/server/contract/getContractByEmployeeId";
+import { getLatestEmployeeDevelopmentPlan } from "@/server/development-plan/getLatestEmployeeDevelopmentPlan";
+import { FindUserById } from "@/server/user/findUserById";
 import { useEffect } from "react";
 import ContractDetail from "./contract-detail";
 import UserDetailsActivity from "./user-details-sections/user-details-activity";

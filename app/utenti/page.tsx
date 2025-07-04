@@ -1,11 +1,11 @@
-import { findUsersWithProjects } from "@/api/server/user/findUsersWithProjects";
 import UsersHeader from "@/components/users/users-header";
 import UsersTable from "@/components/users/users-table";
+import { findUsersWithProjects } from "@/server/user/findUsersWithProjects";
 import { allowRoles } from "@/services/users/server.utils";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export default async function UsersPage({
   searchParams,

@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 
-import { deleteAllocation } from "@/api/server/allocation/deleteAllocation";
-import { findUserById } from "@/api/server/user/findUserById";
 import { useServerAction } from "@/hooks/useServerAction";
+import { deleteAllocation } from "@/server/allocation/deleteAllocation";
+import { findUserById } from "@/server/user/findUserById";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import {

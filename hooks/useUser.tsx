@@ -1,6 +1,6 @@
+import { user } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { useEffect, useState } from "react";
-import { user } from "../db";
 import { useUserPermissions } from "./useUserPermissions";
 
 export const useUser = () => {

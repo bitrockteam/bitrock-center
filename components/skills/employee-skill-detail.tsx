@@ -1,10 +1,5 @@
 "use client";
 
-import { addSkillToEmployee } from "@/api/server/skills/addSkillToEmployee";
-import { EmployeeSkill } from "@/api/server/skills/getEmployeeWithSkillsById";
-import { getSkillsCatalog } from "@/api/server/skills/getSkillsCatalog";
-import { removeSkillFromEmployee } from "@/api/server/skills/removeSkillFromEmployee";
-import { updateEmployeeSkillLevel } from "@/api/server/skills/updateEmployeeSkillLevel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,13 +35,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SeniorityLevel } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
+import { addSkillToEmployee } from "@/server/skills/addSkillToEmployee";
+import { EmployeeSkill } from "@/server/skills/getEmployeeWithSkillsById";
+import { getSkillsCatalog } from "@/server/skills/getSkillsCatalog";
+import { removeSkillFromEmployee } from "@/server/skills/removeSkillFromEmployee";
+import { updateEmployeeSkillLevel } from "@/server/skills/updateEmployeeSkillLevel";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, Edit, Plus, Save, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SeniorityLevel } from "../../db";
 import {
   getSeniorityLevelColor,
   getSeniorityLevelLabel,

@@ -8,11 +8,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { createAllocation } from "@/api/server/allocation/createAllocation";
-import { fetchProjectsUsersAvailable } from "@/api/server/allocation/fetchProjectsUsersAvailable";
-import { updateAllocation } from "@/api/server/allocation/updateAllocation";
-import { findUsers } from "@/api/server/user/findUsers";
 import { useServerAction } from "@/hooks/useServerAction";
+import { createAllocation } from "@/server/allocation/createAllocation";
+import { fetchProjectsUsersAvailable } from "@/server/allocation/fetchProjectsUsersAvailable";
+import { updateAllocation } from "@/server/allocation/updateAllocation";
+import { findUsers } from "@/server/user/findUsers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isBefore } from "date-fns";
 import { toast } from "sonner";

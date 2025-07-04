@@ -1,7 +1,5 @@
 "use client";
 
-import { createEmployeeContract } from "@/api/server/contract/createEmployeeContract";
-import { updateEmployeeContract } from "@/api/server/contract/updateEmployeeContract";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,12 +26,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { contract, contracttype, remotepolicy, workinghours } from "@/db";
+import { createEmployeeContract } from "@/server/contract/createEmployeeContract";
+import { updateEmployeeContract } from "@/server/contract/updateEmployeeContract";
 import { motion } from "framer-motion";
 import { Building, Clock, DollarSign, FileText, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { contract, contracttype, remotepolicy, workinghours } from "../../db";
 
 interface EditContractDialogProps {
   open: boolean;

@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import PermitApproval from "./permit-approval";
 import PermitHistory from "./permit-history";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Ferie e Permessi | Bitrock Hours",

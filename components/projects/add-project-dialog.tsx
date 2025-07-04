@@ -1,9 +1,5 @@
 "use client";
 
-import { getAllClients } from "@/api/server/client/getAllClients";
-import { createProject } from "@/api/server/project/createProject";
-import { Project } from "@/api/server/project/fetchAllProjects";
-import { updateProject } from "@/api/server/project/updateProject";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,12 +26,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { project, ProjectStatus } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
+import { getAllClients } from "@/server/client/getAllClients";
+import { createProject } from "@/server/project/createProject";
+import { Project } from "@/server/project/fetchAllProjects";
+import { updateProject } from "@/server/project/updateProject";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { project, ProjectStatus } from "../../db";
 import { addProjectSchema } from "./schema";
 
 interface AddProjectDialogProps {

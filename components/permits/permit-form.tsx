@@ -1,10 +1,5 @@
 "use client";
 
-import {
-  CreateBulkPermitDTO,
-  createBulkPermits,
-} from "@/api/server/permit/createBulkPermits";
-import { fetchUserReviewers } from "@/api/server/permit/fetchUserReviewers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,13 +19,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { PermitType, user } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
+import {
+  CreateBulkPermitDTO,
+  createBulkPermits,
+} from "@/server/permit/createBulkPermits";
+import { fetchUserReviewers } from "@/server/permit/fetchUserReviewers";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { PermitType, user } from "../../db";
 import { DatePicker } from "../custom/DatePicker";
 
 interface PermitFormValues {

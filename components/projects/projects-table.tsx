@@ -11,8 +11,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { deleteProject } from "@/api/server/project/deleteProject";
-import { Project } from "@/api/server/project/fetchAllProjects";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -30,13 +28,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { project } from "@/db";
+import { deleteProject } from "@/server/project/deleteProject";
+import { Project } from "@/server/project/fetchAllProjects";
 import { getProjectStatusBadge } from "@/utils/mapping";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { project } from "../../db";
 import { Card, CardContent } from "../ui/card";
 import AddProjectDialog from "./add-project-dialog";
 

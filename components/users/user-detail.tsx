@@ -1,8 +1,8 @@
 "use client";
 
-import { FindUserById } from "@/api/server/user/findUserById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { FindUserById } from "@/server/user/findUserById";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, Edit, Target } from "lucide-react";

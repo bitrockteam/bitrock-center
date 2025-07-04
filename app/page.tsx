@@ -4,4 +4,4 @@ export default function Home() {
   redirect("/dashboard");
 }
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";

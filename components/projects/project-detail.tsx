@@ -1,8 +1,5 @@
 "use client";
 
-import { UserAllocated } from "@/api/server/project/fetchAllocationsForProject";
-import { ProjectById } from "@/api/server/project/fetchProjectById";
-import { FindUsers } from "@/api/server/user/findUsers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +18,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { work_item_type } from "@/db";
+import { UserAllocated } from "@/server/project/fetchAllocationsForProject";
+import { ProjectById } from "@/server/project/fetchProjectById";
+import { FindUsers } from "@/server/user/findUsers";
 import { formatDisplayName } from "@/services/users/utils";
 import {
   getProjectStatusBadge,
@@ -40,7 +41,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { work_item_type } from "../../db";
 import AddProjectDialog from "./add-project-dialog";
 import { AddProjectMemberDialog } from "./add-project-member-dialog";
 

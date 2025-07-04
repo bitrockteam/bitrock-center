@@ -1,6 +1,5 @@
 "use client";
 
-import { WorkItem } from "@/api/server/work-item/fetchAllWorkItems";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,14 +30,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { work_item_type, work_items } from "@/db";
+import { GetAllClientsResponse } from "@/server/client/getAllClients";
+import { WorkItem } from "@/server/work-item/fetchAllWorkItems";
 import { motion } from "framer-motion";
 import { Clock, Edit, Euro, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { work_item_type, work_items } from "../../db";
 import AddWorkItemDialog from "./add-work-item-dialog";
 import WorkItemsHeader from "./work-items-header";
-import { GetAllClientsResponse } from "@/api/server/client/getAllClients";
 
 export default function WorkItemsTable({
   workItems,

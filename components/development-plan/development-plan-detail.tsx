@@ -1,6 +1,5 @@
 "use client";
 
-import { addTodoGoal } from "@/api/server/development-plan/addTodoGoal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +31,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
+import { todo_item } from "@/db";
+import { addGoal } from "@/server/development-plan/addGoal";
+import { addTodoGoal } from "@/server/development-plan/addTodoGoal";
+import { GetDevelopmentPlan } from "@/server/development-plan/getDevelopmentPlanById";
+import { removeGoal } from "@/server/development-plan/removeGoal";
+import { updateGoal } from "@/server/development-plan/updateGoal";
+import { updateTodoStatus } from "@/server/development-plan/updateTodoStatus";
 import { getGoalBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import {
@@ -46,12 +52,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { addGoal } from "../../api/server/development-plan/addGoal";
-import { GetDevelopmentPlan } from "../../api/server/development-plan/getDevelopmentPlanById";
-import { removeGoal } from "../../api/server/development-plan/removeGoal";
-import { updateGoal } from "../../api/server/development-plan/updateGoal";
-import { updateTodoStatus } from "../../api/server/development-plan/updateTodoStatus";
-import { todo_item } from "../../db";
 import { getGoalProgress, getGoalStatus } from "./utils";
 
 export default function DevelopmentPlanDetail({

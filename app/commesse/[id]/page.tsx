@@ -1,10 +1,10 @@
-import { fetchWorkItemById } from "@/api/server/work-item/fetchWorkItemById";
 import WorkItemDetail from "@/components/work-item/work-item-detail";
+import { fetchWorkItemById } from "@/server/work-item/fetchWorkItemById";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Dettaglio Commessa | Bitrock Hours",

@@ -1,4 +1,3 @@
-import { FindUserById } from "@/api/server/user/findUserById";
 import {
   getSeniorityLevelColor,
   getSeniorityLevelLabel,
@@ -12,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { FindUserById } from "@/server/user/findUserById";
 
 export default function UserDetailsSkills({ user }: { user: FindUserById }) {
   const hardSkills =

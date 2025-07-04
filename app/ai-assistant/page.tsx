@@ -1,9 +1,9 @@
-import { getChatSessions } from "@/api/server/ai/getChatSessions";
 import AIAssistant from "@/components/ai/ai-assistant";
+import { getChatSessions } from "@/server/ai/getChatSessions";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "AI Assistant | Bitrock Hours",

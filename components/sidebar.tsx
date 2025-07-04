@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { user } from "@/db";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
@@ -34,7 +35,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { user } from "../db";
 
 const navItems = [
   {

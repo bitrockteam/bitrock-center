@@ -2,17 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { confirmChatAction } from "@/api/server/ai/confirmChatAction";
-import { createNewChatSession } from "@/api/server/ai/createNewChatSession";
-import { deleteChatSession } from "@/api/server/ai/deleteChatSession";
-import { ChatSession } from "@/api/server/ai/getChatSessions";
-import { smartSearch } from "@/api/server/ai/service/service";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { message } from "@/db";
 import { cn } from "@/lib/utils";
+import { confirmChatAction } from "@/server/ai/confirmChatAction";
+import { createNewChatSession } from "@/server/ai/createNewChatSession";
+import { deleteChatSession } from "@/server/ai/deleteChatSession";
+import { ChatSession } from "@/server/ai/getChatSessions";
+import { smartSearch } from "@/server/ai/service/service";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bot,
@@ -27,7 +28,6 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { message } from "../../db";
 import { Switch } from "../ui/switch";
 import AiActionRecap from "./ai-action-recap";
 import BlobAnimation from "./blob-animation";

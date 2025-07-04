@@ -1,4 +1,4 @@
-import { FetchTeam } from "@/api/server/user/fetchMyTeam";
+import { FetchTeam } from "@/server/user/fetchMyTeam";
 import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { Mail } from "lucide-react";

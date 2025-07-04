@@ -1,7 +1,7 @@
 import ProjectPlan from "@/components/projects/project-plan";
 import type { Metadata } from "next";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Piano di Progetto | Bitrock Hours",

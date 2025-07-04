@@ -1,3 +1,4 @@
+import { SeniorityLevel } from "@/db";
 import {
   Brain,
   Clock,
@@ -26,7 +27,6 @@ import {
   Wifi,
   Zap,
 } from "lucide-react";
-import { SeniorityLevel } from "../../db";
 
 // Funzione per ottenere le icone disponibili per le skills
 export const getAvailableIcons = () => [

@@ -1,9 +1,5 @@
 "use client";
 
-import { getAllClients } from "@/api/server/client/getAllClients";
-import { findUsers } from "@/api/server/user/findUsers";
-import { createWorkItem } from "@/api/server/work-item/createWorkItem";
-import { updateWorkItem } from "@/api/server/work-item/updateWorkItem";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -31,7 +27,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { work_item_status, work_item_type } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
+import { getAllClients } from "@/server/client/getAllClients";
+import { findUsers } from "@/server/user/findUsers";
+import { createWorkItem } from "@/server/work-item/createWorkItem";
+import { updateWorkItem } from "@/server/work-item/updateWorkItem";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
@@ -39,7 +40,6 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { work_item_status, work_item_type } from "../../db";
 
 const workItemSchema = z
   .object({

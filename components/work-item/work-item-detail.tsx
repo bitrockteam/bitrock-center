@@ -1,6 +1,5 @@
 "use client";
 
-import { WorkItemById } from "@/api/server/work-item/fetchWorkItemById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { work_item_status, work_item_type } from "@/db";
+import { WorkItemById } from "@/server/work-item/fetchWorkItemById";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import {
@@ -33,7 +34,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { work_item_status, work_item_type } from "../../db";
 import AddWorkItemDialog from "./add-work-item-dialog";
 
 export default function WorkItemDetail({

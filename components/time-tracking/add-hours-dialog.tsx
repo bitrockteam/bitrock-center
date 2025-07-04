@@ -1,7 +1,5 @@
 "use client";
 
-import { fetchAllProjects } from "@/api/server/project/fetchAllProjects";
-import { addTimesheet } from "@/api/server/timesheet/addTimesheet";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,12 +26,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { timesheet, user } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
+import { fetchAllProjects } from "@/server/project/fetchAllProjects";
+import { addTimesheet } from "@/server/timesheet/addTimesheet";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { timesheet, user } from "../../db";
 
 const schema = z.object({
   date: z

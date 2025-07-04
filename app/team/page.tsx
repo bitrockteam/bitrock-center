@@ -1,10 +1,10 @@
-import { fetchTeam } from "@/api/server/user/fetchMyTeam";
-import { fetchMyTeam } from "@/api/server/user/fetchTeam";
 import { TeamMemberContainer } from "@/components/team/team-member-container";
+import { fetchTeam } from "@/server/user/fetchMyTeam";
+import { fetchMyTeam } from "@/server/user/fetchTeam";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { Metadata } from "next";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Consuntivazione | Bitrock Hours",

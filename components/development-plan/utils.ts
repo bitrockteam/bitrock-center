@@ -1,4 +1,4 @@
-import { GetDevelopmentPlan } from "../../api/server/development-plan/getDevelopmentPlanById";
+import { GetDevelopmentPlan } from "@/server/development-plan/getDevelopmentPlanById";
 
 export const getGoalProgress = (
   goal: GetDevelopmentPlan["goal"][number],

@@ -1,7 +1,5 @@
 "use client";
 
-import { Project } from "@/api/server/project/fetchAllProjects";
-import { UserTimesheet } from "@/api/server/timesheet/fetchUserTimesheet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -19,10 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { user } from "@/db";
+import { Project } from "@/server/project/fetchAllProjects";
+import { UserTimesheet } from "@/server/timesheet/fetchUserTimesheet";
 import { motion } from "framer-motion";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { user } from "../../db";
 import AddHoursDialog from "./add-hours-dialog";
 
 export default function TimeTrackingTable({

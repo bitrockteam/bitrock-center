@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { contract, contractstatus, contracttype } from "@/db";
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -25,7 +26,6 @@ import {
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
-import { contract, contractstatus, contracttype } from "../../db";
 import CloseContractDialog from "./close-contract-dialog";
 import EditContractDialog from "./edit-contract-dialog";
 

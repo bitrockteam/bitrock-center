@@ -1,9 +1,9 @@
-import { getDevelopmentPlanById } from "@/api/server/development-plan/getDevelopmentPlanById";
 import DevelopmentPlanDetail from "@/components/development-plan/development-plan-detail";
+import { getDevelopmentPlanById } from "@/server/development-plan/getDevelopmentPlanById";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Dettaglio Piano di Sviluppo | Bitrock Hours",

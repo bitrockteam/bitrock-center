@@ -1,10 +1,5 @@
 "use client";
 
-import { createNewSkill } from "@/api/server/skills/createNewSkill";
-import { deleteSkill } from "@/api/server/skills/deleteSkill";
-import { getSkillsCatalog } from "@/api/server/skills/getSkillsCatalog";
-import { toggleSkillActive } from "@/api/server/skills/toggleSkillActive";
-import { updateSkill } from "@/api/server/skills/updateSkill";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,7 +45,13 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { skill, SkillCategory } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
+import { createNewSkill } from "@/server/skills/createNewSkill";
+import { deleteSkill } from "@/server/skills/deleteSkill";
+import { getSkillsCatalog } from "@/server/skills/getSkillsCatalog";
+import { toggleSkillActive } from "@/server/skills/toggleSkillActive";
+import { updateSkill } from "@/server/skills/updateSkill";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
@@ -64,7 +65,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { skill, SkillCategory } from "../../db";
 import { getAvailableIcons, getSkillIcon } from "./utils";
 
 export default function SkillsAdminSection() {

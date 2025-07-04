@@ -1,8 +1,8 @@
 "use client";
-import { FetchTeam } from "@/api/server/user/fetchMyTeam";
-import { FetchMyTeam } from "@/api/server/user/fetchTeam";
+import { user } from "@/db";
+import { FetchTeam } from "@/server/user/fetchMyTeam";
+import { FetchMyTeam } from "@/server/user/fetchTeam";
 import { motion } from "framer-motion";
-import { user } from "../../db";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { TeamMemberCard } from "./team-member-card";
 

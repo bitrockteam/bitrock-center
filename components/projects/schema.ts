@@ -1,5 +1,5 @@
+import { ProjectStatus } from "@/db";
 import { z } from "zod";
-import { ProjectStatus } from "../../db";
 
 export const addProjectSchema = z.object({
   name: z.string({ required_error: "This field is required" }),

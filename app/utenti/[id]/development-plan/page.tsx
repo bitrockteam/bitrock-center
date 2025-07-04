@@ -1,8 +1,8 @@
-import { getEmployeeDevelopmentPlans } from "@/api/server/development-plan/getEmployeeDevelopmentPlans.ts";
 import DevelopmentPlanOverview from "@/components/development-plan/development-plan-overview";
+import { getEmployeeDevelopmentPlans } from "@/server/development-plan/getEmployeeDevelopmentPlans.ts";
 import type { Metadata } from "next";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Piano di Sviluppo | Bitrock Hours",

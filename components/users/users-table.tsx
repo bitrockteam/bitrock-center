@@ -11,13 +11,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { FindUsersWithProjects } from "@/api/server/user/findUsersWithProjects";
-import { updateUserRole } from "@/api/server/user/updateUserRole";
+import { Role, user } from "@/db";
+import { FindUsersWithProjects } from "@/server/user/findUsersWithProjects";
+import { updateUserRole } from "@/server/user/updateUserRole";
 import { canUserEdit, formatDisplayName } from "@/services/users/utils";
 import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Role, user } from "../../db";
 import {
   Select,
   SelectContent,

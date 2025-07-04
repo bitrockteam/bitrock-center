@@ -1,11 +1,11 @@
-import { fetchAllocationsForProject } from "@/api/server/project/fetchAllocationsForProject";
-import { fetchProjectById } from "@/api/server/project/fetchProjectById";
-import { findUsers } from "@/api/server/user/findUsers";
 import ProjectDetail from "@/components/projects/project-detail";
+import { fetchAllocationsForProject } from "@/server/project/fetchAllocationsForProject";
+import { fetchProjectById } from "@/server/project/fetchProjectById";
+import { findUsers } from "@/server/user/findUsers";
 import { allowRoles } from "@/services/users/server.utils";
 import type { Metadata } from "next";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Dettaglio Progetto | Bitrock Hours",

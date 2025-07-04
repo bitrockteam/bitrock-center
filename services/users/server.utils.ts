@@ -1,6 +1,6 @@
 "use server";
+import { Role } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
-import { Role } from "../../db";
 
 export async function allowRoles(roles: Role[]) {
   const user = await getUserInfoFromCookie();

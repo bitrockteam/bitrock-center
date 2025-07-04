@@ -1,5 +1,3 @@
-import { GetLatestEmployeeDevelopmentPlan } from "@/api/server/development-plan/getLatestEmployeeDevelopmentPlan";
-import { FindUserById } from "@/api/server/user/findUserById";
 import { getPlanProgress } from "@/components/development-plan/utils";
 import {
   getSeniorityLevelColor,
@@ -16,6 +14,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { GetLatestEmployeeDevelopmentPlan } from "@/server/development-plan/getLatestEmployeeDevelopmentPlan";
+import { FindUserById } from "@/server/user/findUserById";
 
 import { Award, Calendar, Mail, MapPin, Phone, Target } from "lucide-react";
 import { useRouter } from "next/navigation";

@@ -1,6 +1,5 @@
 "use client";
 
-import { UserPermit } from "@/api/server/permit/fetchUserPermits";
 import {
   Card,
   CardContent,
@@ -16,6 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PermitType } from "@/db";
+import { UserPermit } from "@/server/permit/fetchUserPermits";
 import { getStatusBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import {
@@ -25,7 +26,6 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { useState } from "react";
-import { PermitType } from "../../db";
 import { Button } from "../ui/button";
 import {
   Select,

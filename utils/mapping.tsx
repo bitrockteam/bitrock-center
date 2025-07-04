@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { PermitStatus, ProjectStatus, Role } from "../db";
+import { PermitStatus, ProjectStatus, Role } from "@/db";
 
 export const getStatusBadge = (status: PermitStatus) => {
   switch (status) {

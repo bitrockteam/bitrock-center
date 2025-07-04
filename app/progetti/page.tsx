@@ -1,10 +1,10 @@
-import { fetchAllProjects } from "@/api/server/project/fetchAllProjects";
 import ProjectsHeader from "@/components/projects/projects-header";
 import ProjectsTable from "@/components/projects/projects-table";
+import { fetchAllProjects } from "@/server/project/fetchAllProjects";
 import { allowRoles } from "@/services/users/server.utils";
 import type { Metadata } from "next";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Progetti | Bitrock Hours",

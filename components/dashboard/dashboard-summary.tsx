@@ -1,6 +1,6 @@
 "use client";
-import { UserStats } from "@/api/server/dashboard/fetchUserStats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UserStats } from "@/server/dashboard/fetchUserStats";
 import { motion } from "framer-motion";
 import { AlertCircle, Briefcase, Calendar, Clock } from "lucide-react";
 

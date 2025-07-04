@@ -1,6 +1,5 @@
 "use client";
 
-import { findClientById } from "@/api/server/client/findClientById";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,12 +18,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProjectStatus } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
+import { findClientById } from "@/server/client/findClientById";
 import { motion } from "framer-motion";
 import { ArrowLeft, Edit, Mail, MapPin, Phone, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ProjectStatus } from "../../db";
 import AddClientDialog from "./add-client-dialog";
 
 export default function ClientDetail({ id }: { id: string }) {

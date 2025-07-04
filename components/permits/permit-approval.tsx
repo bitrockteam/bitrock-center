@@ -1,7 +1,5 @@
 "use client";
 
-import { PermitByReviewer } from "@/api/server/permit/getPermitsByReviewer";
-import { updatePermitStatus } from "@/api/server/permit/updatePermitStatus";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,10 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PermitStatus, PermitType } from "@/db";
+import { PermitByReviewer } from "@/server/permit/getPermitsByReviewer";
+import { updatePermitStatus } from "@/server/permit/updatePermitStatus";
 import { getStatusBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { PermitStatus, PermitType } from "../../db";
 
 export default function PermitApprovalTable({
   permits,

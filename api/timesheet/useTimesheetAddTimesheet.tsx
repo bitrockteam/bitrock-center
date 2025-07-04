@@ -1,6 +1,6 @@
+import { timesheet } from "@/db";
+import { addTimesheet } from "@/server/timesheet/addTimesheet";
 import { useState } from "react";
-import { timesheet } from "../../db";
-import { addTimesheet } from "../server/timesheet/addTimesheet";
 
 export function useTimesheetAddTimesheet() {
   const [isLoading, setIsLoading] = useState(false);

@@ -1,10 +1,10 @@
-import { getAllClients } from "@/api/server/client/getAllClients";
-import { fetchAllWorkItems } from "@/api/server/work-item/fetchAllWorkItems";
 import WorkItemsTable from "@/components/work-item/work-items-table";
+import { getAllClients } from "@/server/client/getAllClients";
+import { fetchAllWorkItems } from "@/server/work-item/fetchAllWorkItems";
 import { allowRoles } from "@/services/users/server.utils";
 import type { Metadata } from "next";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Commesse | Bitrock Hours",

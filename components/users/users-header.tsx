@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { user } from "@/db";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { user } from "../../db";
 import AddUserDialog from "./add-user-dialog";
 
 export default function UsersHeader({

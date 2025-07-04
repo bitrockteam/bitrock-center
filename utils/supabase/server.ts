@@ -1,7 +1,7 @@
+import { user } from "@/db";
 import { createServerClient } from "@supabase/ssr";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
-import { user } from "../../db";
 
 export async function createClient() {
   const cookieStore = await cookies();

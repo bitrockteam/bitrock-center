@@ -1,12 +1,14 @@
 "use client";
 
-import { findUsers } from "@/api/server/user/findUsers";
-import { motion } from "framer-motion";
 import { useServerAction } from "@/hooks/useServerAction";
 import { cn } from "@/lib/utils";
+import { addUserToTeam } from "@/server/user/addUserToTeam";
+import { findUsers } from "@/server/user/findUsers";
+import { motion } from "framer-motion";
 import { Check, ChevronsUpDown, PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 import {
   Command,
@@ -26,8 +28,6 @@ import {
 } from "../ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { addUserToTeam } from "@/api/server/user/addUserToTeam";
-import { toast } from "sonner";
 
 export function AddDialogMemberTeam() {
   const [users, fetchUsers] = useServerAction(findUsers);

@@ -1,6 +1,5 @@
 "use client";
 
-import { GetAllClientsResponse } from "@/api/server/client/getAllClients";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GetAllClientsResponse } from "@/server/client/getAllClients";
 import { motion } from "framer-motion";
 import { Filter, PlusCircle, Search } from "lucide-react";
 import { useState } from "react";

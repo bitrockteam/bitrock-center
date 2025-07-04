@@ -1,4 +1,3 @@
-import { GetLatestEmployeeDevelopmentPlan } from "@/api/server/development-plan/getLatestEmployeeDevelopmentPlan";
 import {
   getGoalStatus,
   getPlanProgress,
@@ -12,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { GetLatestEmployeeDevelopmentPlan } from "@/server/development-plan/getLatestEmployeeDevelopmentPlan";
 import { getGoalBadge } from "@/utils/mapping";
 import { Target } from "lucide-react";
 import { useRouter } from "next/navigation";

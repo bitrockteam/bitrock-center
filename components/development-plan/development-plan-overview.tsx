@@ -1,7 +1,5 @@
 "use client";
 
-import { createNewDevelopmentPlan } from "@/api/server/development-plan/createNewDevelopmentPlan";
-import { GetEmployeeDevelopmentPlan } from "@/api/server/development-plan/getEmployeeDevelopmentPlans.ts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +10,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { createNewDevelopmentPlan } from "@/server/development-plan/createNewDevelopmentPlan";
+import { GetDevelopmentPlan } from "@/server/development-plan/getDevelopmentPlanById";
+import { GetEmployeeDevelopmentPlan } from "@/server/development-plan/getEmployeeDevelopmentPlans.ts";
 import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import {
@@ -25,7 +26,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { GetDevelopmentPlan } from "../../api/server/development-plan/getDevelopmentPlanById";
 import { getGoalProgress, getGoalStatus, getPlanProgress } from "./utils";
 
 export default function DevelopmentPlanOverview({

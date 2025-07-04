@@ -1,8 +1,5 @@
 "use client";
 
-import { createClient } from "@/api/server/client/createClient";
-import { FindClientByIdResponse } from "@/api/server/client/findClientById";
-import { updateClient } from "@/api/server/client/updateClient";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,6 +26,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { createClient } from "@/server/client/createClient";
+import { FindClientByIdResponse } from "@/server/client/findClientById";
+import { updateClient } from "@/server/client/updateClient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";

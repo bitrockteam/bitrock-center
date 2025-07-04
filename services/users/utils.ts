@@ -1,4 +1,4 @@
-import { Role, user } from "../../db";
+import { Role, user } from "@/db";
 
 export const getFirstnameAndLastname = (name?: string) => {
   if (!name) {
