@@ -2,7 +2,7 @@ import { getEmployeeDevelopmentPlans } from "@/api/server/development-plan/getEm
 import DevelopmentPlanOverview from "@/components/development-plan/development-plan-overview";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Piano di Sviluppo | Bitrock Hours",

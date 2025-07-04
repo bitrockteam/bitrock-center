@@ -5,7 +5,7 @@ import { allowRoles } from "@/services/users/server.utils";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export default async function UsersPage({
   searchParams,

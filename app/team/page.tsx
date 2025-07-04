@@ -4,7 +4,7 @@ import { TeamMemberContainer } from "@/components/team/team-member-container";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Consuntivazione | Bitrock Hours",

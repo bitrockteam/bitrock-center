@@ -1,7 +1,7 @@
 import ClientDetail from "@/components/client/client-detail";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Dettaglio Cliente | Bitrock Hours",

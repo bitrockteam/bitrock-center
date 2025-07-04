@@ -2,7 +2,7 @@ import { findUserById } from "@/api/server/user/findUserById";
 import UserDetail from "@/components/users/user-detail";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Dettaglio Utente | Bitrock Hours",

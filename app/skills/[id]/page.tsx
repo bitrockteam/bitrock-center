@@ -2,7 +2,7 @@ import { getEmployeeWithSkillsById } from "@/api/server/skills/getEmployeeWithSk
 import EmployeeSkillDetail from "@/components/skills/employee-skill-detail";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Competenze Dipendente | Bitrock Hours",

@@ -4,7 +4,7 @@ import ProjectsTable from "@/components/projects/projects-table";
 import { allowRoles } from "@/services/users/server.utils";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Progetti | Bitrock Hours",
