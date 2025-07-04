@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/table";
 
 import { FindUsersWithProjects } from "@/app/server-actions/user/findUsersWithProjects";
-import { updateUserRole } from "@/app/server-actions/user/updateUserRole";
 import { Role, user } from "@/db";
+import { useApi } from "@/hooks/useApi";
 import { canUserEdit, formatDisplayName } from "@/services/users/utils";
 import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
@@ -36,6 +36,7 @@ export default function UsersTable({
   user: user | null;
 }) {
   const router = useRouter();
+  const { callApi } = useApi();
 
   const handleViewUser = (id: string) => {
     router.push(`/utenti/${id}`);
@@ -93,11 +94,23 @@ export default function UsersTable({
                     {canUserEdit({ currentUser: user!, user: us }) ? (
                       <TableCell>
                         <Select
-                          onValueChange={(e) => {
+                          onValueChange={async (e) => {
                             const roleIdSelected = e as Role;
-                            updateUserRole(us.id, roleIdSelected).then(() =>
-                              refetch(),
-                            );
+                            try {
+                              await callApi("/api/user/updateRole", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                  userId: us.id,
+                                  role: roleIdSelected,
+                                }),
+                              });
+                              refetch();
+                            } catch (error) {
+                              console.error(
+                                "Failed to update user role:",
+                                error,
+                              );
+                            }
                           }}
                           value={us.role}
                         >
