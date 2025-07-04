@@ -1,0 +1,111 @@
+---
+globs: *.tsx,*.ts
+alwaysApply: false
+---
+
+# Rule Description
+
+## 1. Server Actions Must Not Be Called Directly from Client Components
+
+- **Anti-pattern:** Importing and calling server actions (e.g., from `app/server-actions/`) directly in client components.
+- **Required:** All server actions must be wrapped by API routes in `app/api/` and only called from the server or via HTTP from the client.
+
+### 2. API Route Wrapping
+
+- For every server action that needs to be called from the client:
+  - Create a corresponding API route in `app/api/feature/action/route.ts`.
+  - The API route should:
+    - Accept and validate input.
+    - Call the server action.
+    - Return a JSON response with either `{ success: true, data }` or `{ error: string }` and appropriate HTTP status.
+    - Handle and log errors robustly.
+
+### 3. Client-Side Data Fetching
+
+- **Pattern:** Use a custom hook (e.g., `useApi`) for all client-side API calls.
+- **Benefits:** Centralizes error/loading handling, ensures stable dependencies, and prevents infinite loops in React hooks.
+
+### 4. Type Safety
+
+- Always define and use TypeScript types for:
+  - API request/response payloads.
+  - Form data and server action parameters.
+- Never use `any`—infer types from server actions or Prisma models.
+
+### 5. Form and Data Validation
+
+- Use Zod or a similar schema for all form validation.
+- Use `.superRefine` for conditional validation (e.g., fields required only for certain types).
+- Ensure client-side and server-side validation match database constraints (e.g., check constraints).
+
+### 6. Date Handling
+
+- Always convert date strings from API responses to `Date` objects before using date methods.
+- Use helper functions (e.g., `safeDateString`) to safely format dates in components.
+
+### 7. Dropdowns and Selects
+
+- Never use an empty string as a value for `<SelectItem />` in dropdowns.
+- Use a placeholder for the empty state, or a non-empty value like `"none"` for "no selection".
+- For dependent selects (e.g., project list based on client), filter options based on the current selection and reset dependent fields when the parent changes.
+
+### 8. Error Handling and UX
+
+- Always provide user feedback for errors and successes (e.g., with toast notifications).
+- Show loading states for async actions.
+- Use early returns in functions for readability.
+
+### 9. Separation of Concerns
+
+- Keep business logic in server actions.
+- Keep HTTP and validation logic in API routes.
+- Keep UI and state logic in client components.
+
+### 10. Naming and Accessibility
+
+- Use descriptive variable and function names.
+- Use `handle` prefix for event handlers.
+- Add accessibility props to interactive elements (e.g., `aria-label`, `tabIndex`, keyboard handlers).
+
+---
+
+## Automated Steps (Pseudocode)
+
+1. **Scan for direct server action imports in client components.**
+   - If found, refactor to use an API route and a fetch hook.
+
+2. **For each server action used by the client:**
+   - Create or update an API route that wraps the server action.
+   - Add input validation and error handling.
+
+3. **Update all client components:**
+   - Replace direct server action calls with `useApi` or fetch logic.
+   - Ensure all API calls use typed payloads and responses.
+
+4. **Review all forms:**
+   - Ensure Zod validation matches both UI and DB constraints.
+   - Use `.superRefine` for conditional logic.
+
+5. **Check all date usages:**
+   - Wrap all date formatting in a safe conversion function.
+
+6. **Review all dropdowns:**
+   - Remove empty string values from `<SelectItem />`.
+   - Use placeholders and reset dependent selects on parent change.
+
+7. **Ensure all error/success states are handled with user feedback.**
+
+8. **Enforce naming, accessibility, and early return patterns.**
+
+---
+
+## Usage Patterns & Best Practices (Summary)
+
+- **Never call server actions directly from the client.**
+- **Always wrap server actions with API routes for client use.**
+- **Centralize client API calls in a custom hook.**
+- **Validate everything—on both client and server.**
+- **Match form logic to DB constraints.**
+- **Handle all errors and loading states gracefully.**
+- **Keep code DRY, readable, and accessible.**
+- **Use TypeScript everywhere.**
