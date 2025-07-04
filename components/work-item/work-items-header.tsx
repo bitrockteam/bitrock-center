@@ -19,11 +19,13 @@ import AddWorkItemDialog from "./add-work-item-dialog";
 interface WorkItemsHeaderProps {
   onClientFilter?: (clientId: string | null) => void;
   allClients: FindUsers[];
+  canCreateWorkItem?: boolean;
 }
 
 export default function WorkItemsHeader({
   onClientFilter,
   allClients,
+  canCreateWorkItem = false,
 }: WorkItemsHeaderProps) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const clients = allClients.filter((u) => u.role === Role.Key_Client);
@@ -68,12 +70,14 @@ export default function WorkItemsHeader({
             ))}
           </SelectContent>
         </Select>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Nuova Commessa
-          </Button>
-        </motion.div>
+        {canCreateWorkItem && (
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button onClick={() => setShowAddDialog(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Nuova Commessa
+            </Button>
+          </motion.div>
+        )}
       </div>
 
       <AddWorkItemDialog open={showAddDialog} onOpenChange={setShowAddDialog} />

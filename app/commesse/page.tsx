@@ -2,6 +2,7 @@ import { findUsers } from "@/api/server/user/findUsers";
 import { fetchAllWorkItems } from "@/api/server/work-item/fetchAllWorkItems";
 import WorkItemsTable from "@/components/work-item/work-items-table";
 import type { Metadata } from "next";
+import { allowRoles } from "@/services/users/server.utils";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +14,15 @@ export const metadata: Metadata = {
 export default async function WorkItemsPage() {
   const workItems = await fetchAllWorkItems();
   const allClients = await findUsers();
+  const isAdminOrSuperAdmin = await allowRoles(["Admin", "Super_Admin"]);
 
   return (
     <div className="space-y-6">
-      <WorkItemsTable workItems={workItems} allClients={allClients} />
+      <WorkItemsTable
+        workItems={workItems}
+        allClients={allClients}
+        isAdminOrSuperAdmin={isAdminOrSuperAdmin}
+      />
     </div>
   );
 }
