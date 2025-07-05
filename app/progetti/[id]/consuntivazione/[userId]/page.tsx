@@ -10,8 +10,8 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Dettaglio Progetto | Bitrock Hours",
-  description: "Visualizza i dettagli del progetto",
+  title: "Consuntivazione Utente | Bitrock Hours",
+  description: "Visualizza le ore lavorate dell'utente",
 };
 
 export default async function UserTimesheet({

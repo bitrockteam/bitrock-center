@@ -2,6 +2,17 @@
 
 import { Project } from "@/app/server-actions/project/fetchAllProjects";
 import { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,27 +36,32 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { timesheet, user } from "@/db";
+import { useTimesheetApi } from "@/hooks/useTimesheetApi";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import AddHoursDialog from "./add-hours-dialog";
 
 export default function TimeTrackingCalendar({
   user,
   projects,
-  timesheets,
+  timesheets: initialTimesheets,
   isReadyOnly = false,
+  onRefresh,
 }: {
   user: user;
   projects: Project[];
   timesheets: UserTimesheet[];
   isReadyOnly?: boolean;
+  onRefresh?: () => void;
 }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedProject, setSelectedProject] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editEntry, setEditEntry] = useState<timesheet | null>(null);
+  const [timesheets, setTimesheets] = useState(initialTimesheets);
+  const { deleteTimesheet, fetchTimesheets, loading } = useTimesheetApi();
 
   // Ottieni il primo giorno del mese
   const firstDayOfMonth = useMemo(() => {
@@ -87,61 +103,45 @@ export default function TimeTrackingCalendar({
     return result;
   }, [timesheets]);
 
-  // Calcola il totale delle ore per ogni giorno
-  const hoursPerDay = useMemo(() => {
-    const result: Record<string, number> = {};
+  // Filtra le voci per progetto selezionato
+  const filteredEntriesByDate = useMemo(() => {
+    if (selectedProject === "all") {
+      return entriesByDate;
+    }
 
-    Object.entries(entriesByDate).forEach(([date, entries]) => {
-      result[date] = entries.reduce((sum, entry) => sum + entry.hours, 0);
+    const result: Record<string, timesheet[]> = {};
+    Object.keys(entriesByDate).forEach((date) => {
+      const filteredEntries = entriesByDate[date].filter(
+        (entry) => entry.project_id === selectedProject,
+      );
+      if (filteredEntries.length > 0) {
+        result[date] = filteredEntries;
+      }
     });
 
     return result;
-  }, [entriesByDate]);
+  }, [entriesByDate, selectedProject]);
 
-  // Funzione per ottenere il nome del mese
-  const getMonthName = (date: Date) => {
-    return date.toLocaleString("it-IT", { month: "long" });
-  };
-
-  // Funzione per passare al mese precedente
-  const goToPreviousMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
-    );
-  };
-
-  // Funzione per passare al mese successivo
-  const goToNextMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
-    );
-  };
-
-  // Funzione per ottenere le voci di un giorno specifico
-
-  const getDataKey = (day: number) => {
-    return `${currentDate.getFullYear()}-${
-      currentDate.getMonth() + 1 < 10
-        ? `0${currentDate.getMonth() + 1}`
-        : currentDate.getMonth() + 1
-    }-${day < 10 ? `0${day}` : day}`;
-  };
-
+  // Ottieni le voci per un giorno specifico
   const getEntriesForDay = (day: number) => {
-    const dateKey = getDataKey(day);
-
-    return entriesByDate[dateKey] || [];
+    const date = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day,
+    );
+    const dateKey = date.toISOString().split("T")[0];
+    return filteredEntriesByDate[dateKey] || [];
   };
 
-  // Funzione per ottenere il totale delle ore di un giorno specifico
+  // Ottieni le ore totali per un giorno specifico
   const getHoursForDay = (day: number) => {
-    const dateKey = getDataKey(day);
-    return hoursPerDay[dateKey] || 0;
+    const entries = getEntriesForDay(day);
+    return entries.reduce((total, entry) => total + entry.hours, 0);
   };
 
-  // Funzione per ottenere il colore di sfondo in base alle ore lavorate
+  // Ottieni il colore di sfondo basato sulle ore
   const getBackgroundColor = (hours: number) => {
-    if (hours === 0) return "bg-transparent";
+    if (hours === 0) return "bg-background";
     if (hours < 4) return "bg-blue-100 dark:bg-blue-900/20";
     if (hours < 8) return "bg-blue-200 dark:bg-blue-900/40";
     return "bg-blue-300 dark:bg-blue-900/60";
@@ -163,6 +163,44 @@ export default function TimeTrackingCalendar({
   const handleEditEntry = (entry: timesheet) => {
     setEditEntry(entry);
     setShowAddDialog(true);
+  };
+
+  // Funzione per eliminare una voce esistente
+  const handleDeleteEntry = async (id: string) => {
+    try {
+      await deleteTimesheet(id);
+      if (onRefresh) {
+        onRefresh();
+      } else {
+        // Refresh internally if no onRefresh prop provided
+        try {
+          const updatedTimesheets = await fetchTimesheets();
+          if (updatedTimesheets && Array.isArray(updatedTimesheets)) {
+            setTimesheets(updatedTimesheets);
+          }
+        } catch (error) {
+          console.error("Error refreshing timesheets:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting timesheet:", error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    if (onRefresh) {
+      onRefresh();
+    } else {
+      // Refresh internally if no onRefresh prop provided
+      try {
+        const updatedTimesheets = await fetchTimesheets();
+        if (updatedTimesheets && Array.isArray(updatedTimesheets)) {
+          setTimesheets(updatedTimesheets);
+        }
+      } catch (error) {
+        console.error("Error refreshing timesheets:", error);
+      }
+    }
   };
 
   // Genera i giorni del calendario
@@ -189,7 +227,7 @@ export default function TimeTrackingCalendar({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, delay: 0.3 }}
     >
       <Card>
         <CardHeader>
@@ -197,45 +235,64 @@ export default function TimeTrackingCalendar({
             <div>
               <CardTitle>Calendario Ore</CardTitle>
               <CardDescription>
-                Visualizza e gestisci le ore lavorate
+                Visualizza le ore lavorate in formato calendario
               </CardDescription>
             </div>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+            <div className="flex items-center space-x-2">
               <Select
                 value={selectedProject}
                 onValueChange={setSelectedProject}
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Seleziona progetto" />
+                  <SelectValue placeholder="Filtra per progetto" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tutti i progetti</SelectItem>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name}
+                  {projects?.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={goToPreviousMonth}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="font-medium min-w-[120px] text-center">
-                  {getMonthName(currentDate).charAt(0).toUpperCase() +
-                    getMonthName(currentDate).slice(1)}{" "}
-                  {currentDate.getFullYear()}
-                </div>
-                <Button variant="outline" size="icon" onClick={goToNextMonth}>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
             </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() =>
+                setCurrentDate(
+                  new Date(
+                    currentDate.getFullYear(),
+                    currentDate.getMonth() - 1,
+                  ),
+                )
+              }
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <h3 className="text-lg font-medium">
+              {currentDate.toLocaleDateString("it-IT", {
+                month: "long",
+                year: "numeric",
+              })}
+            </h3>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() =>
+                setCurrentDate(
+                  new Date(
+                    currentDate.getFullYear(),
+                    currentDate.getMonth() + 1,
+                  ),
+                )
+              }
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -300,49 +357,116 @@ export default function TimeTrackingCalendar({
                       </Badge>
                     )}
                   </div>
+
+                  {/* Lista delle voci per questo giorno */}
                   <div className="mt-1 space-y-1">
                     {entries.slice(0, 2).map((entry, entryIndex) => (
                       <TooltipProvider key={entryIndex}>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div
-                              className={`text-xs px-1 py-0.5 rounded bg-background/80 dark:bg-background/80 truncate cursor-pointer`}
-                              onClick={() => handleEditEntry(entry)}
-                            >
-                              {
-                                projects.find((p) => p.id === entry.project_id)
-                                  ?.name
-                              }
-                              : {entry.hours}h
+                            <div className="flex items-center justify-between text-xs bg-background/80 rounded px-1 py-0.5">
+                              <span className="truncate">
+                                {
+                                  projects?.find(
+                                    (p) => p.id === entry.project_id,
+                                  )?.name
+                                }
+                              </span>
+                              <span className="font-medium">
+                                {entry.hours}h
+                              </span>
+                              {!isReadyOnly && (
+                                <div className="flex items-center space-x-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-4 w-4 p-0"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditEntry(entry);
+                                    }}
+                                  >
+                                    <Plus className="h-2 w-2" />
+                                  </Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-4 w-4 p-0"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <Trash2 className="h-2 w-2" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>
+                                          Conferma eliminazione
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Sei sicuro di voler eliminare questa
+                                          registrazione? Questa azione non può
+                                          essere annullata.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>
+                                          Annulla
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() =>
+                                            handleDeleteEntry(entry.id)
+                                          }
+                                          disabled={loading}
+                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        >
+                                          {loading
+                                            ? "Eliminazione..."
+                                            : "Elimina"}
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              )}
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p className="font-medium">
-                              {
-                                projects.find((p) => p.id === entry.project_id)
-                                  ?.name
-                              }
-                            </p>
-                            <p>Ore: {entry.hours}</p>
-                            <p>{entry.description}</p>
+                            <div>
+                              <p className="font-medium">
+                                {
+                                  projects?.find(
+                                    (p) => p.id === entry.project_id,
+                                  )?.name
+                                }
+                              </p>
+                              <p>{entry.hours} ore</p>
+                              {entry.description && (
+                                <p className="text-xs">{entry.description}</p>
+                              )}
+                            </div>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     ))}
                     {entries.length > 2 && (
-                      <div className="text-xs text-muted-foreground">
-                        +{entries.length - 2} altre voci
+                      <div className="text-xs text-muted-foreground text-center">
+                        +{entries.length - 2} altre
                       </div>
                     )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute bottom-1 right-1 h-6 w-6 opacity-0 hover:opacity-100 focus:opacity-100 bg-background/80 dark:bg-background/80"
-                    onClick={() => handleAddHours(day)}
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
+
+                  {!isReadyOnly && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute bottom-1 right-1 h-6 w-6 opacity-0 hover:opacity-100 focus:opacity-100 bg-background/80 dark:bg-background/80"
+                      onClick={() => handleAddHours(day)}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
               );
             })}
@@ -377,6 +501,7 @@ export default function TimeTrackingCalendar({
         onClose={() => {
           setEditEntry(null);
           setSelectedDate(null);
+          handleRefresh();
         }}
         user={user}
       />

@@ -18,6 +18,7 @@ export default async function TimeTrackingPage() {
   const user = await getUserInfoFromCookie();
   const projects = await fetchAllProjects();
   const timesheets = await fetchUserTimesheet();
+
   return (
     <div className="space-y-6">
       <TimeTrackingHeader user={user} />

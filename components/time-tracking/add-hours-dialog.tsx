@@ -1,7 +1,6 @@
 "use client";
 
 import { fetchAllProjects } from "@/app/server-actions/project/fetchAllProjects";
-import { addTimesheet } from "@/app/server-actions/timesheet/addTimesheet";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,6 +29,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { timesheet, user } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
+import { useTimesheetApi } from "@/hooks/useTimesheetApi";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -66,6 +66,7 @@ export default function AddHoursDialog({
   user,
 }: AddHoursDialogProps) {
   const [projects, fetchProjects] = useServerAction(fetchAllProjects);
+  const { createTimesheet, updateTimesheet, loading } = useTimesheetApi();
 
   useEffect(() => {
     if (!open) return;
@@ -85,9 +86,10 @@ export default function AddHoursDialog({
     if (editData) {
       form.reset({
         date: editData.date,
-        project_id: undefined,
+        project_id: editData.project_id,
         hours: editData.hours,
         description: editData.description,
+        user_id: editData.user_id,
       });
     } else if (defaultDate) {
       form.reset({
@@ -98,23 +100,35 @@ export default function AddHoursDialog({
   }, [editData, defaultDate, form]);
 
   const onSubmit = async () => {
-    // parse data to ensure it matches the expected type
-
     const parsedData = schema.safeParse(form.getValues());
     if (!parsedData.success) {
-      // Handle validation errors
       console.error("Validation failed", parsedData.error);
       return;
     }
 
-    await addTimesheet({
-      timesheet: parsedData.data as timesheet,
-    }).then(() => {
-      // Here you would normally save the data
+    try {
+      const timesheetData = {
+        ...parsedData.data,
+        description: parsedData.data.description || null,
+      };
+
+      if (editData?.id) {
+        // Update existing timesheet
+        await updateTimesheet({
+          id: editData.id,
+          ...timesheetData,
+        });
+      } else {
+        // Create new timesheet
+        await createTimesheet(timesheetData);
+      }
+
       onOpenChange(false);
       form.reset();
       if (onClose) onClose();
-    });
+    } catch (error) {
+      console.error("Error saving timesheet:", error);
+    }
   };
 
   const handleDialogClose = () => {
@@ -247,7 +261,9 @@ export default function AddHoursDialog({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button type="submit">{editData ? "Aggiorna" : "Salva"}</Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Salvataggio..." : editData ? "Aggiorna" : "Salva"}
+                </Button>
               </motion.div>
             </DialogFooter>
           </form>
