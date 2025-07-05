@@ -11,14 +11,14 @@ import AddHoursDialog from "./add-hours-dialog";
 export default function TimeTrackingHeader({
   user,
   isReadByAdmin = false,
-  userTimesheet = [],
+  userTimesheet,
 }: {
   user: user;
   isReadByAdmin?: boolean;
-  userTimesheet?: UserTimesheetById[];
+  userTimesheet?: UserTimesheetById;
 }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
-
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -30,7 +30,7 @@ export default function TimeTrackingHeader({
         <h1 className="text-3xl font-bold tracking-tight">Consuntivazione</h1>
         {isReadByAdmin ? (
           <p className="text-muted-foreground">
-            Visualizza le ore lavorate per {userTimesheet[0].user.name}
+            Visualizza le ore lavorate per {userTimesheet?.user?.name}
           </p>
         ) : (
           <p className="text-muted-foreground">Gestisci le tue ore lavorate</p>

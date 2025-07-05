@@ -41,7 +41,7 @@ export default async function UserTimesheet({
           <TimeTrackingTable
             user={user}
             projects={projects}
-            timesheets={userTimesheet}
+            timesheets={userTimesheet.timesheets}
             isReadOnly
           />
         </TabsContent>
@@ -49,7 +49,7 @@ export default async function UserTimesheet({
           <TimeTrackingCalendar
             user={user}
             projects={projects}
-            timesheets={userTimesheet}
+            timesheets={userTimesheet.timesheets}
             isReadyOnly
           />
         </TabsContent>
