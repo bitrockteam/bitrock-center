@@ -38,8 +38,10 @@ import AddWorkItemDialog from "./add-work-item-dialog";
 
 export default function WorkItemDetail({
   workItem,
+  isAdminOrSuperAdmin = false,
 }: {
   workItem: NonNullable<WorkItemById>;
+  isAdminOrSuperAdmin?: boolean;
 }) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -385,6 +387,7 @@ export default function WorkItemDetail({
       {workItem && (
         <AddWorkItemDialog
           open={showEditDialog}
+          isAdminOrSuperAdmin={isAdminOrSuperAdmin}
           onOpenChange={setShowEditDialog}
           editData={{
             title: workItem.title,
