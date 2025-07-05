@@ -7,7 +7,7 @@ const createTimesheetSchema = z.object({
   date: z.string().transform((val) => new Date(val)),
   project_id: z.string().uuid(),
   hours: z.number().min(0.5).max(24),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   user_id: z.string().uuid(),
 });
 
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const timesheet = await addTimesheet({
       timesheet: {
         ...validatedData.data,
-        description: validatedData.data.description || null,
+        description: validatedData.data.description ?? null,
       },
     });
 

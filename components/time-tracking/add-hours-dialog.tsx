@@ -44,7 +44,7 @@ const schema = z.object({
     ),
   project_id: z.string(),
   hours: z.number(),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   user_id: z.string().min(1, "L'utente è obbligatorio"),
 });
 
@@ -109,7 +109,7 @@ export default function AddHoursDialog({
     try {
       const timesheetData = {
         ...parsedData.data,
-        description: parsedData.data.description || null,
+        description: parsedData.data.description ?? null,
       };
 
       if (editData?.id) {
@@ -235,7 +235,7 @@ export default function AddHoursDialog({
                   <FormLabel>Descrizione</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Descrivi brevemente l'attività svolta"
+                      placeholder="Descrivi brevemente l'attività svolta (opzionale)"
                       {...field}
                       value={field.value || ""}
                       onChange={(e) => field.onChange(e.target.value)}

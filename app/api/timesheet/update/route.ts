@@ -11,7 +11,7 @@ const updateTimesheetSchema = z.object({
     .optional(),
   project_id: z.string().uuid().optional(),
   hours: z.number().min(0.5).max(24).optional(),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   user_id: z.string().uuid().optional(),
 });
 
@@ -41,7 +41,7 @@ export async function PUT(request: NextRequest) {
       id,
       timesheet: {
         ...updateData,
-        description: updateData.description || null,
+        description: updateData.description ?? null,
       },
     });
 
