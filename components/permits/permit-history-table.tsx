@@ -25,7 +25,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import {
+import React, {
   forwardRef,
   useCallback,
   useEffect,
@@ -54,18 +54,14 @@ type UserPermit = {
   };
 };
 
-interface PermitHistoryTableProps {
-  onRefresh?: () => void;
-}
-
 export interface PermitHistoryTableRef {
   refresh: () => void;
 }
 
 const PermitHistoryTable = forwardRef<
   PermitHistoryTableRef,
-  PermitHistoryTableProps
->(({ onRefresh }, ref) => {
+  React.ComponentPropsWithoutRef<"div">
+>((_, ref) => {
   const { data: permits, loading, error, callApi } = useApi<UserPermit[]>();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -85,13 +81,6 @@ const PermitHistoryTable = forwardRef<
   useEffect(() => {
     refreshPermits();
   }, [refreshPermits]);
-
-  // Expose refresh function to parent component via prop
-  useEffect(() => {
-    if (onRefresh) {
-      onRefresh = refreshPermits;
-    }
-  }, [onRefresh, refreshPermits]);
 
   if (loading) {
     return (

@@ -12,9 +12,9 @@ export const metadata: Metadata = {
 export default async function EmployeeSkillDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
 
   // Use environment variable or fallback to localhost
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";

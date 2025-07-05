@@ -14,9 +14,10 @@ export const metadata: Metadata = {
 export default async function WorkItemsPage({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: Promise<{ q?: string }>;
 }) {
-  const workItems = await fetchAllWorkItems(searchParams.q);
+  const { q } = await searchParams;
+  const workItems = await fetchAllWorkItems(q);
   const allClients = await getAllClients();
   const isAdminOrSuperAdmin = await allowRoles(["Admin", "Super_Admin"]);
 
