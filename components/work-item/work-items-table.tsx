@@ -273,16 +273,18 @@ export default function WorkItemsTable({
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>Modifica</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteWorkItem(item);
-                                }}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                <span>Elimina</span>
-                              </DropdownMenuItem>
+                              {isAdminOrSuperAdmin && (
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteWorkItem(item);
+                                  }}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  <span>Elimina</span>
+                                </DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -299,6 +301,7 @@ export default function WorkItemsTable({
         {editWorkItem && (
           <AddWorkItemDialog
             open={!!editWorkItem}
+            isAdminOrSuperAdmin={isAdminOrSuperAdmin}
             onOpenChange={(open) => !open && setEditWorkItem(null)}
             editData={
               editWorkItem

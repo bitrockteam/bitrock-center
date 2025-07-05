@@ -1,5 +1,6 @@
 import { fetchWorkItemById } from "@/app/server-actions/work-item/fetchWorkItemById";
 import WorkItemDetail from "@/components/work-item/work-item-detail";
+import { allowRoles } from "@/services/users/server.utils";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -17,6 +18,7 @@ export default async function WorkItemDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const isAdminOrSuperAdmin = await allowRoles(["Admin", "Super_Admin"]);
   const workItem = await fetchWorkItemById({ workItemId: id });
   if (!workItem) {
     return (
@@ -38,7 +40,7 @@ export default async function WorkItemDetailPage({
 
   return (
     <div className="space-y-6">
-      <WorkItemDetail workItem={workItem} />
+      <WorkItemDetail workItem={workItem} isAdminOrSuperAdmin={isAdminOrSuperAdmin}/>
     </div>
   );
 }
