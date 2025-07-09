@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const createTimesheetSchema = z.object({
   date: z.string().transform((val) => new Date(val)),
-  project_id: z.string().uuid(),
+  work_item_id: z.string().uuid(),
   hours: z.number().min(0.5).max(24),
   description: z.string().optional().nullable(),
   user_id: z.string().uuid(),

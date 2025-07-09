@@ -93,13 +93,13 @@ export default function WorkItemDetail({
   const project = workItem.project;
   const client = workItem.client;
 
-  const totalHours = workItem.project?.timesheet.reduce(
+  const totalHours = workItem.timesheet.reduce(
     (sum, entry) => sum + entry.hours,
     0,
   );
 
   const enabledUsers = workItem.work_item_enabled_users;
-  const timeEntries = workItem.project?.timesheet;
+  const timeEntries = workItem?.timesheet;
 
   return (
     <motion.div

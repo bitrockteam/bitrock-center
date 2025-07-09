@@ -53,22 +53,21 @@ model project {
   client_id   String        @db.Uuid
   allocation  allocation[]
   client      client        @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_client")
-  timesheet   timesheet[]
   work_items  work_items[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model timesheet {
-  created_at  DateTime @default(now()) @db.Timestamptz(6)
-  date        DateTime @db.Date
-  project_id  String   @db.Uuid
-  user_id     String   @db.Uuid
-  description String?  @db.VarChar
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  hours       Int      @db.SmallInt
-  project     project  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  user        user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  created_at   DateTime   @default(now()) @db.Timestamptz(6)
+  date         DateTime   @db.Date
+  user_id      String     @db.Uuid
+  description  String?    @db.VarChar
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  hours        Int        @db.SmallInt
+  work_item_id String     @db.Uuid
+  user         user       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  work_items   work_items @relation(fields: [work_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -184,6 +183,7 @@ model work_items {
   estimated_hours         Int?
   fixed_price             Int?
   created_at              DateTime?                 @default(now()) @db.Timestamptz(6)
+  timesheet               timesheet[]
   work_item_enabled_users work_item_enabled_users[]
   client                  client                    @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_work_items_client")
   project                 project?                  @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)

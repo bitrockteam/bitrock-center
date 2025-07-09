@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchAllProjects } from "@/app/server-actions/project/fetchAllProjects";
+import { fetchAllWorkItems } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,7 +42,7 @@ const schema = z.object({
       new Date("2020-01-01"),
       "La data deve essere successiva al 1 gennaio 2020",
     ),
-  project_id: z.string(),
+  work_item_id: z.string(),
   hours: z.number(),
   description: z.string().optional().nullable(),
   user_id: z.string().min(1, "L'utente è obbligatorio"),
@@ -65,13 +65,13 @@ export default function AddHoursDialog({
   onClose,
   user,
 }: AddHoursDialogProps) {
-  const [projects, fetchProjects] = useServerAction(fetchAllProjects);
+  const [work_items, fetchWorkItems] = useServerAction(fetchAllWorkItems);
   const { createTimesheet, updateTimesheet, loading } = useTimesheetApi();
 
   useEffect(() => {
     if (!open) return;
-    fetchProjects();
-  }, [fetchProjects, open]);
+    fetchWorkItems();
+  }, [fetchWorkItems, open]);
 
   const form = useForm<Partial<timesheet>>({
     defaultValues: {
@@ -86,7 +86,7 @@ export default function AddHoursDialog({
     if (editData) {
       form.reset({
         date: editData.date,
-        project_id: editData.project_id,
+        work_item_id: editData.work_item_id,
         hours: editData.hours,
         description: editData.description,
         user_id: editData.user_id,
@@ -177,10 +177,10 @@ export default function AddHoursDialog({
 
             <FormField
               control={form.control}
-              name="project_id"
+              name="work_item_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Progetto</FormLabel>
+                  <FormLabel>Commessa</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -188,13 +188,13 @@ export default function AddHoursDialog({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleziona un progetto" />
+                        <SelectValue placeholder="Seleziona una commessa" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {projects?.map((project) => (
-                        <SelectItem key={project.id} value={project.id}>
-                          {project.name}
+                      {work_items?.map((item) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.title}
                         </SelectItem>
                       ))}
                     </SelectContent>

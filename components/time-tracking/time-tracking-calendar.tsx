@@ -1,7 +1,7 @@
 "use client";
 
-import { Project } from "@/app/server-actions/project/fetchAllProjects";
 import { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
+import { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,13 +44,13 @@ import AddHoursDialog from "./add-hours-dialog";
 
 export default function TimeTrackingCalendar({
   user,
-  projects,
+  work_items,
   timesheets: initialTimesheets,
   isReadyOnly = false,
   onRefresh,
 }: {
   user: user;
-  projects: Project[];
+  work_items: WorkItem[];
   timesheets: UserTimesheet[];
   isReadyOnly?: boolean;
   onRefresh?: () => void;
@@ -112,7 +112,7 @@ export default function TimeTrackingCalendar({
     const result: Record<string, timesheet[]> = {};
     Object.keys(entriesByDate).forEach((date) => {
       const filteredEntries = entriesByDate[date].filter(
-        (entry) => entry.project_id === selectedProject,
+        (entry) => entry.work_item_id === selectedProject,
       );
       if (filteredEntries.length > 0) {
         result[date] = filteredEntries;
@@ -248,9 +248,9 @@ export default function TimeTrackingCalendar({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tutti i progetti</SelectItem>
-                  {projects?.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.name}
+                  {work_items?.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -367,9 +367,9 @@ export default function TimeTrackingCalendar({
                             <div className="flex items-center justify-between text-xs bg-background/80 rounded px-1 py-0.5">
                               <span className="truncate">
                                 {
-                                  projects?.find(
-                                    (p) => p.id === entry.project_id,
-                                  )?.name
+                                  work_items?.find(
+                                    (p) => p.id === entry.work_item_id,
+                                  )?.title
                                 }
                               </span>
                               <span className="font-medium">
@@ -436,9 +436,9 @@ export default function TimeTrackingCalendar({
                             <div>
                               <p className="font-medium">
                                 {
-                                  projects?.find(
-                                    (p) => p.id === entry.project_id,
-                                  )?.name
+                                  work_items?.find(
+                                    (p) => p.id === entry.work_item_id,
+                                  )?.title
                                 }
                               </p>
                               <p>{entry.hours} ore</p>

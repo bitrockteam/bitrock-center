@@ -15,16 +15,13 @@ export async function fetchWorkItemById({
           user: true,
         },
       },
-      project: {
+      project: true,
+      client: true,
+      timesheet: {
         include: {
-          timesheet: {
-            include: {
-              user: true,
-            },
-          },
+          user: true,
         },
       },
-      client: true,
     },
   });
 }

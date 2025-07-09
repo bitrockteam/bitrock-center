@@ -1,7 +1,7 @@
 "use client";
 
-import { Project } from "@/app/server-actions/project/fetchAllProjects";
 import { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
+import { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,13 +39,13 @@ import AddHoursDialog from "./add-hours-dialog";
 
 export default function TimeTrackingTable({
   user,
-  projects,
+  work_items,
   timesheets: initialTimesheets,
   isReadOnly = false,
   onRefresh,
 }: {
   user: user;
-  projects: Project[];
+  work_items: WorkItem[];
   timesheets: UserTimesheet[];
   isReadOnly?: boolean;
   onRefresh?: () => void;
@@ -121,9 +121,9 @@ export default function TimeTrackingTable({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tutti i progetti</SelectItem>
-                  {projects?.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name}
+                  {work_items?.map((w) => (
+                    <SelectItem key={w.id} value={w.id}>
+                      {w.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -162,7 +162,10 @@ export default function TimeTrackingTable({
                       </TableCell>
 
                       <TableCell>
-                        {projects?.find((p) => p.id === entry.project_id)?.name}
+                        {
+                          work_items?.find((w) => w.id === entry.work_item_id)
+                            ?.title
+                        }
                       </TableCell>
                       <TableCell>{entry.hours}</TableCell>
                       <TableCell className="max-w-[200px] truncate">

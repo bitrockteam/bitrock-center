@@ -1,5 +1,5 @@
-import { fetchAllProjects } from "@/app/server-actions/project/fetchAllProjects";
 import { fetchUserTimesheetById } from "@/app/server-actions/timesheet/fetchUserTimesheetById";
+import { fetchAllWorkItems } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import TimeTrackingCalendar from "@/components/time-tracking/time-tracking-calendar";
 import TimeTrackingHeader from "@/components/time-tracking/time-tracking-header";
 import TimeTrackingTable from "@/components/time-tracking/time-tracking-table";
@@ -22,7 +22,7 @@ export default async function UserTimesheet({
   const { userId } = await params;
   const user = await getUserInfoFromCookie();
   const userTimesheet = await fetchUserTimesheetById(userId);
-  const projects = await fetchAllProjects();
+  const work_items = await fetchAllWorkItems();
 
   return (
     <div className="space-y-6">
@@ -40,7 +40,7 @@ export default async function UserTimesheet({
         <TabsContent value="table">
           <TimeTrackingTable
             user={user}
-            projects={projects}
+            work_items={work_items}
             timesheets={userTimesheet.timesheets}
             isReadOnly
           />
@@ -48,7 +48,7 @@ export default async function UserTimesheet({
         <TabsContent value="calendar">
           <TimeTrackingCalendar
             user={user}
-            projects={projects}
+            work_items={work_items}
             timesheets={userTimesheet.timesheets}
             isReadyOnly
           />

@@ -1,4 +1,3 @@
-import { fetchAllProjects } from "@/app/server-actions/project/fetchAllProjects";
 import { fetchUserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
 import TimeTrackingCalendar from "@/components/time-tracking/time-tracking-calendar";
 import TimeTrackingHeader from "@/components/time-tracking/time-tracking-header";
@@ -6,6 +5,7 @@ import TimeTrackingTable from "@/components/time-tracking/time-tracking-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
+import { fetchAllWorkItems } from "../server-actions/work-item/fetchAllWorkItems";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default async function TimeTrackingPage() {
   const user = await getUserInfoFromCookie();
-  const projects = await fetchAllProjects();
+  const workItems = await fetchAllWorkItems();
   const timesheets = await fetchUserTimesheet();
 
   return (
@@ -31,14 +31,14 @@ export default async function TimeTrackingPage() {
         <TabsContent value="table">
           <TimeTrackingTable
             user={user}
-            projects={projects}
+            work_items={workItems}
             timesheets={timesheets}
           />
         </TabsContent>
         <TabsContent value="calendar">
           <TimeTrackingCalendar
             user={user}
-            projects={projects}
+            work_items={workItems}
             timesheets={timesheets}
           />
         </TabsContent>
