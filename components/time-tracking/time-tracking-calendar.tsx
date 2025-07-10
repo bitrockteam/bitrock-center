@@ -42,6 +42,12 @@ import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import AddHoursDialog from "./add-hours-dialog";
 
+// Helper to get local date string in YYYY-MM-DD format
+const getLocalDateString = (date: Date) =>
+  `${date.getFullYear()}-${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+
 export default function TimeTrackingCalendar({
   user,
   work_items,
@@ -93,7 +99,7 @@ export default function TimeTrackingCalendar({
     const result: Record<string, timesheet[]> = {};
 
     timesheets.forEach((entry) => {
-      const date = new Date(entry.date).toISOString().split("T")[0];
+      const date = getLocalDateString(new Date(entry.date));
       if (!result[date]) {
         result[date] = [];
       }
@@ -129,7 +135,7 @@ export default function TimeTrackingCalendar({
       currentDate.getMonth(),
       day,
     );
-    const dateKey = date.toISOString().split("T")[0];
+    const dateKey = getLocalDateString(date);
     return filteredEntriesByDate[dateKey] || [];
   };
 
@@ -154,7 +160,7 @@ export default function TimeTrackingCalendar({
       currentDate.getMonth(),
       day,
     );
-    const dateKey = date.toISOString().split("T")[0];
+    const dateKey = getLocalDateString(date);
     setSelectedDate(dateKey);
     setShowAddDialog(true);
   };
