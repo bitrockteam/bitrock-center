@@ -167,7 +167,7 @@ export default function TimeTrackingCalendar({
 
   // Funzione per modificare una voce esistente
   const handleEditEntry = (entry: timesheet) => {
-    setEditEntry(entry);
+    setEditEntry({ ...entry, date: new Date(entry.date) });
     setShowAddDialog(true);
   };
 
