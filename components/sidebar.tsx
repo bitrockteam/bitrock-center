@@ -35,6 +35,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const navItems = [
   {
@@ -103,7 +104,12 @@ export default function Sidebar({ user }: { user: user }) {
         animate={{ width: collapsed ? 64 : 256 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <div className="p-4 flex justify-between items-center">
+        <div
+          className={cn(
+            "flex items-center",
+            collapsed ? "py-4 justify-center" : "p-4 justify-between",
+          )}
+        >
           {!collapsed && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -134,11 +140,16 @@ export default function Sidebar({ user }: { user: user }) {
                       pathname.startsWith(item.href) ? "secondary" : "ghost"
                     }
                     className={cn(
-                      "w-full justify-start",
-                      collapsed ? "px-2" : "px-4",
+                      "w-full",
+                      collapsed ? "px-2 justify-center" : "px-4 justify-start",
                     )}
                   >
-                    <item.icon className="h-5 w-5 mr-2" />
+                    <item.icon
+                      className={cn(
+                        "h-5 w-5",
+                        collapsed ? "flex justify-center" : "mr-2",
+                      )}
+                    />
                     {!collapsed && <span>{item.title}</span>}
                   </Button>
                 </Link>
@@ -146,23 +157,39 @@ export default function Sidebar({ user }: { user: user }) {
             ))}
           </ul>
         </nav>
-
-        <div className="p-4 border-t">
+        <div className={cn("border-t", collapsed ? "py-4" : "p-4")}>
           <div className="flex items-center justify-between">
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="p-1.5">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                    <AvatarFallback>
-                      {user.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  {!collapsed && (
-                    <span className="ml-2 text-sm font-medium">
-                      {user.name || "Utente"}
-                    </span>
-                  )}
+              <DropdownMenuTrigger
+                className={!collapsed ? "p-0" : "p-auto"}
+                asChild
+              >
+                <Button variant="ghost">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage
+                          src={
+                            user.avatar_url ||
+                            "/placeholder.svg?height=32&width=32"
+                          }
+                          alt="user avatar"
+                        />
+                        <AvatarFallback>
+                          {user.name
+                            .trim()
+                            .split(" ")
+                            .map((l) => l[0].toUpperCase())
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <span className="ml-2 text-sm font-medium">
+                        {user.name || "Utente"}
+                      </span>
+                    </TooltipContent>
+                  </Tooltip>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -187,7 +214,6 @@ export default function Sidebar({ user }: { user: user }) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
             {!collapsed && <ModeToggle />}
           </div>
         </div>
