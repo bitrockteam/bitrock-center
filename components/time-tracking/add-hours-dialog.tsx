@@ -1,7 +1,6 @@
 "use client";
 
-import { fetchAllProjects } from "@/app/server-actions/project/fetchAllProjects";
-import { addTimesheet } from "@/app/server-actions/timesheet/addTimesheet";
+import { fetchAllWorkItems } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,6 +29,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { timesheet, user } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
+import { useTimesheetApi } from "@/hooks/useTimesheetApi";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -42,9 +42,9 @@ const schema = z.object({
       new Date("2020-01-01"),
       "La data deve essere successiva al 1 gennaio 2020",
     ),
-  project_id: z.string(),
+  work_item_id: z.string(),
   hours: z.number(),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   user_id: z.string().min(1, "L'utente è obbligatorio"),
 });
 
@@ -65,12 +65,13 @@ export default function AddHoursDialog({
   onClose,
   user,
 }: AddHoursDialogProps) {
-  const [projects, fetchProjects] = useServerAction(fetchAllProjects);
+  const [work_items, fetchWorkItems] = useServerAction(fetchAllWorkItems);
+  const { createTimesheet, updateTimesheet, loading } = useTimesheetApi();
 
   useEffect(() => {
     if (!open) return;
-    fetchProjects();
-  }, [fetchProjects, open]);
+    fetchWorkItems();
+  }, [fetchWorkItems, open]);
 
   const form = useForm<Partial<timesheet>>({
     defaultValues: {
@@ -85,9 +86,10 @@ export default function AddHoursDialog({
     if (editData) {
       form.reset({
         date: editData.date,
-        project_id: undefined,
+        work_item_id: editData.work_item_id,
         hours: editData.hours,
         description: editData.description,
+        user_id: editData.user_id,
       });
     } else if (defaultDate) {
       form.reset({
@@ -98,23 +100,35 @@ export default function AddHoursDialog({
   }, [editData, defaultDate, form]);
 
   const onSubmit = async () => {
-    // parse data to ensure it matches the expected type
-
     const parsedData = schema.safeParse(form.getValues());
     if (!parsedData.success) {
-      // Handle validation errors
       console.error("Validation failed", parsedData.error);
       return;
     }
 
-    await addTimesheet({
-      timesheet: parsedData.data as timesheet,
-    }).then(() => {
-      // Here you would normally save the data
+    try {
+      const timesheetData = {
+        ...parsedData.data,
+        description: parsedData.data.description ?? null,
+      };
+
+      if (editData?.id) {
+        // Update existing timesheet
+        await updateTimesheet({
+          id: editData.id,
+          ...timesheetData,
+        });
+      } else {
+        // Create new timesheet
+        await createTimesheet(timesheetData);
+      }
+
       onOpenChange(false);
       form.reset();
       if (onClose) onClose();
-    });
+    } catch (error) {
+      console.error("Error saving timesheet:", error);
+    }
   };
 
   const handleDialogClose = () => {
@@ -163,10 +177,10 @@ export default function AddHoursDialog({
 
             <FormField
               control={form.control}
-              name="project_id"
+              name="work_item_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Progetto</FormLabel>
+                  <FormLabel>Commessa</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -174,13 +188,13 @@ export default function AddHoursDialog({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleziona un progetto" />
+                        <SelectValue placeholder="Seleziona una commessa" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {projects?.map((project) => (
-                        <SelectItem key={project.id} value={project.id}>
-                          {project.name}
+                      {work_items?.map((item) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.title}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -221,7 +235,7 @@ export default function AddHoursDialog({
                   <FormLabel>Descrizione</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Descrivi brevemente l'attività svolta"
+                      placeholder="Descrivi brevemente l'attività svolta (opzionale)"
                       {...field}
                       value={field.value || ""}
                       onChange={(e) => field.onChange(e.target.value)}
@@ -247,7 +261,9 @@ export default function AddHoursDialog({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button type="submit">{editData ? "Aggiorna" : "Salva"}</Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Salvataggio..." : editData ? "Aggiorna" : "Salva"}
+                </Button>
               </motion.div>
             </DialogFooter>
           </form>

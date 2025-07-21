@@ -1,7 +1,5 @@
 "use client";
 
-import { getEmployeesWithSkills } from "@/app/server-actions/skills/getEmployeesWithSkills";
-import { getSkillsCatalog } from "@/app/server-actions/skills/getSkillsCatalog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,7 +18,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { SeniorityLevel } from "@/db";
-import { useServerAction } from "@/hooks/useServerAction";
+import {
+  skillsApi,
+  useEmployeesWithSkills,
+  useSkillsCatalog,
+  type EmployeeWithSkills,
+  type Skill,
+} from "@/hooks/useSkillsApi";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { Eye, Filter, Search, X } from "lucide-react";
@@ -41,12 +45,12 @@ export default function EmployeesSkillsList() {
   >([]);
   const [showFilters, setShowFilters] = useState(false);
 
-  const [employees, fetchEmployees] = useServerAction(getEmployeesWithSkills);
-  const [skillsCatalog, fetchSkillsCatalog] = useServerAction(getSkillsCatalog); // Solo skills attive
+  const employeesApi = useEmployeesWithSkills();
+  const skillsCatalogApi = useSkillsCatalog();
 
   // Filtra i dipendenti in base ai criteri
   const filteredEmployees = useMemo(() => {
-    return employees?.filter((employee) => {
+    return employeesApi.data?.filter((employee: EmployeeWithSkills) => {
       // Filtro per nome
       const nameMatch = `${employee.name}`
         .toLowerCase()
@@ -74,7 +78,7 @@ export default function EmployeesSkillsList() {
 
       return nameMatch && skillsMatch && seniorityMatch;
     });
-  }, [employees, searchTerm, selectedSkills, selectedSeniorityLevels]);
+  }, [employeesApi.data, searchTerm, selectedSkills, selectedSeniorityLevels]);
 
   const handleSkillToggle = (skillId: string) => {
     setSelectedSkills((prev) =>
@@ -101,8 +105,14 @@ export default function EmployeesSkillsList() {
     selectedSeniorityLevels.length > 0 ||
     searchTerm;
 
-  useEffect(() => fetchSkillsCatalog(), [fetchSkillsCatalog]);
-  useEffect(() => fetchEmployees(), [fetchEmployees]);
+  useEffect(() => {
+    skillsApi.fetchSkillsCatalog(skillsCatalogApi);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    skillsApi.fetchEmployeesWithSkills(employeesApi);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -115,7 +125,8 @@ export default function EmployeesSkillsList() {
             <div>
               <CardTitle>Dipendenti e Competenze</CardTitle>
               <CardDescription>
-                {filteredEmployees?.length} di {employees?.length} dipendenti
+                {filteredEmployees?.length} di {employeesApi.data?.length}{" "}
+                dipendenti
               </CardDescription>
             </div>
 
@@ -163,7 +174,7 @@ export default function EmployeesSkillsList() {
                     <div>
                       <label className="text-sm font-medium">Competenze</label>
                       <div className="mt-2 max-h-40 overflow-y-auto space-y-2">
-                        {skillsCatalog?.map((skill) => {
+                        {skillsCatalogApi.data?.map((skill: Skill) => {
                           const LucideIcon = getSkillIcon(skill.icon);
                           return (
                             <div
@@ -233,7 +244,9 @@ export default function EmployeesSkillsList() {
           {hasActiveFilters && (
             <div className="flex flex-wrap gap-2">
               {selectedSkills.map((skillId) => {
-                const skill = skillsCatalog?.find((s) => s.id === skillId);
+                const skill = skillsCatalogApi.data?.find(
+                  (s: Skill) => s.id === skillId,
+                );
                 const LucideIcon = getSkillIcon(skill?.icon);
                 return skill ? (
                   <Badge

@@ -1,7 +1,18 @@
 "use client";
 
-import { Project } from "@/app/server-actions/project/fetchAllProjects";
 import { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
+import { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -20,6 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { user } from "@/db";
+import { useTimesheetApi } from "@/hooks/useTimesheetApi";
 import { motion } from "framer-motion";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -27,19 +39,59 @@ import AddHoursDialog from "./add-hours-dialog";
 
 export default function TimeTrackingTable({
   user,
-  projects,
-  timesheets,
+  work_items,
+  timesheets: initialTimesheets,
   isReadOnly = false,
+  onRefresh,
 }: {
   user: user;
-  projects: Project[];
+  work_items: WorkItem[];
   timesheets: UserTimesheet[];
   isReadOnly?: boolean;
+  onRefresh?: () => void;
 }) {
   const [month, setMonth] = useState("current");
   const [project, setProject] = useState("all");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [editEntry, setEditEntry] = useState<any>(null);
+  const [editEntry, setEditEntry] = useState<UserTimesheet | null>(null);
+  const [timesheets, setTimesheets] = useState(initialTimesheets);
+  const { deleteTimesheet, fetchTimesheets, loading } = useTimesheetApi();
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTimesheet(id);
+      if (onRefresh) {
+        onRefresh();
+      } else {
+        // Refresh internally if no onRefresh prop provided
+        try {
+          const updatedTimesheets = await fetchTimesheets();
+          if (updatedTimesheets && Array.isArray(updatedTimesheets)) {
+            setTimesheets(updatedTimesheets);
+          }
+        } catch (error) {
+          console.error("Error refreshing timesheets:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting timesheet:", error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    if (onRefresh) {
+      onRefresh();
+    } else {
+      // Refresh internally if no onRefresh prop provided
+      try {
+        const updatedTimesheets = await fetchTimesheets();
+        if (updatedTimesheets && Array.isArray(updatedTimesheets)) {
+          setTimesheets(updatedTimesheets);
+        }
+      } catch (error) {
+        console.error("Error refreshing timesheets:", error);
+      }
+    }
+  };
 
   return (
     <motion.div
@@ -69,9 +121,9 @@ export default function TimeTrackingTable({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tutti i progetti</SelectItem>
-                  {projects?.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name}
+                  {work_items?.map((w) => (
+                    <SelectItem key={w.id} value={w.id}>
+                      {w.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -79,7 +131,7 @@ export default function TimeTrackingTable({
             </div>
           </div>
 
-          <div className="rounded-md border">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -96,7 +148,7 @@ export default function TimeTrackingTable({
                 {timesheets?.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={isReadOnly ? 4 : 5}
                       className="text-center py-6 text-muted-foreground"
                     >
                       Nessuna registrazione trovata
@@ -110,7 +162,10 @@ export default function TimeTrackingTable({
                       </TableCell>
 
                       <TableCell>
-                        {projects?.find((p) => p.id === entry.project_id)?.name}
+                        {
+                          work_items?.find((w) => w.id === entry.work_item_id)
+                            ?.title
+                        }
                       </TableCell>
                       <TableCell>{entry.hours}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
@@ -126,9 +181,35 @@ export default function TimeTrackingTable({
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Conferma eliminazione
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Sei sicuro di voler eliminare questa
+                                    registrazione? Questa azione non può essere
+                                    annullata.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDelete(entry.id)}
+                                    disabled={loading}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    {loading ? "Eliminazione..." : "Elimina"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </TableCell>
                       )}
@@ -147,6 +228,10 @@ export default function TimeTrackingTable({
           onOpenChange={(open) => !open && setEditEntry(null)}
           editData={editEntry}
           user={user}
+          onClose={() => {
+            setEditEntry(null);
+            handleRefresh();
+          }}
         />
       )}
     </motion.div>

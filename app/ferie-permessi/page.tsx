@@ -1,10 +1,8 @@
-import PermitRequestForm from "@/components/permits/permit-form";
+import PermitContainer from "@/components/permits/permit-container";
 import PermitHeader from "@/components/permits/permit-header";
 import { allowRoles } from "@/services/users/server.utils";
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import PermitApproval from "./permit-approval";
-import PermitHistory from "./permit-history";
 
 export const dynamic = "force-dynamic";
 
@@ -24,21 +22,8 @@ export default async function LeavePage() {
   return (
     <div className="space-y-6">
       <PermitHeader />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <PermitRequestForm />
-        </div>
-        <div className="lg:col-span-2">
-          <Suspense fallback={<div className="h-96">Loading...</div>}>
-            <PermitHistory />
-          </Suspense>
-        </div>
-        {isReferent && (
-          <div className="lg:col-span-3">
-            <PermitApproval />
-          </div>
-        )}
-      </div>
+      <PermitContainer />
+      {isReferent && <PermitApproval />}
     </div>
   );
 }

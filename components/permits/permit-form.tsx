@@ -1,10 +1,5 @@
 "use client";
 
-import {
-  CreateBulkPermitDTO,
-  createBulkPermits,
-} from "@/app/server-actions/permit/createBulkPermits";
-import { fetchUserReviewers } from "@/app/server-actions/permit/fetchUserReviewers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -25,13 +20,21 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { PermitType, user } from "@/db";
-import { useServerAction } from "@/hooks/useServerAction";
+import { useApi } from "@/hooks/useApi";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { DatePicker } from "../custom/DatePicker";
+
+type CreateBulkPermitDTO = Array<{
+  type: PermitType;
+  date: Date;
+  duration: number;
+  description: string;
+  reviewer_id: string;
+}>;
 
 interface PermitFormValues {
   type: string;
@@ -41,11 +44,19 @@ interface PermitFormValues {
   description: string;
 }
 
-export default function PermitRequestForm() {
-  const [errorMessage, setErrorMessage] = useState("");
-  const [reviewers, fetchReviewers] = useServerAction(fetchUserReviewers);
-  console.log({ reviewers });
+interface PermitRequestFormProps {
+  onPermitCreated?: () => void;
+}
 
+export default function PermitRequestForm({
+  onPermitCreated,
+}: PermitRequestFormProps) {
+  const [errorMessage, setErrorMessage] = useState("");
+  const {
+    data: reviewers,
+    loading: reviewersLoading,
+    callApi: fetchReviewers,
+  } = useApi<user[]>();
   const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
@@ -67,14 +78,18 @@ export default function PermitRequestForm() {
     const startDate = new Date(data.startDate);
     const endDate = data.endDate ? new Date(data.endDate) : null;
 
+    if (!reviewers || !Array.isArray(reviewers) || reviewers.length === 0) {
+      throw new Error("Nessun referente disponibile. Riprova più tardi.");
+    }
+
     if (data.type === PermitType.PERMISSION) {
-      reviewers?.map((reviewer) => {
+      reviewers.forEach((reviewer: user) => {
         permits.push({
           type: data.type as PermitType,
           date: startDate,
           duration: parseFloat(data.duration),
           description: data.description,
-          reviewer_id: (reviewer as user).id,
+          reviewer_id: reviewer.id,
         });
       });
     } else {
@@ -86,13 +101,13 @@ export default function PermitRequestForm() {
         for (let i = 1; i <= days + 1; i++) {
           const currentDate = new Date(startDate);
           currentDate.setDate(startDate.getDate() + i);
-          reviewers?.map((reviewer) => {
+          reviewers.forEach((reviewer: user) => {
             permits.push({
               type: data.type as PermitType,
               date: currentDate,
               duration: 8,
               description: data.description,
-              reviewer_id: reviewer?.id ?? "",
+              reviewer_id: reviewer.id,
             });
           });
         }
@@ -102,29 +117,39 @@ export default function PermitRequestForm() {
     return permits;
   };
 
-  const onSubmit = (data: PermitFormValues) => {
+  const onSubmit = async (data: PermitFormValues) => {
     setErrorMessage("");
 
-    const permits = prepareMultiplePermits(data);
-    createBulkPermits(permits)
-      .then((result) => {
-        if (result) {
-          form.reset();
-          toast.success("Richiesta inviata con successo!");
-          startTransition(() => {
-            router.refresh();
-          });
-        } else {
-          setErrorMessage("Creazione permesso fallita o limite superato (8h).");
-        }
-      })
-      .catch(() => {
-        setErrorMessage("Creazione permesso fallita.");
+    try {
+      const permits = prepareMultiplePermits(data);
+      const result = await fetchReviewers("/api/permit/create-bulk-permits", {
+        method: "POST",
+        body: JSON.stringify(permits),
       });
+
+      if (result) {
+        form.reset();
+        toast.success("Richiesta inviata con successo!");
+        startTransition(() => {
+          router.refresh();
+        });
+        if (onPermitCreated) {
+          onPermitCreated();
+        }
+      } else {
+        setErrorMessage("Creazione permesso fallita o limite superato (8h).");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("Creazione permesso fallita.");
+      }
+    }
   };
 
   useEffect(() => {
-    fetchReviewers();
+    fetchReviewers("/api/permit/fetch-user-reviewers");
   }, [fetchReviewers]);
 
   return (
@@ -260,7 +285,11 @@ export default function PermitRequestForm() {
 
               <p>
                 I tuoi referenti sono:{" "}
-                {reviewers?.map((r) => (r as user).name).join(", ")}
+                {reviewersLoading
+                  ? "Caricamento..."
+                  : reviewers && Array.isArray(reviewers)
+                    ? reviewers.map((r: user) => r.name).join(", ")
+                    : "Nessun referente disponibile"}
               </p>
 
               <FormField
@@ -289,7 +318,16 @@ export default function PermitRequestForm() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button type="submit" className="w-full" disabled={isPending}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={
+                    isPending ||
+                    reviewersLoading ||
+                    !reviewers ||
+                    !Array.isArray(reviewers)
+                  }
+                >
                   {isPending ? "Invio in corso..." : "Invia Richiesta"}
                 </Button>
               </motion.div>

@@ -111,11 +111,21 @@ export default function ContractDetail({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("it-IT", {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("it-IT", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
+  };
+
+  // Helper function to safely convert date strings to Date objects
+  const safeDateString = (
+    dateValue: string | Date | null | undefined,
+  ): string => {
+    if (!dateValue) return "";
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    return date.toDateString();
   };
 
   return (
@@ -263,7 +273,7 @@ export default function ContractDetail({
                       Data Inizio
                     </div>
                     <div className="text-sm">
-                      {formatDate(contract.start_date.toDateString())}
+                      {formatDate(safeDateString(contract.start_date))}
                     </div>
                   </div>
 
@@ -274,7 +284,7 @@ export default function ContractDetail({
                         Data Fine
                       </div>
                       <div className="text-sm">
-                        {formatDate(contract.end_date.toDateString())}
+                        {formatDate(safeDateString(contract.end_date))}
                       </div>
                     </div>
                   )}
@@ -285,7 +295,7 @@ export default function ContractDetail({
                       Ultima Modifica
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {formatDate(contract.last_modified.toDateString())}
+                      {formatDate(safeDateString(contract.last_modified))}
                     </div>
                   </div>
                 </div>
@@ -320,7 +330,7 @@ export default function ContractDetail({
                 <p className="text-sm text-muted-foreground">
                   Questo contratto è stato chiuso il{" "}
                   {contract.end_date &&
-                    formatDate(contract.end_date.toDateString())}
+                    formatDate(safeDateString(contract.end_date))}
                   . Il dipendente non può più essere assegnato a nuovi progetti.
                 </p>
               </div>

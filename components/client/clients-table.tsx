@@ -38,7 +38,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
-export default function ClientsTable() {
+export default function ClientsTable({
+  isAdminOrSuperAdmin,
+}: {
+  isAdminOrSuperAdmin: boolean;
+}) {
   const router = useRouter();
   const [editClient, setEditClient] = useState<string>();
   const [deleteClient, setDeleteClient] = useState<string>();
@@ -146,16 +150,18 @@ export default function ClientsTable() {
                               <Edit className="mr-2 h-4 w-4" />
                               <span>Modifica</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setDeleteClient(client.id);
-                              }}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              <span>Elimina</span>
-                            </DropdownMenuItem>
+                            {isAdminOrSuperAdmin && (
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDeleteClient(client.id);
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Elimina</span>
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

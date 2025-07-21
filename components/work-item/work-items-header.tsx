@@ -10,8 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useApi } from "@/hooks/useApi";
 import { motion } from "framer-motion";
 import { Filter, PlusCircle, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
 
@@ -26,7 +28,27 @@ export default function WorkItemsHeader({
   allClients,
   canCreateWorkItem = false,
 }: WorkItemsHeaderProps) {
+  const router = useRouter();
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { callApi: searchWorkItems } = useApi();
+
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    try {
+      await searchWorkItems(
+        `/api/work-item/search?q=${encodeURIComponent(query)}`,
+        {
+          method: "GET",
+        },
+      );
+      // The search results will be handled by the parent component through router.refresh()
+      router.refresh();
+    } catch (error) {
+      console.error("Error searching work items:", error);
+    }
+  };
 
   return (
     <motion.div
@@ -48,6 +70,8 @@ export default function WorkItemsHeader({
             type="search"
             placeholder="Cerca commesse..."
             className="w-full pl-8 sm:w-[200px]"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
         <Select
@@ -78,7 +102,11 @@ export default function WorkItemsHeader({
         )}
       </div>
 
-      <AddWorkItemDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
+      <AddWorkItemDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        isAdminOrSuperAdmin={canCreateWorkItem}
+      />
     </motion.div>
   );
 }

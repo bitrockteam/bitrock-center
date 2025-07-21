@@ -55,11 +55,21 @@ export default function CloseContractDialog({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("it-IT", {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("it-IT", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
+  };
+
+  // Helper function to safely convert date strings to Date objects
+  const safeDateString = (
+    dateValue: string | Date | null | undefined,
+  ): string => {
+    if (!dateValue) return "";
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    return date.toDateString();
   };
 
   const getContractTypeLabel = (type: string) => {
@@ -139,7 +149,7 @@ export default function CloseContractDialog({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Inizio:</span>
                   <span className="font-medium">
-                    {formatDate(contract.start_date.toDateString())}
+                    {formatDate(safeDateString(contract.start_date))}
                   </span>
                 </div>
                 <div className="flex justify-between">

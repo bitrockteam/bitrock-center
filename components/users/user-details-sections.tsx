@@ -1,29 +1,33 @@
 import { getContractByEmployeeId } from "@/app/server-actions/contract/getContractByEmployeeId";
-import { getLatestEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getLatestEmployeeDevelopmentPlan";
+import { GetLatestEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getLatestEmployeeDevelopmentPlan";
 import { FindUserById } from "@/app/server-actions/user/findUserById";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useServerAction } from "@/hooks/useServerAction";
-import { useEffect } from "react";
+import { useApi } from "@/hooks/useApi";
+import { useEffect, useRef } from "react";
 import ContractDetail from "./contract-detail";
 import UserDetailsActivity from "./user-details-sections/user-details-activity";
 import UserDetailsDevelopment from "./user-details-sections/user-details-development";
 import UserDetailsOverview from "./user-details-sections/user-details-overview";
 import UserDetailsSkills from "./user-details-sections/user-details-skills";
 
+type ContractResponse = Awaited<ReturnType<typeof getContractByEmployeeId>>;
+
 export default function UserDetailsSections({ user }: { user: FindUserById }) {
-  const [activePlan, getDevelopmentPlan] = useServerAction(
-    getLatestEmployeeDevelopmentPlan,
-  );
+  const { data: activePlan, callApi: fetchDevelopmentPlan } =
+    useApi<GetLatestEmployeeDevelopmentPlan>();
+  const { data: contract, callApi: fetchContract } = useApi<ContractResponse>();
 
-  const [contract, getContract] = useServerAction(getContractByEmployeeId);
-
-  useEffect(() => {
-    if (user?.id) getDevelopmentPlan(user.id);
-  }, [getDevelopmentPlan, user?.id]);
+  const userIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (user?.id) getContract(user.id);
-  }, [getContract, user?.id]);
+    if (user?.id && userIdRef.current !== user.id) {
+      userIdRef.current = user.id;
+      fetchDevelopmentPlan(
+        `/api/user/development-plan/latest?userId=${user.id}`,
+      );
+      fetchContract(`/api/user/contract?employeeId=${user.id}`);
+    }
+  }, [user?.id, fetchDevelopmentPlan, fetchContract]);
 
   if (!user) {
     return (

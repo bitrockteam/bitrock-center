@@ -7,7 +7,11 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
-export default function ClientsHeader() {
+export default function ClientsHeader({
+  isAdminOrSuperAdmin,
+}: {
+  isAdminOrSuperAdmin: boolean;
+}) {
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   return (
@@ -30,12 +34,14 @@ export default function ClientsHeader() {
             className="w-full pl-8 sm:w-[300px]"
           />
         </div>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Nuovo Cliente
-          </Button>
-        </motion.div>
+        {isAdminOrSuperAdmin && (
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button onClick={() => setShowAddDialog(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Nuovo Cliente
+            </Button>
+          </motion.div>
+        )}
       </div>
 
       <AddClientDialog open={showAddDialog} onOpenChange={setShowAddDialog} />

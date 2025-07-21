@@ -1,14 +1,13 @@
 "use client";
 
-import { addUserToTeam } from "@/app/server-actions/user/addUserToTeam";
-import { findUsers } from "@/app/server-actions/user/findUsers";
-import { useServerAction } from "@/hooks/useServerAction";
+import { useTeamApi } from "@/hooks/useTeamApi";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Check, ChevronsUpDown, PlusIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+
 import { Button } from "../ui/button";
 import {
   Command,
@@ -28,39 +27,65 @@ import {
 } from "../ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { AddMemberFormData } from "./types";
 
 export function AddDialogMemberTeam() {
-  const [users, fetchUsers] = useServerAction(findUsers);
+  const { users, usersLoading, teamMembers, addTeamMember } = useTeamApi();
   const [open, setOpen] = useState(false);
-
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const form = useForm({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<AddMemberFormData>({
     defaultValues: {
-      user_id: "",
+      userId: "",
     },
   });
 
-  const onSubmit = () => {
-    addUserToTeam(form.getValues("user_id"))
-      .then(() => {
+  // Filter out users who are already team members
+  const availableUsers = users.filter(
+    (user) => !teamMembers.some((member) => member.id === user.id),
+  );
+
+  const handleSubmit = async (data: AddMemberFormData) => {
+    if (!data.userId) {
+      toast.error("Seleziona un utente");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const result = await addTeamMember(data.userId);
+
+      if (result.success) {
         setOpen(false);
         form.reset();
         toast.success("Membro aggiunto al team con successo");
-      })
-      .catch(() => {
-        toast.error(`Errore nell'aggiunta del membro`);
-      });
+      } else {
+        toast.error(result.error || "Errore nell'aggiunta del membro");
+      }
+    } catch {
+      toast.error("Errore nell'aggiunta del membro");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+  const handleCancel = () => {
+    setOpen(false);
+    form.reset();
+    setIsPopoverOpen(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="submit" className="w-full" variant="secondary">
-          <PlusIcon />
+        <Button
+          type="button"
+          className="w-full"
+          variant="secondary"
+          aria-label="Aggiungi nuovo membro al team"
+        >
+          <PlusIcon className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -68,11 +93,11 @@ export function AddDialogMemberTeam() {
           <DialogTitle>Aggiungi nuovo membro al team</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
             <div className="flex flex-col gap-4">
               <FormField
                 control={form.control}
-                name="user_id"
+                name="userId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nome Membro</FormLabel>
@@ -86,31 +111,38 @@ export function AddDialogMemberTeam() {
                             variant="outline"
                             role="combobox"
                             className="justify-between"
+                            disabled={usersLoading}
                           >
                             {field.value &&
-                            users?.some((u) => u.id === field.value)
-                              ? users?.find((user) => user.id === field.value)
-                                  ?.name
+                            availableUsers?.some((u) => u.id === field.value)
+                              ? availableUsers?.find(
+                                  (user) => user.id === field.value,
+                                )?.name
                               : "Seleziona membro..."}
-                            <ChevronsUpDown className="opacity-50" />
+                            {usersLoading ? (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            ) : (
+                              <ChevronsUpDown className="h-4 w-4 opacity-50" />
+                            )}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[460px] p-0">
                           <Command>
                             <CommandInput
-                              placeholder="Seleziona membro..."
-                              className="h-9 pointer-events-auto"
+                              placeholder="Cerca membro..."
+                              className="h-9"
                             />
                             <CommandList>
                               <CommandEmpty>
-                                Nessun membro disponibile
+                                {availableUsers.length === 0
+                                  ? "Tutti gli utenti sono già nel team"
+                                  : "Nessun membro disponibile"}
                               </CommandEmpty>
                               <CommandGroup>
-                                {users?.map((user) => (
+                                {availableUsers?.map((user) => (
                                   <CommandItem
                                     key={user.id}
                                     value={user.name}
-                                    className="pointer-events-auto"
                                     onSelect={() => {
                                       field.onChange(user.id);
                                       setIsPopoverOpen(false);
@@ -119,7 +151,7 @@ export function AddDialogMemberTeam() {
                                     {user.name}
                                     <Check
                                       className={cn(
-                                        "ml-auto",
+                                        "ml-auto h-4 w-4",
                                         field.value === user.id
                                           ? "opacity-100"
                                           : "opacity-0",
@@ -140,7 +172,8 @@ export function AddDialogMemberTeam() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setOpen(false)}
+                  onClick={handleCancel}
+                  disabled={isSubmitting}
                 >
                   Annulla
                 </Button>
@@ -148,7 +181,23 @@ export function AddDialogMemberTeam() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Button type="submit">Aggiungi</Button>
+                  <Button
+                    type="submit"
+                    disabled={
+                      isSubmitting ||
+                      !form.watch("userId") ||
+                      availableUsers.length === 0
+                    }
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        Aggiungendo...
+                      </>
+                    ) : (
+                      "Aggiungi"
+                    )}
+                  </Button>
                 </motion.div>
               </DialogFooter>
             </div>

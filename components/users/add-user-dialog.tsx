@@ -1,10 +1,7 @@
 "use client";
 
-import { createUser } from "@/app/server-actions/user/createUser";
 import { FindUserById } from "@/app/server-actions/user/findUserById";
-import { findUsers } from "@/app/server-actions/user/findUsers";
-import { updateUser } from "@/app/server-actions/user/updateUser";
-import { uploadFile } from "@/app/server-actions/user/uploadFile";
+import { FindUsers } from "@/app/server-actions/user/findUsers";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,7 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Role, user } from "@/db";
-import { useServerAction } from "@/hooks/useServerAction";
+import { useApi } from "@/hooks/useApi";
 import { cn } from "@/lib/utils";
 import { getFirstnameAndLastname } from "@/services/users/utils";
 import { motion } from "framer-motion";
@@ -69,7 +66,14 @@ export default function AddUserDialog({
   editData,
   user,
 }: Readonly<AddUserDialogProps>) {
-  const [users, refetchUsers, loadingUsers] = useServerAction(findUsers);
+  const {
+    data: users,
+    callApi: fetchUsers,
+    loading: loadingUsers,
+  } = useApi<FindUsers[]>();
+  const { callApi: createUserApi } = useApi();
+  const { callApi: updateUserApi } = useApi();
+  const { callApi: uploadFileApi } = useApi<{ data?: { fullPath?: string } }>();
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -97,19 +101,23 @@ export default function AddUserDialog({
     }
   }, [editData, form]);
 
-  const handleUpdateUser = (avatar_url?: string) =>
-    updateUser({
-      id: editData!.id,
-      name: `${form.getValues().name} ${form.getValues().surname}`,
-      ...(avatar_url && { avatar_url }),
-      role: form.getValues().role,
-      referent_id: form.getValues().referent_id,
+  const handleUpdateUser = async (avatar_url?: string) => {
+    await updateUserApi("/api/user/update", {
+      method: "PUT",
+      body: JSON.stringify({
+        id: editData!.id,
+        name: `${form.getValues().name} ${form.getValues().surname}`,
+        ...(avatar_url && { avatar_url }),
+        role: form.getValues().role,
+        referent_id: form.getValues().referent_id,
+      }),
     });
+  };
 
   const handleComplete = (open: boolean) => {
     onComplete(open, { shouldRefetch: true });
     form.reset();
-    refetchUsers();
+    fetchUsers("/api/user/search");
   };
 
   const onSubmit = async () => {
@@ -119,40 +127,54 @@ export default function AddUserDialog({
         const fileFormData = new FormData();
         fileFormData.append("file", file);
 
-        await uploadFile({ file: fileFormData }).then((data) => {
-          handleUpdateUser(data.data?.fullPath)
-            .then(() => toast.success("Utente aggiornato con successo"))
-            .finally(() => {
-              handleComplete(false);
-            });
-        });
-      } else {
-        console.log({ form: form.getValues() });
-
-        handleUpdateUser()
-          .then(() => toast.success("Utente aggiornato con successo"))
-          .finally(() => {
-            handleComplete(false);
+        try {
+          const uploadResult = await uploadFileApi("/api/user/upload", {
+            method: "POST",
+            body: fileFormData,
+            headers: {}, // Remove Content-Type for FormData
           });
+          await handleUpdateUser(uploadResult?.data?.fullPath);
+          toast.success("Utente aggiornato con successo");
+          handleComplete(false);
+        } catch (error) {
+          console.error("Failed to update user:", error);
+          toast.error("Errore durante l'aggiornamento dell'utente");
+        }
+      } else {
+        try {
+          await handleUpdateUser();
+          toast.success("Utente aggiornato con successo");
+          handleComplete(false);
+        } catch (error) {
+          console.error("Failed to update user:", error);
+          toast.error("Errore durante l'aggiornamento dell'utente");
+        }
       }
-    } else
-      await createUser({
-        name: `${form.getValues().name} ${form.getValues().surname}`,
-        email: form.getValues().email,
-        role: form.getValues().role,
-        referent_id: form.getValues().referent_id,
-      })
-        .then(() => toast.success("Utente creato con successo"))
-        .finally(() => {
-          onComplete(false, { shouldRefetch: true });
-          form.reset();
-          refetchUsers();
+    } else {
+      try {
+        await createUserApi("/api/user/create", {
+          method: "POST",
+          body: JSON.stringify({
+            name: `${form.getValues().name} ${form.getValues().surname}`,
+            email: form.getValues().email,
+            role: form.getValues().role,
+            referent_id: form.getValues().referent_id,
+          }),
         });
+        toast.success("Utente creato con successo");
+        onComplete(false, { shouldRefetch: true });
+        form.reset();
+        fetchUsers("/api/user/search");
+      } catch (error) {
+        console.error("Failed to create user:", error);
+        toast.error("Errore durante la creazione dell'utente");
+      }
+    }
   };
 
   useEffect(() => {
-    if (open) refetchUsers();
-  }, [open, refetchUsers]);
+    if (open) fetchUsers("/api/user/search");
+  }, [open, fetchUsers]);
 
   return (
     <Dialog open={open} onOpenChange={onComplete}>
@@ -268,9 +290,10 @@ export default function AddUserDialog({
                             disabled={loadingUsers}
                           >
                             {field.value &&
-                            users?.some((u) => u.id === field.value)
-                              ? users.find((user) => user.id === field.value)
-                                  ?.name
+                            users?.some((u: FindUsers) => u.id === field.value)
+                              ? users.find(
+                                  (user: FindUsers) => user.id === field.value,
+                                )?.name
                               : "Seleziona referente..."}
                             <ChevronsUpDown className="opacity-50" />
                           </Button>
@@ -287,8 +310,10 @@ export default function AddUserDialog({
                               </CommandEmpty>
                               <CommandGroup>
                                 {users
-                                  ?.filter((u) => u.id !== editData?.id)
-                                  .map((user) => (
+                                  ?.filter(
+                                    (u: FindUsers) => u.id !== editData?.id,
+                                  )
+                                  .map((user: FindUsers) => (
                                     <CommandItem
                                       key={user.id}
                                       value={user.name}

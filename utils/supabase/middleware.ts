@@ -1,3 +1,4 @@
+import { createUserInfo } from "@/app/server-actions/user/createUserInfo";
 import { getUserInfo } from "@/app/server-actions/user/getUserInfo";
 import { createServerClient } from "@supabase/ssr";
 import { jwtDecode } from "jwt-decode";
@@ -70,24 +71,25 @@ export async function updateSession(request: NextRequest) {
   const session = await supabase.auth.getSession();
   const token = session.data.session?.access_token;
   if (token) {
+    const decodedToken = jwtDecode(token) as { email: string };
+    let userInfo;
     try {
-      const decodedToken = jwtDecode(token) as { email: string };
-      const userInfo = await getUserInfo(decodedToken.email);
+      userInfo = await getUserInfo(decodedToken.email);
+      // Option 2: Or alternatively, a header (less secure)
+    } catch (err) {
+      console.error("Failed to fetch userInfo:", err);
+      userInfo = await createUserInfo(user ?? undefined);
 
+      // const url = request.nextUrl.clone();
+      // url.pathname = "/login";
+      // return NextResponse.redirect(url);
+    } finally {
       // Option 1: Add to a secure cookie
       supabaseResponse.cookies.set("x-user-info", JSON.stringify(userInfo), {
         httpOnly: true,
         secure: true,
         path: "/",
       });
-
-      // Option 2: Or alternatively, a header (less secure)
-      // supabaseResponse.headers.set("x-user-info", JSON.stringify(userInfo));
-    } catch (err) {
-      console.error("Failed to fetch userInfo:", err);
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      return NextResponse.redirect(url);
     }
   }
 

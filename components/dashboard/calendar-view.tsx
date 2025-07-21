@@ -27,15 +27,17 @@ import {
 import { permit, PermitStatus, PermitType } from "@/db";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
-import { useMemo, useState } from "react";
+import { use, useMemo, useState } from "react";
 
 export default function CalendarView({
-  timesheet,
-  permits,
+  timesheetData,
+  permitsData,
 }: {
-  timesheet: UserTimesheet[];
-  permits: permit[];
+  timesheetData: Promise<UserTimesheet[]>;
+  permitsData: Promise<permit[]>;
 }) {
+  const timesheet = use(timesheetData);
+  const permits = use(permitsData);
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Ottieni il primo giorno del mese

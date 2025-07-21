@@ -1,6 +1,5 @@
 "use client";
 
-import { UserPermit } from "@/app/server-actions/permit/fetchUserPermits";
 import {
   Card,
   CardContent,
@@ -16,7 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PermitType } from "@/db";
+import { PermitStatus, PermitType } from "@/db";
+import { useApi } from "@/hooks/useApi";
 import { getStatusBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import {
@@ -25,7 +25,13 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import { useState } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import { Button } from "../ui/button";
 import {
   Select,
@@ -35,20 +41,73 @@ import {
   SelectValue,
 } from "../ui/select";
 
-export default function PermitHistoryTable({
-  permits,
-}: {
-  permits: UserPermit[];
-}) {
+type UserPermit = {
+  id: string;
+  type: PermitType;
+  date: Date;
+  duration: number;
+  description: string | null;
+  status: PermitStatus;
+  user_permit_reviewer_idTouser: {
+    id: string;
+    name: string;
+  };
+};
+
+export interface PermitHistoryTableRef {
+  refresh: () => void;
+}
+
+const PermitHistoryTable = forwardRef<
+  PermitHistoryTableRef,
+  React.ComponentPropsWithoutRef<"div">
+>((_, ref) => {
+  const { data: permits, loading, error, callApi } = useApi<UserPermit[]>();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
+  const refreshPermits = useCallback(() => {
+    callApi("/api/permit/fetch-user-permits");
+  }, [callApi]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      refresh: refreshPermits,
+    }),
+    [refreshPermits],
+  );
+
+  useEffect(() => {
+    refreshPermits();
+  }, [refreshPermits]);
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-8">
+          <div>Loading...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-8">
+          <div className="text-red-500">Error: {error}</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Calcola la paginazione
-  const totalItems = permits.length;
+  const totalItems = permits?.length || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = permits.slice(startIndex, endIndex);
+  const currentItems = permits?.slice(startIndex, endIndex) || [];
 
   // Funzioni per la navigazione
   const goToFirstPage = () => setCurrentPage(1);
@@ -238,4 +297,8 @@ export default function PermitHistoryTable({
       </Card>
     </motion.div>
   );
-}
+});
+
+PermitHistoryTable.displayName = "PermitHistoryTable";
+
+export default PermitHistoryTable;

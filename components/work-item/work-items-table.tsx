@@ -33,10 +33,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { work_item_type, work_items } from "@/db";
+import { useApi } from "@/hooks/useApi";
 import { motion } from "framer-motion";
 import { Clock, Edit, Euro, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import AddWorkItemDialog from "./add-work-item-dialog";
 import WorkItemsHeader from "./work-items-header";
 
@@ -53,6 +55,9 @@ export default function WorkItemsTable({
   const [editWorkItem, setEditWorkItem] = useState<WorkItem | null>(null);
   const [deleteWorkItem, setDeleteWorkItem] = useState<WorkItem | null>(null);
   const [clientFilter, setClientFilter] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const { callApi: deleteWorkItemApi } = useApi();
 
   const filteredWorkItems = clientFilter
     ? workItems?.filter((item) => item.client_id === clientFilter)
@@ -95,6 +100,34 @@ export default function WorkItemsTable({
 
   const handleViewWorkItem = (id: string) => {
     router.push(`/commesse/${id}`);
+  };
+
+  const handleDeleteWorkItem = async () => {
+    if (!deleteWorkItem) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteWorkItemApi(`/api/work-item/delete?id=${deleteWorkItem.id}`, {
+        method: "DELETE",
+      });
+      toast.success("Commessa eliminata con successo");
+      setDeleteWorkItem(null);
+      router.refresh();
+    } catch (error) {
+      console.error("Error deleting work item:", error);
+      toast.error("Errore durante l'eliminazione");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Helper function to safely convert date strings to Date objects
+  const safeDateString = (
+    dateValue: string | Date | null | undefined,
+  ): string => {
+    if (!dateValue) return "";
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    return date.toISOString().substring(0, 10);
   };
 
   return (
@@ -240,16 +273,18 @@ export default function WorkItemsTable({
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>Modifica</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteWorkItem(item);
-                                }}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                <span>Elimina</span>
-                              </DropdownMenuItem>
+                              {isAdminOrSuperAdmin && (
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteWorkItem(item);
+                                  }}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  <span>Elimina</span>
+                                </DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -266,6 +301,7 @@ export default function WorkItemsTable({
         {editWorkItem && (
           <AddWorkItemDialog
             open={!!editWorkItem}
+            isAdminOrSuperAdmin={isAdminOrSuperAdmin}
             onOpenChange={(open) => !open && setEditWorkItem(null)}
             editData={
               editWorkItem
@@ -278,12 +314,8 @@ export default function WorkItemsTable({
                     enabled_users: editWorkItem.work_item_enabled_users.map(
                       (user) => user.user_id,
                     ),
-                    start_date: editWorkItem.start_date
-                      ? editWorkItem.start_date.toISOString().substring(0, 10)
-                      : "",
-                    end_date: editWorkItem.end_date
-                      ? editWorkItem.end_date.toISOString().substring(0, 10)
-                      : "",
+                    start_date: safeDateString(editWorkItem.start_date),
+                    end_date: safeDateString(editWorkItem.end_date),
                     project_id: editWorkItem.project_id ?? "",
                     description: editWorkItem.description ?? "",
                     hourly_rate: editWorkItem.hourly_rate,
@@ -311,9 +343,15 @@ export default function WorkItemsTable({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Annulla</AlertDialogCancel>
-              <AlertDialogAction className="bg-destructive text-destructive-foreground">
-                Elimina
+              <AlertDialogCancel disabled={isDeleting}>
+                Annulla
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground"
+                onClick={handleDeleteWorkItem}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Eliminazione..." : "Elimina"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

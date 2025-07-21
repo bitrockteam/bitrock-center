@@ -27,7 +27,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
-export default function ClientDetail({ id }: { id: string }) {
+export default function ClientDetail({
+  id,
+  isAdminOrSuperAdmin,
+}: {
+  id: string;
+  isAdminOrSuperAdmin?: boolean;
+}) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [client, getClient] = useServerAction(findClientById);
@@ -124,10 +130,12 @@ export default function ClientDetail({ id }: { id: string }) {
             </div>
           </div>
         </div>
-        <Button onClick={() => setShowEditDialog(true)}>
-          <Edit className="mr-2 h-4 w-4" />
-          Modifica Cliente
-        </Button>
+        {isAdminOrSuperAdmin && (
+          <Button onClick={() => setShowEditDialog(true)}>
+            <Edit className="mr-2 h-4 w-4" />
+            Modifica Cliente
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
