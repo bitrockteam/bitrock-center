@@ -1,4 +1,4 @@
-import { user } from "@/db";
+import { UserInfo } from "@/app/server-actions/user/getUserInfo";
 import { createServerClient } from "@supabase/ssr";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
@@ -53,7 +53,7 @@ export async function getUserInfoFromCookie() {
   const cookieStore = await getCookieData();
   const cookie = cookieStore.get("x-user-info")?.value;
   if (!cookie) throw new Error("No user info cookie found");
-  return JSON.parse(cookie) as user;
+  return JSON.parse(cookie) as UserInfo;
 }
 
 export async function tryGetUserInfoFromCookie() {
