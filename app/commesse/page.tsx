@@ -1,7 +1,7 @@
 import { getAllClients } from "@/app/server-actions/client/getAllClients";
 import { fetchAllWorkItems } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import WorkItemsTable from "@/components/work-item/work-items-table";
-import { allowRoles } from "@/services/users/server.utils";
+import { hasPermission } from "@/services/users/server.utils";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -19,14 +19,16 @@ export default async function WorkItemsPage({
   const { q } = await searchParams;
   const workItems = await fetchAllWorkItems(q);
   const allClients = await getAllClients();
-  const isAdminOrSuperAdmin = await allowRoles(["Admin", "Super_Admin"]);
+  const CAN_CREATE_WORK_ITEM = await hasPermission("CAN_CREATE_WORK_ITEM");
+  const CAN_EDIT_WORK_ITEM = await hasPermission("CAN_EDIT_WORK_ITEM");
 
   return (
     <div className="space-y-6">
       <WorkItemsTable
         workItems={workItems}
         allClients={allClients}
-        isAdminOrSuperAdmin={isAdminOrSuperAdmin}
+        canCreateWorkItem={CAN_CREATE_WORK_ITEM}
+        canEditWorkItem={CAN_EDIT_WORK_ITEM}
       />
     </div>
   );

@@ -7,8 +7,9 @@ export interface UserInfo {
   id: string;
   email: string;
   name: string;
-  avatar_url?: string;
-  referent_id?: string;
+  avatar_url: string | null;
+  created_at: Date;
+  referent_id: string | null;
   role: Role;
   permissions: Permissions[];
 }
@@ -35,8 +36,9 @@ export async function getUserInfo(email?: string) {
       id: res?.id,
       email: res?.email,
       name: res?.name,
-      avatar_url: res?.avatar_url,
-      referent_id: res?.referent_id,
+      avatar_url: res?.avatar_url ?? null,
+      created_at: res?.created_at,
+      referent_id: res?.referent_id ?? null,
       role: res?.role,
       permissions:
         permissions?.map((permission) => permission.permission_id) || [],

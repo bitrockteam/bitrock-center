@@ -45,11 +45,13 @@ import WorkItemsHeader from "./work-items-header";
 export default function WorkItemsTable({
   workItems,
   allClients,
-  isAdminOrSuperAdmin = false,
+  canCreateWorkItem = false,
+  canEditWorkItem = false,
 }: {
   workItems: WorkItem[];
   allClients: GetAllClientsResponse[];
-  isAdminOrSuperAdmin?: boolean;
+  canCreateWorkItem?: boolean;
+  canEditWorkItem?: boolean;
 }) {
   const router = useRouter();
   const [editWorkItem, setEditWorkItem] = useState<WorkItem | null>(null);
@@ -135,7 +137,7 @@ export default function WorkItemsTable({
       <WorkItemsHeader
         onClientFilter={setClientFilter}
         allClients={allClients}
-        canCreateWorkItem={isAdminOrSuperAdmin}
+        canCreateWorkItem={canCreateWorkItem}
       />
 
       <motion.div
@@ -273,7 +275,7 @@ export default function WorkItemsTable({
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>Modifica</span>
                               </DropdownMenuItem>
-                              {isAdminOrSuperAdmin && (
+                              {canEditWorkItem && (
                                 <DropdownMenuItem
                                   className="text-destructive focus:text-destructive"
                                   onClick={(e) => {
@@ -301,7 +303,7 @@ export default function WorkItemsTable({
         {editWorkItem && (
           <AddWorkItemDialog
             open={!!editWorkItem}
-            isAdminOrSuperAdmin={isAdminOrSuperAdmin}
+            canCreateWorkItem={canEditWorkItem}
             onOpenChange={(open) => !open && setEditWorkItem(null)}
             editData={
               editWorkItem
