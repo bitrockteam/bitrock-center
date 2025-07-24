@@ -11,7 +11,6 @@ export async function allowRoles(roles: Role[]) {
 export async function hasPermission(permission: Permissions) {
   const user = await getUserInfoFromCookie();
   if (!user) return false;
-  console.log({ permission: user.permissions });
 
   return user.permissions.includes(permission);
 }

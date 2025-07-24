@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { user } from "@/db";
+import { Permissions, user } from "@/db";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
@@ -62,11 +62,13 @@ const navItems = [
     title: "Clienti",
     href: "/clienti",
     icon: Building2,
+    permission: Permissions.CAN_SEE_CLIENT,
   },
   {
     title: "Commesse",
     href: "/commesse",
     icon: Briefcase,
+    permission: Permissions.CAN_SEE_WORK_ITEM,
   },
   {
     title: "Utenti",
@@ -90,7 +92,13 @@ const navItems = [
   },
 ];
 
-export default function Sidebar({ user }: { user: user }) {
+export default function Sidebar({
+  user,
+  permissions,
+}: {
+  user: user;
+  permissions: Permissions[];
+}) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
 
@@ -132,29 +140,37 @@ export default function Sidebar({ user }: { user: user }) {
 
         <nav className="flex-1 px-2 py-4">
           <ul className="space-y-2">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href}>
-                  <Button
-                    variant={
-                      pathname.startsWith(item.href) ? "secondary" : "ghost"
-                    }
-                    className={cn(
-                      "w-full",
-                      collapsed ? "px-2 justify-center" : "px-4 justify-start",
-                    )}
-                  >
-                    <item.icon
+            {navItems
+              .filter(
+                (el) =>
+                  !el.permission ||
+                  (el.permission && permissions.includes(el.permission)),
+              )
+              .map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href}>
+                    <Button
+                      variant={
+                        pathname.startsWith(item.href) ? "secondary" : "ghost"
+                      }
                       className={cn(
-                        "h-5 w-5",
-                        collapsed ? "flex justify-center" : "mr-2",
+                        "w-full",
+                        collapsed
+                          ? "px-2 justify-center"
+                          : "px-4 justify-start",
                       )}
-                    />
-                    {!collapsed && <span>{item.title}</span>}
-                  </Button>
-                </Link>
-              </li>
-            ))}
+                    >
+                      <item.icon
+                        className={cn(
+                          "h-5 w-5",
+                          collapsed ? "flex justify-center" : "mr-2",
+                        )}
+                      />
+                      {!collapsed && <span>{item.title}</span>}
+                    </Button>
+                  </Link>
+                </li>
+              ))}
           </ul>
         </nav>
         <div className={cn("border-t", collapsed ? "py-4" : "p-4")}>
