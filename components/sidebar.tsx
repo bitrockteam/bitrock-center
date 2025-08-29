@@ -86,6 +86,11 @@ const navItems = [
     icon: HandMetal,
   },
   {
+    title: "Permissions",
+    href: "/permissions",
+    icon: Settings,
+  },
+  {
     title: "AI Assistant",
     href: "/ai-assistant",
     icon: Bot,

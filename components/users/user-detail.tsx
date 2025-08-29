@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
 import UserDetailsSections from "./user-details-sections";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function UserDetail({ user }: Readonly<{ user: FindUserById }>) {
   const router = useRouter();
@@ -84,6 +86,35 @@ export default function UserDetail({ user }: Readonly<{ user: FindUserById }>) {
       </div>
 
       <UserDetailsSections user={user} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Permissions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {user.user_permission && user.user_permission.length > 0 ? (
+            <div
+              className="flex flex-wrap gap-2"
+              aria-label="user permissions list"
+            >
+              {user.user_permission.map((p) => (
+                <Badge
+                  key={p.permission_id}
+                  variant="secondary"
+                  className="text-xs"
+                  aria-label={`user permission ${p.permission_id}`}
+                >
+                  {p.permission_id}
+                </Badge>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">
+              No permissions assigned to this user
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Dialog per modificare l'utente */}
       {user && (

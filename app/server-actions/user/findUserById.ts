@@ -23,6 +23,11 @@ export async function findUserById(userId: string) {
           end_date: true,
         },
       },
+      user_permission: {
+        select: {
+          permission_id: true,
+        },
+      },
       user_skill: {
         select: {
           skill: {

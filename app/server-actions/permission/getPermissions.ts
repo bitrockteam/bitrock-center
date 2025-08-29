@@ -1,9 +1,10 @@
 "use server";
 
-import { db } from "@/config/prisma";
+import { Permissions as PermissionsEnum } from "@/db";
 
 export async function getPermissions() {
-  return db.permission.findMany({ select: { id: true } });
+  const values = Object.values(PermissionsEnum) as string[];
+  return values.map((id) => ({ id }));
 }
 
 export type Permissions = Awaited<ReturnType<typeof getPermissions>>;
