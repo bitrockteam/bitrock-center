@@ -12,11 +12,24 @@ import AddUserDialog from "./add-user-dialog";
 import UserDetailsSections from "./user-details-sections";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useApi } from "@/hooks/useApi";
+import { Permissions } from "@/db";
 
 export default function UserDetail({ user }: Readonly<{ user: FindUserById }>) {
   const router = useRouter();
 
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedPermission, setSelectedPermission] = useState<
+    Permissions | undefined
+  >(undefined);
+  const { loading, error, callApi, reset } = useApi();
 
   if (!user) {
     return (
@@ -113,6 +126,60 @@ export default function UserDetail({ user }: Readonly<{ user: FindUserById }>) {
               No permissions assigned to this user
             </div>
           )}
+
+          <div className="mt-4 flex items-center gap-2">
+            <Select
+              onValueChange={(v) => setSelectedPermission(v as Permissions)}
+            >
+              <SelectTrigger
+                className="w-[280px]"
+                aria-label="Select permission to assign"
+              >
+                <SelectValue placeholder="Select a permission" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(Permissions)
+                  .filter(
+                    (perm) =>
+                      !user.user_permission?.some(
+                        (p) => p.permission_id === perm,
+                      ),
+                  )
+                  .map((perm) => (
+                    <SelectItem key={perm} value={perm}>
+                      {perm}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            <Button
+              disabled={!selectedPermission || loading}
+              onClick={async () => {
+                try {
+                  await callApi("/api/permission/assign", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      userId: user.id,
+                      permissionId: selectedPermission,
+                    }),
+                  });
+                  reset();
+                  setSelectedPermission(undefined);
+                  router.refresh();
+                } catch {
+                  // error handled by useApi
+                }
+              }}
+              aria-label="Assign selected permission"
+            >
+              {loading ? "Assigning…" : "Assign"}
+            </Button>
+            {error && (
+              <span className="text-sm text-red-600" role="alert">
+                {error}
+              </span>
+            )}
+          </div>
         </CardContent>
       </Card>
 
