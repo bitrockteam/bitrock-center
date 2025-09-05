@@ -89,6 +89,7 @@ const navItems = [
     title: "Permissions",
     href: "/permissions",
     icon: Settings,
+    permission: Permissions.CAN_SEE_PERMISSIONS,
   },
   {
     title: "AI Assistant",
@@ -100,10 +101,10 @@ const navItems = [
 export default function Sidebar({
   user,
   permissions,
-}: {
+}: Readonly<{
   user: user;
   permissions: Permissions[];
-}) {
+}>) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
 

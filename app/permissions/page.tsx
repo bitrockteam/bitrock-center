@@ -1,5 +1,4 @@
 import { getPermissions } from "@/app/server-actions/permission/getPermissions";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -9,11 +8,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Permissions } from "@/db";
+import { hasPermission } from "@/services/users/server.utils";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function PermissionsPage() {
   const [data] = await Promise.all([getPermissions()]);
+  const CAN_SEE_PERMISSIONS = await hasPermission(
+    Permissions.CAN_SEE_PERMISSIONS,
+  );
+
+  if (!CAN_SEE_PERMISSIONS) redirect("/dashboard");
 
   return (
     <div className="space-y-6">
@@ -26,7 +33,6 @@ export default async function PermissionsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[240px]">ID</TableHead>
-                <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -37,9 +43,6 @@ export default async function PermissionsPage() {
                   aria-label={`permission ${p.id}`}
                 >
                   <TableCell className="font-medium">{p.id}</TableCell>
-                  <TableCell>
-                    <Badge>Active</Badge>
-                  </TableCell>
                 </TableRow>
               ))}
               {data.length === 0 && (
