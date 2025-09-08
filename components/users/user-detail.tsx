@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
-import { ArrowLeft, Edit, Target } from "lucide-react";
+import { ArrowLeft, Edit, Target, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
@@ -114,14 +114,56 @@ export default function UserDetail({
                 aria-label="user permissions list"
               >
                 {user.user_permission.map((p) => (
-                  <Badge
-                    key={p.permission_id}
-                    variant="secondary"
-                    className="text-xs"
-                    aria-label={`user permission ${p.permission_id}`}
-                  >
-                    {p.permission_id}
-                  </Badge>
+                  <div key={p.permission_id} className="flex items-center">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs pr-1"
+                      aria-label={`user permission ${p.permission_id}`}
+                    >
+                      {p.permission_id}
+                      <button
+                        type="button"
+                        className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted"
+                        aria-label={`Remove permission ${p.permission_id}`}
+                        tabIndex={0}
+                        onClick={async () => {
+                          try {
+                            await callApi("/api/permission/remove", {
+                              method: "DELETE",
+                              body: JSON.stringify({
+                                userId: user.id,
+                                permissionId: p.permission_id,
+                              }),
+                            });
+                            reset();
+                            router.refresh();
+                          } catch {
+                            // handled by useApi
+                          }
+                        }}
+                        onKeyDown={async (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            try {
+                              await callApi("/api/permission/remove", {
+                                method: "DELETE",
+                                body: JSON.stringify({
+                                  userId: user.id,
+                                  permissionId: p.permission_id,
+                                }),
+                              });
+                              reset();
+                              router.refresh();
+                            } catch {
+                              // handled by useApi
+                            }
+                          }
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  </div>
                 ))}
               </div>
             ) : (
