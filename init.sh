@@ -18,6 +18,7 @@ create_env_from_link() {
   fi
 
   echo "${YELLOW}A browser window will open to get the necessary environment variables."
+  echo "MIGHT NEED AUTHORIZATION FROM THE FILE OWNER"
   echo "Press Enter to continue...${NC}"
   read
 
@@ -126,8 +127,8 @@ setup_supabase() {
 
   # Check if supabase CLI is installed
   if ! command -v supabase >/dev/null 2>&1; then
-    echo "Supabase CLI not found. Installing globally with npm..."
-    npm install -g supabase
+    echo "Supabase CLI not found. Installing globally with brew..."
+    brew install supabase/tap/supabase
   fi
 
   echo "\n--- Supabase Login ---"
@@ -145,6 +146,20 @@ setup_supabase() {
   ANON_KEY=$(echo "$SUPABASE_START_OUTPUT" | grep -Eo 'anon\s*:\s*"[^"]+"' | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
   SERVICE_ROLE_KEY=$(echo "$SUPABASE_START_OUTPUT" | grep -Eo 'service_role\s*:\s*"[^"]+"' | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
 
+  # Or extract Publishable key and Secret key from more recent output (? verification needed)
+  PUBLISHABLE_KEY=$(echo "$SUPABASE_START_OUTPUT" | grep -Eo 'Publishable key: sb_publishable_[A-Za-z0-9_]+' | head -1 | sed -E 's/Publishable key: (sb_publishable_[A-Za-z0-9_]+)/\1/')
+  SECRET_KEY=$(echo "$SUPABASE_START_OUTPUT" | grep -Eo 'Secret key: sb_secret_[A-Za-z0-9_]+' | head -1 | sed -E 's/Secret key: (sb_secret_[A-Za-z0-9_]+)/\1/')
+
+  # set to anon_key the publishable key if found otherwise keep the extracted anon key
+  if [ -n "$PUBLISHABLE_KEY" ]; then
+    ANON_KEY="$PUBLISHABLE_KEY"
+  fi
+  # set to service_role_key the secret key if found otherwise keep the extracted service_role key
+  if [ -n "$SECRET_KEY" ]; then
+    SERVICE_ROLE_KEY="$SECRET_KEY"
+  fi 
+
+  # check if keys were found and update .env file
   if [ -n "$ANON_KEY" ]; then
     if grep -q '^NEXT_PUBLIC_SUPABASE_ANON_KEY=' "$env_file"; then
       sed -i '' "s|^NEXT_PUBLIC_SUPABASE_ANON_KEY=.*|NEXT_PUBLIC_SUPABASE_ANON_KEY=\"$ANON_KEY\"|" "$env_file"
@@ -153,7 +168,8 @@ setup_supabase() {
     fi
     echo "Set NEXT_PUBLIC_SUPABASE_ANON_KEY in $env_file."
   else
-    echo "Could not find anon key in supabase start output."
+    echo "Could not find anon key / publishable key in supabase start output."
+    echo "${YELLOW}Please set NEXT_PUBLIC_SUPABASE_ANON_KEY manually in $env_file.${NC}"
   fi
 
   if [ -n "$SERVICE_ROLE_KEY" ]; then
@@ -164,12 +180,34 @@ setup_supabase() {
     fi
     echo "Set SUPABASE_SECRET_KEY in $env_file."
   else
-    echo "Could not find service_role key in supabase start output."
+    echo "Could not find service_role key / secret key in supabase start output."
+    echo "${YELLOW}Please set SUPABASE_SECRET_KEY manually in $env_file.${NC}"
   fi
 }
+
+# Install frontend dependencies and build the project
+setup_frontend() {
+
+  nvm install
+  nvm use
+
+  corepack enable
+
+  echo "\n--- Installing frontend dependencies with yarn ---"
+  yarn install
+
+  echo "\n--- Building the project ---"
+  yarn build
+
+  echo "\n--- Frontend setup complete ---"
+
+  echo "\nYou can now run the development server with:${YELLOW} yarn dev ${NC}"
+}
+
 
 # Main script execution
 check_dependencies
 create_env_from_link
 check_env_vars
 setup_supabase
+setup_frontend
