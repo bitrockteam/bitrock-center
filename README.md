@@ -17,13 +17,23 @@ Modularized platform for Bitrock internal use.
 git clone git@github.com:bitrockteam/bitrock-center.git
 ```
 
+### Automated initialization of project
+
+Inside the project there's an init.sh file, runnable in MacOs / Linux systems.
+
+To proceed execute the following commands and follow the instructions
+
+```bash
+chmod +x init.sh
+./init.sh
+```
+
+## Manual setup
+
 ### Set env variables
 
 - See env variables on [dedicated notion page](https://www.notion.so/Bitrock-Center-1cb75833085d80e3b914dbc329e4170c) (ask Davide Ghiotto for
   access)
-- Copy `apps/backend/.env.example` to `apps/backend/.env` file and update the values accordingly.
-- Copy `apps/frontend/.env.example` to `apps/frontend/.env` file and update the values accordingly.
-- Copy `packages/db/.env.example` to `packages/db/.env` file and update the values accordingly.
 - Copy `.env.example` to `.env` file and update the values accordingly.
 
 > Beware that you will need to run the local instance of Supabase to obtain these two: `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_PROJECT_KEY`. Keep reading to understand how to get them.
@@ -45,9 +55,13 @@ Started supabase local development setup.
     Inbucket URL: http://localhost:54324
         anon key: eyJh......
 service_role key: eyJh......
+# Or
+ Publishable key: sb_publishable_A.....
+      Secret key: sb_secret_N.....
 ```
 
-> In the console you will see the "anon" and "service_role" keys displaying two tokens. These are respectively the values of `apps/frontend/.env > NEXT_PUBLIC_SUPABASE_ANON_KEY` and `apps/backend/.env > SUPABASE_PROJECT_KEY`.
+> In the console you will see the "anon" and "service_role" keys displaying two tokens. These are respectively the values of `.env > NEXT_PUBLIC_SUPABASE_ANON_KEY` and `.env > SUPABASE_PROJECT_KEY`.
+> Or in different versions could be "Publishable key" equivalent to "anon" and "Secret key" equivalent to "service_role".
 
 Access the studio at [http://localhost:54323](http://localhost:54323).
 
