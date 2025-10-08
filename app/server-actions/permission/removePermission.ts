@@ -4,21 +4,21 @@ import { db } from "@/config/prisma";
 import { Permissions } from "@/db";
 
 export async function removePermission(params: {
-  userId: string;
-  permissionId: Permissions;
+  user_id: string;
+  permission_id: Permissions;
 }) {
-  const { userId, permissionId } = params;
+  const { user_id, permission_id } = params;
 
-  if (!userId || !permissionId) {
-    throw new Error("Missing userId or permissionId");
+  if (!user_id || !permission_id) {
+    throw new Error("Missing user_id or permission_id");
   }
 
   try {
     const result = await db.user_permission.delete({
       where: {
         user_id_permission_id: {
-          user_id: userId,
-          permission_id: permissionId,
+          user_id: user_id,
+          permission_id: permission_id,
         },
       },
       select: { user_id: true, permission_id: true },

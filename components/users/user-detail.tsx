@@ -2,16 +2,9 @@
 
 import { FindUserById } from "@/app/server-actions/user/findUserById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { formatDisplayName } from "@/services/users/utils";
-import { motion } from "framer-motion";
-import { ArrowLeft, Edit, Target, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import AddUserDialog from "./add-user-dialog";
-import UserDetailsSections from "./user-details-sections";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -19,8 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useApi } from "@/hooks/useApi";
 import { Permissions } from "@/db";
+import { useApi } from "@/hooks/useApi";
+import { useAssignPermission } from "@/hooks/useAssignPermission";
+import { useRemovePermission } from "@/hooks/useRemovePermission";
+import { formatDisplayName } from "@/services/users/utils";
+import { motion } from "framer-motion";
+import { ArrowLeft, Edit, Target, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import AddUserDialog from "./add-user-dialog";
+import UserDetailsSections from "./user-details-sections";
 
 export default function UserDetail({
   user,
@@ -31,7 +33,9 @@ export default function UserDetail({
   const [selectedPermission, setSelectedPermission] = useState<
     Permissions | undefined
   >(undefined);
-  const { loading, error, callApi, reset } = useApi();
+  const { loading, error, reset } = useApi();
+  const { removePermission } = useRemovePermission();
+  const { assignPermission } = useAssignPermission();
 
   if (!user) {
     return (
@@ -128,12 +132,9 @@ export default function UserDetail({
                         tabIndex={0}
                         onClick={async () => {
                           try {
-                            await callApi("/api/permission/remove", {
-                              method: "DELETE",
-                              body: JSON.stringify({
-                                userId: user.id,
-                                permissionId: p.permission_id,
-                              }),
+                            await removePermission({
+                              user_id: user.id,
+                              permission_id: p.permission_id,
                             });
                             reset();
                             router.refresh();
@@ -145,12 +146,9 @@ export default function UserDetail({
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
                             try {
-                              await callApi("/api/permission/remove", {
-                                method: "DELETE",
-                                body: JSON.stringify({
-                                  userId: user.id,
-                                  permissionId: p.permission_id,
-                                }),
+                              await removePermission({
+                                user_id: user.id,
+                                permission_id: p.permission_id,
                               });
                               reset();
                               router.refresh();
@@ -201,12 +199,9 @@ export default function UserDetail({
                 disabled={!selectedPermission || loading}
                 onClick={async () => {
                   try {
-                    await callApi("/api/permission/assign", {
-                      method: "POST",
-                      body: JSON.stringify({
-                        userId: user.id,
-                        permissionId: selectedPermission,
-                      }),
+                    await assignPermission({
+                      user_id: user.id,
+                      permission_id: selectedPermission!,
                     });
                     reset();
                     setSelectedPermission(undefined);

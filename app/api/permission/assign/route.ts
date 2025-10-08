@@ -1,19 +1,13 @@
-import { NextResponse } from "next/server";
-import { z } from "zod";
 import { assignPermission } from "@/app/server-actions/permission/assignPermission";
-import { Permissions } from "@/db";
-
-const BodySchema = z.object({
-  userId: z.string().uuid(),
-  permissionId: z.nativeEnum(Permissions),
-});
+import { user_permission } from "@/db";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { userId, permissionId } = BodySchema.parse(body);
+    const body: user_permission = await request.json();
+    const { user_id, permission_id } = body;
 
-    const data = await assignPermission({ userId, permissionId });
+    const data = await assignPermission({ user_id, permission_id });
     return NextResponse.json({ success: true, data }, { status: 200 });
   } catch (error) {
     console.error("[POST /api/permission/assign] Error:", error);
