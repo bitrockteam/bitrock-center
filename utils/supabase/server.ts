@@ -1,6 +1,5 @@
 import { UserInfo } from "@/app/server-actions/user/getUserInfo";
 import { createServerClient } from "@supabase/ssr";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
 
 export async function createClient() {
@@ -39,18 +38,10 @@ export async function checkSession() {
   return session;
 }
 
-async function getCookieData(): Promise<ReadonlyRequestCookies> {
-  const cookieData = cookies();
-  return new Promise((resolve) =>
-    setTimeout(() => {
-      resolve(cookieData);
-    }, 1000),
-  );
-}
-
 export async function getUserInfoFromCookie() {
   await checkSession();
-  const cookieStore = await getCookieData();
+  const cookieStore = await cookies();
+
   const cookie = cookieStore.get("x-user-info")?.value;
   if (!cookie) throw new Error("No user info cookie found");
   return JSON.parse(cookie) as UserInfo;

@@ -9,8 +9,11 @@ export async function allowRoles(roles: Role[]) {
 }
 
 export async function hasPermission(permission: Permissions) {
-  const user = await getUserInfoFromCookie();
-  if (!user) return false;
-
-  return user.permissions.includes(permission);
+  try {
+    const user = await getUserInfoFromCookie();
+    return user.permissions.includes(permission);
+  } catch (error) {
+    console.error("Error checking permission:", error);
+    return false;
+  }
 }
