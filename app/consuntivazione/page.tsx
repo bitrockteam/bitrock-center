@@ -5,6 +5,7 @@ import TimeTrackingTable from "@/components/time-tracking/time-tracking-table";
 import WorkingDaysConfig from "@/components/time-tracking/working-days-config";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { hasPermission } from "@/services/users/server.utils";
+import { Permissions } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 import { fetchAllWorkItems } from "../server-actions/work-item/fetchAllWorkItems";
@@ -20,7 +21,9 @@ export default async function TimeTrackingPage() {
   const user = await getUserInfoFromCookie();
   const workItems = await fetchAllWorkItems();
   const timesheets = await fetchUserTimesheet();
-  const CAN_EDIT_WORKING_DAY = await hasPermission("CAN_EDIT_WORKING_DAY");
+  const CAN_EDIT_WORKING_DAY = await hasPermission(
+    Permissions.CAN_EDIT_WORKING_DAY,
+  );
 
   return (
     <div className="space-y-6">

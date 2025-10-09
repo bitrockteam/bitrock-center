@@ -2,6 +2,7 @@ import { findUsersWithProjects } from "@/app/server-actions/user/findUsersWithPr
 import UsersHeader from "@/components/users/users-header";
 import UsersTable from "@/components/users/users-table";
 import { hasPermission } from "@/services/users/server.utils";
+import { Permissions } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -17,7 +18,7 @@ export default async function UsersPage({
   const { params } = await searchParams;
   const users = await findUsersWithProjects(params);
   const user = await getUserInfoFromCookie();
-  const CAN_CREATE_USER = await hasPermission("CAN_CREATE_USER");
+  const CAN_CREATE_USER = await hasPermission(Permissions.CAN_CREATE_USER);
 
   const revalidate = async () => {
     "use server";

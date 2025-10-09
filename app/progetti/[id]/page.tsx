@@ -3,6 +3,7 @@ import { fetchProjectById } from "@/app/server-actions/project/fetchProjectById"
 import { findUsers } from "@/app/server-actions/user/findUsers";
 import ProjectDetail from "@/components/projects/project-detail";
 import { hasPermission } from "@/services/users/server.utils";
+import { Permissions } from "@/db";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -18,13 +19,15 @@ export default async function ProjectDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const CAN_ALLOCATE_RESOURCE = await hasPermission("CAN_ALLOCATE_RESOURCE");
-  const CAN_EDIT_PROJECT = await hasPermission("CAN_EDIT_PROJECT");
+  const CAN_ALLOCATE_RESOURCE = await hasPermission(
+    Permissions.CAN_ALLOCATE_RESOURCE,
+  );
+  const CAN_EDIT_PROJECT = await hasPermission(Permissions.CAN_EDIT_PROJECT);
   const project = await fetchProjectById({ projectId: id });
   const users = await findUsers();
   const allocations = await fetchAllocationsForProject({ projectId: id });
   const CAN_SEE_OTHERS_TIMESHEET = await hasPermission(
-    "CAN_SEE_OTHERS_TIMESHEET",
+    Permissions.CAN_SEE_OTHERS_TIMESHEET,
   );
 
   return (

@@ -1,5 +1,6 @@
 import ClientsHeader from "@/components/client/clients-header";
 import ClientsTable from "@/components/client/clients-table";
+import { Permissions } from "@/db";
 import { hasPermission } from "@/services/users/server.utils";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -12,9 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default async function ClientsPage() {
-  const CAN_CREATE_CLIENT = await hasPermission("CAN_CREATE_CLIENT");
-  const CAN_EDIT_CLIENT = await hasPermission("CAN_EDIT_CLIENT");
-  const CAN_SEE_CLIENT = await hasPermission("CAN_SEE_CLIENT");
+  const CAN_CREATE_CLIENT = await hasPermission(Permissions.CAN_CREATE_CLIENT);
+  const CAN_EDIT_CLIENT = await hasPermission(Permissions.CAN_EDIT_CLIENT);
+  const CAN_SEE_CLIENT = await hasPermission(Permissions.CAN_SEE_CLIENT);
 
   if (!CAN_SEE_CLIENT) {
     redirect("/dashboard");

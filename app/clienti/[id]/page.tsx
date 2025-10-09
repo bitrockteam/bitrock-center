@@ -1,5 +1,6 @@
 import ClientDetail from "@/components/client/client-detail";
 import { hasPermission } from "@/services/users/server.utils";
+import { Permissions } from "@/db";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +16,7 @@ export default async function ClientDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const CAN_EDIT_CLIENT = await hasPermission("CAN_EDIT_CLIENT");
+  const CAN_EDIT_CLIENT = await hasPermission(Permissions.CAN_EDIT_CLIENT);
   return (
     <div className="space-y-6">
       <ClientDetail id={id} canEditClient={CAN_EDIT_CLIENT} />
