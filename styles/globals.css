@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@import "../components/custom/loader/loader.css";
+@import "./animation.css";
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
