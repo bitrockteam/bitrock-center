@@ -29,10 +29,10 @@ import AddClientDialog from "./add-client-dialog";
 
 export default function ClientDetail({
   id,
-  isAdminOrSuperAdmin,
+  canEditClient,
 }: {
   id: string;
-  isAdminOrSuperAdmin?: boolean;
+  canEditClient?: boolean;
 }) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -130,7 +130,7 @@ export default function ClientDetail({
             </div>
           </div>
         </div>
-        {isAdminOrSuperAdmin && (
+        {canEditClient && (
           <Button onClick={() => setShowEditDialog(true)}>
             <Edit className="mr-2 h-4 w-4" />
             Modifica Cliente

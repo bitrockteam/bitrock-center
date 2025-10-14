@@ -39,9 +39,9 @@ import { useEffect, useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
 export default function ClientsTable({
-  isAdminOrSuperAdmin,
+  canEditClient,
 }: {
-  isAdminOrSuperAdmin: boolean;
+  canEditClient: boolean;
 }) {
   const router = useRouter();
   const [editClient, setEditClient] = useState<string>();
@@ -141,16 +141,18 @@ export default function ClientsTable({
                               <Eye className="mr-2 h-4 w-4" />
                               <span>Visualizza</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditClient(client.id);
-                              }}
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              <span>Modifica</span>
-                            </DropdownMenuItem>
-                            {isAdminOrSuperAdmin && (
+                            {canEditClient && (
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditClient(client.id);
+                                }}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                <span>Modifica</span>
+                              </DropdownMenuItem>
+                            )}
+                            {canEditClient && (
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"
                                 onClick={(e) => {

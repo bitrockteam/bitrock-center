@@ -1,7 +1,8 @@
 import { findUsersWithProjects } from "@/app/server-actions/user/findUsersWithProjects";
 import UsersHeader from "@/components/users/users-header";
 import UsersTable from "@/components/users/users-table";
-import { allowRoles } from "@/services/users/server.utils";
+import { hasPermission } from "@/services/users/server.utils";
+import { Permissions } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -17,7 +18,7 @@ export default async function UsersPage({
   const { params } = await searchParams;
   const users = await findUsersWithProjects(params);
   const user = await getUserInfoFromCookie();
-  const isAdminOrSuperAdmin = await allowRoles(["Admin", "Super_Admin"]);
+  const CAN_CREATE_USER = await hasPermission(Permissions.CAN_CREATE_USER);
 
   const revalidate = async () => {
     "use server";
@@ -26,7 +27,7 @@ export default async function UsersPage({
 
   return (
     <div className="space-y-6">
-      <UsersHeader user={user} isAdminOrSuperAdmin={isAdminOrSuperAdmin} />
+      <UsersHeader user={user} canCreateUser={CAN_CREATE_USER} />
       <UsersTable users={users} refetch={revalidate} user={user} />
     </div>
   );

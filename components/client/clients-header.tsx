@@ -8,9 +8,9 @@ import { useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
 export default function ClientsHeader({
-  isAdminOrSuperAdmin,
+  canCreateClient,
 }: {
-  isAdminOrSuperAdmin: boolean;
+  canCreateClient: boolean;
 }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
 
@@ -34,7 +34,7 @@ export default function ClientsHeader({
             className="w-full pl-8 sm:w-[300px]"
           />
         </div>
-        {isAdminOrSuperAdmin && (
+        {canCreateClient && (
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button onClick={() => setShowAddDialog(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
