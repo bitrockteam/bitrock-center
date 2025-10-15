@@ -115,14 +115,14 @@ interface AddWorkItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editData?: WorkItemFormData;
-  isAdminOrSuperAdmin?: boolean;
+  canCreateWorkItem?: boolean;
 }
 
 export default function AddWorkItemDialog({
   open,
   onOpenChange,
   editData,
-  isAdminOrSuperAdmin = false,
+  canCreateWorkItem = false,
 }: AddWorkItemDialogProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -258,7 +258,7 @@ export default function AddWorkItemDialog({
             <FormField
               control={form.control}
               name="title"
-              disabled={!isAdminOrSuperAdmin}
+              disabled={!canCreateWorkItem}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Titolo</FormLabel>
@@ -280,7 +280,7 @@ export default function AddWorkItemDialog({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={!isAdminOrSuperAdmin}
+                      disabled={!canCreateWorkItem}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -310,7 +310,7 @@ export default function AddWorkItemDialog({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={!isAdminOrSuperAdmin}
+                      disabled={!canCreateWorkItem}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -355,7 +355,7 @@ export default function AddWorkItemDialog({
                           field.onChange(value);
                           form.setValue("project_id", ""); // Reset project when client changes
                         }}
-                        disabled={!isAdminOrSuperAdmin}
+                        disabled={!canCreateWorkItem}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -393,7 +393,7 @@ export default function AddWorkItemDialog({
                         disabled={
                           !selectedClient ||
                           projects.length === 0 ||
-                          !isAdminOrSuperAdmin
+                          !canCreateWorkItem
                         }
                       >
                         <FormControl>
@@ -424,7 +424,7 @@ export default function AddWorkItemDialog({
               <FormField
                 control={form.control}
                 name="start_date"
-                disabled={!isAdminOrSuperAdmin}
+                disabled={!canCreateWorkItem}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Data Inizio</FormLabel>
@@ -439,7 +439,7 @@ export default function AddWorkItemDialog({
               <FormField
                 control={form.control}
                 name="end_date"
-                disabled={!isAdminOrSuperAdmin}
+                disabled={!canCreateWorkItem}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Data Fine (Opzionale)</FormLabel>
@@ -464,7 +464,7 @@ export default function AddWorkItemDialog({
                         <Input
                           type="number"
                           step="0.01"
-                          disabled={!isAdminOrSuperAdmin}
+                          disabled={!canCreateWorkItem}
                           placeholder="0.00"
                           value={field.value?.toString() || ""}
                           onChange={(e) =>
@@ -491,7 +491,7 @@ export default function AddWorkItemDialog({
                         <Input
                           type="number"
                           step="0.5"
-                          disabled={!isAdminOrSuperAdmin}
+                          disabled={!canCreateWorkItem}
                           placeholder="0"
                           value={field.value?.toString() || ""}
                           onChange={(e) =>
@@ -521,7 +521,7 @@ export default function AddWorkItemDialog({
                       <Input
                         type="number"
                         step="0.01"
-                        disabled={!isAdminOrSuperAdmin}
+                        disabled={!canCreateWorkItem}
                         placeholder="0.00"
                         value={field.value?.toString() || ""}
                         onChange={(e) =>
@@ -540,7 +540,7 @@ export default function AddWorkItemDialog({
             <FormField
               control={form.control}
               name="description"
-              disabled={!isAdminOrSuperAdmin}
+              disabled={!canCreateWorkItem}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Descrizione (Opzionale)</FormLabel>

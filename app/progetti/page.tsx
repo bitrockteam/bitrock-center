@@ -1,7 +1,8 @@
 import { fetchAllProjects } from "@/app/server-actions/project/fetchAllProjects";
 import ProjectsHeader from "@/components/projects/projects-header";
 import ProjectsTable from "@/components/projects/projects-table";
-import { allowRoles } from "@/services/users/server.utils";
+import { hasPermission } from "@/services/users/server.utils";
+import { Permissions } from "@/db";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -13,12 +14,14 @@ export const metadata: Metadata = {
 
 export default async function ProjectsPage() {
   const projects = await fetchAllProjects();
-  const canDealProjects = await allowRoles(["Admin", "Super_Admin"]);
+  const CAN_CREATE_PROJECT = await hasPermission(
+    Permissions.CAN_CREATE_PROJECT,
+  );
   console.log("Projects:", projects);
-  console.log("Can deal projects:", canDealProjects);
+  console.log("Can deal projects:", CAN_CREATE_PROJECT);
   return (
     <div className="space-y-6">
-      <ProjectsHeader canDealProjects={canDealProjects} />
+      <ProjectsHeader canCreateProject={CAN_CREATE_PROJECT} />
       <ProjectsTable projects={projects} />
     </div>
   );

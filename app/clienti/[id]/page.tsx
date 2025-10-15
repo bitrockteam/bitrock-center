@@ -1,5 +1,6 @@
 import ClientDetail from "@/components/client/client-detail";
-import { allowRoles } from "@/services/users/server.utils";
+import { hasPermission } from "@/services/users/server.utils";
+import { Permissions } from "@/db";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -15,10 +16,10 @@ export default async function ClientDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const isAdminOrSuperAdmin = await allowRoles(["Admin", "Super_Admin"]);
+  const CAN_EDIT_CLIENT = await hasPermission(Permissions.CAN_EDIT_CLIENT);
   return (
     <div className="space-y-6">
-      <ClientDetail id={id} isAdminOrSuperAdmin={isAdminOrSuperAdmin} />
+      <ClientDetail id={id} canEditClient={CAN_EDIT_CLIENT} />
     </div>
   );
 }

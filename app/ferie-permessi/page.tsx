@@ -1,6 +1,7 @@
 import PermitContainer from "@/components/permits/permit-container";
 import PermitHeader from "@/components/permits/permit-header";
-import { allowRoles } from "@/services/users/server.utils";
+import { hasPermission } from "@/services/users/server.utils";
+import { Permissions } from "@/db";
 import type { Metadata } from "next";
 import PermitApproval from "./permit-approval";
 
@@ -12,18 +13,15 @@ export const metadata: Metadata = {
 };
 
 export default async function LeavePage() {
-  const isReferent = await allowRoles([
-    "Admin",
-    "Super_Admin",
-    "Manager",
-    "Key_Client",
-  ]);
+  const CAN_APPROVE_PERMIT = await hasPermission(
+    Permissions.CAN_APPROVE_PERMIT,
+  );
 
   return (
     <div className="space-y-6">
       <PermitHeader />
       <PermitContainer />
-      {isReferent && <PermitApproval />}
+      {CAN_APPROVE_PERMIT && <PermitApproval />}
     </div>
   );
 }

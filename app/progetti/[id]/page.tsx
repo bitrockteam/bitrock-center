@@ -2,7 +2,8 @@ import { fetchAllocationsForProject } from "@/app/server-actions/project/fetchAl
 import { fetchProjectById } from "@/app/server-actions/project/fetchProjectById";
 import { findUsers } from "@/app/server-actions/user/findUsers";
 import ProjectDetail from "@/components/projects/project-detail";
-import { allowRoles } from "@/services/users/server.utils";
+import { hasPermission } from "@/services/users/server.utils";
+import { Permissions } from "@/db";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -18,31 +19,27 @@ export default async function ProjectDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const canDealProjects = await allowRoles(["Admin", "Super_Admin"]);
-  const canAllocateResources = await allowRoles([
-    "Admin",
-    "Super_Admin",
-    "Key_Client",
-  ]);
+  const CAN_ALLOCATE_RESOURCE = await hasPermission(
+    Permissions.CAN_ALLOCATE_RESOURCE,
+  );
+  const CAN_EDIT_PROJECT = await hasPermission(Permissions.CAN_EDIT_PROJECT);
   const project = await fetchProjectById({ projectId: id });
   const users = await findUsers();
   const allocations = await fetchAllocationsForProject({ projectId: id });
-  const canSeeUsersTimesheets = await allowRoles([
-    "Admin",
-    "Super_Admin",
-    "Key_Client",
-  ]);
+  const CAN_SEE_OTHERS_TIMESHEET = await hasPermission(
+    Permissions.CAN_SEE_OTHERS_TIMESHEET,
+  );
 
   return (
     <div className="space-y-6">
       <ProjectDetail
         users={users}
         id={id}
-        canAllocateResources={canAllocateResources}
-        canDealProjects={canDealProjects}
+        canAllocateResources={CAN_ALLOCATE_RESOURCE}
+        canEditProject={CAN_EDIT_PROJECT}
         project={project}
         allocations={allocations}
-        canSeeUsersTimesheets={canSeeUsersTimesheets}
+        canSeeUsersTimesheets={CAN_SEE_OTHERS_TIMESHEET}
       />
     </div>
   );
