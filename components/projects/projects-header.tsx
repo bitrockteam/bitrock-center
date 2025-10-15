@@ -9,9 +9,9 @@ import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 
 export default function ProjectsHeader({
-  canDealProjects,
+  canCreateProject,
 }: {
-  canDealProjects?: boolean;
+  canCreateProject?: boolean;
 }) {
   const router = useRouter();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -68,7 +68,7 @@ export default function ProjectsHeader({
             onChange={handleChange}
           />
         </div>
-        {canDealProjects && (
+        {canCreateProject && (
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button onClick={() => setShowAddDialog(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />

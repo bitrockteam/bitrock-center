@@ -11,10 +11,10 @@ import AddUserDialog from "./add-user-dialog";
 
 export default function UsersHeader({
   user,
-  isAdminOrSuperAdmin,
+  canCreateUser,
 }: {
   user: user;
-  isAdminOrSuperAdmin: boolean;
+  canCreateUser: boolean;
 }) {
   const router = useRouter();
   const serachParams = useSearchParams();
@@ -72,7 +72,7 @@ export default function UsersHeader({
             onChange={handleChange}
           />
         </div>
-        {isAdminOrSuperAdmin && (
+        {canCreateUser && (
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               onClick={() => setShowAddDialog(true)}

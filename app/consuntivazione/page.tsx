@@ -4,11 +4,11 @@ import TimeTrackingHeader from "@/components/time-tracking/time-tracking-header"
 import TimeTrackingTable from "@/components/time-tracking/time-tracking-table";
 import WorkingDaysConfig from "@/components/time-tracking/working-days-config";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { hasPermission } from "@/services/users/server.utils";
+import { Permissions } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
 import { fetchAllWorkItems } from "../server-actions/work-item/fetchAllWorkItems";
-import { allowRoles } from "@/services/users/server.utils";
-import { Role } from "@/db";
 
 export const dynamic = "force-dynamic";
 
@@ -21,18 +21,20 @@ export default async function TimeTrackingPage() {
   const user = await getUserInfoFromCookie();
   const workItems = await fetchAllWorkItems();
   const timesheets = await fetchUserTimesheet();
-  const canEditConfig = await allowRoles([Role.Admin, Role.Super_Admin]);
+  const CAN_EDIT_WORKING_DAY = await hasPermission(
+    Permissions.CAN_EDIT_WORKING_DAY,
+  );
 
   return (
     <div className="space-y-6">
       <TimeTrackingHeader user={user} />
       <Tabs defaultValue="table" className="w-full">
         <TabsList
-          className={`grid w-full max-w-md ${canEditConfig ? "grid-cols-3" : "grid-cols-2"}`}
+          className={`grid w-full max-w-md ${CAN_EDIT_WORKING_DAY ? "grid-cols-3" : "grid-cols-2"}`}
         >
           <TabsTrigger value="table">Tabella</TabsTrigger>
           <TabsTrigger value="calendar">Calendario</TabsTrigger>
-          {canEditConfig && (
+          {CAN_EDIT_WORKING_DAY && (
             <TabsTrigger value="config">Configurazione Orari</TabsTrigger>
           )}
         </TabsList>
@@ -50,7 +52,7 @@ export default async function TimeTrackingPage() {
             timesheets={timesheets}
           />
         </TabsContent>
-        {canEditConfig && (
+        {CAN_EDIT_WORKING_DAY && (
           <TabsContent value="config">
             <WorkingDaysConfig />
           </TabsContent>

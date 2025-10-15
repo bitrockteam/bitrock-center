@@ -47,14 +47,14 @@ import { AddProjectMemberDialog } from "./add-project-member-dialog";
 export default function ProjectDetail({
   id,
   canAllocateResources,
-  canDealProjects,
+  canEditProject,
   project,
   allocations,
   canSeeUsersTimesheets = false,
   users,
 }: Readonly<{
   id: string;
-  canDealProjects?: boolean;
+  canEditProject?: boolean;
   canAllocateResources?: boolean;
   project: ProjectById;
   allocations: UserAllocated[];
@@ -136,7 +136,7 @@ export default function ProjectDetail({
               Vai al Piano
             </Button>
           </motion.div>
-          {canDealProjects && (
+          {canEditProject && (
             <Button onClick={() => setShowEditDialog(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Modifica Progetto

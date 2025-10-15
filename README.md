@@ -43,6 +43,7 @@ chmod +x init.sh
 - install the [supabase cli](https://supabase.com/docs/guides/local-development/cli/getting-started#updating-the-supabase-cli) (optional): if not installed a prefix `npx` is required to run the supabase via command line
 - run `supabase login` to access the hosted supabase instance
 - run `supabase link` to link the local instance to the remote one (for database diff, migrations and other stuff)
+  - Get the `DATABASE_PASSWORD` from Notion page and paste it when prompted
 - run `supabase start` will start a docker container for your local supabase instance
 
 If everything run correctly you should see something like this on your terminal:
@@ -126,18 +127,16 @@ We cannot merge directly in `main` and we will require the pipelines to pass.
 
 ## Technologies
 
-- [Turborepo](https://turborepo.com/docs)
 - [Docker](https://www.docker.com/)
 - [yarn](https://yarnpkg.com)
 - [TypeScript](https://www.typescriptlang.org)
 - [Node.js](https://nodejs.org/en/) v22.15.0
-- [Vercel](https://vercel.com/) for `frontend` deployment (?)
-- [Render](https://render.com/) for `backend` deployment (?)
+- [Vercel](https://vercel.com/) for deployment (on Davide's personal account)
 - [eslint](https://eslint.org/) for code linting
 - [prettier](https://prettier.io/) for code formatting (?)
 - [husky](https://typicode.github.io/husky) for pre-commit hooks
 
-### Frontend
+### Web App
 
 - [Next.js](https://nextjs.org)
 - [React Hook Form](https://react-hook-form.com/)
@@ -145,10 +144,7 @@ We cannot merge directly in `main` and we will require the pipelines to pass.
 - [shadcn/ui](https://ui.shadcn.com)
 - [Lucide React](https://lucide.dev)
 - [Tailwind CSS](https://tailwindcss.com)
-
-### Backend
-
-- [Express](https://expressjs.com)
 - [Prisma](https://www.prisma.io)
 - [Supabase](https://supabase.com)
 - [PostgreSQL](https://www.postgresql.org)
+

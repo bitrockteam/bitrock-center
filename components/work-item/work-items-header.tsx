@@ -105,7 +105,7 @@ export default function WorkItemsHeader({
       <AddWorkItemDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
-        isAdminOrSuperAdmin={canCreateWorkItem}
+        canCreateWorkItem={canCreateWorkItem}
       />
     </motion.div>
   );
