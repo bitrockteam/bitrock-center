@@ -21,10 +21,7 @@ git clone git@github.com:bitrockteam/bitrock-center.git
 
 - See env variables on [dedicated notion page](https://www.notion.so/Bitrock-Center-1cb75833085d80e3b914dbc329e4170c) (ask Davide Ghiotto for
   access)
-- Copy `apps/backend/.env.example` to `apps/backend/.env` file and update the values accordingly.
-- Copy `apps/frontend/.env.example` to `apps/frontend/.env` file and update the values accordingly.
-- Copy `packages/db/.env.example` to `packages/db/.env` file and update the values accordingly.
-- Copy `.env.example` to `.env` file and update the values accordingly.
+- Copy `.env.example` to `.env.local` file and update the values accordingly.
 
 > Beware that you will need to run the local instance of Supabase to obtain these two: `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_PROJECT_KEY`. Keep reading to understand how to get them.
 
@@ -33,6 +30,7 @@ git clone git@github.com:bitrockteam/bitrock-center.git
 - install the [supabase cli](https://supabase.com/docs/guides/local-development/cli/getting-started#updating-the-supabase-cli) (optional): if not installed a prefix `npx` is required to run the supabase via command line
 - run `supabase login` to access the hosted supabase instance
 - run `supabase link` to link the local instance to the remote one (for database diff, migrations and other stuff)
+  - Get the `DATABASE_PASSWORD` from Notion page and paste it when prompted
 - run `supabase start` will start a docker container for your local supabase instance
 
 If everything run correctly you should see something like this on your terminal:
@@ -47,7 +45,7 @@ Started supabase local development setup.
 service_role key: eyJh......
 ```
 
-> In the console you will see the "anon" and "service_role" keys displaying two tokens. These are respectively the values of `apps/frontend/.env > NEXT_PUBLIC_SUPABASE_ANON_KEY` and `apps/backend/.env > SUPABASE_PROJECT_KEY`.
+> In the console you will see the "anon" and "service_role" keys displaying two tokens. These are respectively the values of `.env.local > NEXT_PUBLIC_SUPABASE_ANON_KEY` and `.env.local > SUPABASE_SECRET_KEY`.
 
 Access the studio at [http://localhost:54323](http://localhost:54323).
 
@@ -112,18 +110,16 @@ We cannot merge directly in `main` and we will require the pipelines to pass.
 
 ## Technologies
 
-- [Turborepo](https://turborepo.com/docs)
 - [Docker](https://www.docker.com/)
 - [yarn](https://yarnpkg.com)
 - [TypeScript](https://www.typescriptlang.org)
 - [Node.js](https://nodejs.org/en/) v22.15.0
-- [Vercel](https://vercel.com/) for `frontend` deployment (?)
-- [Render](https://render.com/) for `backend` deployment (?)
+- [Vercel](https://vercel.com/) for deployment (on Davide's personal account)
 - [eslint](https://eslint.org/) for code linting
 - [prettier](https://prettier.io/) for code formatting (?)
 - [husky](https://typicode.github.io/husky) for pre-commit hooks
 
-### Frontend
+### Web App
 
 - [Next.js](https://nextjs.org)
 - [React Hook Form](https://react-hook-form.com/)
@@ -131,10 +127,7 @@ We cannot merge directly in `main` and we will require the pipelines to pass.
 - [shadcn/ui](https://ui.shadcn.com)
 - [Lucide React](https://lucide.dev)
 - [Tailwind CSS](https://tailwindcss.com)
-
-### Backend
-
-- [Express](https://expressjs.com)
 - [Prisma](https://www.prisma.io)
 - [Supabase](https://supabase.com)
 - [PostgreSQL](https://www.postgresql.org)
+
