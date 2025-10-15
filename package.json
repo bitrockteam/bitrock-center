@@ -1,7 +1,6 @@
 {
   "version": "1.0.0",
   "private": true,
-  "name": "@bitrock-center",
   "scripts": {
     "dev": "next dev --turbopack --port 3000",
     "build": "next build",
@@ -88,7 +87,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "prettier": "^3.5.3",
     "prisma": "^6.11.1",
-    "supabase": "^2.30.4",
+    "supabase": "2.51.0",
     "ts-jest": "^29.3.1",
     "tsx": "^4.19.4",
     "turbo": "^2.5.4",
