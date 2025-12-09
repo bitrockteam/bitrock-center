@@ -1,5 +1,6 @@
 "use server";
 import { db } from "@/config/prisma";
+import { Role } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
 export async function fetchUserReviewers() {
@@ -13,7 +14,7 @@ export async function fetchUserReviewers() {
 
   const userKeyClient = await db.user.findMany({
     where: {
-      role: "Key_Client",
+      role: Role.Key_Client,
       allocation: {
         some: {
           project_id: {

@@ -191,11 +191,7 @@ export default function WorkItemsTable({
                                     key={user_id}
                                     className="h-6 w-6 border-2 border-background"
                                   >
-                                    <AvatarImage
-                                      src={
-                                        user?.avatar_url || "/placeholder.svg?height=24&width=24"
-                                      }
-                                    />
+                                    <AvatarImage src={user?.avatar_url || "/logo.png"} />
                                     <AvatarFallback className="text-xs">
                                       {user?.name.charAt(0)}
                                     </AvatarFallback>

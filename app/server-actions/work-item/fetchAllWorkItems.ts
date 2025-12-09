@@ -7,7 +7,7 @@ export async function fetchAllWorkItems(params?: string | null) {
   const user = await getUserInfoFromCookie();
 
   // Example: restrict to user's enabled work items if not admin
-  if (user.role !== "Admin" && user.role !== "Super_Admin") {
+  if (user.role !== "Admin" && user.role !== "Super Admin") {
     return db.work_items.findMany({
       where: {
         work_item_enabled_users: {

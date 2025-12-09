@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/config/prisma";
+import { contractstatus } from "@/db";
 
 export async function closeContract(employeeId: string, contractId: string) {
   return db.contract.update({
@@ -10,7 +11,7 @@ export async function closeContract(employeeId: string, contractId: string) {
     },
     data: {
       end_date: new Date(),
-      status: "not_active",
+      status: contractstatus.not_active,
     },
   });
 }

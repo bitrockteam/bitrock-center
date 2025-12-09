@@ -144,7 +144,7 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
-            <AvatarImage src={employee.avatar_url || "/placeholder.svg?height=64&width=64"} />
+            <AvatarImage src={employee.avatar_url || "/logo.png"} />
             <AvatarFallback>
               <AvatarFallback>
                 {formatDisplayName({

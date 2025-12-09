@@ -64,7 +64,7 @@ export function TeamMemberCard({
               <CardTitle className="flex flex-row items-center gap-4">
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={teamMember.avatar_url || "/placeholder.svg?height=32&width=32"}
+                    src={teamMember.avatar_url || "/logo.png"}
                     alt={`Avatar di ${teamMember.name}`}
                   />
                   <AvatarFallback>{teamMember.name.charAt(0).toUpperCase()}</AvatarFallback>

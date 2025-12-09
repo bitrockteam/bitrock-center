@@ -6,7 +6,7 @@ import { getUserInfoFromCookie } from "@/utils/supabase/server";
 export async function fetchAllProjects(params?: string | null) {
   const user = await getUserInfoFromCookie();
 
-  if (user.role !== "Admin" && user.role !== "Super_Admin") {
+  if (user.role !== "Admin" && user.role !== "Super Admin") {
     return db.project.findMany({
       where: {
         work_items: {

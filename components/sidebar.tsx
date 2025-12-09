@@ -165,10 +165,7 @@ export default function Sidebar({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          src={user.avatar_url || "/placeholder.svg?height=32&width=32"}
-                          alt="user avatar"
-                        />
+                        <AvatarImage src={user.avatar_url || "/logo.png"} alt="user avatar" />
                         <AvatarFallback>
                           {user.name
                             .trim()

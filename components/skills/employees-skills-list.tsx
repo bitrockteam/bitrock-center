@@ -257,9 +257,7 @@ export default function EmployeesSkillsList() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-12 w-12">
-                        <AvatarImage
-                          src={employee.avatar_url || "/placeholder.svg?height=48&width=48"}
-                        />
+                        <AvatarImage src={employee.avatar_url || "/logo.png"} />
                         <AvatarFallback>
                           {formatDisplayName({
                             name: employee.name,

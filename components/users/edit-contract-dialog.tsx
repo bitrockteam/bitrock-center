@@ -64,7 +64,7 @@ export default function EditContractDialog({
     defaultValues: {
       ral: contract?.ral || 0,
       contract_type: contract?.contract_type || "permanent",
-      working_hours: contract?.working_hours || "full_time",
+      working_hours: contract?.working_hours || workinghours.full_time,
       remote_policy: contract?.remote_policy || "hybrid",
       notes: contract?.notes || "",
     },
