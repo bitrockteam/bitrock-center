@@ -14,10 +14,11 @@ import { login } from "./actions";
 
 export default async function LoginPage() {
   const supabase = await createClient();
-  const session = await supabase.auth.getSession();
-  console.log({ session });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (session.data.session) redirect("/");
+  if (user) redirect("/");
   return (
     <div className="flex justify-center items-center min-h-screen">
       <Card className="w-full max-w-md bg-transparent border-2 border-primary/50 text-center">

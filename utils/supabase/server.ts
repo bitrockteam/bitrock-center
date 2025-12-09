@@ -30,6 +30,14 @@ export async function createClient() {
 export async function checkSession() {
   const supabase = await createClient();
   const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("No user found");
+  }
+
+  const {
     data: { session },
   } = await supabase.auth.getSession();
 

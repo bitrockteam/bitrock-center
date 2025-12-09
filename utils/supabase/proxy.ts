@@ -67,8 +67,11 @@ export async function updateSession(request: NextRequest) {
   // of sync and terminate the user's session prematurely!
 
   // 🔑 Add custom user info from token
-  const session = await supabase.auth.getSession();
-  const token = session.data.session?.access_token;
+  // Use getUser() to get authenticated user data, then get session for token
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const token = session?.access_token;
   if (token) {
     const decodedToken = jwtDecode(token) as { email: string };
     let userInfo: UserInfo | null = null;
