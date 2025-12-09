@@ -2,11 +2,7 @@
 
 import { db } from "@/config/prisma";
 
-export async function fetchWorkItemById({
-  workItemId,
-}: {
-  workItemId: string;
-}) {
+export async function fetchWorkItemById({ workItemId }: { workItemId: string }) {
   return db.work_items.findUnique({
     where: { id: workItemId },
     include: {

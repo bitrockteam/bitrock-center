@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/config/prisma";
-import { contract } from "@/db";
+import type { contract } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
 export async function updateEmployeeContract(
@@ -8,7 +8,7 @@ export async function updateEmployeeContract(
   contract: Pick<
     contract,
     "id" | "ral" | "contract_type" | "working_hours" | "remote_policy" | "notes"
-  >,
+  >
 ) {
   const currentUser = await getUserInfoFromCookie();
 

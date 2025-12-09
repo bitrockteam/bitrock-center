@@ -1,7 +1,12 @@
 "use client";
 
-import { FindUserById } from "@/app/server-actions/user/findUserById";
-import { FindUsers } from "@/app/server-actions/user/findUsers";
+import { motion } from "framer-motion";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { FindUserById } from "@/app/server-actions/user/findUserById";
+import type { FindUsers } from "@/app/server-actions/user/findUsers";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,15 +25,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Role, user } from "@/db";
+import { Role, type user } from "@/db";
 import { useApi } from "@/hooks/useApi";
 import { cn } from "@/lib/utils";
 import { getFirstnameAndLastname } from "@/services/users/utils";
-import { motion } from "framer-motion";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { FileUploader } from "../custom/FileUploader";
 import {
   Command,
@@ -39,13 +39,7 @@ import {
   CommandList,
 } from "../ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 interface AddUserDialogProps {
   open: boolean;
@@ -53,7 +47,7 @@ interface AddUserDialogProps {
     open: boolean,
     options?: {
       shouldRefetch?: boolean;
-    },
+    }
   ) => void;
   editData?: FindUserById;
   onRefetch?: () => void;
@@ -66,11 +60,7 @@ export default function AddUserDialog({
   editData,
   user,
 }: Readonly<AddUserDialogProps>) {
-  const {
-    data: users,
-    callApi: fetchUsers,
-    loading: loadingUsers,
-  } = useApi<FindUsers[]>();
+  const { data: users, callApi: fetchUsers, loading: loadingUsers } = useApi<FindUsers[]>();
   const { callApi: createUserApi } = useApi();
   const { callApi: updateUserApi } = useApi();
   const { callApi: uploadFileApi } = useApi<{ data?: { fullPath?: string } }>();
@@ -180,9 +170,7 @@ export default function AddUserDialog({
     <Dialog open={open} onOpenChange={onComplete}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>
-            {editData ? "Modifica Utente" : "Nuovo Utente"}
-          </DialogTitle>
+          <DialogTitle>{editData ? "Modifica Utente" : "Nuovo Utente"}</DialogTitle>
           <DialogDescription>
             {editData
               ? "Modifica i dettagli dell'utente."
@@ -277,10 +265,7 @@ export default function AddUserDialog({
                   <FormItem>
                     <FormLabel>Referente</FormLabel>
                     <FormControl>
-                      <Popover
-                        open={isPopoverOpen}
-                        onOpenChange={setIsPopoverOpen}
-                      >
+                      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -289,11 +274,8 @@ export default function AddUserDialog({
                             className="justify-between"
                             disabled={loadingUsers}
                           >
-                            {field.value &&
-                            users?.some((u: FindUsers) => u.id === field.value)
-                              ? users.find(
-                                  (user: FindUsers) => user.id === field.value,
-                                )?.name
+                            {field.value && users?.some((u: FindUsers) => u.id === field.value)
+                              ? users.find((user: FindUsers) => user.id === field.value)?.name
                               : "Seleziona referente..."}
                             <ChevronsUpDown className="opacity-50" />
                           </Button>
@@ -305,14 +287,10 @@ export default function AddUserDialog({
                               className="h-9 pointer-events-auto"
                             />
                             <CommandList>
-                              <CommandEmpty>
-                                Nessun membro disponibile
-                              </CommandEmpty>
+                              <CommandEmpty>Nessun membro disponibile</CommandEmpty>
                               <CommandGroup>
                                 {users
-                                  ?.filter(
-                                    (u: FindUsers) => u.id !== editData?.id,
-                                  )
+                                  ?.filter((u: FindUsers) => u.id !== editData?.id)
                                   .map((user: FindUsers) => (
                                     <CommandItem
                                       key={user.id}
@@ -327,9 +305,7 @@ export default function AddUserDialog({
                                       <Check
                                         className={cn(
                                           "ml-auto",
-                                          field.value === user.id
-                                            ? "opacity-100"
-                                            : "opacity-0",
+                                          field.value === user.id ? "opacity-100" : "opacity-0"
                                         )}
                                       />
                                     </CommandItem>
@@ -350,20 +326,11 @@ export default function AddUserDialog({
             )}
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onComplete(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => onComplete(false)}>
                 Annulla
               </Button>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button type="submit">
-                  {editData ? "Aggiorna" : "Crea Utente"}
-                </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button type="submit">{editData ? "Aggiorna" : "Crea Utente"}</Button>
               </motion.div>
             </DialogFooter>
           </form>

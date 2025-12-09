@@ -1,11 +1,9 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { client } from "@/db";
+import type { client } from "@/db";
 
-export async function createClient(
-  data: Omit<client, "id" | "created_at" | "updated_at">,
-) {
+export async function createClient(data: Omit<client, "id" | "created_at" | "updated_at">) {
   return db.client.create({
     data: {
       name: data.name,

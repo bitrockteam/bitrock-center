@@ -1,5 +1,5 @@
 import { toggleSkillActive } from "@/app/server-actions/skills/toggleSkillActive";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const toggleSkillActiveSchema = z.object({
@@ -25,9 +25,9 @@ export async function PATCH(request: NextRequest) {
         {
           success: false,
           error: "Invalid input data",
-          details: error.errors,
+          details: error.issues,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -36,7 +36,7 @@ export async function PATCH(request: NextRequest) {
         success: false,
         error: "Failed to toggle skill active status",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

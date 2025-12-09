@@ -1,5 +1,5 @@
-import { TeamMember } from "@/components/team/types";
 import { useCallback, useState } from "react";
+import type { TeamMember } from "@/components/team/types";
 
 export const useOptimisticTeam = (initialTeamMembers: TeamMember[]) => {
   const [optimisticTeamMembers, setOptimisticTeamMembers] =
@@ -10,9 +10,7 @@ export const useOptimisticTeam = (initialTeamMembers: TeamMember[]) => {
   }, []);
 
   const removeMemberOptimistically = useCallback((memberId: string) => {
-    setOptimisticTeamMembers((prev) =>
-      prev.filter((member) => member.id !== memberId),
-    );
+    setOptimisticTeamMembers((prev) => prev.filter((member) => member.id !== memberId));
   }, []);
 
   const syncWithServerData = useCallback((serverData: TeamMember[]) => {

@@ -1,19 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-
-import { confirmChatAction } from "@/app/server-actions/ai/confirmChatAction";
-import { createNewChatSession } from "@/app/server-actions/ai/createNewChatSession";
-import { deleteChatSession } from "@/app/server-actions/ai/deleteChatSession";
-import { ChatSession } from "@/app/server-actions/ai/getChatSessions";
-import { smartSearch } from "@/app/server-actions/ai/service/service";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
-import { message } from "@/db";
-import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bot,
@@ -28,15 +14,24 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { confirmChatAction } from "@/app/server-actions/ai/confirmChatAction";
+import { createNewChatSession } from "@/app/server-actions/ai/createNewChatSession";
+import { deleteChatSession } from "@/app/server-actions/ai/deleteChatSession";
+import type { ChatSession } from "@/app/server-actions/ai/getChatSessions";
+import { smartSearch } from "@/app/server-actions/ai/service/service";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
+import type { message } from "@/db";
+import { cn } from "@/lib/utils";
 import { Switch } from "../ui/switch";
 import AiActionRecap from "./ai-action-recap";
 import BlobAnimation from "./blob-animation";
 
-export default function AIAssistant({
-  chatSessions,
-}: {
-  chatSessions: ChatSession[];
-}) {
+export default function AIAssistant({ chatSessions }: { chatSessions: ChatSession[] }) {
   const router = useRouter();
   const [currentMessage, setCurrentMessage] = useState("");
   const [messages, setMessages] = useState<message[]>([]);
@@ -113,10 +108,7 @@ export default function AIAssistant({
     setIsThinking(false);
   };
 
-  const handleJsonAction = async (
-    messageId: string,
-    action: "confirm" | "cancel",
-  ) => {
+  const handleJsonAction = async (messageId: string, action: "confirm" | "cancel") => {
     if (!currentSessionId) return;
     await confirmChatAction({
       message_id: messageId,
@@ -159,7 +151,7 @@ export default function AIAssistant({
                 key={session.id}
                 className={cn(
                   "cursor-pointer transition-colors bg-transparent hover:bg-muted/30 hover:border-cyan-300/30",
-                  currentSessionId === session.id && "border-cyan-300",
+                  currentSessionId === session.id && "border-cyan-300"
                 )}
                 onClick={() => setCurrentSessionId(session.id)}
               >
@@ -239,7 +231,7 @@ export default function AIAssistant({
               htmlFor="agentic-mode"
               className={cn(
                 "text-xs text-muted-foreground flex items-center gap-1 cursor-pointer select-none",
-                agenticMode ? "text-primary" : "text-muted-foreground",
+                agenticMode ? "text-primary" : "text-muted-foreground"
               )}
             >
               <InfinityIcon className="h-4 w-4 inline-block" />
@@ -256,8 +248,7 @@ export default function AIAssistant({
                 <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Ciao! Sono Rocky</h3>
                 <p className="text-muted-foreground">
-                  Sono qui per aiutarti con Bitrock Hours. Chiedi pure quello
-                  che vuoi sapere!
+                  Sono qui per aiutarti con Bitrock Hours. Chiedi pure quello che vuoi sapere!
                 </p>
               </div>
             )}
@@ -269,7 +260,7 @@ export default function AIAssistant({
                 animate={{ opacity: 1, y: 0 }}
                 className={cn(
                   "flex gap-3",
-                  message.type === "user" ? "justify-end" : "justify-start",
+                  message.type === "user" ? "justify-end" : "justify-start"
                 )}
               >
                 {message.type === "bot" && (
@@ -281,25 +272,19 @@ export default function AIAssistant({
                 <div
                   className={cn(
                     "max-w-[70%] rounded-lg p-3",
-                    message.type === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted",
+                    message.type === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                   )}
                 >
                   <p className="text-sm">{message.content}</p>
 
                   {message.is_json && message.json_data && (
                     <>
-                      {message.json_data && (
-                        <AiActionRecap data={message.json_data} />
-                      )}
+                      {message.json_data && <AiActionRecap data={message.json_data} />}
                       {message.confirmed === undefined && (
                         <div className="flex gap-2 mt-3">
                           <Button
                             size="sm"
-                            onClick={() =>
-                              handleJsonAction(message.id, "confirm")
-                            }
+                            onClick={() => handleJsonAction(message.id, "confirm")}
                             className="flex-1"
                           >
                             <Check className="h-4 w-4 mr-1" />
@@ -308,9 +293,7 @@ export default function AIAssistant({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() =>
-                              handleJsonAction(message.id, "cancel")
-                            }
+                            onClick={() => handleJsonAction(message.id, "cancel")}
                             className="flex-1"
                           >
                             <X className="h-4 w-4 mr-1" />
@@ -320,11 +303,7 @@ export default function AIAssistant({
                       )}
                       {message.confirmed !== undefined && (
                         <div className="mt-3">
-                          <Badge
-                            variant={
-                              message.confirmed ? "default" : "secondary"
-                            }
-                          >
+                          <Badge variant={message.confirmed ? "default" : "secondary"}>
                             {message.confirmed ? "Confermato" : "Annullato"}
                           </Badge>
                         </div>
@@ -364,9 +343,7 @@ export default function AIAssistant({
                       <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                       <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"></div>
                     </div>
-                    <span className="text-sm text-muted-foreground">
-                      Rocky sta scrivendo...
-                    </span>
+                    <span className="text-sm text-muted-foreground">Rocky sta scrivendo...</span>
                   </div>
                 </div>
               </motion.div>

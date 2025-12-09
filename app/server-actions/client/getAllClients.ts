@@ -18,6 +18,4 @@ export async function getAllClients() {
   });
 }
 
-export type GetAllClientsResponse = Awaited<
-  ReturnType<typeof getAllClients>
->[number];
+export type GetAllClientsResponse = Awaited<ReturnType<typeof getAllClients>>[number];

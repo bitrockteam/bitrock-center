@@ -1,11 +1,8 @@
 "use server";
 import { db } from "@/config/prisma";
-import { message } from "@/db";
+import type { message } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
-import {
-  generateNaturalLanguageFromSQLOutput,
-  generateSQLFromQuestion,
-} from "./geminiClient";
+import { generateNaturalLanguageFromSQLOutput, generateSQLFromQuestion } from "./geminiClient";
 import { supabase } from "./supabase";
 
 type AiSearchResult = {
@@ -49,9 +46,7 @@ export async function smartSearch({
     throw new Error(`SQL Execution Error: ${result.error.message}`);
   }
 
-  const formattedResult = await generateNaturalLanguageFromSQLOutput(
-    result.data,
-  );
+  const formattedResult = await generateNaturalLanguageFromSQLOutput(result.data);
 
   const userMessage: Omit<message, "id"> = {
     content: question,

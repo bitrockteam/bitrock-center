@@ -1,21 +1,20 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format, isBefore } from "date-fns";
 import { motion } from "framer-motion";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
+import { toast } from "sonner";
+import type { z } from "zod";
 import { createAllocation } from "@/app/server-actions/allocation/createAllocation";
 import { fetchProjectsUsersAvailable } from "@/app/server-actions/allocation/fetchProjectsUsersAvailable";
 import { updateAllocation } from "@/app/server-actions/allocation/updateAllocation";
 import { findUsers } from "@/app/server-actions/user/findUsers";
+import { Button } from "@/components/ui/button";
 import { useServerAction } from "@/hooks/useServerAction";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format, isBefore } from "date-fns";
-import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { DatePicker } from "../custom/DatePicker";
 import {
   Command,
@@ -25,21 +24,8 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { addMemberProjectSchema } from "./schema";
@@ -65,9 +51,7 @@ export function AddProjectMemberDialog({
   };
 }>) {
   const [users, fetchUsers] = useServerAction(findUsers);
-  const [usersAvailable, fetchUsersAvailable] = useServerAction(
-    fetchProjectsUsersAvailable,
-  );
+  const [usersAvailable, fetchUsersAvailable] = useServerAction(fetchProjectsUsersAvailable);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -162,10 +146,7 @@ export function AddProjectMemberDialog({
                       <FormItem>
                         <FormLabel>Nome Membro</FormLabel>
                         <FormControl>
-                          <Popover
-                            open={isPopoverOpen}
-                            onOpenChange={setIsPopoverOpen}
-                          >
+                          <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                             <PopoverTrigger asChild>
                               <Button
                                 variant="outline"
@@ -174,11 +155,8 @@ export function AddProjectMemberDialog({
                                 className="justify-between"
                                 disabled={isEdit}
                               >
-                                {field.value &&
-                                getUsers().some((u) => u.id === field.value)
-                                  ? getUsers().find(
-                                      (user) => user.id === field.value,
-                                    )?.name
+                                {field.value && getUsers().some((u) => u.id === field.value)
+                                  ? getUsers().find((user) => user.id === field.value)?.name
                                   : "Seleziona membro..."}
                                 <ChevronsUpDown className="opacity-50" />
                               </Button>
@@ -190,9 +168,7 @@ export function AddProjectMemberDialog({
                                   className="h-9 pointer-events-auto"
                                 />
                                 <CommandList>
-                                  <CommandEmpty>
-                                    Nessun membro disponibile
-                                  </CommandEmpty>
+                                  <CommandEmpty>Nessun membro disponibile</CommandEmpty>
                                   <CommandGroup>
                                     {getUsers().map((user) => (
                                       <CommandItem
@@ -208,9 +184,7 @@ export function AddProjectMemberDialog({
                                         <Check
                                           className={cn(
                                             "ml-auto",
-                                            field.value === user.id
-                                              ? "opacity-100"
-                                              : "opacity-0",
+                                            field.value === user.id ? "opacity-100" : "opacity-0"
                                           )}
                                         />
                                       </CommandItem>
@@ -240,10 +214,8 @@ export function AddProjectMemberDialog({
                             type="number"
                             {...field}
                             onChange={(e) => {
-                              if (Number(e.target.value) > 100)
-                                field.onChange(100);
-                              else if (Number(e.target.value) < 5)
-                                field.onChange(5);
+                              if (Number(e.target.value) > 100) field.onChange(100);
+                              else if (Number(e.target.value) < 5) field.onChange(5);
                               else field.onChange(Number(e.target.value));
                             }}
                             max={100}
@@ -264,11 +236,7 @@ export function AddProjectMemberDialog({
                       <FormItem>
                         <FormLabel>Data inizio</FormLabel>
                         <FormControl>
-                          <DatePicker
-                            {...field}
-                            date={field.value}
-                            setDate={field.onChange}
-                          />
+                          <DatePicker {...field} date={field.value} setDate={field.onChange} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -294,10 +262,7 @@ export function AddProjectMemberDialog({
                               if (
                                 isBefore(
                                   dateString,
-                                  format(
-                                    form.getValues().start_date!,
-                                    "yyyy-MM-dd",
-                                  ),
+                                  format(form.getValues().start_date!, "yyyy-MM-dd")
                                 )
                               )
                                 return true;
@@ -313,17 +278,10 @@ export function AddProjectMemberDialog({
               </div>
 
               <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                   Annulla
                 </Button>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button type="submit">Aggiungi</Button>
                 </motion.div>
               </DialogFooter>

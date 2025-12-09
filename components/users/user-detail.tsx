@@ -1,6 +1,10 @@
 "use client";
 
-import { FindUserById } from "@/app/server-actions/user/findUserById";
+import { motion } from "framer-motion";
+import { ArrowLeft, Edit, Target, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import type { FindUserById } from "@/app/server-actions/user/findUserById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,10 +21,6 @@ import { useApi } from "@/hooks/useApi";
 import { useAssignPermission } from "@/hooks/useAssignPermission";
 import { useRemovePermission } from "@/hooks/useRemovePermission";
 import { formatDisplayName } from "@/services/users/utils";
-import { motion } from "framer-motion";
-import { ArrowLeft, Edit, Target, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
 import UserDetailsSections from "./user-details-sections";
 
@@ -30,9 +30,7 @@ export default function UserDetail({
 }: Readonly<{ user: FindUserById; canDealPermissions: boolean }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [selectedPermission, setSelectedPermission] = useState<
-    Permissions | undefined
-  >(undefined);
+  const [selectedPermission, setSelectedPermission] = useState<Permissions | undefined>(undefined);
   const { loading, error, reset } = useApi();
   const { removePermission } = useRemovePermission();
   const { assignPermission } = useAssignPermission();
@@ -61,11 +59,7 @@ export default function UserDetail({
     >
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push("/utenti")}
-          >
+          <Button variant="outline" size="icon" onClick={() => router.push("/utenti")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
@@ -78,9 +72,7 @@ export default function UserDetail({
             <h1 className="text-3xl font-bold tracking-tight">
               {formatDisplayName({ name: user.name })}
             </h1>
-            {user.role && (
-              <div className="flex items-center space-x-2">{user.role}</div>
-            )}
+            {user.role && <div className="flex items-center space-x-2">{user.role}</div>}
           </div>
         </div>
 
@@ -93,10 +85,7 @@ export default function UserDetail({
             Development Plan
           </Button>
           {
-            <Button
-              className="cursor-pointer"
-              onClick={() => setShowEditDialog(true)}
-            >
+            <Button className="cursor-pointer" onClick={() => setShowEditDialog(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Modifica Utente
             </Button>
@@ -113,10 +102,7 @@ export default function UserDetail({
           </CardHeader>
           <CardContent>
             {user.user_permission && user.user_permission.length > 0 ? (
-              <div
-                className="flex flex-wrap gap-2"
-                aria-label="user permissions list"
-              >
+              <div className="flex flex-wrap gap-2" aria-label="user permissions list">
                 {user.user_permission.map((p) => (
                   <div key={p.permission_id} className="flex items-center">
                     <Badge
@@ -171,23 +157,13 @@ export default function UserDetail({
             )}
 
             <div className="mt-4 flex items-center gap-2">
-              <Select
-                onValueChange={(v) => setSelectedPermission(v as Permissions)}
-              >
-                <SelectTrigger
-                  className="w-[280px]"
-                  aria-label="Select permission to assign"
-                >
+              <Select onValueChange={(v) => setSelectedPermission(v as Permissions)}>
+                <SelectTrigger className="w-[280px]" aria-label="Select permission to assign">
                   <SelectValue placeholder="Select a permission" />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.values(Permissions)
-                    .filter(
-                      (perm) =>
-                        !user.user_permission?.some(
-                          (p) => p.permission_id === perm,
-                        ),
-                    )
+                    .filter((perm) => !user.user_permission?.some((p) => p.permission_id === perm))
                     .map((perm) => (
                       <SelectItem key={perm} value={perm}>
                         {perm}

@@ -1,8 +1,8 @@
 "use client";
 
-import { timesheet } from "@/db";
-import { useApi } from "@/hooks/useApi";
 import { useCallback } from "react";
+import type { timesheet } from "@/db";
+import { useApi } from "@/hooks/useApi";
 
 export type TimesheetData = Omit<timesheet, "created_at" | "id">;
 export type UpdateTimesheetData = Partial<TimesheetData> & { id: string };
@@ -20,7 +20,7 @@ export const useTimesheetApi = () => {
         }),
       });
     },
-    [callApi],
+    [callApi]
   );
 
   const updateTimesheet = useCallback(
@@ -35,7 +35,7 @@ export const useTimesheetApi = () => {
         }),
       });
     },
-    [callApi],
+    [callApi]
   );
 
   const deleteTimesheet = useCallback(
@@ -45,7 +45,7 @@ export const useTimesheetApi = () => {
         body: JSON.stringify({ id }),
       });
     },
-    [callApi],
+    [callApi]
   );
 
   const fetchTimesheets = useCallback(async () => {

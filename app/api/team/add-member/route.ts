@@ -1,5 +1,5 @@
 import { addUserToTeam } from "@/app/server-actions/user/addUserToTeam";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const addMemberSchema = z.object({
@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Dati non validi",
-          details: error.errors,
+          details: error.issues,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: "Errore nell'aggiunta del membro al team",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -1,12 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-
-import { deleteAllocation } from "@/app/server-actions/allocation/deleteAllocation";
-import { findUserById } from "@/app/server-actions/user/findUserById";
-import { useServerAction } from "@/hooks/useServerAction";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { deleteAllocation } from "@/app/server-actions/allocation/deleteAllocation";
+import { findUserById } from "@/app/server-actions/user/findUserById";
+import { Button } from "@/components/ui/button";
+import { useServerAction } from "@/hooks/useServerAction";
 import {
   Dialog,
   DialogContent,
@@ -55,15 +54,13 @@ export function DeleteAllocationDialog({
                 variant="destructive"
                 onClick={() => {
                   if (user?.id)
-                    deleteAllocation({ project_id, user_id: user.id }).then(
-                      (res) => {
-                        if (res) {
-                          onOpenChange(false);
-                          refetch();
-                          toast.success("Allocazione eliminata con successo");
-                        }
-                      },
-                    );
+                    deleteAllocation({ project_id, user_id: user.id }).then((res) => {
+                      if (res) {
+                        onOpenChange(false);
+                        refetch();
+                        toast.success("Allocazione eliminata con successo");
+                      }
+                    });
                 }}
               >
                 Elimina

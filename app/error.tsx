@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { AlertCircle, Home, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function Error({
   error,
@@ -40,18 +40,13 @@ export default function Error({
         </motion.div>
 
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Qualcosa è andato storto
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Qualcosa è andato storto</h1>
           <p className="text-muted-foreground">
-            Si è verificato un errore durante l&apos;elaborazione della
-            richiesta.
+            Si è verificato un errore durante l&apos;elaborazione della richiesta.
           </p>
           {error.message && process.env.NODE_ENV === "development" && (
             <div className="mt-4 rounded-md bg-destructive/10 p-4 dark:bg-destructive/20">
-              <p className="text-sm font-medium text-destructive">
-                {error.message}
-              </p>
+              <p className="text-sm font-medium text-destructive">{error.message}</p>
             </div>
           )}
         </div>

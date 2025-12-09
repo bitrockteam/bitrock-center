@@ -1,7 +1,12 @@
 "use client";
 
-import { GetAllClientsResponse } from "@/app/server-actions/client/getAllClients";
-import { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
+import { motion } from "framer-motion";
+import { Clock, Edit, Euro, Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import type { GetAllClientsResponse } from "@/app/server-actions/client/getAllClients";
+import type { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,13 +37,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { work_item_type, work_items } from "@/db";
+import { work_item_type, type work_items } from "@/db";
 import { useApi } from "@/hooks/useApi";
-import { motion } from "framer-motion";
-import { Clock, Edit, Euro, Eye, MoreHorizontal, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
 import AddWorkItemDialog from "./add-work-item-dialog";
 import WorkItemsHeader from "./work-items-header";
 
@@ -88,10 +88,7 @@ export default function WorkItemsTable({
         );
       case work_item_type.fixed_price:
         return (
-          <Badge
-            variant="outline"
-            className="border-purple-500 text-purple-500"
-          >
+          <Badge variant="outline" className="border-purple-500 text-purple-500">
             Prezzo Fisso
           </Badge>
         );
@@ -124,9 +121,7 @@ export default function WorkItemsTable({
   };
 
   // Helper function to safely convert date strings to Date objects
-  const safeDateString = (
-    dateValue: string | Date | null | undefined,
-  ): string => {
+  const safeDateString = (dateValue: string | Date | null | undefined): string => {
     if (!dateValue) return "";
     const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
     return date.toISOString().substring(0, 10);
@@ -164,10 +159,7 @@ export default function WorkItemsTable({
                 <TableBody>
                   {filteredWorkItems?.length === 0 ? (
                     <TableRow>
-                      <TableCell
-                        colSpan={8}
-                        className="text-center py-6 text-muted-foreground"
-                      >
+                      <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
                         Nessuna commessa trovata
                       </TableCell>
                     </TableRow>
@@ -178,19 +170,13 @@ export default function WorkItemsTable({
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => handleViewWorkItem(item.id)}
                       >
-                        <TableCell className="font-medium">
-                          {item.title}
-                        </TableCell>
+                        <TableCell className="font-medium">{item.title}</TableCell>
                         <TableCell>{item.client.name}</TableCell>
                         <TableCell>
                           {item.project_id ? (
-                            <span className="text-sm">
-                              {item.project?.name}
-                            </span>
+                            <span className="text-sm">{item.project?.name}</span>
                           ) : (
-                            <span className="text-sm text-muted-foreground">
-                              Nessun progetto
-                            </span>
+                            <span className="text-sm text-muted-foreground">Nessun progetto</span>
                           )}
                         </TableCell>
                         <TableCell>{getTypeBadge(item.type)}</TableCell>
@@ -207,8 +193,7 @@ export default function WorkItemsTable({
                                   >
                                     <AvatarImage
                                       src={
-                                        user?.avatar_url ||
-                                        "/placeholder.svg?height=24&width=24"
+                                        user?.avatar_url || "/placeholder.svg?height=24&width=24"
                                       }
                                     />
                                     <AvatarFallback className="text-xs">
@@ -238,18 +223,14 @@ export default function WorkItemsTable({
                               </>
                             ) : (
                               <>
-                                <Clock className="mr-1 h-3 w-3" />€
-                                {item.hourly_rate}/h
+                                <Clock className="mr-1 h-3 w-3" />€{item.hourly_rate}/h
                               </>
                             )}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
-                            <DropdownMenuTrigger
-                              asChild
-                              onClick={(e) => e.stopPropagation()}
-                            >
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                               <Button variant="ghost" size="icon">
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
@@ -313,9 +294,7 @@ export default function WorkItemsTable({
                     client_id: editWorkItem.client_id ?? "",
                     type: editWorkItem.type,
                     status: editWorkItem.status,
-                    enabled_users: editWorkItem.work_item_enabled_users.map(
-                      (user) => user.user_id,
-                    ),
+                    enabled_users: editWorkItem.work_item_enabled_users.map((user) => user.user_id),
                     start_date: safeDateString(editWorkItem.start_date),
                     end_date: safeDateString(editWorkItem.end_date),
                     project_id: editWorkItem.project_id ?? "",
@@ -336,18 +315,14 @@ export default function WorkItemsTable({
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>
-                Sei sicuro di voler eliminare questa commessa?
-              </AlertDialogTitle>
+              <AlertDialogTitle>Sei sicuro di voler eliminare questa commessa?</AlertDialogTitle>
               <AlertDialogDescription>
-                Questa azione non può essere annullata. La commessa verrà
-                eliminata permanentemente dal sistema.
+                Questa azione non può essere annullata. La commessa verrà eliminata permanentemente
+                dal sistema.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleting}>
-                Annulla
-              </AlertDialogCancel>
+              <AlertDialogCancel disabled={isDeleting}>Annulla</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive text-destructive-foreground"
                 onClick={handleDeleteWorkItem}

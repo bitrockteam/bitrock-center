@@ -2,9 +2,7 @@
 
 import { useRef } from "react";
 import PermitRequestForm from "./permit-form";
-import PermitHistoryTable, {
-  PermitHistoryTableRef,
-} from "./permit-history-table";
+import PermitHistoryTable, { type PermitHistoryTableRef } from "./permit-history-table";
 
 export default function PermitContainer() {
   const historyTableRef = useRef<PermitHistoryTableRef>(null);

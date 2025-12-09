@@ -51,6 +51,4 @@ export async function fetchUserReviewers() {
   return userKeyClient;
 }
 
-export type FetchUserReviewersResponse = Awaited<
-  ReturnType<typeof fetchUserReviewers>
->[number];
+export type FetchUserReviewersResponse = Awaited<ReturnType<typeof fetchUserReviewers>>[number];

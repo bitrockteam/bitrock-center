@@ -1,11 +1,8 @@
 "use server";
 import { db } from "@/config/prisma";
-import { goal } from "@/db";
+import type { goal } from "@/db";
 
-export async function addGoal(
-  planId: string,
-  newGoal: Omit<goal, "id" | "todo_item">,
-) {
+export async function addGoal(planId: string, newGoal: Omit<goal, "id" | "todo_item">) {
   const createdGoal = await db.goal.create({
     data: {
       development_plan_id: planId,

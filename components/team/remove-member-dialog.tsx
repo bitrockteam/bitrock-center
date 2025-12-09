@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { TeamMember } from "./types";
+import type { TeamMember } from "./types";
 
 interface RemoveMemberDialogProps {
   teamMember: TeamMember;
@@ -68,17 +68,12 @@ export function RemoveMemberDialog({
             Rimuovi membro dal team
           </DialogTitle>
           <DialogDescription>
-            Sei sicuro di voler rimuovere <strong>{teamMember.name}</strong> dal
-            team? Questa azione non può essere annullata.
+            Sei sicuro di voler rimuovere <strong>{teamMember.name}</strong> dal team? Questa azione
+            non può essere annullata.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            disabled={isRemoving}
-          >
+          <Button type="button" variant="outline" onClick={handleCancel} disabled={isRemoving}>
             Annulla
           </Button>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

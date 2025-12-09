@@ -1,12 +1,12 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { SeniorityLevel } from "@/db";
+import type { SeniorityLevel } from "@/db";
 
 export async function updateEmployeeSkillLevel(
   employeeId: string,
   skillId: string,
-  newLevel: SeniorityLevel,
+  newLevel: SeniorityLevel
 ) {
   return db.user_skill.update({
     where: {

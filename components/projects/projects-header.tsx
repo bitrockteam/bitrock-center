@@ -1,25 +1,19 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import AddProjectDialog from "./add-project-dialog";
 
-export default function ProjectsHeader({
-  canCreateProject,
-}: {
-  canCreateProject?: boolean;
-}) {
+export default function ProjectsHeader({ canCreateProject }: { canCreateProject?: boolean }) {
   const router = useRouter();
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   const searchParams = new URLSearchParams(window?.location?.search);
-  const [textSearch, setTextSearch] = useState(
-    searchParams.get("params") ?? "",
-  );
+  const [textSearch, setTextSearch] = useState(searchParams.get("params") ?? "");
   const [debouncedInput, setDebouncedInput] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

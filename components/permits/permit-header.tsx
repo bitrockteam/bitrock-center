@@ -10,9 +10,7 @@ export default function PermitHeader() {
       transition={{ duration: 0.5 }}
     >
       <h1 className="text-3xl font-bold tracking-tight">Ferie e Permessi</h1>
-      <p className="text-muted-foreground">
-        Gestisci le tue richieste di ferie e permessi
-      </p>
+      <p className="text-muted-foreground">Gestisci le tue richieste di ferie e permessi</p>
     </motion.div>
   );
 }

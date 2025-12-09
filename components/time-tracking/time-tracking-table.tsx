@@ -1,7 +1,10 @@
 "use client";
 
-import { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
-import { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
+import { motion } from "framer-motion";
+import { Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
+import type { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
+import type { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,11 +33,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { user } from "@/db";
+import type { user } from "@/db";
 import { useTimesheetApi } from "@/hooks/useTimesheetApi";
-import { motion } from "framer-motion";
-import { Edit, Trash2 } from "lucide-react";
-import { useState } from "react";
 import AddHoursDialog from "./add-hours-dialog";
 
 export default function TimeTrackingTable({
@@ -139,9 +139,7 @@ export default function TimeTrackingTable({
                   <TableHead>Progetto</TableHead>
                   <TableHead>Ore</TableHead>
                   <TableHead>Descrizione</TableHead>
-                  {!isReadOnly && (
-                    <TableHead className="text-right">Azioni</TableHead>
-                  )}
+                  {!isReadOnly && <TableHead className="text-right">Azioni</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -157,28 +155,17 @@ export default function TimeTrackingTable({
                 ) : (
                   timesheets?.map((entry, index) => (
                     <TableRow key={index}>
-                      <TableCell>
-                        {new Date(entry.date).toLocaleDateString()}
-                      </TableCell>
+                      <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
 
                       <TableCell>
-                        {
-                          work_items?.find((w) => w.id === entry.work_item_id)
-                            ?.title
-                        }
+                        {work_items?.find((w) => w.id === entry.work_item_id)?.title}
                       </TableCell>
                       <TableCell>{entry.hours}</TableCell>
-                      <TableCell className="max-w-[200px] truncate">
-                        {entry.description}
-                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">{entry.description}</TableCell>
                       {!isReadOnly && (
                         <TableCell className="text-right">
                           <div className="flex justify-end space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setEditEntry(entry)}
-                            >
+                            <Button variant="ghost" size="icon" onClick={() => setEditEntry(entry)}>
                               <Edit className="h-4 w-4" />
                             </Button>
                             <AlertDialog>
@@ -189,13 +176,10 @@ export default function TimeTrackingTable({
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Conferma eliminazione
-                                  </AlertDialogTitle>
+                                  <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Sei sicuro di voler eliminare questa
-                                    registrazione? Questa azione non può essere
-                                    annullata.
+                                    Sei sicuro di voler eliminare questa registrazione? Questa
+                                    azione non può essere annullata.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

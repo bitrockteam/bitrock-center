@@ -1,5 +1,5 @@
-import { fetchTeam } from "@/app/server-actions/user/fetchMyTeam";
 import { NextResponse } from "next/server";
+import { fetchTeam } from "@/app/server-actions/user/fetchMyTeam";
 
 export async function GET() {
   try {
@@ -16,7 +16,7 @@ export async function GET() {
         success: false,
         error: "Errore nel caricamento dei membri del team",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

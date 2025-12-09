@@ -1,5 +1,10 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { Building, Clock, DollarSign, FileText, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { createEmployeeContract } from "@/app/server-actions/contract/createEmployeeContract";
 import { updateEmployeeContract } from "@/app/server-actions/contract/updateEmployeeContract";
 import { Button } from "@/components/ui/button";
@@ -28,12 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { contract, contracttype, remotepolicy, workinghours } from "@/db";
-import { motion } from "framer-motion";
-import { Building, Clock, DollarSign, FileText, MapPin } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { type contract, type contracttype, remotepolicy, workinghours } from "@/db";
 
 interface EditContractDialogProps {
   open: boolean;
@@ -147,9 +147,7 @@ export default function EditContractDialog({
                       type="number"
                       placeholder="45000"
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(Number.parseInt(e.target.value) || 0)
-                      }
+                      onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -175,12 +173,8 @@ export default function EditContractDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="permanent">
-                          Tempo Indeterminato
-                        </SelectItem>
-                        <SelectItem value="fixed-term">
-                          Tempo Determinato
-                        </SelectItem>
+                        <SelectItem value="permanent">Tempo Indeterminato</SelectItem>
+                        <SelectItem value="fixed-term">Tempo Determinato</SelectItem>
                         <SelectItem value="freelancer">Freelancer</SelectItem>
                       </SelectContent>
                     </Select>
@@ -206,12 +200,8 @@ export default function EditContractDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value={workinghours["full_time"]}>
-                          Full-time
-                        </SelectItem>
-                        <SelectItem value={workinghours["part_time"]}>
-                          Part-time
-                        </SelectItem>
+                        <SelectItem value={workinghours["full_time"]}>Full-time</SelectItem>
+                        <SelectItem value={workinghours["part_time"]}>Part-time</SelectItem>
                         <SelectItem value="custom">Personalizzato</SelectItem>
                       </SelectContent>
                     </Select>
@@ -238,15 +228,9 @@ export default function EditContractDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value={remotepolicy["full_remote"]}>
-                        Full Remote
-                      </SelectItem>
-                      <SelectItem value={remotepolicy["hybrid"]}>
-                        Ibrido
-                      </SelectItem>
-                      <SelectItem value={remotepolicy["on_site"]}>
-                        In Sede
-                      </SelectItem>
+                      <SelectItem value={remotepolicy["full_remote"]}>Full Remote</SelectItem>
+                      <SelectItem value={remotepolicy["hybrid"]}>Ibrido</SelectItem>
+                      <SelectItem value={remotepolicy["on_site"]}>In Sede</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -282,10 +266,7 @@ export default function EditContractDialog({
               >
                 Annulla
               </Button>
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? "Salvataggio..." : "Salva Modifiche"}
                 </Button>

@@ -1,5 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import type { FindUsersWithProjects } from "@/app/server-actions/user/findUsersWithProjects";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -10,21 +13,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import { FindUsersWithProjects } from "@/app/server-actions/user/findUsersWithProjects";
-import { Role, user } from "@/db";
+import { Role, type user } from "@/db";
 import { useApi } from "@/hooks/useApi";
 import { canUserEdit, formatDisplayName } from "@/services/users/utils";
 import { getRoleBadge } from "@/utils/mapping";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 export default function UsersTable({
   users,
@@ -62,10 +55,7 @@ export default function UsersTable({
             <TableBody>
               {users?.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center py-6 text-muted-foreground"
-                  >
+                  <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                     Nessun utente trovato
                   </TableCell>
                 </TableRow>
@@ -106,10 +96,7 @@ export default function UsersTable({
                               });
                               refetch();
                             } catch (error) {
-                              console.error(
-                                "Failed to update user role:",
-                                error,
-                              );
+                              console.error("Failed to update user role:", error);
                             }
                           }}
                           value={us.role}

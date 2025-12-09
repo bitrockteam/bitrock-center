@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { permit, PermitStatus } from "@/db";
+import { PermitStatus, type permit } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
 export type CreateBulkPermitDTO = Omit<

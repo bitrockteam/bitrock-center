@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/config/prisma";
-import { timesheet } from "@/db";
+import type { timesheet } from "@/db";
 
 export const addTimesheet = async ({
   timesheet,

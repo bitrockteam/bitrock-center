@@ -1,15 +1,13 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { ArrowLeft, Edit, Mail, MapPin, Phone, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { findClientById } from "@/app/server-actions/client/findClientById";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -21,10 +19,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectStatus } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
-import { motion } from "framer-motion";
-import { ArrowLeft, Edit, Mail, MapPin, Phone, User } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
 export default function ClientDetail({
@@ -94,10 +88,7 @@ export default function ClientDetail({
         );
       case "fixed-price":
         return (
-          <Badge
-            variant="outline"
-            className="border-purple-500 text-purple-500"
-          >
+          <Badge variant="outline" className="border-purple-500 text-purple-500">
             Prezzo Fisso
           </Badge>
         );
@@ -115,11 +106,7 @@ export default function ClientDetail({
     >
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push("/clienti")}
-          >
+          <Button variant="outline" size="icon" onClick={() => router.push("/clienti")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
@@ -141,9 +128,7 @@ export default function ClientDetail({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Informazioni Cliente
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Informazioni Cliente</CardTitle>
             <CardDescription>Dettagli e contatti del cliente</CardDescription>
           </CardHeader>
           <CardContent>
@@ -153,36 +138,28 @@ export default function ClientDetail({
                   <User className="mr-2 h-4 w-4" />
                   Persona di Contatto:
                 </p>
-                <p className="text-sm text-muted-foreground ml-6">
-                  {client.contact_person}
-                </p>
+                <p className="text-sm text-muted-foreground ml-6">{client.contact_person}</p>
               </div>
               <div className="space-y-2">
                 <p className="text-sm font-medium flex items-center">
                   <Mail className="mr-2 h-4 w-4" />
                   Email:
                 </p>
-                <p className="text-sm text-muted-foreground ml-6">
-                  {client.email}
-                </p>
+                <p className="text-sm text-muted-foreground ml-6">{client.email}</p>
               </div>
               <div className="space-y-2">
                 <p className="text-sm font-medium flex items-center">
                   <Phone className="mr-2 h-4 w-4" />
                   Telefono:
                 </p>
-                <p className="text-sm text-muted-foreground ml-6">
-                  {client.phone}
-                </p>
+                <p className="text-sm text-muted-foreground ml-6">{client.phone}</p>
               </div>
               <div className="space-y-2">
                 <p className="text-sm font-medium flex items-center">
                   <MapPin className="mr-2 h-4 w-4" />
                   Indirizzo:
                 </p>
-                <p className="text-sm text-muted-foreground ml-6">
-                  {client.address}
-                </p>
+                <p className="text-sm text-muted-foreground ml-6">{client.address}</p>
               </div>
             </div>
           </CardContent>
@@ -191,30 +168,22 @@ export default function ClientDetail({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Dati Fiscali</CardTitle>
-            <CardDescription>
-              Informazioni fiscali e amministrative
-            </CardDescription>
+            <CardDescription>Informazioni fiscali e amministrative</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="space-y-2">
                 <p className="text-sm font-medium">Partita IVA:</p>
-                <p className="text-sm text-muted-foreground">
-                  {client.vat_number}
-                </p>
+                <p className="text-sm text-muted-foreground">{client.vat_number}</p>
               </div>
               <div className="space-y-2">
                 <p className="text-sm font-medium">Data Creazione:</p>
-                <p className="text-sm text-muted-foreground">
-                  {client.created_at.toDateString()}
-                </p>
+                <p className="text-sm text-muted-foreground">{client.created_at.toDateString()}</p>
               </div>
               {client.notes && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Note:</p>
-                  <p className="text-sm text-muted-foreground">
-                    {client.notes}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{client.notes}</p>
                 </div>
               )}
             </div>
@@ -231,9 +200,7 @@ export default function ClientDetail({
           <Card>
             <CardHeader>
               <CardTitle>Progetti del Cliente</CardTitle>
-              <CardDescription>
-                Progetti associati a questo cliente
-              </CardDescription>
+              <CardDescription>Progetti associati a questo cliente</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -249,10 +216,7 @@ export default function ClientDetail({
                 <TableBody>
                   {projects?.length === 0 ? (
                     <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        className="text-center py-6 text-muted-foreground"
-                      >
+                      <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
                         Nessun progetto trovato
                       </TableCell>
                     </TableRow>
@@ -263,9 +227,7 @@ export default function ClientDetail({
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => router.push(`/progetti/${project.id}`)}
                       >
-                        <TableCell className="font-medium">
-                          {project.name}
-                        </TableCell>
+                        <TableCell className="font-medium">{project.name}</TableCell>
                         <TableCell>
                           <Badge
                             className={
@@ -276,9 +238,7 @@ export default function ClientDetail({
                                   : "bg-yellow-500"
                             }
                             variant={
-                              project.status === ProjectStatus.COMPLETED
-                                ? "outline"
-                                : "default"
+                              project.status === ProjectStatus.COMPLETED ? "outline" : "default"
                             }
                           >
                             {project.status === ProjectStatus.ACTIVE
@@ -290,15 +250,9 @@ export default function ClientDetail({
                                   : "Pianificato"}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          {project.start_date.toDateString()}
-                        </TableCell>
-                        <TableCell>
-                          {project.end_date?.toDateString() || "-"}
-                        </TableCell>
-                        <TableCell>
-                          {project.allocation.length} membri
-                        </TableCell>
+                        <TableCell>{project.start_date.toDateString()}</TableCell>
+                        <TableCell>{project.end_date?.toDateString() || "-"}</TableCell>
+                        <TableCell>{project.allocation.length} membri</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -311,9 +265,7 @@ export default function ClientDetail({
           <Card>
             <CardHeader>
               <CardTitle>Commesse del Cliente</CardTitle>
-              <CardDescription>
-                Attività lavorative associate a questo cliente
-              </CardDescription>
+              <CardDescription>Attività lavorative associate a questo cliente</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -330,10 +282,7 @@ export default function ClientDetail({
                 <TableBody>
                   {workItems?.length === 0 ? (
                     <TableRow>
-                      <TableCell
-                        colSpan={6}
-                        className="text-center py-6 text-muted-foreground"
-                      >
+                      <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                         Nessuna commessa trovata
                       </TableCell>
                     </TableRow>
@@ -344,27 +293,18 @@ export default function ClientDetail({
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => router.push(`/commesse/${item.id}`)}
                       >
-                        <TableCell className="font-medium">
-                          {item.title}
-                        </TableCell>
+                        <TableCell className="font-medium">{item.title}</TableCell>
                         <TableCell>{getWorkItemTypeBadge(item.type)}</TableCell>
-                        <TableCell>
-                          {getWorkItemStatusBadge(item.status)}
-                        </TableCell>
+                        <TableCell>{getWorkItemStatusBadge(item.status)}</TableCell>
                         <TableCell>{item.start_date.toDateString()}</TableCell>
-                        <TableCell>
-                          {item.end_date?.toDateString() || "-"}
-                        </TableCell>
+                        <TableCell>{item.end_date?.toDateString() || "-"}</TableCell>
                         <TableCell>
                           {item.project_id ? (
                             <span className="text-sm">
-                              {projects?.find((p) => p.id === item.project_id)
-                                ?.name || "N/A"}
+                              {projects?.find((p) => p.id === item.project_id)?.name || "N/A"}
                             </span>
                           ) : (
-                            <span className="text-sm text-muted-foreground">
-                              Nessun progetto
-                            </span>
+                            <span className="text-sm text-muted-foreground">Nessun progetto</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -378,11 +318,7 @@ export default function ClientDetail({
       </Tabs>
 
       {/* Dialog per modificare il cliente */}
-      <AddClientDialog
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        editData={client}
-      />
+      <AddClientDialog open={showEditDialog} onOpenChange={setShowEditDialog} editData={client} />
     </motion.div>
   );
 }

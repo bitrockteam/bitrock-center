@@ -1,10 +1,10 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getAllClients } from "@/app/server-actions/client/getAllClients";
 import { fetchAllWorkItems } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import WorkItemsTable from "@/components/work-item/work-items-table";
-import { hasPermission } from "@/services/users/server.utils";
 import { Permissions } from "@/db";
-import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { hasPermission } from "@/services/users/server.utils";
 
 export const dynamic = "force-dynamic";
 
@@ -21,12 +21,8 @@ export default async function WorkItemsPage({
   const { q } = await searchParams;
   const workItems = await fetchAllWorkItems(q);
   const allClients = await getAllClients();
-  const CAN_CREATE_WORK_ITEM = await hasPermission(
-    Permissions.CAN_CREATE_WORK_ITEM,
-  );
-  const CAN_EDIT_WORK_ITEM = await hasPermission(
-    Permissions.CAN_EDIT_WORK_ITEM,
-  );
+  const CAN_CREATE_WORK_ITEM = await hasPermission(Permissions.CAN_CREATE_WORK_ITEM);
+  const CAN_EDIT_WORK_ITEM = await hasPermission(Permissions.CAN_EDIT_WORK_ITEM);
   const CAN_SEE_WORK_ITEM = await hasPermission(Permissions.CAN_SEE_WORK_ITEM);
 
   if (!CAN_SEE_WORK_ITEM) redirect("/dashboard");

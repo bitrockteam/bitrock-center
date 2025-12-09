@@ -1,11 +1,6 @@
-import {
-  ApiResponse,
-  MyTeamData,
-  TeamMember,
-  User,
-} from "@/components/team/types";
-import { useApi } from "@/hooks/useApi";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ApiResponse, MyTeamData, TeamMember, User } from "@/components/team/types";
+import { useApi } from "@/hooks/useApi";
 
 export const useTeamApi = () => {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -81,9 +76,7 @@ export const useTeamApi = () => {
     }
   }, [fetchTeamMembers, fetchMyTeam]);
 
-  const addTeamMember = async (
-    userId: string,
-  ): Promise<ApiResponse<TeamMember>> => {
+  const addTeamMember = async (userId: string): Promise<ApiResponse<TeamMember>> => {
     try {
       const response = await fetch("/api/team/add-member", {
         method: "POST",
@@ -112,9 +105,7 @@ export const useTeamApi = () => {
     }
   };
 
-  const removeTeamMember = async (
-    userId: string,
-  ): Promise<ApiResponse<TeamMember>> => {
+  const removeTeamMember = async (userId: string): Promise<ApiResponse<TeamMember>> => {
     try {
       const response = await fetch("/api/team/remove-member", {
         method: "POST",

@@ -1,6 +1,6 @@
 "use server";
 
-import { Permissions, Role } from "@/db";
+import type { Permissions, Role } from "@/db";
 import { createClient } from "@/utils/supabase/server";
 
 export interface UserInfo {
@@ -17,11 +17,7 @@ export interface UserInfo {
 export async function getUserInfo(email?: string) {
   const supabase = await createClient();
   try {
-    const { data: res } = await supabase
-      .from("user")
-      .select("*")
-      .eq("email", email)
-      .single();
+    const { data: res } = await supabase.from("user").select("*").eq("email", email).single();
 
     const { data: permissions } = await supabase
       .from("user_permission")
@@ -40,8 +36,7 @@ export async function getUserInfo(email?: string) {
       created_at: res?.created_at,
       referent_id: res?.referent_id ?? null,
       role: res?.role,
-      permissions:
-        permissions?.map((permission) => permission.permission_id) || [],
+      permissions: permissions?.map((permission) => permission.permission_id) || [],
     } as UserInfo;
   } catch (error) {
     console.error("Error in getUserInfo:", error);

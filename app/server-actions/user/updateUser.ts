@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/config/prisma";
-import { user } from "@/db";
+import type { user } from "@/db";
 import { checkSession } from "@/utils/supabase/server";
 
 export async function updateUser(user: Partial<Omit<user, "created_at">>) {

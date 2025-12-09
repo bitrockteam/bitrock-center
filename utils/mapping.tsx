@@ -48,9 +48,7 @@ export const getRoleBadge = (role: Role) => {
   }
 };
 
-export function getGoalBadge(
-  status: "not-started" | "in-progress" | "completed",
-) {
+export function getGoalBadge(status: "not-started" | "in-progress" | "completed") {
   switch (status) {
     case "not-started":
       return <Badge className="bg-gray-500 text-white">Non Iniziato</Badge>;

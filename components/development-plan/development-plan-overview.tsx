@@ -1,31 +1,17 @@
 "use client";
 
-import { createNewDevelopmentPlan } from "@/app/server-actions/development-plan/createNewDevelopmentPlan";
-import { GetDevelopmentPlan } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
-import { GetEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getEmployeeDevelopmentPlans.ts";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  Eye,
-  Plus,
-  Target,
-} from "lucide-react";
+import { ArrowLeft, Calendar, CheckCircle2, Clock, Eye, Plus, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createNewDevelopmentPlan } from "@/app/server-actions/development-plan/createNewDevelopmentPlan";
+import type { GetDevelopmentPlan } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
+import type { GetEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getEmployeeDevelopmentPlans.ts";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { getRoleBadge } from "@/utils/mapping";
 import { getGoalProgress, getGoalStatus, getPlanProgress } from "./utils";
 
 export default function DevelopmentPlanOverview({
@@ -71,17 +57,11 @@ export default function DevelopmentPlanOverview({
     >
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push(`/utenti/${user.id}`)}
-          >
+          <Button variant="outline" size="icon" onClick={() => router.push(`/utenti/${user.id}`)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Piano di Sviluppo
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">Piano di Sviluppo</h1>
             <p className="text-muted-foreground">
               {user.name} - {getRoleBadge(user.role)}
             </p>
@@ -110,10 +90,7 @@ export default function DevelopmentPlanOverview({
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                      Creato il{" "}
-                      {new Date(latestPlan.created_date).toLocaleDateString(
-                        "it-IT",
-                      )}
+                      Creato il {new Date(latestPlan.created_date).toLocaleDateString("it-IT")}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -126,9 +103,7 @@ export default function DevelopmentPlanOverview({
                 <Button
                   variant="outline"
                   onClick={() =>
-                    router.push(
-                      `/utenti/${user.id}/development-plan/${latestPlan.id}`,
-                    )
+                    router.push(`/utenti/${user.id}/development-plan/${latestPlan.id}`)
                   }
                 >
                   <Eye className="mr-2 h-4 w-4" />
@@ -140,8 +115,7 @@ export default function DevelopmentPlanOverview({
                 {latestPlan.goal.slice(0, 5).map((goal, index) => {
                   const status = getGoalStatus(goal);
                   const progress = getGoalProgress(goal);
-                  const progressPercentage =
-                    (progress.completed / progress.total) * 100;
+                  const progressPercentage = (progress.completed / progress.total) * 100;
 
                   return (
                     <motion.div
@@ -154,14 +128,10 @@ export default function DevelopmentPlanOverview({
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <h4 className="font-medium">{goal.title}</h4>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {goal.description}
-                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">{goal.description}</p>
                         </div>
                         <Badge
-                          variant={
-                            status === "completed" ? "default" : "secondary"
-                          }
+                          variant={status === "completed" ? "default" : "secondary"}
                           className="ml-4"
                         >
                           {status === "completed" ? (
@@ -180,9 +150,7 @@ export default function DevelopmentPlanOverview({
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            Progresso
-                          </span>
+                          <span className="text-muted-foreground">Progresso</span>
                           <span className="font-medium">
                             {progress.completed}/{progress.total} attività
                           </span>
@@ -192,10 +160,7 @@ export default function DevelopmentPlanOverview({
 
                       <div className="mt-3 space-y-1">
                         {goal.todo_item.map((todo) => (
-                          <div
-                            key={todo.id}
-                            className="flex items-center space-x-2 text-sm"
-                          >
+                          <div key={todo.id} className="flex items-center space-x-2 text-sm">
                             <div
                               className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
                                 todo.completed
@@ -203,16 +168,10 @@ export default function DevelopmentPlanOverview({
                                   : "border-muted-foreground"
                               }`}
                             >
-                              {todo.completed && (
-                                <CheckCircle2 className="h-3 w-3" />
-                              )}
+                              {todo.completed && <CheckCircle2 className="h-3 w-3" />}
                             </div>
                             <span
-                              className={
-                                todo.completed
-                                  ? "line-through text-muted-foreground"
-                                  : ""
-                              }
+                              className={todo.completed ? "line-through text-muted-foreground" : ""}
                             >
                               {todo.text}
                             </span>
@@ -227,9 +186,7 @@ export default function DevelopmentPlanOverview({
           ) : (
             <div className="text-center py-8">
               <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">
-                Nessun piano di sviluppo disponibile
-              </h3>
+              <h3 className="text-lg font-medium mb-2">Nessun piano di sviluppo disponibile</h3>
               <p className="text-muted-foreground mb-4">
                 Crea un nuovo piano per iniziare a tracciare gli obiettivi.
               </p>
@@ -256,8 +213,7 @@ export default function DevelopmentPlanOverview({
             <div className="space-y-4">
               {previousPlans.map((plan, index) => {
                 const progress = getPlanProgress(plan);
-                const progressPercentage =
-                  (progress.completed / progress.total) * 100;
+                const progressPercentage = (progress.completed / progress.total) * 100;
 
                 return (
                   <motion.div
@@ -270,20 +226,13 @@ export default function DevelopmentPlanOverview({
                     <div className="flex-1">
                       <div className="flex items-center space-x-4 mb-2">
                         <span className="font-medium">
-                          Piano del{" "}
-                          {new Date(plan.created_date).toLocaleDateString(
-                            "it-IT",
-                          )}
+                          Piano del {new Date(plan.created_date).toLocaleDateString("it-IT")}
                         </span>
-                        <Badge variant="outline">
-                          {plan.goal.length} obiettivi
-                        </Badge>
+                        <Badge variant="outline">{plan.goal.length} obiettivi</Badge>
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            Obiettivi completati
-                          </span>
+                          <span className="text-muted-foreground">Obiettivi completati</span>
                           <span className="font-medium">
                             {progress.completed}/{progress.total}
                           </span>
@@ -295,11 +244,7 @@ export default function DevelopmentPlanOverview({
                       variant="outline"
                       size="sm"
                       className="ml-4 bg-transparent"
-                      onClick={() =>
-                        router.push(
-                          `/utenti/${user.id}/development-plan/${plan.id}`,
-                        )
-                      }
+                      onClick={() => router.push(`/utenti/${user.id}/development-plan/${plan.id}`)}
                     >
                       <Eye className="mr-2 h-4 w-4" />
                       Visualizza

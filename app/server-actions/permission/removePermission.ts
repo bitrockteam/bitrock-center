@@ -1,12 +1,9 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { Permissions } from "@/db";
+import type { Permissions } from "@/db";
 
-export async function removePermission(params: {
-  user_id: string;
-  permission_id: Permissions;
-}) {
+export async function removePermission(params: { user_id: string; permission_id: Permissions }) {
   const { user_id, permission_id } = params;
 
   if (!user_id || !permission_id) {
@@ -31,6 +28,4 @@ export async function removePermission(params: {
   }
 }
 
-export type RemovePermissionResult = Awaited<
-  ReturnType<typeof removePermission>
->;
+export type RemovePermissionResult = Awaited<ReturnType<typeof removePermission>>;

@@ -1,7 +1,7 @@
-import { GetDevelopmentPlan } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
+import type { GetDevelopmentPlan } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
 
 export const getGoalProgress = (
-  goal: GetDevelopmentPlan["goal"][number],
+  goal: GetDevelopmentPlan["goal"][number]
 ): { completed: number; total: number } => {
   const completed = goal.todo_item.filter((todo) => todo.completed).length;
   const total = goal.todo_item.length;
@@ -19,14 +19,12 @@ export const getGoalStatus = (goal: GetDevelopmentPlan["goal"][number]) => {
 };
 
 export const getPlanProgress = (
-  plan: GetDevelopmentPlan,
+  plan: GetDevelopmentPlan
 ): { completed: number; total: number; percentage: number } => {
   if (!plan.goal || plan.goal.length === 0) {
     return { completed: 0, total: 0, percentage: 0 };
   }
-  const completedGoals = plan.goal.filter(
-    (goal) => getGoalStatus(goal) === "completed",
-  ).length;
+  const completedGoals = plan.goal.filter((goal) => getGoalStatus(goal) === "completed").length;
   const totalGoals = plan.goal.length;
   return {
     completed: completedGoals,

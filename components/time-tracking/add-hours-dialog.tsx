@@ -1,5 +1,9 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { fetchAllWorkItems } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,21 +31,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { timesheet, user } from "@/db";
+import type { timesheet, user } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
 import { useTimesheetApi } from "@/hooks/useTimesheetApi";
-import { motion } from "framer-motion";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 const schema = z.object({
-  date: z
-    .date()
-    .min(
-      new Date("2020-01-01"),
-      "La data deve essere successiva al 1 gennaio 2020",
-    ),
+  date: z.date().min(new Date("2020-01-01"), "La data deve essere successiva al 1 gennaio 2020"),
   work_item_id: z.string(),
   hours: z.number(),
   description: z.string().optional().nullable(),
@@ -140,9 +135,7 @@ export default function AddHoursDialog({
     <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>
-            {editData ? "Modifica Ore" : "Aggiungi Ore"}
-          </DialogTitle>
+          <DialogTitle>{editData ? "Modifica Ore" : "Aggiungi Ore"}</DialogTitle>
           <DialogDescription>
             {editData
               ? "Modifica le ore lavorate per questo giorno."
@@ -216,9 +209,7 @@ export default function AddHoursDialog({
                       min="0.5"
                       step="0.5"
                       {...field}
-                      onChange={(e) =>
-                        form.setValue("hours", parseFloat(e.target.value) || 0)
-                      }
+                      onChange={(e) => form.setValue("hours", parseFloat(e.target.value) || 0)}
                       value={field.value || ""}
                     />
                   </FormControl>
@@ -250,17 +241,10 @@ export default function AddHoursDialog({
             />
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleDialogClose}
-              >
+              <Button type="button" variant="outline" onClick={handleDialogClose}>
                 Annulla
               </Button>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button type="submit" disabled={loading}>
                   {loading ? "Salvataggio..." : editData ? "Aggiorna" : "Salva"}
                 </Button>

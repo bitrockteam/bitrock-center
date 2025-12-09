@@ -1,16 +1,14 @@
 "use client";
 
-import { WorkItemById } from "@/app/server-actions/work-item/fetchWorkItemById";
+import { motion } from "framer-motion";
+import { ArrowLeft, Briefcase, Building2, Calendar, Clock, Edit, Euro } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import type { WorkItemById } from "@/app/server-actions/work-item/fetchWorkItemById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -22,18 +20,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { work_item_status, work_item_type } from "@/db";
 import { formatDisplayName } from "@/services/users/utils";
-import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Briefcase,
-  Building2,
-  Calendar,
-  Clock,
-  Edit,
-  Euro,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
 
 export default function WorkItemDetail({
@@ -69,10 +55,7 @@ export default function WorkItemDetail({
         );
       case work_item_type.fixed_price:
         return (
-          <Badge
-            variant="outline"
-            className="border-purple-500 text-purple-500"
-          >
+          <Badge variant="outline" className="border-purple-500 text-purple-500">
             Prezzo Fisso
           </Badge>
         );
@@ -82,9 +65,7 @@ export default function WorkItemDetail({
   };
 
   // Helper function to safely convert date strings to Date objects
-  const safeDateString = (
-    dateValue: string | Date | null | undefined,
-  ): string => {
+  const safeDateString = (dateValue: string | Date | null | undefined): string => {
     if (!dateValue) return "";
     const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
     return date.toDateString();
@@ -93,10 +74,7 @@ export default function WorkItemDetail({
   const project = workItem.project;
   const client = workItem.client;
 
-  const totalHours = workItem.timesheet.reduce(
-    (sum, entry) => sum + entry.hours,
-    0,
-  );
+  const totalHours = workItem.timesheet.reduce((sum, entry) => sum + entry.hours, 0);
 
   const enabledUsers = workItem.work_item_enabled_users;
   const timeEntries = workItem?.timesheet;
@@ -110,17 +88,11 @@ export default function WorkItemDetail({
     >
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push("/commesse")}
-          >
+          <Button variant="outline" size="icon" onClick={() => router.push("/commesse")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {workItem.title}
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">{workItem.title}</h1>
             <div className="flex items-center space-x-2">
               {getTypeBadge(workItem.type)}
               {getStatusBadge(workItem.status)}
@@ -136,9 +108,7 @@ export default function WorkItemDetail({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Informazioni Generali
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Informazioni Generali</CardTitle>
             <CardDescription>Dettagli della commessa</CardDescription>
           </CardHeader>
           <CardContent>
@@ -148,9 +118,7 @@ export default function WorkItemDetail({
                   <Building2 className="mr-2 h-4 w-4" />
                   Cliente:
                 </p>
-                <p className="text-sm text-muted-foreground ml-6">
-                  {client?.name}
-                </p>
+                <p className="text-sm text-muted-foreground ml-6">{client?.name}</p>
               </div>
               {project && (
                 <div className="space-y-2">
@@ -158,9 +126,7 @@ export default function WorkItemDetail({
                     <Briefcase className="mr-2 h-4 w-4" />
                     Progetto:
                   </p>
-                  <p className="text-sm text-muted-foreground ml-6">
-                    {project.name}
-                  </p>
+                  <p className="text-sm text-muted-foreground ml-6">{project.name}</p>
                 </div>
               )}
               <div className="space-y-2">
@@ -170,17 +136,13 @@ export default function WorkItemDetail({
                 </p>
                 <p className="text-sm text-muted-foreground ml-6">
                   {safeDateString(workItem.start_date)} -{" "}
-                  {workItem.end_date
-                    ? safeDateString(workItem.end_date)
-                    : "In corso"}
+                  {workItem.end_date ? safeDateString(workItem.end_date) : "In corso"}
                 </p>
               </div>
               {workItem.description && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Descrizione:</p>
-                  <p className="text-sm text-muted-foreground">
-                    {workItem.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{workItem.description}</p>
                 </div>
               )}
             </div>
@@ -189,9 +151,7 @@ export default function WorkItemDetail({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Informazioni Economiche
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Informazioni Economiche</CardTitle>
             <CardDescription>Dettagli finanziari</CardDescription>
           </CardHeader>
           <CardContent>
@@ -242,9 +202,7 @@ export default function WorkItemDetail({
                     <Clock className="mr-2 h-4 w-4" />
                     Ore Totali:
                   </p>
-                  <p className="text-sm text-muted-foreground ml-6">
-                    {totalHours} ore
-                  </p>
+                  <p className="text-sm text-muted-foreground ml-6">{totalHours} ore</p>
                 </div>
               )}
             </div>
@@ -255,9 +213,7 @@ export default function WorkItemDetail({
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Team</CardTitle>
-          <CardDescription>
-            Utenti abilitati a registrare ore su questa commessa
-          </CardDescription>
+          <CardDescription>Utenti abilitati a registrare ore su questa commessa</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
@@ -304,10 +260,7 @@ export default function WorkItemDetail({
                 <TableBody>
                   {timeEntries?.length === 0 ? (
                     <TableRow>
-                      <TableCell
-                        colSpan={4}
-                        className="text-center py-6 text-muted-foreground"
-                      >
+                      <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
                         Nessuna ora registrata
                       </TableCell>
                     </TableRow>
@@ -318,9 +271,7 @@ export default function WorkItemDetail({
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Avatar className="h-6 w-6">
-                              {entry.user.avatar_url && (
-                                <AvatarImage src={entry.user.avatar_url} />
-                              )}
+                              {entry.user.avatar_url && <AvatarImage src={entry.user.avatar_url} />}
                               <AvatarFallback className="text-xs">
                                 {formatDisplayName({
                                   name: entry.user.name,
@@ -328,9 +279,7 @@ export default function WorkItemDetail({
                                 })}
                               </AvatarFallback>
                             </Avatar>
-                            <span className="text-sm font-medium">
-                              {entry.user.name}
-                            </span>
+                            <span className="text-sm font-medium">{entry.user.name}</span>
                           </div>
                         </TableCell>
                         <TableCell>{entry.hours} ore</TableCell>
@@ -352,9 +301,7 @@ export default function WorkItemDetail({
           <Card>
             <CardHeader>
               <CardTitle>Analytics</CardTitle>
-              <CardDescription>
-                Statistiche e analisi della commessa
-              </CardDescription>
+              <CardDescription>Statistiche e analisi della commessa</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -364,9 +311,7 @@ export default function WorkItemDetail({
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Membri del Team</p>
-                  <p className="text-2xl font-bold">
-                    {enabledUsers?.length || 0}
-                  </p>
+                  <p className="text-2xl font-bold">{enabledUsers?.length || 0}</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Stato</p>
@@ -399,9 +344,7 @@ export default function WorkItemDetail({
             hourly_rate: workItem.hourly_rate || 0,
             fixed_price: workItem.fixed_price || 0,
             estimated_hours: workItem.estimated_hours || 0,
-            enabled_users: workItem.work_item_enabled_users.map(
-              (user) => user.user_id,
-            ),
+            enabled_users: workItem.work_item_enabled_users.map((user) => user.user_id),
             id: workItem.id,
             start_date: workItem.start_date
               ? workItem.start_date instanceof Date

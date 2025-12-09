@@ -1,8 +1,12 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { AlertCircle, ArrowLeft, Edit, Plus, Save, Target, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { addGoal } from "@/app/server-actions/development-plan/addGoal";
 import { addTodoGoal } from "@/app/server-actions/development-plan/addTodoGoal";
-import { GetDevelopmentPlan } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
+import type { GetDevelopmentPlan } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
 import { removeGoal } from "@/app/server-actions/development-plan/removeGoal";
 import { updateGoal } from "@/app/server-actions/development-plan/updateGoal";
 import { updateTodoStatus } from "@/app/server-actions/development-plan/updateTodoStatus";
@@ -18,13 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -37,21 +35,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { todo_item } from "@/db";
+import type { todo_item } from "@/db";
 import { getGoalBadge } from "@/utils/mapping";
-import { motion } from "framer-motion";
-import {
-  AlertCircle,
-  ArrowLeft,
-  Edit,
-  Plus,
-  Save,
-  Target,
-  Trash2,
-  X,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { getGoalProgress, getGoalStatus } from "./utils";
 
 export default function DevelopmentPlanDetail({
@@ -66,9 +51,7 @@ export default function DevelopmentPlanDetail({
   const router = useRouter();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editingGoal, setEditingGoal] = useState<
-    GetDevelopmentPlan["goal"][number] | null
-  >(null);
+  const [editingGoal, setEditingGoal] = useState<GetDevelopmentPlan["goal"][number] | null>(null);
   const [showAddGoalDialog, setShowAddGoalDialog] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState<string | null>(null);
   const [newGoal, setNewGoal] = useState({
@@ -82,12 +65,8 @@ export default function DevelopmentPlanDetail({
     return (
       <div className="flex flex-col items-center justify-center h-[50vh]">
         <h2 className="text-2xl font-bold">Piano non trovato</h2>
-        <p className="text-muted-foreground mb-4">
-          Il piano di sviluppo richiesto non esiste.
-        </p>
-        <Button
-          onClick={() => router.push(`/utenti/${user.id}/development-plan`)}
-        >
+        <p className="text-muted-foreground mb-4">Il piano di sviluppo richiesto non esiste.</p>
+        <Button onClick={() => router.push(`/utenti/${user.id}/development-plan`)}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Torna ai Piani
         </Button>
@@ -95,11 +74,7 @@ export default function DevelopmentPlanDetail({
     );
   }
 
-  const handleTodoToggle = async (
-    goalId: string,
-    todoId: string,
-    completed: boolean,
-  ) => {
+  const handleTodoToggle = async (goalId: string, todoId: string, completed: boolean) => {
     if (!isLatestPlan) return;
     await updateTodoStatus(goalId, todoId, completed);
     router.refresh();
@@ -174,12 +149,9 @@ export default function DevelopmentPlanDetail({
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Piano di Sviluppo
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">Piano di Sviluppo</h1>
             <p className="text-muted-foreground">
-              {user.name} -{" "}
-              {new Date(plan.created_date).toLocaleDateString("it-IT")}
+              {user.name} - {new Date(plan.created_date).toLocaleDateString("it-IT")}
             </p>
             <div className="flex items-center space-x-2 mt-1">
               {isLatestPlan ? (
@@ -187,18 +159,13 @@ export default function DevelopmentPlanDetail({
               ) : (
                 <Badge variant="outline">Piano Precedente</Badge>
               )}
-              <span className="text-sm text-muted-foreground">
-                {plan.goal.length} obiettivi
-              </span>
+              <span className="text-sm text-muted-foreground">{plan.goal.length} obiettivi</span>
             </div>
           </div>
         </div>
         {isLatestPlan && (
           <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowAddGoalDialog(true)}
-            >
+            <Button variant="outline" onClick={() => setShowAddGoalDialog(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Aggiungi Obiettivo
             </Button>
@@ -228,8 +195,8 @@ export default function DevelopmentPlanDetail({
             <div className="flex items-center space-x-2">
               <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               <p className="text-amber-800 dark:text-amber-200">
-                Questo è un piano precedente e non può essere modificato. Solo
-                il piano più recente può essere aggiornato.
+                Questo è un piano precedente e non può essere modificato. Solo il piano più recente
+                può essere aggiornato.
               </p>
             </div>
           </CardContent>
@@ -242,9 +209,7 @@ export default function DevelopmentPlanDetail({
             <CardContent className="pt-6">
               <div className="text-center py-8">
                 <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">
-                  Nessun obiettivo definito
-                </h3>
+                <h3 className="text-lg font-medium mb-2">Nessun obiettivo definito</h3>
                 <p className="text-muted-foreground mb-4">
                   Aggiungi obiettivi per iniziare a tracciare il progresso.
                 </p>
@@ -261,8 +226,7 @@ export default function DevelopmentPlanDetail({
           plan.goal.map((goal, index) => {
             const status = getGoalStatus(goal);
             const progress = getGoalProgress(goal);
-            const progressPercentage =
-              (progress.completed / progress.total) * 100;
+            const progressPercentage = (progress.completed / progress.total) * 100;
             const isEditingThisGoal = editingGoal?.id === goal.id;
 
             return (
@@ -303,9 +267,7 @@ export default function DevelopmentPlanDetail({
                         ) : (
                           <>
                             <CardTitle>{goal.title}</CardTitle>
-                            <CardDescription>
-                              {goal.description}
-                            </CardDescription>
+                            <CardDescription>{goal.description}</CardDescription>
                           </>
                         )}
                       </div>
@@ -315,11 +277,7 @@ export default function DevelopmentPlanDetail({
                           <div className="flex space-x-1">
                             {isEditingThisGoal ? (
                               <>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={handleSaveGoal}
-                                >
+                                <Button variant="ghost" size="icon" onClick={handleSaveGoal}>
                                   <Save className="h-4 w-4" />
                                 </Button>
                                 <Button
@@ -358,17 +316,12 @@ export default function DevelopmentPlanDetail({
                       {status !== "not-started" && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">
-                              Progresso
-                            </span>
+                            <span className="text-muted-foreground">Progresso</span>
                             <span className="font-medium">
                               {progress.completed}/{progress.total} attività
                             </span>
                           </div>
-                          <Progress
-                            value={progressPercentage}
-                            className="h-2"
-                          />
+                          <Progress value={progressPercentage} className="h-2" />
                         </div>
                       )}
 
@@ -382,14 +335,9 @@ export default function DevelopmentPlanDetail({
                                 value={newTodo}
                                 onChange={(e) => setNewTodo(e.target.value)}
                                 placeholder="Aggiungi un'attività"
-                                onKeyPress={(e) =>
-                                  e.key === "Enter" && addTodoToEditingGoal()
-                                }
+                                onKeyPress={(e) => e.key === "Enter" && addTodoToEditingGoal()}
                               />
-                              <Button
-                                onClick={addTodoToEditingGoal}
-                                disabled={!newTodo.trim()}
-                              >
+                              <Button onClick={addTodoToEditingGoal} disabled={!newTodo.trim()}>
                                 <Plus className="h-4 w-4" />
                               </Button>
                             </div>
@@ -397,26 +345,17 @@ export default function DevelopmentPlanDetail({
                         </div>
                         <div className="space-y-2">
                           {goal.todo_item.map((todo) => (
-                            <div
-                              key={todo.id}
-                              className="flex items-center space-x-3"
-                            >
+                            <div key={todo.id} className="flex items-center space-x-3">
                               <Checkbox
                                 checked={todo.completed}
                                 onCheckedChange={(checked) =>
-                                  handleTodoToggle(
-                                    goal.id,
-                                    todo.id,
-                                    checked as boolean,
-                                  )
+                                  handleTodoToggle(goal.id, todo.id, checked as boolean)
                                 }
                                 disabled={!isLatestPlan}
                               />
                               <span
                                 className={
-                                  todo.completed
-                                    ? "line-through text-muted-foreground"
-                                    : ""
+                                  todo.completed ? "line-through text-muted-foreground" : ""
                                 }
                               >
                                 {todo.text}
@@ -439,18 +378,14 @@ export default function DevelopmentPlanDetail({
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Aggiungi Nuovo Obiettivo</DialogTitle>
-            <DialogDescription>
-              Crea un nuovo obiettivo per il piano di sviluppo.
-            </DialogDescription>
+            <DialogDescription>Crea un nuovo obiettivo per il piano di sviluppo.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium">Titolo</label>
               <Input
                 value={newGoal.title}
-                onChange={(e) =>
-                  setNewGoal({ ...newGoal, title: e.target.value })
-                }
+                onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
                 placeholder="Titolo dell'obiettivo"
               />
             </div>
@@ -458,9 +393,7 @@ export default function DevelopmentPlanDetail({
               <label className="text-sm font-medium">Descrizione</label>
               <Textarea
                 value={newGoal.description}
-                onChange={(e) =>
-                  setNewGoal({ ...newGoal, description: e.target.value })
-                }
+                onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
                 placeholder="Descrizione dell'obiettivo"
                 rows={3}
               />
@@ -500,10 +433,7 @@ export default function DevelopmentPlanDetail({
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowAddGoalDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowAddGoalDialog(false)}>
               Annulla
             </Button>
             <Button onClick={handleAddGoal} disabled={!newGoal.title.trim()}>
@@ -514,16 +444,13 @@ export default function DevelopmentPlanDetail({
       </Dialog>
 
       {/* Dialog di conferma eliminazione */}
-      <AlertDialog
-        open={!!goalToDelete}
-        onOpenChange={(open) => !open && setGoalToDelete(null)}
-      >
+      <AlertDialog open={!!goalToDelete} onOpenChange={(open) => !open && setGoalToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Elimina Obiettivo</AlertDialogTitle>
             <AlertDialogDescription>
-              Sei sicuro di voler eliminare questo obiettivo? Questa azione non
-              può essere annullata.
+              Sei sicuro di voler eliminare questo obiettivo? Questa azione non può essere
+              annullata.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

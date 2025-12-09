@@ -1,6 +1,6 @@
+import type { Metadata } from "next";
 import { getEmployeeDevelopmentPlans } from "@/app/server-actions/development-plan/getEmployeeDevelopmentPlans.ts";
 import DevelopmentPlanOverview from "@/components/development-plan/development-plan-overview";
-import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -9,11 +9,7 @@ export const metadata: Metadata = {
   description: "Piano di sviluppo del dipendente",
 };
 
-export default async function DevelopmentPlanPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function DevelopmentPlanPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const previousPlans = await getEmployeeDevelopmentPlans(id);
   const latestPlan = previousPlans.length > 0 ? previousPlans[0] : null;
@@ -24,9 +20,7 @@ export default async function DevelopmentPlanPage({
         user={latestPlan?.user}
         latestPlan={latestPlan}
         previousPlans={
-          previousPlans.length > 1
-            ? previousPlans.filter((plan) => plan.id !== latestPlan?.id)
-            : []
+          previousPlans.length > 1 ? previousPlans.filter((plan) => plan.id !== latestPlan?.id) : []
         }
       />
     </div>

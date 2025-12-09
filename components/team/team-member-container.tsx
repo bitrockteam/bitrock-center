@@ -1,10 +1,10 @@
 "use client";
-import { useTeamApi } from "@/hooks/useTeamApi";
 import { motion } from "framer-motion";
+import { useTeamApi } from "@/hooks/useTeamApi";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { TeamMemberCard } from "./team-member-card";
 import { TeamUpdateIndicator } from "./team-update-indicator";
-import { TeamMemberContainerProps } from "./types";
+import type { TeamMemberContainerProps } from "./types";
 
 export function TeamMemberContainer({
   myTeam,
@@ -44,11 +44,7 @@ export function TeamMemberContainer({
                 {user.name}&apos;s Team
               </TabsTrigger>
             )}
-            <TabsTrigger
-              className="w-2xs"
-              value="my-team"
-              aria-label="Il mio team"
-            >
+            <TabsTrigger className="w-2xs" value="my-team" aria-label="Il mio team">
               My Team
             </TabsTrigger>
           </TabsList>
@@ -63,10 +59,7 @@ export function TeamMemberContainer({
                   onMemberRemoved={handleMemberRemoved}
                 />
               ))}
-              <TeamMemberCard
-                isOwner={isOwner}
-                onMemberRemoved={handleMemberRemoved}
-              />
+              <TeamMemberCard isOwner={isOwner} onMemberRemoved={handleMemberRemoved} />
             </div>
           </TabsContent>
 
@@ -74,13 +67,10 @@ export function TeamMemberContainer({
             <div className="flex flex-col space-y-4">
               {myTeam.referent ? (
                 <p className="text-sm text-muted-foreground">
-                  Referente:{" "}
-                  <span className="font-medium">{myTeam.referent.name}</span>
+                  Referente: <span className="font-medium">{myTeam.referent.name}</span>
                 </p>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  Nessun referente assegnato
-                </p>
+                <p className="text-sm text-muted-foreground">Nessun referente assegnato</p>
               )}
               <div className="flex flex-wrap gap-4">
                 {myTeam.members.map((member) => (

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { fetchUserTimesheetById } from "@/app/server-actions/timesheet/fetchUserTimesheetById";
 import { fetchAllWorkItems } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import TimeTrackingCalendar from "@/components/time-tracking/time-tracking-calendar";
@@ -5,7 +6,6 @@ import TimeTrackingHeader from "@/components/time-tracking/time-tracking-header"
 import TimeTrackingTable from "@/components/time-tracking/time-tracking-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
-import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +14,7 @@ export const metadata: Metadata = {
   description: "Visualizza le ore lavorate dell'utente",
 };
 
-export default async function UserTimesheet({
-  params,
-}: {
-  params: Promise<{ userId: string }>;
-}) {
+export default async function UserTimesheet({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
   const user = await getUserInfoFromCookie();
   const userTimesheet = await fetchUserTimesheetById(userId);
@@ -26,11 +22,7 @@ export default async function UserTimesheet({
 
   return (
     <div className="space-y-6">
-      <TimeTrackingHeader
-        user={user}
-        userTimesheet={userTimesheet}
-        isReadByAdmin
-      />
+      <TimeTrackingHeader user={user} userTimesheet={userTimesheet} isReadByAdmin />
 
       <Tabs defaultValue="table" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">

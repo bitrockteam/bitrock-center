@@ -1,10 +1,8 @@
 "use server";
 import { db } from "@/config/prisma";
-import { skill } from "@/db";
+import type { skill } from "@/db";
 
-export async function createNewSkill(
-  skill: Omit<skill, "id" | "created_at" | "updated_at">,
-) {
+export async function createNewSkill(skill: Omit<skill, "id" | "created_at" | "updated_at">) {
   return db.skill.create({
     data: {
       name: skill.name,

@@ -1,9 +1,9 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import ClientsHeader from "@/components/client/clients-header";
 import ClientsTable from "@/components/client/clients-table";
 import { Permissions } from "@/db";
 import { hasPermission } from "@/services/users/server.utils";
-import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 

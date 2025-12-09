@@ -1,25 +1,17 @@
-import { FindUserById } from "@/app/server-actions/user/findUserById";
+import type { FindUserById } from "@/app/server-actions/user/findUserById";
 import {
   getSeniorityLevelColor,
   getSeniorityLevelLabel,
   getSkillIcon,
 } from "@/components/skills/utils";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function UserDetailsSkills({ user }: { user: FindUserById }) {
   const hardSkills =
-    user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ??
-    [];
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ?? [];
   const softSkills =
-    user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ??
-    [];
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ?? [];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -32,9 +24,7 @@ export default function UserDetailsSkills({ user }: { user: FindUserById }) {
         <CardContent>
           <div className="space-y-3">
             {hardSkills.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">
-                Nessuna hard skill presente
-              </p>
+              <p className="text-muted-foreground text-center py-4">Nessuna hard skill presente</p>
             ) : (
               hardSkills.map((empSkill) => {
                 const SkillIcon = getSkillIcon(empSkill.skill.icon);
@@ -73,16 +63,12 @@ export default function UserDetailsSkills({ user }: { user: FindUserById }) {
       <Card>
         <CardHeader>
           <CardTitle>Soft Skills</CardTitle>
-          <CardDescription>
-            Competenze trasversali e relazionali
-          </CardDescription>
+          <CardDescription>Competenze trasversali e relazionali</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {softSkills.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">
-                Nessuna soft skill presente
-              </p>
+              <p className="text-muted-foreground text-center py-4">Nessuna soft skill presente</p>
             ) : (
               softSkills.map((empSkill) => {
                 const SkillIcon = getSkillIcon(empSkill.skill.icon);

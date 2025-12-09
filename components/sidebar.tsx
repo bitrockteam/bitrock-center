@@ -1,19 +1,5 @@
 "use client";
 
-import { logout } from "@/app/login/actions";
-import { ModeToggle } from "@/components/mode-toggle";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Permissions, user } from "@/db";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   Bot,
@@ -35,6 +21,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { logout } from "@/app/login/actions";
+import { ModeToggle } from "@/components/mode-toggle";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Permissions, type user } from "@/db";
+import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const navItems = [
@@ -111,17 +111,14 @@ export default function Sidebar({
   return (
     <div className="relative">
       <motion.div
-        className={cn(
-          "h-screen bg-background border-r flex flex-col",
-          collapsed ? "w-16" : "w-64",
-        )}
+        className={cn("h-screen bg-background border-r flex flex-col", collapsed ? "w-16" : "w-64")}
         animate={{ width: collapsed ? 64 : 256 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <div
           className={cn(
             "flex items-center",
-            collapsed ? "py-4 justify-center" : "p-4 justify-between",
+            collapsed ? "py-4 justify-center" : "p-4 justify-between"
           )}
         >
           {!collapsed && (
@@ -135,11 +132,7 @@ export default function Sidebar({
               Bitrock Hours
             </motion.div>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCollapsed(!collapsed)}
-          >
+          <Button variant="ghost" size="icon" onClick={() => setCollapsed(!collapsed)}>
             <Menu className="h-5 w-5" />
           </Button>
         </div>
@@ -148,29 +141,20 @@ export default function Sidebar({
           <ul className="space-y-2">
             {navItems
               .filter(
-                (el) =>
-                  !el.permission ||
-                  (el.permission && permissions.includes(el.permission)),
+                (el) => !el.permission || (el.permission && permissions.includes(el.permission))
               )
               .map((item) => (
                 <li key={item.href}>
                   <Link href={item.href}>
                     <Button
-                      variant={
-                        pathname.startsWith(item.href) ? "secondary" : "ghost"
-                      }
+                      variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
                       className={cn(
                         "w-full",
-                        collapsed
-                          ? "px-2 justify-center"
-                          : "px-4 justify-start",
+                        collapsed ? "px-2 justify-center" : "px-4 justify-start"
                       )}
                     >
                       <item.icon
-                        className={cn(
-                          "h-5 w-5",
-                          collapsed ? "flex justify-center" : "mr-2",
-                        )}
+                        className={cn("h-5 w-5", collapsed ? "flex justify-center" : "mr-2")}
                       />
                       {!collapsed && <span>{item.title}</span>}
                     </Button>
@@ -182,19 +166,13 @@ export default function Sidebar({
         <div className={cn("border-t", collapsed ? "py-4" : "p-4")}>
           <div className="flex items-center justify-between">
             <DropdownMenu>
-              <DropdownMenuTrigger
-                className={!collapsed ? "p-0" : "p-auto"}
-                asChild
-              >
+              <DropdownMenuTrigger className={!collapsed ? "p-0" : "p-auto"} asChild>
                 <Button variant="ghost">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Avatar className="h-8 w-8">
                         <AvatarImage
-                          src={
-                            user.avatar_url ||
-                            "/placeholder.svg?height=32&width=32"
-                          }
+                          src={user.avatar_url || "/placeholder.svg?height=32&width=32"}
                           alt="user avatar"
                         />
                         <AvatarFallback>
@@ -207,9 +185,7 @@ export default function Sidebar({
                       </Avatar>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <span className="ml-2 text-sm font-medium">
-                        {user.name || "Utente"}
-                      </span>
+                      <span className="ml-2 text-sm font-medium">{user.name || "Utente"}</span>
                     </TooltipContent>
                   </Tooltip>
                 </Button>

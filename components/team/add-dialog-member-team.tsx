@@ -1,12 +1,12 @@
 "use client";
 
-import { useTeamApi } from "@/hooks/useTeamApi";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Check, ChevronsUpDown, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useTeamApi } from "@/hooks/useTeamApi";
+import { cn } from "@/lib/utils";
 
 import { Button } from "../ui/button";
 import {
@@ -27,7 +27,7 @@ import {
 } from "../ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { AddMemberFormData } from "./types";
+import type { AddMemberFormData } from "./types";
 
 export function AddDialogMemberTeam() {
   const { users, usersLoading, teamMembers, addTeamMember } = useTeamApi();
@@ -43,7 +43,7 @@ export function AddDialogMemberTeam() {
 
   // Filter out users who are already team members
   const availableUsers = users.filter(
-    (user) => !teamMembers.some((member) => member.id === user.id),
+    (user) => !teamMembers.some((member) => member.id === user.id)
   );
 
   const handleSubmit = async (data: AddMemberFormData) => {
@@ -102,10 +102,7 @@ export function AddDialogMemberTeam() {
                   <FormItem>
                     <FormLabel>Nome Membro</FormLabel>
                     <FormControl>
-                      <Popover
-                        open={isPopoverOpen}
-                        onOpenChange={setIsPopoverOpen}
-                      >
+                      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -113,11 +110,8 @@ export function AddDialogMemberTeam() {
                             className="justify-between"
                             disabled={usersLoading}
                           >
-                            {field.value &&
-                            availableUsers?.some((u) => u.id === field.value)
-                              ? availableUsers?.find(
-                                  (user) => user.id === field.value,
-                                )?.name
+                            {field.value && availableUsers?.some((u) => u.id === field.value)
+                              ? availableUsers?.find((user) => user.id === field.value)?.name
                               : "Seleziona membro..."}
                             {usersLoading ? (
                               <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -128,10 +122,7 @@ export function AddDialogMemberTeam() {
                         </PopoverTrigger>
                         <PopoverContent className="w-[460px] p-0">
                           <Command>
-                            <CommandInput
-                              placeholder="Cerca membro..."
-                              className="h-9"
-                            />
+                            <CommandInput placeholder="Cerca membro..." className="h-9" />
                             <CommandList>
                               <CommandEmpty>
                                 {availableUsers.length === 0
@@ -152,9 +143,7 @@ export function AddDialogMemberTeam() {
                                     <Check
                                       className={cn(
                                         "ml-auto h-4 w-4",
-                                        field.value === user.id
-                                          ? "opacity-100"
-                                          : "opacity-0",
+                                        field.value === user.id ? "opacity-100" : "opacity-0"
                                       )}
                                     />
                                   </CommandItem>
@@ -177,17 +166,10 @@ export function AddDialogMemberTeam() {
                 >
                   Annulla
                 </Button>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
                     type="submit"
-                    disabled={
-                      isSubmitting ||
-                      !form.watch("userId") ||
-                      availableUsers.length === 0
-                    }
+                    disabled={isSubmitting || !form.watch("userId") || availableUsers.length === 0}
                   >
                     {isSubmitting ? (
                       <>

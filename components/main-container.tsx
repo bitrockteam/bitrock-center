@@ -1,11 +1,12 @@
-import { tryGetUserInfoFromCookie } from "@/utils/supabase/server";
+import type { ReactNode } from "react";
+import type { tryGetUserInfoFromCookie } from "@/utils/supabase/server";
 import Sidebar from "./sidebar";
 
 export default async function MainContainer({
   user,
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   user: Awaited<ReturnType<typeof tryGetUserInfoFromCookie>>;
 }) {
   return (

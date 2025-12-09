@@ -1,6 +1,6 @@
-import { removePermission } from "@/app/server-actions/permission/removePermission";
-import { user_permission } from "@/db";
 import { NextResponse } from "next/server";
+import { removePermission } from "@/app/server-actions/permission/removePermission";
+import type { user_permission } from "@/db";
 
 export async function DELETE(request: Request) {
   try {
@@ -12,9 +12,6 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error("[DELETE /api/permission/remove] Error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json(
-      { success: false, error: message },
-      { status: 400 },
-    );
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
 }

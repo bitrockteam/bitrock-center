@@ -1,4 +1,4 @@
-import { user } from "@/db";
+import type { user } from "@/db";
 
 export const SYSTEM_PROMPT = (user: user) => `
 You are an AI that converts natural language questions into SQL queries.

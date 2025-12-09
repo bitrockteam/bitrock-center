@@ -8,6 +8,4 @@ export async function fetchWorkItemTimeEntries(workItemId: string) {
   });
 }
 
-export type WorkItemTimeEntry = Awaited<
-  ReturnType<typeof fetchWorkItemTimeEntries>
->[number];
+export type WorkItemTimeEntry = Awaited<ReturnType<typeof fetchWorkItemTimeEntries>>[number];

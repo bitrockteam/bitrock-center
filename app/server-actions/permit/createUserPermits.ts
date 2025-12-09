@@ -1,14 +1,11 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { permit, PermitStatus } from "@/db";
+import { PermitStatus, type permit } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
 export async function createUserPermits(
-  permitDTO: Omit<
-    permit,
-    "user_id" | "id" | "created_at" | "updated_at" | "status"
-  >,
+  permitDTO: Omit<permit, "user_id" | "id" | "created_at" | "updated_at" | "status">
 ) {
   const userInfo = await getUserInfoFromCookie();
 

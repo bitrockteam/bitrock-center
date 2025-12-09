@@ -10,7 +10,7 @@ type UseServerActionOptions = {
 export function useServerAction<TParams extends unknown[], TResult>(
   actionFn: (...params: TParams) => Promise<TResult>,
   initialData?: TResult,
-  options: UseServerActionOptions = {},
+  options: UseServerActionOptions = {}
 ) {
   const [data, setData] = useState<TResult | undefined>(initialData);
   const [isPending, startTransition] = useTransition();
@@ -36,7 +36,7 @@ export function useServerAction<TParams extends unknown[], TResult>(
         });
       }, debounceMs);
     },
-    [actionFn, debounceMs],
+    [actionFn, debounceMs]
   );
 
   useEffect(() => {

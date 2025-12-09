@@ -1,36 +1,38 @@
 import { createUserInfo } from "@/app/server-actions/user/createUserInfo";
-import { getUserInfo } from "@/app/server-actions/user/getUserInfo";
-import { createServerClient } from "@supabase/ssr";
+import { getUserInfo, type UserInfo } from "@/app/server-actions/user/getUserInfo";
+import { type CookieOptions, createServerClient } from "@supabase/ssr";
 import { jwtDecode } from "jwt-decode";
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          supabaseResponse = NextResponse.next({
-            request,
-          });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options),
-          );
-        },
+  const supbaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supbaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supbaseUrl || !supbaseAnonKey) {
+    throw new Error("NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY is not defined");
+  }
+
+  const supabase = createServerClient(supbaseUrl, supbaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>) {
+        cookiesToSet.forEach(({ name, value }) => {
+          request.cookies.set(name, value);
+        });
+        supabaseResponse = NextResponse.next({
+          request,
+        });
+        cookiesToSet.forEach(({ name, value, options }) => {
+          supabaseResponse.cookies.set(name, value, options);
+        });
       },
     },
-  );
+  });
 
   // Do not run code between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
@@ -44,10 +46,7 @@ export async function updateSession(request: NextRequest) {
 
   const pathNames = ["login", "auth", "error", "auth/callback"];
 
-  if (
-    !user &&
-    !pathNames.some((path) => request.nextUrl.pathname.startsWith(`/${path}`))
-  ) {
+  if (!user && !pathNames.some((path) => request.nextUrl.pathname.startsWith(`/${path}`))) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -72,7 +71,7 @@ export async function updateSession(request: NextRequest) {
   const token = session.data.session?.access_token;
   if (token) {
     const decodedToken = jwtDecode(token) as { email: string };
-    let userInfo;
+    let userInfo: UserInfo | null = null;
     try {
       userInfo = await getUserInfo(decodedToken.email);
       // Option 2: Or alternatively, a header (less secure)

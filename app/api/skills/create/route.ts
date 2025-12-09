@@ -1,5 +1,5 @@
 import { createNewSkill } from "@/app/server-actions/skills/createNewSkill";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const createSkillSchema = z.object({
@@ -32,9 +32,9 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Invalid input data",
-          details: error.errors,
+          details: error.issues,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: "Failed to create skill",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

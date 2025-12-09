@@ -1,5 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { AlertTriangle, Calendar, User, XCircle } from "lucide-react";
+import { useState } from "react";
 import { closeContract } from "@/app/server-actions/contract/closeContract";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,10 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { contract } from "@/db";
-import { motion } from "framer-motion";
-import { AlertTriangle, Calendar, User, XCircle } from "lucide-react";
-import { useState } from "react";
+import type { contract } from "@/db";
 
 interface CloseContractDialogProps {
   open: boolean;
@@ -64,9 +64,7 @@ export default function CloseContractDialog({
   };
 
   // Helper function to safely convert date strings to Date objects
-  const safeDateString = (
-    dateValue: string | Date | null | undefined,
-  ): string => {
+  const safeDateString = (dateValue: string | Date | null | undefined): string => {
     if (!dateValue) return "";
     const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
     return date.toDateString();
@@ -108,9 +106,7 @@ export default function CloseContractDialog({
                 <div className="text-sm text-muted-foreground space-y-1">
                   <p>La chiusura del contratto comporterà:</p>
                   <ul className="list-disc list-inside space-y-1 ml-2">
-                    <li>
-                      Il dipendente verrà impostato come &quot;Non Attivo&quot;
-                    </li>
+                    <li>Il dipendente verrà impostato come &quot;Non Attivo&quot;</li>
                     <li>Non potrà più essere assegnato a nuovi progetti</li>
                     <li>La data di fine contratto sarà impostata ad oggi</li>
                     <li>Questa azione non può essere annullata</li>
@@ -133,9 +129,7 @@ export default function CloseContractDialog({
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">RAL:</span>
-                  <span className="font-medium">
-                    {formatCurrency(contract.ral)}
-                  </span>
+                  <span className="font-medium">{formatCurrency(contract.ral)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tipo:</span>
@@ -178,19 +172,11 @@ export default function CloseContractDialog({
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
             Annulla
           </Button>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button
-              variant="destructive"
-              onClick={handleCloseContract}
-              disabled={isLoading}
-            >
+            <Button variant="destructive" onClick={handleCloseContract} disabled={isLoading}>
               {isLoading ? "Chiusura in corso..." : "Conferma Chiusura"}
             </Button>
           </motion.div>

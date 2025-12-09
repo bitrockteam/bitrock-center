@@ -13,11 +13,9 @@ export async function fetchUserTimesheetById(userId: string) {
     where: {
       id: userId,
     },
-  })
+  });
 
-  return {user,timesheets};
+  return { user, timesheets };
 }
 
-export type UserTimesheetById = Awaited<
-  ReturnType<typeof fetchUserTimesheetById>
->;
+export type UserTimesheetById = Awaited<ReturnType<typeof fetchUserTimesheetById>>;

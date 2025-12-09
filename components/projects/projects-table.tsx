@@ -1,5 +1,12 @@
 "use client";
 
+import { format } from "date-fns";
+import { motion } from "framer-motion";
+import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { deleteProject } from "@/app/server-actions/project/deleteProject";
+import type { Project } from "@/app/server-actions/project/fetchAllProjects";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,9 +17,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-import { deleteProject } from "@/app/server-actions/project/deleteProject";
-import { Project } from "@/app/server-actions/project/fetchAllProjects";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -30,23 +34,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { project } from "@/db";
+import type { project } from "@/db";
 import { getProjectStatusBadge } from "@/utils/mapping";
-import { format } from "date-fns";
-import { motion } from "framer-motion";
-import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import AddProjectDialog from "./add-project-dialog";
 
 export default function ProjectsTable({ projects }: { projects: Project[] }) {
   const router = useRouter();
-  const [editProjectDialog, setEditProjectDialog] = useState<Project | null>(
-    null,
-  );
-  const [deleteProjectDialog, setDeleteProjectDialog] =
-    useState<project | null>(null);
+  const [editProjectDialog, setEditProjectDialog] = useState<Project | null>(null);
+  const [deleteProjectDialog, setDeleteProjectDialog] = useState<project | null>(null);
 
   const handleViewProject = (id: string) => {
     router.push(`/progetti/${id}`);
@@ -78,10 +74,7 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
             <TableBody>
               {projects.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-6 text-muted-foreground"
-                  >
+                  <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                     Nessun progetto trovato
                   </TableCell>
                 </TableRow>
@@ -92,28 +85,17 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => handleViewProject(project.id)}
                   >
-                    <TableCell className="font-medium">
-                      {project?.name}
-                    </TableCell>
+                    <TableCell className="font-medium">{project?.name}</TableCell>
                     <TableCell>{project?.client.name}</TableCell>
-                    <TableCell>
-                      {getProjectStatusBadge(project?.status)}
-                    </TableCell>
+                    <TableCell>{getProjectStatusBadge(project?.status)}</TableCell>
 
+                    <TableCell>{format(project?.start_date, "MM dd yyyy")}</TableCell>
                     <TableCell>
-                      {format(project?.start_date, "MM dd yyyy")}
-                    </TableCell>
-                    <TableCell>
-                      {project?.end_date
-                        ? format(project?.end_date, "MM dd yyyy")
-                        : "-"}
+                      {project?.end_date ? format(project?.end_date, "MM dd yyyy") : "-"}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
-                        <DropdownMenuTrigger
-                          asChild
-                          onClick={(e) => e.stopPropagation()}
-                        >
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                           <Button variant="ghost" size="icon">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
@@ -176,12 +158,10 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Sei sicuro di voler eliminare questo progetto?
-            </AlertDialogTitle>
+            <AlertDialogTitle>Sei sicuro di voler eliminare questo progetto?</AlertDialogTitle>
             <AlertDialogDescription>
-              Questa azione non può essere annullata. Il progetto verrà
-              eliminato permanentemente dal sistema.
+              Questa azione non può essere annullata. Il progetto verrà eliminato permanentemente
+              dal sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

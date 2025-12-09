@@ -1,6 +1,6 @@
 "use client";
 
-import { SeniorityLevel } from "@/db";
+import type { SeniorityLevel } from "@/db";
 import { useApi } from "./useApi";
 
 // Types for API responses
@@ -111,10 +111,7 @@ export const skillsApi = {
   },
 
   // Fetch employee by ID with skills
-  fetchEmployeeWithSkillsById: async (
-    api: ReturnType<typeof useApi>,
-    id: string,
-  ) => {
+  fetchEmployeeWithSkillsById: async (api: ReturnType<typeof useApi>, id: string) => {
     return api.callApi(`/api/skills/employee/${id}`);
   },
 
@@ -127,7 +124,7 @@ export const skillsApi = {
       description?: string;
       icon: string;
       active: boolean;
-    },
+    }
   ) => {
     return api.callApi("/api/skills/create", {
       method: "POST",
@@ -145,7 +142,7 @@ export const skillsApi = {
       description?: string;
       icon: string;
       active: boolean;
-    },
+    }
   ) => {
     return api.callApi("/api/skills/update", {
       method: "PUT",
@@ -162,11 +159,7 @@ export const skillsApi = {
   },
 
   // Toggle skill active status
-  toggleSkillActive: async (
-    api: ReturnType<typeof useApi>,
-    id: string,
-    active: boolean,
-  ) => {
+  toggleSkillActive: async (api: ReturnType<typeof useApi>, id: string, active: boolean) => {
     return api.callApi("/api/skills/toggle-active", {
       method: "PATCH",
       body: JSON.stringify({ id, active }),
@@ -180,7 +173,7 @@ export const skillsApi = {
       employeeId: string;
       skillId: string;
       seniorityLevel: SeniorityLevel;
-    },
+    }
   ) => {
     return api.callApi("/api/skills/employee/add", {
       method: "POST",
@@ -194,7 +187,7 @@ export const skillsApi = {
     data: {
       employeeId: string;
       skillId: string;
-    },
+    }
   ) => {
     return api.callApi("/api/skills/employee/remove", {
       method: "DELETE",
@@ -209,7 +202,7 @@ export const skillsApi = {
       employeeId: string;
       skillId: string;
       seniorityLevel: SeniorityLevel;
-    },
+    }
   ) => {
     return api.callApi("/api/skills/employee/update-level", {
       method: "PATCH",

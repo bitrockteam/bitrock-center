@@ -1,8 +1,8 @@
 "use client";
-import { user } from "@/db";
-import { getFirstnameAndLastname } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { use } from "react";
+import type { user } from "@/db";
+import { getFirstnameAndLastname } from "@/services/users/utils";
 
 export function DashboardHeader({ userData }: { userData: Promise<user> }) {
   const user = use(userData);
@@ -15,8 +15,7 @@ export function DashboardHeader({ userData }: { userData: Promise<user> }) {
   }).format(currentDate);
 
   // Capitalize first letter
-  const capitalizedDate =
-    formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
   return (
     <motion.div
@@ -26,8 +25,7 @@ export function DashboardHeader({ userData }: { userData: Promise<user> }) {
     >
       <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
       <p className="text-muted-foreground">
-        Benvenuto, {getFirstnameAndLastname(user?.name).firstName}.
-        {capitalizedDate}
+        Benvenuto, {getFirstnameAndLastname(user?.name).firstName}.{capitalizedDate}
       </p>
     </motion.div>
   );

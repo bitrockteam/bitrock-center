@@ -5,16 +5,11 @@
  */
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function FileUploader({
   onChange,
@@ -32,9 +27,7 @@ export function FileUploader({
     <Card>
       <CardHeader>
         <CardTitle>Upload a File</CardTitle>
-        <CardDescription>
-          Select a file to upload and click the submit button.
-        </CardDescription>
+        <CardDescription>Select a file to upload and click the submit button.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-center w-full">
@@ -46,8 +39,7 @@ export function FileUploader({
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <UploadIcon className="w-10 h-10 text-gray-400" />
                 <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                  <span className="font-semibold">Click to upload</span> or drag
-                  and drop
+                  <span className="font-semibold">Click to upload</span> or drag and drop
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   SVG, PNG, JPG or GIF (MAX. 800x400px)
@@ -80,9 +72,7 @@ export function FileUploader({
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">{file.name}</p>
-              <p className="text-sm text-muted-foreground">
-                {(file.size / 1024).toFixed(2)} KB
-              </p>
+              <p className="text-sm text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>
             </div>
           </div>
         )}

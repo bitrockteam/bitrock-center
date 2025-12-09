@@ -1,5 +1,5 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { getContractByEmployeeId } from "@/app/server-actions/contract/getContractByEmployeeId";
-import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     if (!employeeId) {
       return NextResponse.json(
         { error: "Missing required parameter: employeeId" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -17,9 +17,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching contract:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch contract" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to fetch contract" }, { status: 500 });
   }
 }

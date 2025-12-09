@@ -1,5 +1,5 @@
-import { findUsers } from "@/app/server-actions/user/findUsers";
 import { NextResponse } from "next/server";
+import { findUsers } from "@/app/server-actions/user/findUsers";
 
 export async function GET() {
   try {
@@ -16,7 +16,7 @@ export async function GET() {
         success: false,
         error: "Errore nel caricamento degli utenti",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

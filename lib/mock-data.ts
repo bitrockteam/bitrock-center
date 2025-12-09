@@ -141,8 +141,7 @@ const contractsData = [
     endDate: null,
     workingHours: "full-time",
     remotePolicy: "hybrid",
-    notes:
-      "Contratto standard con possibilità di smart working 3 giorni a settimana.",
+    notes: "Contratto standard con possibilità di smart working 3 giorni a settimana.",
     status: "active",
     contractVisibleToEmployee: true,
     lastModified: "2024-01-15T10:30:00Z",
@@ -156,8 +155,7 @@ const contractsData = [
     endDate: null,
     workingHours: "full-time",
     remotePolicy: "full-remote",
-    notes:
-      "Designer senior con esperienza in UX/UI. Lavoro completamente remoto.",
+    notes: "Designer senior con esperienza in UX/UI. Lavoro completamente remoto.",
     status: "active",
     contractVisibleToEmployee: true,
     lastModified: "2023-12-01T14:20:00Z",
@@ -171,8 +169,7 @@ const contractsData = [
     endDate: null,
     workingHours: "full-time",
     remotePolicy: "hybrid",
-    notes:
-      "Team Manager con responsabilità su 8 persone. Bonus annuale variabile.",
+    notes: "Team Manager con responsabilità su 8 persone. Bonus annuale variabile.",
     status: "active",
     contractVisibleToEmployee: false,
     lastModified: "2024-01-01T09:00:00Z",
@@ -200,8 +197,7 @@ const contractsData = [
     endDate: "2024-05-31",
     workingHours: "full-time",
     remotePolicy: "hybrid",
-    notes:
-      "Contratto a tempo determinato per progetto specifico. Possibile rinnovo.",
+    notes: "Contratto a tempo determinato per progetto specifico. Possibile rinnovo.",
     status: "not-active",
     contractVisibleToEmployee: true,
     lastModified: "2024-01-10T11:15:00Z",
@@ -240,8 +236,7 @@ const hoursData = {
 const notifications = [
   {
     title: "Richiesta ferie in attesa",
-    description:
-      "La tua richiesta ferie dal 15/08 al 22/08 è in attesa di approvazione",
+    description: "La tua richiesta ferie dal 15/08 al 22/08 è in attesa di approvazione",
     requiresAction: false,
   },
   {
@@ -750,19 +745,14 @@ export const getLeaveRequests = () => leaveRequests;
 export const getAllUsers = () => users;
 export const getProjectsDetailed = () => projectsDetailed;
 export const getUserById = (id: string) => users.find((user) => user.id === id);
-export const getProjectById = (id: string) =>
-  projectsDetailed.find((project) => project.id === id);
+export const getProjectById = (id: string) => projectsDetailed.find((project) => project.id === id);
 
 // Client functions
 export const getAllClients = () => clientsData;
-export const getClientById = (id: string) =>
-  clientsData.find((client) => client.id === id);
-export const getActiveClients = () =>
-  clientsData.filter((client) => client.status === "active");
+export const getClientById = (id: string) => clientsData.find((client) => client.id === id);
+export const getActiveClients = () => clientsData.filter((client) => client.status === "active");
 
-export const createClient = (
-  clientData: Omit<(typeof clientsData)[0], "id" | "createdAt">,
-) => {
+export const createClient = (clientData: Omit<(typeof clientsData)[0], "id" | "createdAt">) => {
   const newClient = {
     ...clientData,
     id: `client-${Date.now()}`,
@@ -772,10 +762,7 @@ export const createClient = (
   return newClient;
 };
 
-export const updateClient = (
-  id: string,
-  updates: Partial<(typeof clientsData)[0]>,
-) => {
+export const updateClient = (id: string, updates: Partial<(typeof clientsData)[0]>) => {
   const clientIndex = clientsData.findIndex((client) => client.id === id);
   if (clientIndex !== -1) {
     clientsData[clientIndex] = { ...clientsData[clientIndex], ...updates };
@@ -797,13 +784,8 @@ export const deleteClient = (id: string) => {
 export const getContractByEmployeeId = (employeeId: string) =>
   contractsData.find((contract) => contract.employeeId === employeeId);
 
-export const updateContract = (
-  employeeId: string,
-  updates: Partial<(typeof contractsData)[0]>,
-) => {
-  const contractIndex = contractsData.findIndex(
-    (contract) => contract.employeeId === employeeId,
-  );
+export const updateContract = (employeeId: string, updates: Partial<(typeof contractsData)[0]>) => {
+  const contractIndex = contractsData.findIndex((contract) => contract.employeeId === employeeId);
   if (contractIndex !== -1) {
     contractsData[contractIndex] = {
       ...contractsData[contractIndex],
@@ -816,9 +798,7 @@ export const updateContract = (
 };
 
 export const closeContract = (employeeId: string, closedBy: string) => {
-  const contractIndex = contractsData.findIndex(
-    (contract) => contract.employeeId === employeeId,
-  );
+  const contractIndex = contractsData.findIndex((contract) => contract.employeeId === employeeId);
   const userIndex = users.findIndex((user) => user.id === employeeId);
 
   if (contractIndex !== -1 && userIndex !== -1) {

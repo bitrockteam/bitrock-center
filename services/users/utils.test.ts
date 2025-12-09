@@ -1,4 +1,4 @@
-import { getFirstnameAndLastname, formatDisplayName } from "./utils";
+import { formatDisplayName, getFirstnameAndLastname } from "./utils";
 
 describe("getFirstnameAndLastname", () => {
   it("should return empty strings when name is not provided", () => {

@@ -1,17 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { PlusCircle, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import AddClientDialog from "./add-client-dialog";
 
-export default function ClientsHeader({
-  canCreateClient,
-}: {
-  canCreateClient: boolean;
-}) {
+export default function ClientsHeader({ canCreateClient }: { canCreateClient: boolean }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   return (

@@ -15,6 +15,4 @@ export async function fetchUserTimesheet() {
   });
 }
 
-export type UserTimesheet = Awaited<
-  ReturnType<typeof fetchUserTimesheet>
->[number];
+export type UserTimesheet = Awaited<ReturnType<typeof fetchUserTimesheet>>[number];

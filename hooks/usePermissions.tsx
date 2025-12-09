@@ -1,7 +1,7 @@
 "use client";
-import { Role } from "@/db";
-import { allowRoles } from "@/services/users/server.utils";
 import { useEffect, useState } from "react";
+import type { Role } from "@/db";
+import { allowRoles } from "@/services/users/server.utils";
 
 type PermissionType =
   | "canUserEdit"

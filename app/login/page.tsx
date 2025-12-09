@@ -1,3 +1,5 @@
+import Image from "next/image";
+import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,8 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { createClient } from "@/utils/supabase/server";
-import Image from "next/image";
-import { redirect } from "next/navigation";
 import { login } from "./actions";
 
 export default async function LoginPage() {
@@ -23,9 +23,7 @@ export default async function LoginPage() {
       <Card className="w-full max-w-md bg-transparent border-2 border-primary/50 text-center">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            Please use your Google account to login.
-          </CardDescription>
+          <CardDescription>Please use your Google account to login.</CardDescription>
         </CardHeader>
 
         <>

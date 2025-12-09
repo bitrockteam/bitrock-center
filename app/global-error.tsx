@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function GlobalError({
   error,
@@ -39,26 +39,19 @@ export default function GlobalError({
             </motion.div>
 
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight">
-                Errore critico
-              </h1>
+              <h1 className="text-3xl font-bold tracking-tight">Errore critico</h1>
               <p className="text-muted-foreground">
                 Si è verificato un errore critico nell&apos;applicazione.
               </p>
               {error.message && process.env.NODE_ENV === "development" && (
                 <div className="mt-4 rounded-md bg-destructive/10 p-4">
-                  <p className="text-sm font-medium text-destructive">
-                    {error.message}
-                  </p>
+                  <p className="text-sm font-medium text-destructive">{error.message}</p>
                 </div>
               )}
             </div>
 
             <div className="flex justify-center">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button onClick={reset}>
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Riprova

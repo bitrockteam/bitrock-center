@@ -1,11 +1,8 @@
 "use server";
 import { db } from "@/config/prisma";
-import { todo_item } from "@/db";
+import type { todo_item } from "@/db";
 
-export async function addTodoGoal(
-  goalId: string,
-  todo: Omit<todo_item, "goal_id" | "id">,
-) {
+export async function addTodoGoal(goalId: string, todo: Omit<todo_item, "goal_id" | "id">) {
   return db.todo_item.create({
     data: {
       ...todo,

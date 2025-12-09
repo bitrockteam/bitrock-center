@@ -1,5 +1,5 @@
-import { getEmployeesWithSkills } from "@/app/server-actions/skills/getEmployeesWithSkills";
 import { NextResponse } from "next/server";
+import { getEmployeesWithSkills } from "@/app/server-actions/skills/getEmployeesWithSkills";
 
 export async function GET() {
   try {
@@ -17,7 +17,7 @@ export async function GET() {
         success: false,
         error: "Failed to fetch employees with skills",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

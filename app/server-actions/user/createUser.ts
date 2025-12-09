@@ -1,11 +1,9 @@
 "use server";
 import { db } from "@/config/prisma";
-import { user } from "@/db";
+import type { user } from "@/db";
 import { checkSession } from "@/utils/supabase/server";
 
-export async function createUser(
-  user: Partial<Omit<user, "id" | "created_at">>,
-) {
+export async function createUser(user: Partial<Omit<user, "id" | "created_at">>) {
   await checkSession();
   return db.user.create({
     data: {
