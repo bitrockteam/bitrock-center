@@ -1,11 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Bell } from "lucide-react";
-import { use } from "react";
 import type { LastestNotification } from "@/app/server-actions/dashboard/fetchLatestNotifications";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getStatusBadge } from "@/utils/mapping";
+import { motion } from "framer-motion";
+import { Bell } from "lucide-react";
+import { use } from "react";
 
 export default function NotificationsCard({
   notificationsData,
@@ -34,7 +34,7 @@ export default function NotificationsCard({
             ) : (
               notifications?.map((notification, index) => (
                 <motion.div
-                  key={index}
+                  key={notification.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}

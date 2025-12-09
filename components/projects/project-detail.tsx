@@ -1,10 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
-import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, Edit, Euro, GanttChart, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import type { UserAllocated } from "@/app/server-actions/project/fetchAllocationsForProject";
 import type { ProjectById } from "@/app/server-actions/project/fetchProjectById";
 import type { FindUsers } from "@/app/server-actions/user/findUsers";
@@ -27,6 +22,11 @@ import {
   getWorkItemStatusBadge,
   getWorkItemTypeBadge,
 } from "@/utils/mapping";
+import { format } from "date-fns";
+import { motion } from "framer-motion";
+import { ArrowLeft, Calendar, Clock, Edit, Euro, GanttChart, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 import { AddProjectMemberDialog } from "./add-project-member-dialog";
 
@@ -221,10 +221,13 @@ export default function ProjectDetail({
                         </TableCell>
                         <TableCell>
                           <div className="flex -space-x-2">
-                            {item.work_item_enabled_users.slice(0, 3).map(({ user_id }, index) => {
+                            {item.work_item_enabled_users.slice(0, 3).map(({ user_id }) => {
                               const user = users?.find((u) => u.id === user_id);
                               return (
-                                <Avatar key={index} className="h-6 w-6 border-2 border-background">
+                                <Avatar
+                                  key={user_id}
+                                  className="h-6 w-6 border-2 border-background"
+                                >
                                   <AvatarImage
                                     src={user?.avatar_url || "/placeholder.svg?height=24&width=24"}
                                   />

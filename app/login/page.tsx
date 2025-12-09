@@ -26,23 +26,21 @@ export default async function LoginPage() {
           <CardDescription>Please use your Google account to login.</CardDescription>
         </CardHeader>
 
-        <>
-          <CardContent className="space-y-6">
-            <Image
-              src={"/logo-reverse.png"}
-              alt="Logo"
-              width={100}
-              height={100}
-              className="mx-auto mb-4"
-            />
-          </CardContent>
+        <CardContent className="space-y-6">
+          <Image
+            src={"/logo-reverse.png"}
+            alt="Logo"
+            width={100}
+            height={100}
+            className="mx-auto mb-4"
+          />
+        </CardContent>
 
-          <CardFooter className="flex justify-center">
-            <form>
-              <Button formAction={login}>Log in</Button>
-            </form>
-          </CardFooter>
-        </>
+        <CardFooter className="flex justify-center">
+          <form>
+            <Button formAction={login}>Log in</Button>
+          </form>
+        </CardFooter>
       </Card>
     </div>
   );

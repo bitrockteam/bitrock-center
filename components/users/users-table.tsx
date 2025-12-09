@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import type { FindUsersWithProjects } from "@/app/server-actions/user/findUsersWithProjects";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +15,8 @@ import { Role, type user } from "@/db";
 import { useApi } from "@/hooks/useApi";
 import { canUserEdit, formatDisplayName } from "@/services/users/utils";
 import { getRoleBadge } from "@/utils/mapping";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 export default function UsersTable({
@@ -81,7 +81,7 @@ export default function UsersTable({
                       </div>
                     </TableCell>
                     <TableCell>{us.email}</TableCell>
-                    {canUserEdit({ currentUser: user!, user: us }) ? (
+                    {canUserEdit({ currentUser: user ?? undefined, user: us }) ? (
                       <TableCell>
                         <Select
                           onValueChange={async (e) => {

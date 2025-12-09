@@ -1,8 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
 import type { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
 import type { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import {
@@ -29,6 +26,9 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { timesheet, user } from "@/db";
 import { useTimesheetApi } from "@/hooks/useTimesheetApi";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import AddHoursDialog from "./add-hours-dialog";
 
 // Helper to get local date string in YYYY-MM-DD format
@@ -270,17 +270,17 @@ export default function TimeTrackingCalendar({
         <CardContent>
           <div className="grid grid-cols-7 gap-1">
             {/* Intestazioni dei giorni della settimana */}
-            {weekDays.map((day, index) => (
-              <div key={index} className="text-center font-medium text-sm py-2">
+            {weekDays.map((day) => (
+              <div key={day} className="text-center font-medium text-sm py-2">
                 {day}
               </div>
             ))}
 
             {/* Giorni del calendario */}
-            {calendarDays.map((day, index) => {
+            {calendarDays.map((day) => {
               if (day === null) {
                 return (
-                  <div key={`empty-${index}`} className="h-24 p-1 border border-transparent"></div>
+                  <div key={`empty-${day}`} className="h-24 p-1 border border-transparent"></div>
                 );
               }
 
@@ -295,10 +295,13 @@ export default function TimeTrackingCalendar({
                 new Date(currentDate.getFullYear(), currentDate.getMonth(), day).getDay() === 6;
 
               return (
+                // biome-ignore lint/a11y/noStaticElementInteractions: no explanation needed
+                // biome-ignore lint/a11y/useKeyWithClickEvents: no explanation needed
                 <div
                   key={`day-${day}`}
                   className={`h-24 p-1 ${!isReadyOnly && "cursor-pointer"} border rounded-md ${isToday ? "border-primary" : "border-border"} ${getBackgroundColor(totalHours)} ${isWeekend ? "bg-opacity-50 dark:bg-opacity-50" : ""} overflow-hidden relative`}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     if (isReadyOnly) return;
                     setSelectedDate(
                       `${currentDate.getFullYear()}-${currentDate.getMonth() < 10 ? `0${currentDate.getMonth() + 1}` : currentDate.getMonth() + 1}-${day < 10 ? `0${day}` : day}`
@@ -321,8 +324,8 @@ export default function TimeTrackingCalendar({
 
                   {/* Lista delle voci per questo giorno */}
                   <div className="mt-1 space-y-1">
-                    {entries.slice(0, 2).map((entry, entryIndex) => (
-                      <TooltipProvider key={entryIndex}>
+                    {entries.slice(0, 2).map((entry) => (
+                      <TooltipProvider key={entry.id}>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="flex items-center justify-between text-xs bg-background/80 rounded px-1 py-0.5">

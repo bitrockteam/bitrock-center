@@ -1,11 +1,11 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import AddProjectDialog from "./add-project-dialog";
 
 export default function ProjectsHeader({ canCreateProject }: { canCreateProject?: boolean }) {
@@ -32,12 +32,12 @@ export default function ProjectsHeader({ canCreateProject }: { canCreateProject?
     return () => clearTimeout(timeout);
   }, [textSearch]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we need to push the search params to the url
   useEffect(() => {
     if (debouncedInput !== "") {
       searchParams.set("params", debouncedInput);
       router.push(`/progetti?${searchParams.toString()}`);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedInput]);
 
   return (

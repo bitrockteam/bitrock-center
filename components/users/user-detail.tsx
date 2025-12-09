@@ -1,9 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowLeft, Edit, Target, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import type { FindUserById } from "@/app/server-actions/user/findUserById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +17,10 @@ import { useApi } from "@/hooks/useApi";
 import { useAssignPermission } from "@/hooks/useAssignPermission";
 import { useRemovePermission } from "@/hooks/useRemovePermission";
 import { formatDisplayName } from "@/services/users/utils";
+import { motion } from "framer-motion";
+import { ArrowLeft, Edit, Target, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
 import UserDetailsSections from "./user-details-sections";
 
@@ -102,6 +102,7 @@ export default function UserDetail({
           </CardHeader>
           <CardContent>
             {user.user_permission && user.user_permission.length > 0 ? (
+              // biome-ignore lint/a11y/useAriaPropsSupportedByRole: no explanation needed
               <div className="flex flex-wrap gap-2" aria-label="user permissions list">
                 {user.user_permission.map((p) => (
                   <div key={p.permission_id} className="flex items-center">
@@ -175,9 +176,10 @@ export default function UserDetail({
                 disabled={!selectedPermission || loading}
                 onClick={async () => {
                   try {
+                    if (!selectedPermission) return;
                     await assignPermission({
                       user_id: user.id,
-                      permission_id: selectedPermission!,
+                      permission_id: selectedPermission,
                     });
                     reset();
                     setSelectedPermission(undefined);

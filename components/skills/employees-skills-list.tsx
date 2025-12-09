@@ -1,9 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Eye, Filter, Search, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +16,10 @@ import {
   useSkillsCatalog,
 } from "@/hooks/useSkillsApi";
 import { formatDisplayName } from "@/services/users/utils";
+import { motion } from "framer-motion";
+import { Eye, Filter, Search, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { getSeniorityLevelColor, getSeniorityLevelLabel, getSkillIcon } from "./utils";
 
 export default function EmployeesSkillsList() {
@@ -80,13 +80,14 @@ export default function EmployeesSkillsList() {
   const hasActiveFilters =
     selectedSkills.length > 0 || selectedSeniorityLevels.length > 0 || searchTerm;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we need to fetch the skills catalog and employees with skills on mount
   useEffect(() => {
     skillsApi.fetchSkillsCatalog(skillsCatalogApi);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we need to fetch the employees with skills on mount
   useEffect(() => {
     skillsApi.fetchEmployeesWithSkills(employeesApi);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <motion.div
@@ -142,7 +143,9 @@ export default function EmployeesSkillsList() {
 
                     {/* Filtro per competenze */}
                     <div>
-                      <label className="text-sm font-medium">Competenze</label>
+                      <label htmlFor="skills" className="text-sm font-medium">
+                        Competenze
+                      </label>
                       <div className="mt-2 max-h-40 overflow-y-auto space-y-2">
                         {skillsCatalogApi.data?.map((skill: Skill) => {
                           const LucideIcon = getSkillIcon(skill.icon);
@@ -171,7 +174,9 @@ export default function EmployeesSkillsList() {
 
                     {/* Filtro per livello di seniority */}
                     <div>
-                      <label className="text-sm font-medium">Livello di Seniority</label>
+                      <label htmlFor="seniorityLevels" className="text-sm font-medium">
+                        Livello di Seniority
+                      </label>
                       <div className="mt-2 space-y-2">
                         {(["junior", "middle", "senior"] as SeniorityLevel[]).map((level) => (
                           <div key={level} className="flex items-center space-x-2">
@@ -210,24 +215,24 @@ export default function EmployeesSkillsList() {
                   >
                     <LucideIcon className="h-3 w-3" />
                     {skill.name}
-                    <button
+                    <Button
                       onClick={() => handleSkillToggle(skillId)}
                       className="ml-1 hover:bg-muted rounded-full"
                     >
                       <X className="h-3 w-3" />
-                    </button>
+                    </Button>
                   </Badge>
                 ) : null;
               })}
               {selectedSeniorityLevels.map((level) => (
                 <Badge key={level} variant="secondary" className="text-xs">
                   {getSeniorityLevelLabel(level)}
-                  <button
+                  <Button
                     onClick={() => handleSeniorityToggle(level)}
                     className="ml-1 hover:bg-muted rounded-full"
                   >
                     <X className="h-3 w-3" />
-                  </button>
+                  </Button>
                 </Badge>
               ))}
             </div>

@@ -1,10 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Clock, Edit, Euro, Eye, MoreHorizontal, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
 import type { GetAllClientsResponse } from "@/app/server-actions/client/getAllClients";
 import type { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import {
@@ -39,6 +34,11 @@ import {
 } from "@/components/ui/table";
 import { work_item_type, type work_items } from "@/db";
 import { useApi } from "@/hooks/useApi";
+import { motion } from "framer-motion";
+import { Clock, Edit, Euro, Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 import AddWorkItemDialog from "./add-work-item-dialog";
 import WorkItemsHeader from "./work-items-header";
 
@@ -185,10 +185,10 @@ export default function WorkItemsTable({
                           <div className="flex -space-x-2">
                             {(item.work_item_enabled_users ?? [])
                               .slice(0, 3)
-                              .map(({ user }, index: number) => {
+                              .map(({ user, user_id }) => {
                                 return (
                                   <Avatar
-                                    key={index}
+                                    key={user_id}
                                     className="h-6 w-6 border-2 border-background"
                                   >
                                     <AvatarImage

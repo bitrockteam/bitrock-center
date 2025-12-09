@@ -1,9 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
+import { useState } from "react";
 
 export default function HoursChart() {
   const [view, setView] = useState("weekly");
@@ -56,7 +56,7 @@ export default function HoursChart() {
           <div className="h-[300px] w-full pb-4">
             <div className="flex h-full items-end gap-2">
               {chartData.map((item, index) => (
-                <div key={index} className="relative flex w-full flex-col justify-end h-full">
+                <div key={item.label} className="relative flex w-full flex-col justify-end h-full">
                   <motion.div
                     className="w-full bg-primary rounded-md"
                     initial={{ height: 0 }}

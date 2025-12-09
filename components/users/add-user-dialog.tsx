@@ -1,10 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import type { FindUserById } from "@/app/server-actions/user/findUserById";
 import type { FindUsers } from "@/app/server-actions/user/findUsers";
 import { Button } from "@/components/ui/button";
@@ -29,6 +24,11 @@ import { Role, type user } from "@/db";
 import { useApi } from "@/hooks/useApi";
 import { cn } from "@/lib/utils";
 import { getFirstnameAndLastname } from "@/services/users/utils";
+import { motion } from "framer-motion";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { FileUploader } from "../custom/FileUploader";
 import {
   Command,
@@ -95,11 +95,11 @@ export default function AddUserDialog({
     await updateUserApi("/api/user/update", {
       method: "PUT",
       body: JSON.stringify({
-        id: editData!.id,
+        id: editData?.id,
         name: `${form.getValues().name} ${form.getValues().surname}`,
-        ...(avatar_url && { avatar_url }),
+        ...(avatar_url ? { avatar_url } : {}),
         role: form.getValues().role,
-        referent_id: form.getValues().referent_id,
+        referent_id: form.getValues().referent_id ?? undefined,
       }),
     });
   };

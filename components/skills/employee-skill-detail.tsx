@@ -1,9 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowLeft, Edit, Plus, Save, Trash2, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import type { EmployeeSkill } from "@/app/server-actions/skills/getEmployeeWithSkillsById";
 import {
   AlertDialog,
@@ -44,6 +40,10 @@ import {
   useUpdateEmployeeSkillLevel,
 } from "@/hooks/useSkillsApi";
 import { formatDisplayName } from "@/services/users/utils";
+import { motion } from "framer-motion";
+import { ArrowLeft, Edit, Plus, Save, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { getSeniorityLevelColor, getSeniorityLevelLabel, getSkillIcon } from "./utils";
 
 export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSkill }) {
@@ -376,7 +376,9 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Competenza</label>
+              <label htmlFor="newSkillId" className="text-sm font-medium">
+                Competenza
+              </label>
               <Select value={newSkillId} onValueChange={setNewSkillId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleziona una competenza" />
@@ -400,7 +402,9 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
               </Select>
             </div>
             <div>
-              <label className="text-sm font-medium">Livello di Seniority</label>
+              <label htmlFor="newSkillLevel" className="text-sm font-medium">
+                Livello di Seniority
+              </label>
               <Select
                 value={newSkillLevel}
                 onValueChange={(value: SeniorityLevel) => setNewSkillLevel(value)}

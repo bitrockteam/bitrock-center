@@ -5,11 +5,11 @@
  */
 "use client";
 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
 import type React from "react";
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function FileUploader({
   onChange,
@@ -84,6 +84,8 @@ export function FileUploader({
 function UploadIcon(props: Readonly<React.ComponentProps<"svg">>) {
   return (
     <svg
+      aria-label="Upload icon"
+      aria-hidden="true"
       {...props}
       xmlns="http://www.w3.org/2000/svg"
       width="24"

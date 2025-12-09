@@ -1,10 +1,8 @@
 @import "tailwindcss";
+@import "./animation.css";
 
 @plugin "tailwindcss-animate";
-
 @custom-variant dark (&:is(.dark *));
-
-@import "./animation.css";
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

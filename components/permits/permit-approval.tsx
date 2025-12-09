@@ -1,8 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -16,6 +13,9 @@ import {
 import { PermitStatus, PermitType } from "@/db";
 import { useApi } from "@/hooks/useApi";
 import { getStatusBadge } from "@/utils/mapping";
+import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 type PermitByReviewer = {
   id: string;
@@ -130,8 +130,8 @@ export default function PermitApprovalTable() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  permits.map((permit, index) => (
-                    <TableRow key={index}>
+                  permits.map((permit) => (
+                    <TableRow key={permit.id}>
                       <TableCell>{getTypeLabel(permit.type)}</TableCell>
                       <TableCell>{new Date(permit.date).toLocaleDateString()} </TableCell>
                       <TableCell>{Number(permit.duration)}</TableCell>

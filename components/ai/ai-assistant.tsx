@@ -1,5 +1,16 @@
 "use client";
 
+import { createNewChatSession } from "@/app/server-actions/ai/createNewChatSession";
+import { deleteChatSession } from "@/app/server-actions/ai/deleteChatSession";
+import type { ChatSession } from "@/app/server-actions/ai/getChatSessions";
+import { smartSearch } from "@/app/server-actions/ai/service/service";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
+import type { message } from "@/db";
+import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bot,
@@ -14,19 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { confirmChatAction } from "@/app/server-actions/ai/confirmChatAction";
-import { createNewChatSession } from "@/app/server-actions/ai/createNewChatSession";
-import { deleteChatSession } from "@/app/server-actions/ai/deleteChatSession";
-import type { ChatSession } from "@/app/server-actions/ai/getChatSessions";
-import { smartSearch } from "@/app/server-actions/ai/service/service";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
-import type { message } from "@/db";
-import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Switch } from "../ui/switch";
 import AiActionRecap from "./ai-action-recap";
 import BlobAnimation from "./blob-animation";
@@ -41,13 +40,13 @@ export default function AIAssistant({ chatSessions }: { chatSessions: ChatSessio
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
   useEffect(() => {
     const chat = chatSessions.find((cS) => cS.id === currentSessionId);
@@ -110,11 +109,12 @@ export default function AIAssistant({ chatSessions }: { chatSessions: ChatSessio
 
   const handleJsonAction = async (messageId: string, action: "confirm" | "cancel") => {
     if (!currentSessionId) return;
-    await confirmChatAction({
-      message_id: messageId,
-      confirm: action === "confirm",
-      chat_session_id: currentSessionId,
-    });
+    // await confirmChatAction({
+    //   message_id: messageId,
+    //   confirm: action === "confirm",
+    //   chat_session_id: currentSessionId,
+    // });
+    console.log("Confirming chat action", messageId, action, currentSessionId);
   };
 
   const startNewChat = async () => {

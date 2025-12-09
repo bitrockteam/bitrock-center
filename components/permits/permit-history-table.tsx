@@ -1,9 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import type React from "react";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -16,6 +12,10 @@ import {
 import { type PermitStatus, PermitType } from "@/db";
 import { useApi } from "@/hooks/useApi";
 import { getStatusBadge } from "@/utils/mapping";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import type React from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
@@ -160,8 +160,8 @@ const PermitHistoryTable = forwardRef<PermitHistoryTableRef, React.ComponentProp
                       </TableCell>
                     </TableRow>
                   ) : (
-                    currentItems.map((permit, index) => (
-                      <TableRow key={index}>
+                    currentItems.map((permit) => (
+                      <TableRow key={permit.id}>
                         <TableCell>{getTypeLabel(permit.type)}</TableCell>
                         <TableCell>{new Date(permit.date).toLocaleDateString()} </TableCell>
                         <TableCell>{Number(permit.duration)}</TableCell>
@@ -208,7 +208,7 @@ const PermitHistoryTable = forwardRef<PermitHistoryTableRef, React.ComponentProp
 
                   <div className="flex items-center space-x-1">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNumber;
+                      let pageNumber: number;
                       if (totalPages <= 5) {
                         pageNumber = i + 1;
                       } else if (currentPage <= 3) {

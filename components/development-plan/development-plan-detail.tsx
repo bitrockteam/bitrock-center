@@ -1,9 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { AlertCircle, ArrowLeft, Edit, Plus, Save, Target, Trash2, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { addGoal } from "@/app/server-actions/development-plan/addGoal";
 import { addTodoGoal } from "@/app/server-actions/development-plan/addTodoGoal";
 import type { GetDevelopmentPlan } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
@@ -37,6 +33,10 @@ import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import type { todo_item } from "@/db";
 import { getGoalBadge } from "@/utils/mapping";
+import { motion } from "framer-motion";
+import { AlertCircle, ArrowLeft, Edit, Plus, Save, Target, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { getGoalProgress, getGoalStatus } from "./utils";
 
 export default function DevelopmentPlanDetail({
@@ -382,7 +382,9 @@ export default function DevelopmentPlanDetail({
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Titolo</label>
+              <label htmlFor="newGoalTitle" className="text-sm font-medium">
+                Titolo
+              </label>
               <Input
                 value={newGoal.title}
                 onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
@@ -390,7 +392,9 @@ export default function DevelopmentPlanDetail({
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Descrizione</label>
+              <label htmlFor="newGoalDescription" className="text-sm font-medium">
+                Descrizione
+              </label>
               <Textarea
                 value={newGoal.description}
                 onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
@@ -399,7 +403,9 @@ export default function DevelopmentPlanDetail({
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Attività</label>
+              <label htmlFor="newTodo" className="text-sm font-medium">
+                Attività
+              </label>
               <div className="space-y-2">
                 <div className="flex space-x-2">
                   <Input

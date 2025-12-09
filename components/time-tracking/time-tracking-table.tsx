@@ -1,8 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Edit, Trash2 } from "lucide-react";
-import { useState } from "react";
 import type { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
 import type { WorkItem } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import {
@@ -35,6 +32,9 @@ import {
 } from "@/components/ui/table";
 import type { user } from "@/db";
 import { useTimesheetApi } from "@/hooks/useTimesheetApi";
+import { motion } from "framer-motion";
+import { Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
 import AddHoursDialog from "./add-hours-dialog";
 
 export default function TimeTrackingTable({
@@ -153,8 +153,8 @@ export default function TimeTrackingTable({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  timesheets?.map((entry, index) => (
-                    <TableRow key={index}>
+                  timesheets?.map((entry) => (
+                    <TableRow key={entry.id}>
                       <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
 
                       <TableCell>

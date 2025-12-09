@@ -1,8 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Info } from "lucide-react";
-import { use, useMemo, useState } from "react";
 import type { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +14,9 @@ import {
 } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PermitStatus, PermitType, type permit } from "@/db";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, Info } from "lucide-react";
+import { use, useMemo, useState } from "react";
 
 export default function CalendarView({
   timesheetData,
@@ -178,17 +178,17 @@ export default function CalendarView({
         <CardContent>
           <div className="grid grid-cols-7 gap-1">
             {/* Intestazioni dei giorni della settimana */}
-            {weekDays.map((day, index) => (
-              <div key={index} className="text-center font-medium text-sm py-2">
+            {weekDays.map((day) => (
+              <div key={day} className="text-center font-medium text-sm py-2">
                 {day}
               </div>
             ))}
 
             {/* Giorni del calendario */}
-            {calendarDays.map((day, index) => {
+            {calendarDays.map((day) => {
               if (day === null) {
                 return (
-                  <div key={`empty-${index}`} className="h-24 p-1 border border-transparent"></div>
+                  <div key={`empty-${day}`} className="h-24 p-1 border border-transparent"></div>
                 );
               }
 
@@ -232,8 +232,8 @@ export default function CalendarView({
                             </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4 mt-4">
-                            {dailyEvents.permits.map((event, eventIndex) => (
-                              <div key={eventIndex} className="border rounded-md p-3">
+                            {dailyEvents.permits.map((event) => (
+                              <div key={event.id} className="border rounded-md p-3">
                                 <div className="flex items-center space-x-2 mb-2">
                                   <Badge className={getEventBadgeColor(event.type)}>
                                     {getEventTypeLabel(event.type)}
@@ -266,8 +266,8 @@ export default function CalendarView({
                     )}
                   </div>
                   <div className="mt-1 space-y-1">
-                    {dailyEvents.timesheet.slice(0, 2).map((event, eventIndex) => (
-                      <TooltipProvider key={eventIndex}>
+                    {dailyEvents.timesheet.slice(0, 2).map((event) => (
+                      <TooltipProvider key={event.id}>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div
