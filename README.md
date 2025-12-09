@@ -90,9 +90,9 @@ The `push` command will not reset the data on the remote instance.
 
 - `nvm install` (or `nvm use` if you have already installed the version written in `.nvmrc` file)
 - `corepack enable`
-- `yarn`
-- `yarn build`
-- `yarn dev`:
+- `bun`
+- `bun run build`
+- `bun run dev`:
   - frontend on `localhost:3000`
 
 ## Development Workflow

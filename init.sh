@@ -51,8 +51,8 @@ check_dependencies() {
   fi
 
   # Check Yarn
-  if ! command -v yarn >/dev/null 2>&1; then
-    missing+=("Yarn")
+  if ! command -v bun >/dev/null 2>&1; then
+    missing+=("Bun")
   fi
 
   # Load NVM if installed
@@ -193,15 +193,15 @@ setup_frontend() {
 
   corepack enable
 
-  echo "\n--- Installing frontend dependencies with yarn ---"
-  yarn install
+  echo "\n--- Installing frontend dependencies with bun ---"
+  bun install
 
   echo "\n--- Building the project ---"
-  yarn build
+  bun run build
 
   echo "\n--- Frontend setup complete ---"
 
-  echo "\nYou can now run the development server with:${YELLOW} yarn dev ${NC}"
+  echo "\nYou can now run the development server with:${YELLOW} bun run dev ${NC}"
 }
 
 

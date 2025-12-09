@@ -17,8 +17,8 @@ jobs:
       - name: Corepack
         run: corepack enable
       - name: Install
-        run: yarn
+        run: bun
       - name: Build
-        run: yarn build
+        run: bun run build
       - name: Lint
-        run: yarn lint
+        run: bun run lint
