@@ -1,10 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
-import { motion } from "framer-motion";
-import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { deleteProject } from "@/app/server-actions/project/deleteProject";
 import type { Project } from "@/app/server-actions/project/fetchAllProjects";
 import {
@@ -36,6 +31,11 @@ import {
 } from "@/components/ui/table";
 import type { project } from "@/db";
 import { getProjectStatusBadge } from "@/utils/mapping";
+import dayjs from "dayjs";
+import { motion } from "framer-motion";
+import { Edit, MoreHorizontal, Trash2, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import AddProjectDialog from "./add-project-dialog";
 
@@ -89,9 +89,9 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                     <TableCell>{project?.client.name}</TableCell>
                     <TableCell>{getProjectStatusBadge(project?.status)}</TableCell>
 
-                    <TableCell>{format(project?.start_date, "MM dd yyyy")}</TableCell>
+                    <TableCell>{dayjs(project?.start_date).format("MM DD YYYY")}</TableCell>
                     <TableCell>
-                      {project?.end_date ? format(project?.end_date, "MM dd yyyy") : "-"}
+                      {project?.end_date ? dayjs(project?.end_date).format("MM DD YYYY") : "-"}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -168,7 +168,7 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
             <AlertDialogCancel>Annulla</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground"
-              onClick={() => handleDeleteProject(deleteProjectDialog!.id)}
+              onClick={() => handleDeleteProject(deleteProjectDialog?.id ?? "")}
             >
               Elimina
             </AlertDialogAction>

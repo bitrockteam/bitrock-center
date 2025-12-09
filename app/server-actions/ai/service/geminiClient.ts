@@ -1,10 +1,14 @@
 // ai/geminiClient.ts
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { user } from "@/db";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NATURAL_LANGUAGE_PROMPT, SYSTEM_PROMPT } from "./prompt";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error("GEMINI_API_KEY is not set");
+}
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export async function generateSQLFromQuestion(

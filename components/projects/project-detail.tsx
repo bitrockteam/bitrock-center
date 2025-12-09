@@ -22,7 +22,7 @@ import {
   getWorkItemStatusBadge,
   getWorkItemTypeBadge,
 } from "@/utils/mapping";
-import { format } from "date-fns";
+import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Clock, Edit, Euro, GanttChart, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -135,14 +135,16 @@ export default function ProjectDetail({
                   <p className="text-sm font-medium">Data Inizio:</p>
                   <p className="text-sm text-muted-foreground flex items-center">
                     <Calendar className="mr-1 h-3 w-3" />{" "}
-                    {format(project?.start_date, "MM dd yyyy")}
+                    {dayjs(project?.start_date).format("MM DD YYYY")}
                   </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Data Fine:</p>
                   <p className="text-sm text-muted-foreground flex items-center">
                     <Calendar className="mr-1 h-3 w-3" />{" "}
-                    {project?.end_date ? format(project?.end_date, "MM dd yyyy") : "Non definita"}
+                    {project?.end_date
+                      ? dayjs(project?.end_date).format("MM DD YYYY")
+                      : "Non definita"}
                   </p>
                 </div>
               </div>
@@ -317,20 +319,18 @@ export default function ProjectDetail({
                         <TableCell>{entry?.user.role}</TableCell>
                         <TableCell>
                           {workItems?.find((wi) => wi.id === entry?.work_item_id)?.start_date
-                            ? format(
+                            ? dayjs(
                                 workItems?.find((wi) => wi.id === entry?.work_item_id)
-                                  ?.start_date ?? "",
-                                "dd-MM-yyyy"
-                              )
+                                  ?.start_date ?? ""
+                              ).format("DD-MM-YYYY")
                             : "-"}
                         </TableCell>
                         <TableCell>
                           {workItems?.find((wi) => wi.id === entry?.work_item_id)?.end_date
-                            ? format(
+                            ? dayjs(
                                 workItems?.find((wi) => wi.id === entry?.work_item_id)?.end_date ??
-                                  "",
-                                "dd-MM-yyyy"
-                              )
+                                  ""
+                              ).format("DD-MM-YYYY")
                             : "-"}
                         </TableCell>
                         <TableCell>

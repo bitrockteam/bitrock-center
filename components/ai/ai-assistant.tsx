@@ -44,6 +44,7 @@ export default function AIAssistant({ chatSessions }: { chatSessions: ChatSessio
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we need to scroll to the bottom of the messages when the messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);

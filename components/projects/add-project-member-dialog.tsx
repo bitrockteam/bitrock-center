@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useServerAction } from "@/hooks/useServerAction";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, isBefore } from "date-fns";
+import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -256,16 +256,10 @@ export function AddProjectMemberDialog({
                           setDate={field.onChange}
                           onDisableDate={(date) => {
                             if (!form.getValues().start_date) return false;
-                            const dateString = format(date, "yyyy-MM-dd");
-
-                            if (
-                              isBefore(
-                                dateString,
-                                format(form.getValues().start_date!, "yyyy-MM-dd")
-                              )
-                            )
-                              return true;
-                            return false;
+                            return dayjs(date).isBefore(
+                              dayjs(form.getValues().start_date ?? ""),
+                              "day"
+                            );
                           }}
                         />
                       </FormControl>

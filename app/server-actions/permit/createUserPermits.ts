@@ -14,7 +14,7 @@ export async function createUserPermits(
       data: {
         ...permitDTO,
         user_id: userInfo.id,
-        reviewer_id: userInfo.referent_id!,
+        reviewer_id: userInfo.referent_id,
         status: PermitStatus.PENDING,
       },
     });

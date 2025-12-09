@@ -5,8 +5,11 @@ import { checkSession } from "@/utils/supabase/server";
 
 export async function updateProject(project: Omit<project, "created_at">) {
   await checkSession();
+  if (!project.id) {
+    throw new Error("Project ID is required");
+  }
   return db.project.update({
-    where: { id: project.id! },
+    where: { id: project.id },
     data: project,
   });
 }

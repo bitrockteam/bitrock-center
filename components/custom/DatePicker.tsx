@@ -1,11 +1,11 @@
 "use client";
 
-import { format } from "date-fns";
-import { CalendarIcon, XIcon } from "lucide-react";
-import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import dayjs from "dayjs";
+import { CalendarIcon, XIcon } from "lucide-react";
+import { useState } from "react";
 
 export function DatePicker({
   date,
@@ -30,7 +30,7 @@ export function DatePicker({
         <div className="relative">
           <Input
             readOnly
-            value={date ? format(date, "dd/MM/yyyy") : "Seleziona una data"}
+            value={date ? dayjs(date).format("DD/MM/YYYY") : "Seleziona una data"}
             className="pl-10"
           />
           <CalendarIcon className="absolute top-[6px] left-2 cursor-pointer scale-80" />

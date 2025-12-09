@@ -1,9 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
-import { motion } from "framer-motion";
-import { Edit, Eye, EyeOff, MoreHorizontal, Plus, Search, Settings, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,6 +49,10 @@ import {
   useToggleSkillActive,
   useUpdateSkill,
 } from "@/hooks/useSkillsApi";
+import dayjs from "dayjs";
+import { motion } from "framer-motion";
+import { Edit, Eye, EyeOff, MoreHorizontal, Plus, Search, Settings, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { getAvailableIcons, getSkillIcon } from "./utils";
 
 export default function SkillsAdminSection() {
@@ -162,9 +162,9 @@ export default function SkillsAdminSection() {
     setShowDeleteDialog(true);
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we need to fetch the skills catalog on mount
   useEffect(() => {
     skillsApi.fetchSkillsCatalog(skillsCatalogApi);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // For tab counts and filters
@@ -291,8 +291,10 @@ export default function SkillsAdminSection() {
                                 </p>
                               )}
                               <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
-                                <span>Creata: {format(skill.created_at, "dd/MM/yyyy")}</span>
-                                <span>Aggiornata: {format(skill.updated_at, "dd/MM/yyyy")}</span>
+                                <span>Creata: {dayjs(skill.created_at).format("DD/MM/YYYY")}</span>
+                                <span>
+                                  Aggiornata: {dayjs(skill.updated_at).format("DD/MM/YYYY")}
+                                </span>
                               </div>
                             </div>
                           </div>
