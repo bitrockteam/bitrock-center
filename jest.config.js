@@ -1,6 +1,6 @@
 /** @type {import('jest').Config} */
 
-import dotenv from "dotenv";
+const dotenv = require("dotenv");
 
 dotenv.config({ path: ".env" });
 
@@ -18,6 +18,8 @@ module.exports = {
     "^@/config/(.*)$": "<rootDir>/config/$1",
     "^@/components/(.*)$": "<rootDir>/components/$1",
     "^@/utils/(.*)$": "<rootDir>/utils/$1",
+    "^@/db$": "<rootDir>/db",
+    "^@/(.*)$": "<rootDir>/$1",
   },
   transformIgnorePatterns: ["<rootDir>/node_modules/"],
   collectCoverage: true,
