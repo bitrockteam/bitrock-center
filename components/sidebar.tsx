@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import {
-  Bot,
   Briefcase,
   Building2,
   Calendar,
@@ -90,11 +89,6 @@ const navItems = [
     href: "/permissions",
     icon: Settings,
     permission: Permissions.CAN_SEE_PERMISSIONS,
-  },
-  {
-    title: "AI Assistant",
-    href: "/ai-assistant",
-    icon: Bot,
   },
 ];
 
