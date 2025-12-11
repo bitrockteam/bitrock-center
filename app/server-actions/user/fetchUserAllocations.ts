@@ -102,7 +102,7 @@ export async function fetchUserAllocations(
       projectStatus: alloc.project.status,
       clientName: alloc.project.client.name,
       startDate: alloc.start_date,
-      endDate: alloc.end_date,
+      endDate: alloc.end_date ?? alloc.project.end_date,
       percentage: alloc.percentage,
       isActive:
         alloc.start_date <= now &&
@@ -110,15 +110,18 @@ export async function fetchUserAllocations(
     })
   );
 
-  const activeAllocationsList = allocationDetails.filter(
-    (alloc) => alloc.isActive
+  const activeAllocationsList = allocations.filter(
+    (alloc) =>
+      alloc.start_date <= now &&
+      (alloc.end_date === null || alloc.end_date >= now)
   );
 
   // Find the latest end date from all active allocations
+  // Use allocation.end_date if set, otherwise fall back to project.end_date
   const latestAllocationEndDate =
     activeAllocationsList.length > 0
       ? activeAllocationsList
-          .map((alloc) => alloc.endDate)
+          .map((alloc) => alloc.end_date ?? alloc.project.end_date)
           .filter((date): date is Date => date !== null)
           .sort((a, b) => b.getTime() - a.getTime())[0] || null
       : null;

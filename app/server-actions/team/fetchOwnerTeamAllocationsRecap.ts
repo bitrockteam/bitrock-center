@@ -79,10 +79,11 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<
       );
 
       // Find the latest end date from all active allocations
+      // Use allocation.end_date if set, otherwise fall back to project.end_date
       const latestEndDate =
         activeAllocations.length > 0
           ? activeAllocations
-              .map((alloc) => alloc.end_date)
+              .map((alloc) => alloc.end_date ?? alloc.project.end_date)
               .filter((date): date is Date => date !== null)
               .sort((a, b) => b.getTime() - a.getTime())[0] || null
           : null;
