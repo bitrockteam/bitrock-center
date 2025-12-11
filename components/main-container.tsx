@@ -1,6 +1,7 @@
 import type { tryGetUserInfoFromCookie } from "@/utils/supabase/server";
 import type { ReactNode } from "react";
 import packageJson from "../package.json";
+import { ChatWidget } from "./chat/chat-widget";
 import Sidebar from "./sidebar";
 
 export default async function MainContainer({
@@ -16,6 +17,7 @@ export default async function MainContainer({
       <div className="flex-1 overflow-auto">
         <main className="container py-4 mx-auto px-4 h-full">{children}</main>
       </div>
+      {user && <ChatWidget />}
     </div>
   );
 }
