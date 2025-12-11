@@ -107,6 +107,14 @@ INSERT INTO "public"."message" ("id", "chat_session_id", "type", "content", "tim
 
 
 --
+-- Data for Name: permission; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."permission" ("id", "created_at", "deactivated") VALUES
+	('CAN_CREATE_CLIENT', '2025-07-21 14:14:21.065069+00', false);
+
+
+--
 -- Data for Name: permit; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -142,6 +150,14 @@ INSERT INTO "public"."permit" ("created_at", "user_id", "duration", "id", "descr
 
 
 --
+-- Data for Name: role; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."role" ("id", "created_at", "name") VALUES
+	('b4fc5bee-3d1c-4e94-947a-4895f0fe8e99', '2025-07-28 10:42:36.526579+00', 'key_client');
+
+
+--
 -- Data for Name: skill; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -149,6 +165,14 @@ INSERT INTO "public"."skill" ("id", "name", "category", "description", "icon", "
 	('b163d22a-5d08-4234-ae23-b1741ae90e8f', 'Typescript', 'hard', 'Type definition for javascript - updated', 'Code', true, '2025-06-28 23:57:11.763+00', '2025-06-29 00:00:06.816151+00'),
 	('beae37fa-da4d-4a09-b80c-187c79af7051', 'Client Management', 'soft', '', 'Users', true, '2025-06-29 00:01:27.157+00', '2025-06-29 00:01:27.157+00'),
 	('ebf6a21a-ac5c-47fd-8a71-04e05a7af916', 'Screen Sharing', 'soft', '', 'Monitor', true, '2025-06-30 11:24:34.411+00', '2025-06-30 11:24:34.411+00');
+
+
+--
+-- Data for Name: work_items; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."work_items" ("id", "title", "client_id", "project_id", "type", "start_date", "end_date", "status", "description", "hourly_rate", "estimated_hours", "fixed_price", "created_at") VALUES
+	('192692d5-2087-4d85-8e8e-04bceb4c5205', 'Disruptive UX/UI', '767baaa4-5ce7-4792-b1e2-fc354f495f2f', 'b536e876-9f5e-4f24-9901-98169b72313d', 'time-material', '2025-07-01', NULL, 'active', '', 65, 800, NULL, '2025-07-01 16:18:02.139+00');
 
 
 --
@@ -167,20 +191,31 @@ INSERT INTO "public"."todo_item" ("id", "goal_id", "text", "completed") VALUES
 
 
 --
+-- Data for Name: user_permission; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO "public"."user_permission" ("user_id", "created_at", "permission_id") VALUES
+	('108ddaad-82c5-4689-b36f-c20ae2bc6a36', '2025-07-23 14:35:13.569198+00', 'CAN_EDIT_CLIENT'),
+	('108ddaad-82c5-4689-b36f-c20ae2bc6a36', '2025-07-23 14:57:19.406777+00', 'CAN_CREATE_USER'),
+	('108ddaad-82c5-4689-b36f-c20ae2bc6a36', '2025-08-27 10:42:47.348317+00', 'CAN_SEE_WORK_ITEM'),
+	('108ddaad-82c5-4689-b36f-c20ae2bc6a36', '2025-09-05 14:42:40.845269+00', 'CAN_DEAL_PERMISSIONS'),
+	('108ddaad-82c5-4689-b36f-c20ae2bc6a36', '2025-10-09 07:47:23.06+00', 'CAN_SEE_PERMISSIONS'),
+	('108ddaad-82c5-4689-b36f-c20ae2bc6a36', '2025-10-09 07:47:39.019+00', 'CAN_SEE_CLIENT');
+
+
+--
+-- Data for Name: user_roles; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
 -- Data for Name: user_skill; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 INSERT INTO "public"."user_skill" ("user_id", "skill_id", "seniorityLevel") VALUES
 	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'beae37fa-da4d-4a09-b80c-187c79af7051', 'junior'),
 	('a16d1da1-2db6-43d1-8c24-f65e3728ffa0', 'b163d22a-5d08-4234-ae23-b1741ae90e8f', 'middle');
-
-
---
--- Data for Name: work_items; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-INSERT INTO "public"."work_items" ("id", "title", "client_id", "project_id", "type", "start_date", "end_date", "status", "description", "hourly_rate", "estimated_hours", "fixed_price", "created_at") VALUES
-	('192692d5-2087-4d85-8e8e-04bceb4c5205', 'Disruptive UX/UI', '767baaa4-5ce7-4792-b1e2-fc354f495f2f', 'b536e876-9f5e-4f24-9901-98169b72313d', 'time-material', '2025-07-01', NULL, 'active', '', 65, 800, NULL, '2025-07-01 16:18:02.139+00');
 
 
 --
