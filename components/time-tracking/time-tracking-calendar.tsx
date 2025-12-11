@@ -305,8 +305,6 @@ export default function TimeTrackingCalendar({
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.2 }}
                   whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-                  // biome-ignore lint/a11y/noStaticElementInteractions: no explanation needed
-                  // biome-ignore lint/a11y/useKeyWithClickEvents: no explanation needed
                   className={`group/day h-24 p-1 ${
                     !isReadyOnly && "cursor-pointer"
                   } border-2 rounded-md transition-all duration-300 ${

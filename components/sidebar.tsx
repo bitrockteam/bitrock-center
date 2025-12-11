@@ -95,9 +95,11 @@ const navItems = [
 export default function Sidebar({
   user,
   permissions,
+  version,
 }: Readonly<{
   user: user;
   permissions: Permissions[];
+  version: string;
 }>) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
@@ -191,6 +193,9 @@ export default function Sidebar({
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Impostazioni</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled className="opacity-100 cursor-default">
+                  <span className="text-xs text-muted-foreground">Versione {version}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
