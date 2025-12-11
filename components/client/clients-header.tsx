@@ -1,10 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { PlusCircle, Search } from "lucide-react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { motion } from "framer-motion";
+import { Building2, PlusCircle, Search } from "lucide-react";
+import { useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
 export default function ClientsHeader({ canCreateClient }: { canCreateClient: boolean }) {
@@ -17,9 +17,14 @@ export default function ClientsHeader({ canCreateClient }: { canCreateClient: bo
       transition={{ duration: 0.5 }}
       className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0"
     >
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Clienti</h1>
-        <p className="text-muted-foreground">Gestisci i clienti aziendali</p>
+      <div className="flex items-center space-x-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-slate-500 to-gray-600 shadow-lg">
+          <Building2 className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Clienti</h1>
+          <p className="text-muted-foreground">Gestisci i clienti aziendali</p>
+        </div>
       </div>
       <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
         <div className="relative">

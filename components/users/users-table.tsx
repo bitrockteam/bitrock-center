@@ -40,9 +40,11 @@ export default function UsersTable({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
     >
-      <Card>
-        <CardContent>
+      <Card className="group relative overflow-hidden border-2 transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <CardContent className="relative">
           <Table>
             <TableHeader>
               <TableRow>
@@ -60,15 +62,18 @@ export default function UsersTable({
                   </TableCell>
                 </TableRow>
               ) : (
-                users?.map((us) => (
-                  <TableRow
+                users?.map((us, index) => (
+                  <motion.tr
                     key={us.id}
-                    className="cursor-pointer hover:bg-muted/50"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.03 }}
+                    className="group/row cursor-pointer transition-all duration-300 hover:bg-muted/50 border-b"
                     onClick={() => handleViewUser(us.id)}
                   >
                     <TableCell>
                       <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8">
+                        <Avatar className="h-8 w-8 ring-2 ring-background group-hover/row:ring-primary/20 transition-all">
                           {us.avatar_url && <AvatarImage src={us.avatar_url} />}
                           <AvatarFallback>
                             {formatDisplayName({
@@ -77,11 +82,18 @@ export default function UsersTable({
                             })}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium">{us.name}</span>
+                        <span className="font-medium group-hover/row:text-primary transition-colors">
+                          {us.name}
+                        </span>
                       </div>
                     </TableCell>
-                    <TableCell>{us.email}</TableCell>
-                    {canUserEdit({ currentUser: user ?? undefined, user: us }) ? (
+                    <TableCell className="group-hover/row:text-primary transition-colors">
+                      {us.email}
+                    </TableCell>
+                    {canUserEdit({
+                      currentUser: user ?? undefined,
+                      user: us,
+                    }) ? (
                       <TableCell>
                         <Select
                           onValueChange={async (e) => {
@@ -117,8 +129,10 @@ export default function UsersTable({
                       <TableCell>{getRoleBadge(us.role)}</TableCell>
                     )}
 
-                    <TableCell>{us.allocation.length || "-"}</TableCell>
-                  </TableRow>
+                    <TableCell className="group-hover/row:text-primary transition-colors">
+                      {us.allocation.length || "-"}
+                    </TableCell>
+                  </motion.tr>
                 ))
               )}
             </TableBody>

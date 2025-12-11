@@ -177,18 +177,25 @@ export default function SkillsAdminSection() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
     >
-      <Card>
-        <CardHeader>
+      <Card className="group relative overflow-hidden border-2 transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <CardHeader className="relative">
           <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-600/20 group-hover:from-cyan-500/30 group-hover:to-blue-600/30 transition-colors">
+                  <Settings className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                </div>
                 Gestione Competenze
               </CardTitle>
               <CardDescription>Amministra il catalogo delle competenze aziendali</CardDescription>
             </div>
-            <Button onClick={() => setShowCreateDialog(true)}>
+            <Button
+              onClick={() => setShowCreateDialog(true)}
+              className="transition-all duration-300 hover:scale-105"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Nuova Competenza
             </Button>
@@ -222,15 +229,21 @@ export default function SkillsAdminSection() {
           </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="relative">
           <Tabs
             value={selectedCategory}
             onValueChange={(value) => setSelectedCategory(value as SkillCategory | "all")}
           >
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="all">Tutte ({allSkills.length})</TabsTrigger>
-              <TabsTrigger value="hard">Hard Skills ({hardSkills.length})</TabsTrigger>
-              <TabsTrigger value="soft">Soft Skills ({softSkills.length})</TabsTrigger>
+              <TabsTrigger value="all" className="transition-all duration-300">
+                Tutte ({allSkills.length})
+              </TabsTrigger>
+              <TabsTrigger value="hard" className="transition-all duration-300">
+                Hard Skills ({hardSkills.length})
+              </TabsTrigger>
+              <TabsTrigger value="soft" className="transition-all duration-300">
+                Soft Skills ({softSkills.length})
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value={selectedCategory} className="mt-4">
@@ -248,23 +261,32 @@ export default function SkillsAdminSection() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className={`border rounded-lg p-4 transition-colors ${
-                          skill.active ? "bg-background" : "bg-muted/50"
+                        whileHover={{ x: 4, transition: { duration: 0.2 } }}
+                        className={`group/skill border-2 rounded-lg p-4 transition-all duration-300 ${
+                          skill.active
+                            ? "bg-background hover:border-primary/50 hover:bg-muted/30 hover:shadow-md"
+                            : "bg-muted/50 hover:border-muted-foreground/50"
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             <div
-                              className={`p-2 rounded-md ${skill.active ? "bg-primary/10" : "bg-muted"}`}
+                              className={`p-2 rounded-md ${
+                                skill.active ? "bg-primary/10" : "bg-muted"
+                              }`}
                             >
                               <LucideIcon
-                                className={`h-4 w-4 ${skill.active ? "text-primary" : "text-muted-foreground"}`}
+                                className={`h-4 w-4 ${
+                                  skill.active ? "text-primary" : "text-muted-foreground"
+                                }`}
                               />
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center space-x-2">
                                 <h4
-                                  className={`font-medium ${!skill.active && "text-muted-foreground"}`}
+                                  className={`font-medium ${
+                                    !skill.active && "text-muted-foreground"
+                                  }`}
                                 >
                                   {skill.name}
                                 </h4>
@@ -285,7 +307,9 @@ export default function SkillsAdminSection() {
                               </div>
                               {skill.description && (
                                 <p
-                                  className={`text-sm mt-1 ${!skill.active && "text-muted-foreground"}`}
+                                  className={`text-sm mt-1 ${
+                                    !skill.active && "text-muted-foreground"
+                                  }`}
                                 >
                                   {skill.description}
                                 </p>
@@ -301,7 +325,11 @@ export default function SkillsAdminSection() {
 
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="transition-all duration-300 hover:scale-110"
+                              >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>

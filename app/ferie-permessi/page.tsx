@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
 import PermitContainer from "@/components/permits/permit-container";
 import PermitHeader from "@/components/permits/permit-header";
 import { Permissions } from "@/db";
 import { hasPermission } from "@/services/users/server.utils";
-import PermitApproval from "./permit-approval";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -18,8 +17,7 @@ export default async function LeavePage() {
   return (
     <div className="space-y-6">
       <PermitHeader />
-      <PermitContainer />
-      {CAN_APPROVE_PERMIT && <PermitApproval />}
+      <PermitContainer canApprovePermit={CAN_APPROVE_PERMIT} />
     </div>
   );
 }

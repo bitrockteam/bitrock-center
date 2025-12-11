@@ -87,11 +87,13 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                         aria-label={`Visualizza dettagli di ${member.userName}`}
                       >
                         <Avatar className="h-9 w-9 ring-2 ring-background group-hover:ring-primary/20 transition-all">
-                          <AvatarImage
-                            src={member.userAvatarUrl || "/logo.png"}
-                            alt={`Avatar di ${member.userName}`}
-                          />
-                          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-500/20 text-primary font-semibold">
+                          {member.userAvatarUrl && (
+                            <AvatarImage
+                              src={member.userAvatarUrl}
+                              alt={`Avatar di ${member.userName}`}
+                            />
+                          )}
+                          <AvatarFallback>
                             {formatDisplayName({
                               name: member.userName,
                               initials: true,

@@ -169,8 +169,10 @@ export default function AddWorkItemDialog({
         type: data.type,
         status: data.status,
         description: data.description || null,
-        start_date: data.start_date ? new Date(data.start_date) : null,
-        end_date: data.end_date ? new Date(data.end_date) : null,
+        // start_date is required in the database, use today's date if not provided
+        // Send as string to avoid timezone issues, will be converted to Date on server
+        start_date: data.start_date || new Date().toISOString().split("T")[0],
+        end_date: data.end_date || null,
         // Set fields based on type to match database constraints
         hourly_rate: data.type === work_item_type.time_material ? data.hourly_rate : null,
         estimated_hours: data.type === work_item_type.time_material ? data.estimated_hours : null,

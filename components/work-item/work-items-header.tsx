@@ -1,9 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Filter, PlusCircle, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import type { GetAllClientsResponse } from "@/app/server-actions/client/getAllClients";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useApi } from "@/hooks/useApi";
+import { motion } from "framer-motion";
+import { Briefcase, Filter, PlusCircle, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import AddWorkItemDialog from "./add-work-item-dialog";
 
 interface WorkItemsHeaderProps {
@@ -54,9 +54,14 @@ export default function WorkItemsHeader({
       transition={{ duration: 0.5 }}
       className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0"
     >
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Commesse</h1>
-        <p className="text-muted-foreground">Gestisci le attività lavorative e commesse</p>
+      <div className="flex items-center space-x-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg">
+          <Briefcase className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Commesse</h1>
+          <p className="text-muted-foreground">Gestisci le attività lavorative e commesse</p>
+        </div>
       </div>
       <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
         <div className="relative">

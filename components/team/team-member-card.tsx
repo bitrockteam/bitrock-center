@@ -72,13 +72,13 @@ export function TeamMemberCard({
               <CardTitle className="flex flex-row items-center gap-4">
                 <div className="relative">
                   <Avatar className="h-10 w-10 ring-2 ring-background group-hover:ring-primary/20 transition-all">
-                    <AvatarImage
-                      src={teamMember.avatar_url || "/logo.png"}
-                      alt={`Avatar di ${teamMember.name}`}
-                    />
-                    <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-500/20 text-primary font-semibold">
-                      {teamMember.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
+                    {teamMember.avatar_url && (
+                      <AvatarImage
+                        src={teamMember.avatar_url}
+                        alt={`Avatar di ${teamMember.name}`}
+                      />
+                    )}
+                    <AvatarFallback>{teamMember.name.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-background bg-green-500 group-hover:scale-110 transition-transform" />
                 </div>

@@ -1,5 +1,19 @@
 "use client";
 
+import { logout } from "@/app/login/actions";
+import { ModeToggle } from "@/components/mode-toggle";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Permissions, type user } from "@/db";
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   Briefcase,
@@ -20,20 +34,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { logout } from "@/app/login/actions";
-import { ModeToggle } from "@/components/mode-toggle";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Permissions, type user } from "@/db";
-import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const navItems = [
@@ -95,9 +95,11 @@ const navItems = [
 export default function Sidebar({
   user,
   permissions,
+  version,
 }: Readonly<{
   user: user;
   permissions: Permissions[];
+  version: string;
 }>) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
@@ -165,7 +167,7 @@ export default function Sidebar({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar_url || "/logo.png"} alt="user avatar" />
+                        {user.avatar_url && <AvatarImage src={user.avatar_url} alt="user avatar" />}
                         <AvatarFallback>
                           {user.name
                             .trim()
@@ -191,6 +193,9 @@ export default function Sidebar({
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Impostazioni</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled className="opacity-100 cursor-default">
+                  <span className="text-xs text-muted-foreground">Versione {version}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

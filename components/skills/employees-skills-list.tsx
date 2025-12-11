@@ -94,9 +94,11 @@ export default function EmployeesSkillsList() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
     >
-      <Card>
-        <CardHeader>
+      <Card className="group relative overflow-hidden border-2 transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <CardHeader className="relative">
           <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
             <div>
               <CardTitle>Dipendenti e Competenze</CardTitle>
@@ -239,7 +241,7 @@ export default function EmployeesSkillsList() {
           )}
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="relative">
           <div className="space-y-4">
             {filteredEmployees?.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
@@ -252,12 +254,13 @@ export default function EmployeesSkillsList() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+                  whileHover={{ x: 4, transition: { duration: 0.2 } }}
+                  className="group/employee border-2 rounded-lg p-4 transition-all duration-300 hover:border-primary/50 hover:bg-muted/50 hover:shadow-md"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-12 w-12">
-                        <AvatarImage src={employee.avatar_url || "/logo.png"} />
+                        {employee.avatar_url && <AvatarImage src={employee.avatar_url} />}
                         <AvatarFallback>
                           {formatDisplayName({
                             name: employee.name,
@@ -282,7 +285,8 @@ export default function EmployeesSkillsList() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => router.push(`/skills/${employee.id}`)}
+                      onClick={() => router.push(`/utenti/${employee.id}?tab=skills`)}
+                      className="transition-all duration-300 hover:scale-105"
                     >
                       <Eye className="mr-2 h-4 w-4" />
                       Dettagli
@@ -300,13 +304,17 @@ export default function EmployeesSkillsList() {
                             <div key={empSkill.skill.id} className="flex items-center">
                               <Badge
                                 variant="outline"
-                                className={`text-xs flex items-center gap-1 rounded-r-none border-r-0 ${getSeniorityLevelColor(empSkill.seniorityLevel)} text-white border-transparent`}
+                                className={`text-xs flex items-center gap-1 rounded-r-none border-r-0 ${getSeniorityLevelColor(
+                                  empSkill.seniorityLevel
+                                )} text-white border-transparent`}
                               >
                                 <LucideIcon className="h-3 w-3" />
                                 {empSkill.skill.name}
                               </Badge>
                               <Badge
-                                className={`text-xs rounded-l-none ${getSeniorityLevelColor(empSkill.seniorityLevel)} text-white opacity-80`}
+                                className={`text-xs rounded-l-none ${getSeniorityLevelColor(
+                                  empSkill.seniorityLevel
+                                )} text-white opacity-80`}
                               >
                                 {getSeniorityLevelLabel(empSkill.seniorityLevel)}
                               </Badge>

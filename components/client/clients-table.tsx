@@ -1,9 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Building2, Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { getAllClients } from "@/app/server-actions/client/getAllClients";
 import {
   AlertDialog,
@@ -35,6 +31,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useServerAction } from "@/hooks/useServerAction";
+import { motion } from "framer-motion";
+import { Building2, Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
 export default function ClientsTable({ canEditClient }: { canEditClient: boolean }) {
@@ -68,9 +68,11 @@ export default function ClientsTable({ canEditClient }: { canEditClient: boolean
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
     >
-      <Card>
-        <CardContent className="p-0">
+      <Card className="group relative overflow-hidden border-2 transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <CardContent className="relative p-0">
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -92,29 +94,44 @@ export default function ClientsTable({ canEditClient }: { canEditClient: boolean
                     </TableCell>
                   </TableRow>
                 ) : (
-                  clients?.map((client) => (
-                    <TableRow
+                  clients?.map((client, index) => (
+                    <motion.tr
                       key={client.id}
-                      className="cursor-pointer hover:bg-muted/50"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.03 }}
+                      className="group/row cursor-pointer transition-all duration-300 hover:bg-muted/50 border-b"
                       onClick={() => handleViewClient(client.id)}
                     >
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground" />
-                          <span>{client.name}</span>
+                          <Building2 className="h-4 w-4 text-muted-foreground group-hover/row:text-primary transition-colors" />
+                          <span className="group-hover/row:text-primary transition-colors">
+                            {client.name}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">{client.code}</Badge>
                       </TableCell>
-                      <TableCell>{client.contact_person}</TableCell>
-                      <TableCell>{client.email}</TableCell>
-                      <TableCell>{client.phone}</TableCell>
+                      <TableCell className="group-hover/row:text-primary transition-colors">
+                        {client.contact_person}
+                      </TableCell>
+                      <TableCell className="group-hover/row:text-primary transition-colors">
+                        {client.email}
+                      </TableCell>
+                      <TableCell className="group-hover/row:text-primary transition-colors">
+                        {client.phone}
+                      </TableCell>
                       <TableCell>{getStatusBadge(client.status)}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <Button variant="ghost" size="icon">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="transition-all duration-300 hover:scale-110"
+                            >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -156,7 +173,7 @@ export default function ClientsTable({ canEditClient }: { canEditClient: boolean
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
-                    </TableRow>
+                    </motion.tr>
                   ))
                 )}
               </TableBody>

@@ -152,16 +152,23 @@ export default function CalendarView({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
     >
-      <Card>
-        <CardHeader>
+      <Card className="group relative overflow-hidden border-2 transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <CardHeader className="relative">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Calendario Attività</CardTitle>
               <CardDescription>Visualizza ore lavorate, ferie e permessi</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="icon" onClick={goToPreviousMonth}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={goToPreviousMonth}
+                className="transition-all duration-300 hover:scale-110"
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="font-medium min-w-[120px] text-center">
@@ -169,13 +176,18 @@ export default function CalendarView({
                   getMonthName(currentDate).slice(1)}{" "}
                 {currentDate.getFullYear()}
               </div>
-              <Button variant="outline" size="icon" onClick={goToNextMonth}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={goToNextMonth}
+                className="transition-all duration-300 hover:scale-110"
+              >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <div className="grid grid-cols-7 gap-1">
             {/* Intestazioni dei giorni della settimana */}
             {weekDays.map((day) => (
@@ -201,12 +213,22 @@ export default function CalendarView({
               const totalEvents = dailyEvents.permits.length + dailyEvents.timesheet.length;
 
               return (
-                <div
+                <motion.div
                   key={`day-${day}`}
-                  className={`h-24 p-1 border rounded-md ${isToday ? "border-primary" : "border-border"} overflow-hidden`}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                  whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                  className={`group/day h-24 p-1 border rounded-md ${
+                    isToday ? "border-primary bg-primary/5" : "border-border"
+                  } overflow-hidden transition-all duration-300 hover:border-primary/50 hover:bg-muted/30`}
                 >
                   <div className="flex justify-between items-start">
-                    <span className={`text-sm font-medium ${isToday ? "text-primary" : ""}`}>
+                    <span
+                      className={`text-sm font-medium transition-colors ${
+                        isToday ? "text-primary" : "group-hover/day:text-primary"
+                      }`}
+                    >
                       {day}
                     </span>
                     {dailyEvents.permits.length > 0 && (
@@ -215,7 +237,7 @@ export default function CalendarView({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-5 w-5 rounded-full"
+                            className="h-5 w-5 rounded-full transition-all duration-300 hover:scale-110 hover:bg-primary/10"
                             onClick={() => {}}
                           >
                             <Info className="h-3 w-3" />
@@ -233,7 +255,10 @@ export default function CalendarView({
                           </DialogHeader>
                           <div className="space-y-4 mt-4">
                             {dailyEvents.permits.map((event) => (
-                              <div key={event.id} className="border rounded-md p-3">
+                              <div
+                                key={event.id}
+                                className="border rounded-md p-3 transition-all duration-300 hover:border-primary/50 hover:bg-muted/50"
+                              >
                                 <div className="flex items-center space-x-2 mb-2">
                                   <Badge className={getEventBadgeColor(event.type)}>
                                     {getEventTypeLabel(event.type)}
@@ -270,11 +295,12 @@ export default function CalendarView({
                       <TooltipProvider key={event.id}>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div
-                              className={`text-xs px-1 py-0.5 rounded ${getEventBadgeColor()} text-white truncate`}
+                            <motion.div
+                              whileHover={{ scale: 1.05 }}
+                              className={`text-xs px-1 py-0.5 rounded ${getEventBadgeColor()} text-white truncate transition-all duration-300 hover:shadow-md cursor-pointer`}
                             >
                               {`${event.hours}h`}
-                            </div>
+                            </motion.div>
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>{getEventTypeLabel()}</p>
@@ -288,7 +314,7 @@ export default function CalendarView({
                       <div className="text-xs text-muted-foreground">+{totalEvents - 2} altri</div>
                     )}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -296,19 +322,19 @@ export default function CalendarView({
           <div className="flex items-center space-x-4 mt-6">
             <div className="text-sm font-medium">Legenda:</div>
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 transition-all duration-300 hover:scale-110">
                 <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                 <span className="text-xs">Lavoro</span>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 transition-all duration-300 hover:scale-110">
                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
                 <span className="text-xs">Ferie</span>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 transition-all duration-300 hover:scale-110">
                 <div className="w-3 h-3 rounded-full bg-amber-500"></div>
                 <span className="text-xs">Permesso</span>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 transition-all duration-300 hover:scale-110">
                 <div className="w-3 h-3 rounded-full bg-red-500"></div>
                 <span className="text-xs">Malattia</span>
               </div>

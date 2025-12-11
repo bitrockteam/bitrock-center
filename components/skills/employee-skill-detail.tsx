@@ -144,14 +144,12 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
-            <AvatarImage src={employee.avatar_url || "/logo.png"} />
+            {employee.avatar_url && <AvatarImage src={employee.avatar_url} />}
             <AvatarFallback>
-              <AvatarFallback>
-                {formatDisplayName({
-                  name: employee.name,
-                  initials: true,
-                })}
-              </AvatarFallback>
+              {formatDisplayName({
+                name: employee.name,
+                initials: true,
+              })}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -261,7 +259,9 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
                           </>
                         ) : (
                           <Badge
-                            className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                            className={`text-white ${getSeniorityLevelColor(
+                              empSkill.seniorityLevel
+                            )}`}
                           >
                             {getSeniorityLevelLabel(empSkill.seniorityLevel)}
                           </Badge>
@@ -350,7 +350,9 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
                           </>
                         ) : (
                           <Badge
-                            className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                            className={`text-white ${getSeniorityLevelColor(
+                              empSkill.seniorityLevel
+                            )}`}
                           >
                             {getSeniorityLevelLabel(empSkill.seniorityLevel)}
                           </Badge>

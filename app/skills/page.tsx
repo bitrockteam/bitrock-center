@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
 import EmployeesSkillsList from "@/components/skills/employees-skills-list";
 import SkillsAdminSection from "@/components/skills/skills-admin-section";
 import SkillsHeader from "@/components/skills/skills-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +18,17 @@ export default function SkillsPage() {
 
       <Tabs defaultValue="employees" className="space-y-6">
         <TabsList className="grid min-w-md grid-cols-2">
-          <TabsTrigger value="employees">Skills Dipendenti</TabsTrigger>
-          <TabsTrigger value="admin">Gestisci</TabsTrigger>
+          <TabsTrigger value="employees" className="transition-all duration-300">
+            Skills Dipendenti
+          </TabsTrigger>
+          <TabsTrigger value="admin" className="transition-all duration-300">
+            Gestisci
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="employees" className="space-y-6">
+        <TabsContent value="employees" className="space-y-6 mt-6">
           <EmployeesSkillsList />
         </TabsContent>
-        <TabsContent value="admin" className="space-y-6">
+        <TabsContent value="admin" className="space-y-6 mt-6">
           <SkillsAdminSection />
         </TabsContent>
       </Tabs>

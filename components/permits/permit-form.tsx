@@ -1,12 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -26,6 +27,11 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { PermitType, type user } from "@/db";
 import { useApi } from "@/hooks/useApi";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { DatePicker } from "../custom/DatePicker";
 
 type CreateBulkPermitDTO = Array<{
@@ -45,10 +51,16 @@ interface PermitFormValues {
 }
 
 interface PermitRequestFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onPermitCreated?: () => void;
 }
 
-export default function PermitRequestForm({ onPermitCreated }: PermitRequestFormProps) {
+export default function PermitRequestForm({
+  open,
+  onOpenChange,
+  onPermitCreated,
+}: PermitRequestFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const { data: reviewers, loading: reviewersLoading, callApi: fetchReviewers } = useApi<user[]>();
   const [isPending, startTransition] = useTransition();
@@ -126,6 +138,7 @@ export default function PermitRequestForm({ onPermitCreated }: PermitRequestForm
         if (onPermitCreated) {
           onPermitCreated();
         }
+        onOpenChange(false);
       } else {
         setErrorMessage("Creazione permesso fallita o limite superato (8h).");
       }
@@ -143,51 +156,74 @@ export default function PermitRequestForm({ onPermitCreated }: PermitRequestForm
   }, [fetchReviewers]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle>Richiedi Permesso</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="type"
-                rules={{ required: "Tipo richiesto" }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo di Richiesta</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona tipo" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value={PermitType.VACATION}>Ferie</SelectItem>
-                        <SelectItem value={PermitType.PERMISSION}>Permesso</SelectItem>
-                        <SelectItem value={PermitType.SICKNESS}>Malattia</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Richiedi Permesso</DialogTitle>
+          <DialogDescription>
+            Compila il modulo per richiedere ferie, permessi o segnalare malattia
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="type"
+              rules={{ required: "Tipo richiesto" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo di Richiesta</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona tipo" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value={PermitType.VACATION}>Ferie</SelectItem>
+                      <SelectItem value={PermitType.PERMISSION}>Permesso</SelectItem>
+                      <SelectItem value={PermitType.SICKNESS}>Malattia</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            <FormField
+              control={form.control}
+              name="startDate"
+              rules={{ required: "Data richiesta" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Data {form.watch("type") !== PermitType.PERMISSION && "Inizio"}
+                  </FormLabel>
+                  <FormControl>
+                    <DatePicker {...field} date={field.value} setDate={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {form.watch("type") !== PermitType.PERMISSION && (
               <FormField
                 control={form.control}
-                name="startDate"
-                rules={{ required: "Data richiesta" }}
+                name="endDate"
+                rules={{
+                  validate: (value) => {
+                    const startDate = form.getValues("startDate");
+
+                    if (value && startDate && new Date(value) < new Date(startDate)) {
+                      return "La data di fine non può essere prima della data di inizio";
+                    }
+
+                    return true;
+                  },
+                }}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Data {form.watch("type") !== PermitType.PERMISSION && "Inizio"}
-                    </FormLabel>
+                    <FormLabel>Data Fine</FormLabel>
                     <FormControl>
                       <DatePicker {...field} date={field.value} setDate={field.onChange} />
                     </FormControl>
@@ -195,104 +231,87 @@ export default function PermitRequestForm({ onPermitCreated }: PermitRequestForm
                   </FormItem>
                 )}
               />
-              {form.watch("type") !== PermitType.PERMISSION && (
-                <FormField
-                  control={form.control}
-                  name="endDate"
-                  rules={{
-                    validate: (value) => {
-                      const startDate = form.getValues("startDate");
+            )}
 
-                      if (value && startDate && new Date(value) < new Date(startDate)) {
-                        return "La data di fine non può essere prima della data di inizio";
-                      }
-
-                      return true;
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data Fine</FormLabel>
-                      <FormControl>
-                        <DatePicker {...field} date={field.value} setDate={field.onChange} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {form.watch("type") === PermitType.PERMISSION && (
-                <FormField
-                  control={form.control}
-                  rules={{
-                    required: "Durata richiesta",
-                    validate: (value) =>
-                      parseFloat(value) > 0 || "Durata deve essere maggiore di 0",
-                  }}
-                  name="duration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Durata (in ore)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          max="8"
-                          {...field}
-                          disabled={form.watch("type") === PermitType.SICKNESS}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              <p>
-                I tuoi referenti sono:{" "}
-                {reviewersLoading
-                  ? "Caricamento..."
-                  : reviewers && Array.isArray(reviewers)
-                    ? reviewers.map((r: user) => r.name).join(", ")
-                    : "Nessun referente disponibile"}
-              </p>
-
+            {form.watch("type") === PermitType.PERMISSION && (
               <FormField
                 control={form.control}
-                name="description"
+                rules={{
+                  required: "Durata richiesta",
+                  validate: (value) => parseFloat(value) > 0 || "Durata deve essere maggiore di 0",
+                }}
+                name="duration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Motivazione</FormLabel>
+                    <FormLabel>Durata (in ore)</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Descrivi brevemente il motivo della richiesta"
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        max="8"
                         {...field}
+                        disabled={form.watch("type") === PermitType.SICKNESS}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            )}
 
-              {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+            <p>
+              I tuoi referenti sono:{" "}
+              {reviewersLoading
+                ? "Caricamento..."
+                : reviewers && Array.isArray(reviewers)
+                  ? reviewers.map((r: user) => r.name).join(", ")
+                  : "Nessun referente disponibile"}
+            </p>
 
-              <motion.div className="pt-2" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Motivazione</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Descrivi brevemente il motivo della richiesta"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="transition-all duration-300"
+              >
+                Annulla
+              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   type="submit"
-                  className="w-full"
                   disabled={
                     isPending || reviewersLoading || !reviewers || !Array.isArray(reviewers)
                   }
+                  className="transition-all duration-300"
                 >
                   {isPending ? "Invio in corso..." : "Invia Richiesta"}
                 </Button>
               </motion.div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </motion.div>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }

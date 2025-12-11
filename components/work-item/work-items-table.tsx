@@ -139,9 +139,11 @@ export default function WorkItemsTable({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
+        whileHover={{ y: -2, transition: { duration: 0.2 } }}
       >
-        <Card>
-          <CardContent className="p-0">
+        <Card className="group relative overflow-hidden border-2 transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <CardContent className="relative p-0">
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
@@ -164,17 +166,26 @@ export default function WorkItemsTable({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredWorkItems?.map((item) => (
-                      <TableRow
+                    filteredWorkItems?.map((item, index) => (
+                      <motion.tr
                         key={item.id}
-                        className="cursor-pointer hover:bg-muted/50"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.03 }}
+                        className="group/row cursor-pointer transition-all duration-300 hover:bg-muted/50 border-b"
                         onClick={() => handleViewWorkItem(item.id)}
                       >
-                        <TableCell className="font-medium">{item.title}</TableCell>
-                        <TableCell>{item.client.name}</TableCell>
+                        <TableCell className="font-medium group-hover/row:text-primary transition-colors">
+                          {item.title}
+                        </TableCell>
+                        <TableCell className="group-hover/row:text-primary transition-colors">
+                          {item.client.name}
+                        </TableCell>
                         <TableCell>
                           {item.project_id ? (
-                            <span className="text-sm">{item.project?.name}</span>
+                            <span className="text-sm group-hover/row:text-primary transition-colors">
+                              {item.project?.name}
+                            </span>
                           ) : (
                             <span className="text-sm text-muted-foreground">Nessun progetto</span>
                           )}
@@ -189,9 +200,9 @@ export default function WorkItemsTable({
                                 return (
                                   <Avatar
                                     key={user_id}
-                                    className="h-6 w-6 border-2 border-background"
+                                    className="h-6 w-6 border-2 border-background group-hover/row:ring-primary/20 transition-all"
                                   >
-                                    <AvatarImage src={user?.avatar_url || "/logo.png"} />
+                                    {user?.avatar_url && <AvatarImage src={user.avatar_url} />}
                                     <AvatarFallback className="text-xs">
                                       {user?.name.charAt(0)}
                                     </AvatarFallback>
@@ -211,7 +222,7 @@ export default function WorkItemsTable({
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center text-sm">
+                          <div className="flex items-center text-sm group-hover/row:text-primary transition-colors">
                             {item.type === work_item_type.fixed_price ? (
                               <>
                                 <Euro className="mr-1 h-3 w-3" />
@@ -227,7 +238,11 @@ export default function WorkItemsTable({
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                              <Button variant="ghost" size="icon">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="transition-all duration-300 hover:scale-110"
+                              >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -267,7 +282,7 @@ export default function WorkItemsTable({
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
-                      </TableRow>
+                      </motion.tr>
                     ))
                   )}
                 </TableBody>
