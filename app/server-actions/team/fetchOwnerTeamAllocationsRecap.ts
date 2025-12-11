@@ -55,7 +55,7 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<
         )
         .reduce((sum, permit) => sum + permit.duration, 0);
 
-      const daysOffPlanned = vacationPermits
+      const computedDaysOffPlanned = vacationPermits
         .filter(
           (permit) =>
             (permit.status === PermitStatus.APPROVED ||
@@ -64,7 +64,28 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<
         )
         .reduce((sum, permit) => sum + permit.duration, 0);
 
-      const daysOffLeft = totalVacationDays - vacationDaysUsed;
+      const computedDaysOffLeft = totalVacationDays - vacationDaysUsed;
+
+      // Use custom values if set, otherwise use computed values
+      const daysOffLeft = member.custom_days_off_left ?? computedDaysOffLeft;
+      const daysOffPlanned =
+        member.custom_days_off_planned ?? computedDaysOffPlanned;
+
+      // Find all active allocations
+      const activeAllocations = member.allocation.filter(
+        (alloc) =>
+          alloc.start_date <= now &&
+          (alloc.end_date === null || alloc.end_date >= now)
+      );
+
+      // Find the latest end date from all active allocations
+      const latestEndDate =
+        activeAllocations.length > 0
+          ? activeAllocations
+              .map((alloc) => alloc.end_date)
+              .filter((date): date is Date => date !== null)
+              .sort((a, b) => b.getTime() - a.getTime())[0] || null
+          : null;
 
       return {
         userId: member.id,
@@ -80,14 +101,11 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<
               percentage: activeAllocation.percentage,
             }
           : null,
+        latestAllocationEndDate: latestEndDate,
         daysOffLeft,
         daysOffPlanned,
         totalAllocations: member.allocation.length,
-        activeAllocations: member.allocation.filter(
-          (alloc) =>
-            alloc.start_date <= now &&
-            (alloc.end_date === null || alloc.end_date >= now)
-        ).length,
+        activeAllocations: activeAllocations.length,
       };
     })
   );

@@ -2,6 +2,7 @@
 
 import type { UserAllocationRecap } from "@/app/server-actions/user/fetchUserAllocations";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -19,20 +21,32 @@ import {
 } from "@/components/ui/table";
 import { useApi } from "@/hooks/useApi";
 import dayjs from "dayjs";
+import { Edit2, RotateCcw, Save, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 interface UserDetailsAllocationsProps {
   userId: string;
+  currentUserId?: string;
 }
 
 export default function UserDetailsAllocations({
   userId,
+  currentUserId,
 }: UserDetailsAllocationsProps) {
   const { data: allocationsData, callApi: fetchAllocations } =
     useApi<UserAllocationRecap>();
+  const { callApi: updateDaysOff } = useApi();
 
   const userIdRef = useRef<string | null>(null);
+  const isOwnProfile = currentUserId === userId;
+  const [isEditingLeft, setIsEditingLeft] = useState(false);
+  const [isEditingPlanned, setIsEditingPlanned] = useState(false);
+  const [daysOffLeft, setDaysOffLeft] = useState<number | null>(null);
+  const [daysOffPlanned, setDaysOffPlanned] = useState<number | null>(null);
+  const [isSavingLeft, setIsSavingLeft] = useState(false);
+  const [isSavingPlanned, setIsSavingPlanned] = useState(false);
 
   useEffect(() => {
     if (userId && userIdRef.current !== userId) {
@@ -40,6 +54,101 @@ export default function UserDetailsAllocations({
       fetchAllocations(`/api/user/allocations?userId=${userId}`);
     }
   }, [userId, fetchAllocations]);
+
+  useEffect(() => {
+    if (allocationsData) {
+      setDaysOffLeft(allocationsData.daysOffLeft);
+      setDaysOffPlanned(allocationsData.daysOffPlanned);
+    }
+  }, [allocationsData]);
+
+  const handleEditLeft = () => {
+    setIsEditingLeft(true);
+  };
+
+  const handleEditPlanned = () => {
+    setIsEditingPlanned(true);
+  };
+
+  const handleCancelLeft = () => {
+    if (allocationsData) {
+      setDaysOffLeft(allocationsData.daysOffLeft);
+    }
+    setIsEditingLeft(false);
+  };
+
+  const handleCancelPlanned = () => {
+    if (allocationsData) {
+      setDaysOffPlanned(allocationsData.daysOffPlanned);
+    }
+    setIsEditingPlanned(false);
+  };
+
+  const handleSaveLeft = async () => {
+    if (!allocationsData) return;
+    setIsSavingLeft(true);
+    try {
+      await updateDaysOff("/api/user/days-off", {
+        method: "PATCH",
+        body: JSON.stringify({
+          userId,
+          daysOffLeft: daysOffLeft ?? null,
+          daysOffPlanned: allocationsData.daysOffPlanned ?? null,
+        }),
+      });
+      toast.success("Ferie rimanenti aggiornate con successo");
+      setIsEditingLeft(false);
+      await fetchAllocations(`/api/user/allocations?userId=${userId}`);
+    } catch (error) {
+      toast.error("Errore nell'aggiornamento delle ferie rimanenti");
+      console.error("Error updating days off left:", error);
+    } finally {
+      setIsSavingLeft(false);
+    }
+  };
+
+  const handleSavePlanned = async () => {
+    if (!allocationsData) return;
+    setIsSavingPlanned(true);
+    try {
+      await updateDaysOff("/api/user/days-off", {
+        method: "PATCH",
+        body: JSON.stringify({
+          userId,
+          daysOffLeft: allocationsData.daysOffLeft ?? null,
+          daysOffPlanned: daysOffPlanned ?? null,
+        }),
+      });
+      toast.success("Ferie pianificate aggiornate con successo");
+      setIsEditingPlanned(false);
+      await fetchAllocations(`/api/user/allocations?userId=${userId}`);
+    } catch (error) {
+      toast.error("Errore nell'aggiornamento delle ferie pianificate");
+      console.error("Error updating days off planned:", error);
+    } finally {
+      setIsSavingPlanned(false);
+    }
+  };
+
+  const handleReset = async () => {
+    try {
+      await updateDaysOff("/api/user/days-off", {
+        method: "PATCH",
+        body: JSON.stringify({
+          userId,
+          daysOffLeft: null,
+          daysOffPlanned: null,
+        }),
+      });
+      toast.success("Valori ripristinati ai valori calcolati");
+      setIsEditingLeft(false);
+      setIsEditingPlanned(false);
+      await fetchAllocations(`/api/user/allocations?userId=${userId}`);
+    } catch (error) {
+      toast.error("Errore nel ripristino dei valori");
+      console.error("Error resetting days off:", error);
+    }
+  };
 
   const formatDate = (date: Date | null) => {
     if (!date) return "Non definita";
@@ -76,7 +185,7 @@ export default function UserDetailsAllocations({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Allocazioni Attive</CardDescription>
@@ -95,26 +204,192 @@ export default function UserDetailsAllocations({
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Ferie Rimanenti</CardDescription>
-            <CardTitle
-              className={`text-2xl ${
-                allocationsData.daysOffLeft <= 5
-                  ? "text-destructive"
-                  : allocationsData.daysOffLeft <= 10
-                  ? "text-yellow-600"
-                  : ""
-              }`}
-            >
-              {allocationsData.daysOffLeft} giorni
+            <CardDescription>Fine Allocazione</CardDescription>
+            <CardTitle className="text-2xl">
+              {allocationsData.latestAllocationEndDate
+                ? formatDate(allocationsData.latestAllocationEndDate)
+                : "Non definita"}
             </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Ferie Pianificate</CardDescription>
-            <CardTitle className="text-2xl text-blue-600">
-              {allocationsData.daysOffPlanned} giorni
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <CardDescription>Ferie Rimanenti</CardDescription>
+                {isOwnProfile &&
+                  allocationsData.hasCustomValues &&
+                  !isEditingLeft && (
+                    <span className="text-xs text-muted-foreground mt-1">
+                      Valore personalizzato
+                    </span>
+                  )}
+              </div>
+              {isOwnProfile && !isEditingLeft && (
+                <div className="flex gap-1">
+                  {allocationsData.hasCustomValues && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleReset}
+                      className="h-6 w-6"
+                      aria-label="Ripristina valori calcolati"
+                      title="Ripristina valori calcolati"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleEditLeft}
+                    className="h-6 w-6"
+                    aria-label="Modifica ferie rimanenti"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            {isEditingLeft && isOwnProfile ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={daysOffLeft ?? ""}
+                    onChange={(e) =>
+                      setDaysOffLeft(
+                        e.target.value === ""
+                          ? null
+                          : parseInt(e.target.value, 10)
+                      )
+                    }
+                    className="w-24"
+                    min="0"
+                  />
+                  <span className="text-sm text-muted-foreground">giorni</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleSaveLeft}
+                    disabled={isSavingLeft}
+                    className="h-7"
+                  >
+                    <Save className="h-3 w-3 mr-1" />
+                    Salva
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelLeft}
+                    disabled={isSavingLeft}
+                    className="h-7"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Annulla
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <CardTitle
+                className={`text-2xl ${
+                  allocationsData.daysOffLeft <= 5
+                    ? "text-destructive"
+                    : allocationsData.daysOffLeft <= 10
+                    ? "text-yellow-600"
+                    : ""
+                }`}
+              >
+                {allocationsData.daysOffLeft} giorni
+              </CardTitle>
+            )}
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <CardDescription>Ferie Pianificate</CardDescription>
+                {isOwnProfile &&
+                  allocationsData.hasCustomValues &&
+                  !isEditingPlanned && (
+                    <span className="text-xs text-muted-foreground mt-1">
+                      Valore personalizzato
+                    </span>
+                  )}
+              </div>
+              {isOwnProfile && !isEditingPlanned && (
+                <div className="flex gap-1">
+                  {allocationsData.hasCustomValues && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleReset}
+                      className="h-6 w-6"
+                      aria-label="Ripristina valori calcolati"
+                      title="Ripristina valori calcolati"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleEditPlanned}
+                    className="h-6 w-6"
+                    aria-label="Modifica ferie pianificate"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            {isEditingPlanned && isOwnProfile ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={daysOffPlanned ?? ""}
+                    onChange={(e) =>
+                      setDaysOffPlanned(
+                        e.target.value === ""
+                          ? null
+                          : parseInt(e.target.value, 10)
+                      )
+                    }
+                    className="w-24"
+                    min="0"
+                  />
+                  <span className="text-sm text-muted-foreground">giorni</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleSavePlanned}
+                    disabled={isSavingPlanned}
+                    className="h-7"
+                  >
+                    <Save className="h-3 w-3 mr-1" />
+                    Salva
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelPlanned}
+                    disabled={isSavingPlanned}
+                    className="h-7"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Annulla
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <CardTitle className="text-2xl text-blue-600">
+                {allocationsData.daysOffPlanned} giorni
+              </CardTitle>
+            )}
           </CardHeader>
         </Card>
       </div>

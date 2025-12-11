@@ -18,14 +18,26 @@ export type UserAllocationRecap = {
   allocations: UserAllocationDetail[];
   daysOffLeft: number;
   daysOffPlanned: number;
+  computedDaysOffLeft: number;
+  computedDaysOffPlanned: number;
+  hasCustomValues: boolean;
   activeAllocations: number;
   totalAllocations: number;
+  latestAllocationEndDate: Date | null;
 };
 
 export async function fetchUserAllocations(
   userId: string
 ): Promise<UserAllocationRecap> {
   const now = new Date();
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      custom_days_off_left: true,
+      custom_days_off_planned: true,
+    },
+  });
 
   const allocations = await db.allocation.findMany({
     where: {
@@ -64,7 +76,7 @@ export async function fetchUserAllocations(
     )
     .reduce((sum, permit) => sum + permit.duration, 0);
 
-  const daysOffPlanned = permits
+  const computedDaysOffPlanned = permits
     .filter(
       (permit) =>
         (permit.status === PermitStatus.APPROVED ||
@@ -73,7 +85,15 @@ export async function fetchUserAllocations(
     )
     .reduce((sum, permit) => sum + permit.duration, 0);
 
-  const daysOffLeft = totalVacationDays - vacationDaysUsed;
+  const computedDaysOffLeft = totalVacationDays - vacationDaysUsed;
+
+  // Use custom values if set, otherwise use computed values
+  const daysOffLeft = user?.custom_days_off_left ?? computedDaysOffLeft;
+  const daysOffPlanned =
+    user?.custom_days_off_planned ?? computedDaysOffPlanned;
+  const hasCustomValues =
+    user?.custom_days_off_left !== null ||
+    user?.custom_days_off_planned !== null;
 
   const allocationDetails: UserAllocationDetail[] = allocations.map(
     (alloc) => ({
@@ -90,12 +110,28 @@ export async function fetchUserAllocations(
     })
   );
 
+  const activeAllocationsList = allocationDetails.filter(
+    (alloc) => alloc.isActive
+  );
+
+  // Find the latest end date from all active allocations
+  const latestAllocationEndDate =
+    activeAllocationsList.length > 0
+      ? activeAllocationsList
+          .map((alloc) => alloc.endDate)
+          .filter((date): date is Date => date !== null)
+          .sort((a, b) => b.getTime() - a.getTime())[0] || null
+      : null;
+
   return {
     allocations: allocationDetails,
     daysOffLeft,
     daysOffPlanned,
-    activeAllocations: allocationDetails.filter((alloc) => alloc.isActive)
-      .length,
+    computedDaysOffLeft,
+    computedDaysOffPlanned,
+    hasCustomValues,
+    activeAllocations: activeAllocationsList.length,
     totalAllocations: allocationDetails.length,
+    latestAllocationEndDate,
   };
 }

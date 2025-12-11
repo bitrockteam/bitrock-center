@@ -13,7 +13,13 @@ import UserDetailsSkills from "./user-details-sections/user-details-skills";
 
 type ContractResponse = Awaited<ReturnType<typeof getContractByEmployeeId>>;
 
-export default function UserDetailsSections({ user }: { user: FindUserById }) {
+export default function UserDetailsSections({
+  user,
+  currentUserId,
+}: {
+  user: FindUserById;
+  currentUserId?: string;
+}) {
   const { data: activePlan, callApi: fetchDevelopmentPlan } =
     useApi<GetLatestEmployeeDevelopmentPlan>();
   const { data: contract, callApi: fetchContract } = useApi<ContractResponse>();
@@ -53,7 +59,10 @@ export default function UserDetailsSections({ user }: { user: FindUserById }) {
         <UserDetailsOverview user={user} plan={activePlan} />
       </TabsContent>
       <TabsContent value="allocations" className="space-y-6">
-        <UserDetailsAllocations userId={user.id} />
+        <UserDetailsAllocations
+          userId={user.id}
+          currentUserId={currentUserId}
+        />
       </TabsContent>
       <TabsContent value="skills" className="space-y-6">
         <UserDetailsSkills user={user} />

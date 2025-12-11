@@ -118,9 +118,9 @@ export function TeamAllocationsRecap({
                       : "-"}
                   </TableCell>
                   <TableCell>
-                    {member.currentProject?.endDate
-                      ? formatDate(member.currentProject.endDate)
-                      : member.currentProject
+                    {member.latestAllocationEndDate
+                      ? formatDate(member.latestAllocationEndDate)
+                      : member.activeAllocations > 0
                       ? "Non definita"
                       : "-"}
                   </TableCell>
