@@ -1,5 +1,5 @@
-import { fetchUserPermits } from "@/app/server-actions/permit/fetchUserPermits";
 import { NextResponse } from "next/server";
+import { fetchUserPermits } from "@/app/server-actions/permit/fetchUserPermits";
 
 export async function GET() {
   try {
@@ -7,9 +7,6 @@ export async function GET() {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching user permits:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch user permits" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to fetch user permits" }, { status: 500 });
   }
 }

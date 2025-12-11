@@ -1,8 +1,12 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
 import { getAllClients } from "@/app/server-actions/client/getAllClients";
 import { createProject } from "@/app/server-actions/project/createProject";
-import { Project } from "@/app/server-actions/project/fetchAllProjects";
+import type { Project } from "@/app/server-actions/project/fetchAllProjects";
 import { updateProject } from "@/app/server-actions/project/updateProject";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,13 +34,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { project, ProjectStatus } from "@/db";
+import { ProjectStatus, type project } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
-import { motion } from "framer-motion";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { addProjectSchema } from "./schema";
+import type { addProjectSchema } from "./schema";
 
 interface AddProjectDialogProps {
   open: boolean;
@@ -78,9 +78,7 @@ export default function AddProjectDialog({
         description: editData.description ?? undefined,
         status: editData.status,
         start_date: String(editData.start_date).slice(0, 10),
-        end_date: editData.end_date
-          ? String(editData.end_date).slice(0, 10)
-          : "",
+        end_date: editData.end_date ? String(editData.end_date).slice(0, 10) : "",
         // team: editData.team.map((member: any) => member.id),
       });
     }
@@ -125,9 +123,7 @@ export default function AddProjectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>
-            {editData ? "Modifica Progetto" : "Nuovo Progetto"}
-          </DialogTitle>
+          <DialogTitle>{editData ? "Modifica Progetto" : "Nuovo Progetto"}</DialogTitle>
           <DialogDescription>
             {editData
               ? "Modifica i dettagli del progetto."
@@ -164,10 +160,7 @@ export default function AddProjectDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cliente</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleziona il cliente" />
@@ -194,10 +187,7 @@ export default function AddProjectDialog({
                 <FormItem>
                   <FormLabel>Descrizione</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Descrizione del progetto"
-                      {...field}
-                    />
+                    <Textarea placeholder="Descrizione del progetto" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -264,20 +254,11 @@ export default function AddProjectDialog({
             </div>
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Annulla
               </Button>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button type="submit">
-                  {editData ? "Aggiorna" : "Crea Progetto"}
-                </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button type="submit">{editData ? "Aggiorna" : "Crea Progetto"}</Button>
               </motion.div>
             </DialogFooter>
           </form>

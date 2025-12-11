@@ -1,6 +1,6 @@
-import EmployeeSkillDetail from "@/components/skills/employee-skill-detail";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import EmployeeSkillDetail from "@/components/skills/employee-skill-detail";
 
 export const dynamic = "force-dynamic";
 
@@ -24,10 +24,7 @@ export default async function EmployeeSkillDetailPage({
 
     // Log response details for debugging
     console.log(`API Response Status: ${res.status}`);
-    console.log(
-      `API Response Headers:`,
-      Object.fromEntries(res.headers.entries()),
-    );
+    console.log(`API Response Headers:`, Object.fromEntries(res.headers.entries()));
 
     if (!res.ok) {
       // Log the response text to see what's being returned

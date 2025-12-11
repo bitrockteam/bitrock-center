@@ -1,17 +1,11 @@
 "use client";
 
-import { UserAllocated } from "@/app/server-actions/project/fetchAllocationsForProject";
-import { ProjectById } from "@/app/server-actions/project/fetchProjectById";
-import { FindUsers } from "@/app/server-actions/user/findUsers";
+import type { UserAllocated } from "@/app/server-actions/project/fetchAllocationsForProject";
+import type { ProjectById } from "@/app/server-actions/project/fetchProjectById";
+import type { FindUsers } from "@/app/server-actions/user/findUsers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -28,17 +22,9 @@ import {
   getWorkItemStatusBadge,
   getWorkItemTypeBadge,
 } from "@/utils/mapping";
-import { format } from "date-fns";
+import dayjs from "dayjs";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Calendar,
-  Clock,
-  Edit,
-  Euro,
-  GanttChart,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Edit, Euro, GanttChart, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
@@ -76,9 +62,7 @@ export default function ProjectDetail({
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
 
   const workItems = project?.work_items;
-  const allAllocatedUsers = allocations?.flatMap(
-    (all) => all.work_item_enabled_users,
-  );
+  const allAllocatedUsers = allocations?.flatMap((all) => all.work_item_enabled_users);
 
   if (!project) {
     return (
@@ -107,31 +91,20 @@ export default function ProjectDetail({
     >
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push("/progetti")}
-          >
+          <Button variant="outline" size="icon" onClick={() => router.push("/progetti")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {project.name}
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
             <div className="flex items-center space-x-2">
-              <p className="text-muted-foreground">
-                Cliente: {project.client.name}
-              </p>
+              <p className="text-muted-foreground">Cliente: {project.client.name}</p>
               {getProjectStatusBadge(project.status)}
             </div>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="default"
-              onClick={() => router.push(`/progetti/${id}/plan`)}
-            >
+            <Button variant="default" onClick={() => router.push(`/progetti/${id}/plan`)}>
               <GanttChart className="mr-2 h-4 w-4" />
               Vai al Piano
             </Button>
@@ -148,25 +121,21 @@ export default function ProjectDetail({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Informazioni Progetto
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Informazioni Progetto</CardTitle>
             <CardDescription>Dettagli e date del progetto</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="space-y-2">
                 <p className="text-sm font-medium">Descrizione:</p>
-                <p className="text-sm text-muted-foreground">
-                  {project.description}
-                </p>
+                <p className="text-sm text-muted-foreground">{project.description}</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Data Inizio:</p>
                   <p className="text-sm text-muted-foreground flex items-center">
                     <Calendar className="mr-1 h-3 w-3" />{" "}
-                    {format(project?.start_date, "MM dd yyyy")}
+                    {dayjs(project?.start_date).format("MM DD YYYY")}
                   </p>
                 </div>
                 <div className="space-y-1">
@@ -174,7 +143,7 @@ export default function ProjectDetail({
                   <p className="text-sm text-muted-foreground flex items-center">
                     <Calendar className="mr-1 h-3 w-3" />{" "}
                     {project?.end_date
-                      ? format(project?.end_date, "MM dd yyyy")
+                      ? dayjs(project?.end_date).format("MM DD YYYY")
                       : "Non definita"}
                   </p>
                 </div>
@@ -201,9 +170,7 @@ export default function ProjectDetail({
           <Card>
             <CardHeader>
               <CardTitle>Commesse del Progetto</CardTitle>
-              <CardDescription>
-                Attività lavorative associate a questo progetto
-              </CardDescription>
+              <CardDescription>Attività lavorative associate a questo progetto</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -220,10 +187,7 @@ export default function ProjectDetail({
                 <TableBody>
                   {workItems?.length === 0 ? (
                     <TableRow>
-                      <TableCell
-                        colSpan={6}
-                        className="text-center py-6 text-muted-foreground"
-                      >
+                      <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                         Nessuna commessa associata
                       </TableCell>
                     </TableRow>
@@ -234,13 +198,9 @@ export default function ProjectDetail({
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => router.push(`/commesse/${item.id}`)}
                       >
-                        <TableCell className="font-medium">
-                          {item.title}
-                        </TableCell>
+                        <TableCell className="font-medium">{item.title}</TableCell>
                         <TableCell>{getWorkItemTypeBadge(item.type)}</TableCell>
-                        <TableCell>
-                          {getWorkItemStatusBadge(item.status)}
-                        </TableCell>
+                        <TableCell>{getWorkItemStatusBadge(item.status)}</TableCell>
                         <TableCell>
                           <div className="text-sm">
                             {item.start_date.toDateString()} -{" "}
@@ -256,40 +216,30 @@ export default function ProjectDetail({
                               </>
                             ) : (
                               <>
-                                <Clock className="mr-1 h-3 w-3" />€
-                                {item.hourly_rate}/h
+                                <Clock className="mr-1 h-3 w-3" />€{item.hourly_rate}/h
                               </>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex -space-x-2">
-                            {item.work_item_enabled_users
-                              .slice(0, 3)
-                              .map(({ user_id }, index) => {
-                                const user = users?.find(
-                                  (u) => u.id === user_id,
-                                );
-                                return (
-                                  <Avatar
-                                    key={index}
-                                    className="h-6 w-6 border-2 border-background"
-                                  >
-                                    <AvatarImage
-                                      src={
-                                        user?.avatar_url ||
-                                        "/placeholder.svg?height=24&width=24"
-                                      }
-                                    />
-                                    <AvatarFallback className="text-xs">
-                                      {formatDisplayName({
-                                        name: user?.name || "Utente",
-                                        initials: true,
-                                      })}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                );
-                              })}
+                            {item.work_item_enabled_users.slice(0, 3).map(({ user_id }) => {
+                              const user = users?.find((u) => u.id === user_id);
+                              return (
+                                <Avatar
+                                  key={user_id}
+                                  className="h-6 w-6 border-2 border-background"
+                                >
+                                  <AvatarImage src={user?.avatar_url || "/logo.png"} />
+                                  <AvatarFallback className="text-xs">
+                                    {formatDisplayName({
+                                      name: user?.name || "Utente",
+                                      initials: true,
+                                    })}
+                                  </AvatarFallback>
+                                </Avatar>
+                              );
+                            })}
                             {item.work_item_enabled_users.length > 3 && (
                               <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium">
                                 +{item.work_item_enabled_users.length - 3}
@@ -330,10 +280,7 @@ export default function ProjectDetail({
                 <TableBody>
                   {workItems?.length === 0 ? (
                     <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        className="text-center py-6 text-muted-foreground"
-                      >
+                      <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
                         Nessuna registrazione trovata
                       </TableCell>
                     </TableRow>
@@ -344,20 +291,13 @@ export default function ProjectDetail({
                         onClick={() => {
                           if (!canSeeUsersTimesheets) return;
 
-                          router.push(
-                            `/progetti/${id}/consuntivazione/${entry?.user_id}`,
-                          );
+                          router.push(`/progetti/${id}/consuntivazione/${entry?.user_id}`);
                         }}
                       >
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Avatar className="h-6 w-6">
-                              <AvatarImage
-                                src={
-                                  entry?.user_id ??
-                                  "/placeholder.svg?height=24&width=24"
-                                }
-                              />
+                              <AvatarImage src={entry?.user?.avatar_url ?? "/logo.png"} />
                               <AvatarFallback>
                                 {formatDisplayName({
                                   name: entry?.user.name ?? "",
@@ -374,35 +314,23 @@ export default function ProjectDetail({
                         </TableCell>
                         <TableCell>{entry?.user.role}</TableCell>
                         <TableCell>
-                          {workItems?.find(
-                            (wi) => wi.id === entry?.work_item_id,
-                          )?.start_date
-                            ? format(
-                                workItems?.find(
-                                  (wi) => wi.id === entry?.work_item_id,
-                                )?.start_date ?? "",
-                                "dd-MM-yyyy",
-                              )
+                          {workItems?.find((wi) => wi.id === entry?.work_item_id)?.start_date
+                            ? dayjs(
+                                workItems?.find((wi) => wi.id === entry?.work_item_id)
+                                  ?.start_date ?? ""
+                              ).format("DD-MM-YYYY")
                             : "-"}
                         </TableCell>
                         <TableCell>
-                          {workItems?.find(
-                            (wi) => wi.id === entry?.work_item_id,
-                          )?.end_date
-                            ? format(
-                                workItems?.find(
-                                  (wi) => wi.id === entry?.work_item_id,
-                                )?.end_date ?? "",
-                                "dd-MM-yyyy",
-                              )
+                          {workItems?.find((wi) => wi.id === entry?.work_item_id)?.end_date
+                            ? dayjs(
+                                workItems?.find((wi) => wi.id === entry?.work_item_id)?.end_date ??
+                                  ""
+                              ).format("DD-MM-YYYY")
                             : "-"}
                         </TableCell>
                         <TableCell>
-                          {
-                            workItems?.find(
-                              (wi) => wi.id === entry?.work_item_id,
-                            )?.title
-                          }
+                          {workItems?.find((wi) => wi.id === entry?.work_item_id)?.title}
                         </TableCell>
                       </TableRow>
                     ))
@@ -431,10 +359,7 @@ export default function ProjectDetail({
                 </TableHeader>
                 <TableBody>
                   <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="text-center py-6 text-muted-foreground"
-                    >
+                    <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
                       Nessuna registrazione trovata
                     </TableCell>
                   </TableRow>
@@ -452,9 +377,7 @@ export default function ProjectDetail({
             <CardContent>
               <div className="flex flex-col items-center justify-center py-10">
                 <Users className="h-10 w-10 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">
-                  Nessuna attività disponibile
-                </p>
+                <p className="text-muted-foreground">Nessuna attività disponibile</p>
               </div>
             </CardContent>
           </Card>

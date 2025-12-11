@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { allocation } from "@/db";
+import type { allocation } from "@/db";
 
 export async function createAllocation({
   allocation,

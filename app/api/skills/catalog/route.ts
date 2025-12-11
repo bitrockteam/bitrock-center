@@ -1,5 +1,5 @@
-import { getSkillsCatalog } from "@/app/server-actions/skills/getSkillsCatalog";
 import { NextResponse } from "next/server";
+import { getSkillsCatalog } from "@/app/server-actions/skills/getSkillsCatalog";
 
 export async function GET() {
   try {
@@ -17,7 +17,7 @@ export async function GET() {
         success: false,
         error: "Failed to fetch skills catalog",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

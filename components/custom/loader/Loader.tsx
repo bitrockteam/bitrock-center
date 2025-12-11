@@ -1,8 +1,6 @@
 export function Loader() {
   return (
-    <div
-      className={`flex justify-center items-center h-full w-full bg-transparent`}
-    >
+    <div className={`flex justify-center items-center h-full w-full bg-transparent`}>
       <div
         className="relative inline-block w-12 h-12 border-4 border-foreground rounded-full box-border
     animate-[pulse-loader_1s_linear_infinite]

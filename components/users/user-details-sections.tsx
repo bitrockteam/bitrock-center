@@ -1,9 +1,9 @@
-import { getContractByEmployeeId } from "@/app/server-actions/contract/getContractByEmployeeId";
-import { GetLatestEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getLatestEmployeeDevelopmentPlan";
-import { FindUserById } from "@/app/server-actions/user/findUserById";
+import { useEffect, useRef } from "react";
+import type { getContractByEmployeeId } from "@/app/server-actions/contract/getContractByEmployeeId";
+import type { GetLatestEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getLatestEmployeeDevelopmentPlan";
+import type { FindUserById } from "@/app/server-actions/user/findUserById";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApi } from "@/hooks/useApi";
-import { useEffect, useRef } from "react";
 import ContractDetail from "./contract-detail";
 import UserDetailsActivity from "./user-details-sections/user-details-activity";
 import UserDetailsDevelopment from "./user-details-sections/user-details-development";
@@ -22,9 +22,7 @@ export default function UserDetailsSections({ user }: { user: FindUserById }) {
   useEffect(() => {
     if (user?.id && userIdRef.current !== user.id) {
       userIdRef.current = user.id;
-      fetchDevelopmentPlan(
-        `/api/user/development-plan/latest?userId=${user.id}`,
-      );
+      fetchDevelopmentPlan(`/api/user/development-plan/latest?userId=${user.id}`);
       fetchContract(`/api/user/contract?employeeId=${user.id}`);
     }
   }, [user?.id, fetchDevelopmentPlan, fetchContract]);
@@ -60,12 +58,7 @@ export default function UserDetailsSections({ user }: { user: FindUserById }) {
         <UserDetailsActivity />
       </TabsContent>
       <TabsContent value="contract">
-        <ContractDetail
-          contract={contract}
-          canEdit
-          canView
-          employeeId={user.id}
-        />
+        <ContractDetail contract={contract} canEdit canView employeeId={user.id} />
       </TabsContent>
     </Tabs>
   );

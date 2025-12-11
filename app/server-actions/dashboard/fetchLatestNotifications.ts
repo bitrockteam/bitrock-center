@@ -16,6 +16,4 @@ export async function fetchLatestNotifications() {
   });
 }
 
-export type LastestNotification = Awaited<
-  ReturnType<typeof fetchLatestNotifications>
->[number];
+export type LastestNotification = Awaited<ReturnType<typeof fetchLatestNotifications>>[number];

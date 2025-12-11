@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { fetchLatestNotifications } from "@/app/server-actions/dashboard/fetchLatestNotifications";
 import { fetchUserStats } from "@/app/server-actions/dashboard/fetchUserStats";
 import { fetchUserPermits } from "@/app/server-actions/permit/fetchUserPermits";
@@ -9,7 +10,6 @@ import HoursChart from "@/components/dashboard/hours-chart";
 import NotificationsCard from "@/components/dashboard/notifications-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
-import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -44,10 +44,7 @@ export default async function DashboardPage() {
           </div>
         </TabsContent>
         <TabsContent value="calendar">
-          <CalendarView
-            timesheetData={latestTimesheets}
-            permitsData={permits}
-          />
+          <CalendarView timesheetData={latestTimesheets} permitsData={permits} />
         </TabsContent>
       </Tabs>
     </div>

@@ -19,6 +19,4 @@ export async function getPermitsByReviewer() {
   });
 }
 
-export type PermitByReviewer = Awaited<
-  ReturnType<typeof getPermitsByReviewer>
->[number];
+export type PermitByReviewer = Awaited<ReturnType<typeof getPermitsByReviewer>>[number];

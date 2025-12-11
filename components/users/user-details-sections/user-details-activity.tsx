@@ -1,11 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Award, Clock, Target, TrendingUp } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function UserDetailsActivity() {
   return (
@@ -22,9 +16,7 @@ export default function UserDetailsActivity() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium">Competenza aggiornata</p>
-              <p className="text-xs text-muted-foreground">
-                TypeScript promosso a Senior level
-              </p>
+              <p className="text-xs text-muted-foreground">TypeScript promosso a Senior level</p>
               <p className="text-xs text-muted-foreground">2 giorni fa</p>
             </div>
           </div>
@@ -35,9 +27,7 @@ export default function UserDetailsActivity() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium">Obiettivo completato</p>
-              <p className="text-xs text-muted-foreground">
-                Completato corso avanzato TypeScript
-              </p>
+              <p className="text-xs text-muted-foreground">Completato corso avanzato TypeScript</p>
               <p className="text-xs text-muted-foreground">1 settimana fa</p>
             </div>
           </div>
@@ -48,9 +38,7 @@ export default function UserDetailsActivity() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium">Nuova competenza aggiunta</p>
-              <p className="text-xs text-muted-foreground">
-                Aggiunta competenza in Kubernetes
-              </p>
+              <p className="text-xs text-muted-foreground">Aggiunta competenza in Kubernetes</p>
               <p className="text-xs text-muted-foreground">2 settimane fa</p>
             </div>
           </div>
@@ -61,9 +49,7 @@ export default function UserDetailsActivity() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium">Piano di sviluppo creato</p>
-              <p className="text-xs text-muted-foreground">
-                Nuovo piano di sviluppo per Q1 2024
-              </p>
+              <p className="text-xs text-muted-foreground">Nuovo piano di sviluppo per Q1 2024</p>
               <p className="text-xs text-muted-foreground">1 mese fa</p>
             </div>
           </div>

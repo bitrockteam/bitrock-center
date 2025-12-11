@@ -1,12 +1,12 @@
 "use server";
 import { db } from "@/config/prisma";
-import { work_items } from "@/db";
+import type { work_items } from "@/db";
 import { checkSession } from "@/utils/supabase/server";
 
 export async function updateWorkItem(
   id: string,
   updates: Partial<Omit<work_items, "id" | "created_at">>,
-  enabled_users: string[],
+  enabled_users: string[]
 ) {
   await checkSession();
   return db.$transaction([

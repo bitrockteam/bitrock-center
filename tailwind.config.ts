@@ -27,8 +27,8 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#f97316", // Orange-500
+          foreground: "#ffffff",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -69,10 +69,28 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "scale-up": {
+          "0%": {
+            transform: "translate(-50%, -50%) scale(0)",
+          },
+          "60%, 100%": {
+            transform: "translate(-50%, -50%) scale(1)",
+          },
+        },
+        "pulse-loader": {
+          "0%, 60%, 100%": {
+            transform: "scale(1)",
+          },
+          "80%": {
+            transform: "scale(1.2)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "scale-up": "scale-up 1s linear infinite",
+        "pulse-loader": "pulse-loader 1s linear infinite",
       },
     },
   },

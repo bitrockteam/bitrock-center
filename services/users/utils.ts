@@ -1,4 +1,4 @@
-import { Role, user } from "@/db";
+import { Role, type user } from "@/db";
 
 export const getFirstnameAndLastname = (name?: string) => {
   if (!name) {
@@ -17,30 +17,16 @@ export const getFirstnameAndLastname = (name?: string) => {
   return { firstName, lastName };
 };
 
-export const formatDisplayName = ({
-  name,
-  initials,
-}: {
-  name: string;
-  initials?: boolean;
-}) => {
+export const formatDisplayName = ({ name, initials }: { name: string; initials?: boolean }) => {
   const { firstName, lastName } = getFirstnameAndLastname(name);
 
-  if (initials)
-    return `${firstName.charAt(0)}${lastName.charAt(0).toUpperCase()}`;
+  if (initials) return `${firstName.charAt(0)}${lastName.charAt(0).toUpperCase()}`;
 
   return `${firstName} ${lastName}`;
 };
 
-export const canUserEdit = ({
-  currentUser,
-  user,
-}: {
-  currentUser?: user;
-  user?: user;
-}) =>
-  (currentUser?.role === Role.Admin ||
-    currentUser?.role === Role.Super_Admin) &&
+export const canUserEdit = ({ currentUser, user }: { currentUser?: user; user?: user }) =>
+  (currentUser?.role === Role.Admin || currentUser?.role === Role.Super_Admin) &&
   currentUser?.role === Role.Admin &&
   user?.role !== Role.Super_Admin &&
   currentUser.role !== user?.role;
@@ -49,9 +35,7 @@ export const canUserDealProjects = (user?: user) =>
   user?.role === Role.Admin || user?.role === Role.Super_Admin;
 
 export const canUserAllocateResources = (user?: user) =>
-  user?.role === Role.Admin ||
-  user?.role === Role.Super_Admin ||
-  user?.role === Role.Key_Client;
+  user?.role === Role.Admin || user?.role === Role.Super_Admin || user?.role === Role.Key_Client;
 
 export const isAdminOrSuperAdmin = (user?: user) =>
   user?.role === "Admin" || user?.role === Role.Super_Admin;

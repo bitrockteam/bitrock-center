@@ -1,7 +1,13 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { createClient } from "@/app/server-actions/client/createClient";
-import { FindClientByIdResponse } from "@/app/server-actions/client/findClientById";
+import type { FindClientByIdResponse } from "@/app/server-actions/client/findClientById";
 import { updateClient } from "@/app/server-actions/client/updateClient";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,12 +35,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 
 const clientSchema = z.object({
   name: z.string().min(1, "Il nome è obbligatorio"),
@@ -59,11 +59,7 @@ interface AddClientDialogProps {
   editData?: FindClientByIdResponse;
 }
 
-export default function AddClientDialog({
-  open,
-  onOpenChange,
-  editData,
-}: AddClientDialogProps) {
+export default function AddClientDialog({ open, onOpenChange, editData }: AddClientDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!editData;
 
@@ -123,9 +119,7 @@ export default function AddClientDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Modifica Cliente" : "Nuovo Cliente"}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? "Modifica Cliente" : "Nuovo Cliente"}</DialogTitle>
           <DialogDescription>
             {isEditing
               ? "Modifica i dati del cliente esistente."
@@ -173,11 +167,7 @@ export default function AddClientDialog({
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="contact@acme.com"
-                        {...field}
-                      />
+                      <Input type="email" placeholder="contact@acme.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -206,10 +196,7 @@ export default function AddClientDialog({
                 <FormItem>
                   <FormLabel>Indirizzo</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Via Milano 123, 20100 Milano"
-                      {...field}
-                    />
+                    <Input placeholder="Via Milano 123, 20100 Milano" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -252,10 +239,7 @@ export default function AddClientDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Stato</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona lo stato" />
@@ -290,21 +274,12 @@ export default function AddClientDialog({
             />
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Annulla
               </Button>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isEditing ? "Salva Modifiche" : "Crea Cliente"}
                 </Button>
               </motion.div>

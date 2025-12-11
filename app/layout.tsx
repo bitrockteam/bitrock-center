@@ -1,11 +1,11 @@
-import MainContainer from "@/components/main-container";
-import { tryGetUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
-import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
-import type React from "react";
+import { ThemeProvider } from "next-themes";
+import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
+import MainContainer from "@/components/main-container";
+import { tryGetUserInfoFromCookie } from "@/utils/supabase/server";
 import "../styles/globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   const user = await tryGetUserInfoFromCookie();
   return (

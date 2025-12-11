@@ -2,11 +2,7 @@
 
 import { db } from "@/config/prisma";
 
-export async function fetchAllocationsForProject({
-  projectId,
-}: {
-  projectId: string;
-}) {
+export async function fetchAllocationsForProject({ projectId }: { projectId: string }) {
   return db.work_items.findMany({
     where: {
       project_id: projectId,
@@ -21,6 +17,4 @@ export async function fetchAllocationsForProject({
   });
 }
 
-export type UserAllocated = Awaited<
-  ReturnType<typeof fetchAllocationsForProject>
->[number];
+export type UserAllocated = Awaited<ReturnType<typeof fetchAllocationsForProject>>[number];

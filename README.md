@@ -90,9 +90,9 @@ The `push` command will not reset the data on the remote instance.
 
 - `nvm install` (or `nvm use` if you have already installed the version written in `.nvmrc` file)
 - `corepack enable`
-- `yarn`
-- `yarn build`
-- `yarn dev`:
+- `bun`
+- `bun run build`
+- `bun run dev`:
   - frontend on `localhost:3000`
 
 ## Development Workflow
@@ -128,12 +128,11 @@ We cannot merge directly in `main` and we will require the pipelines to pass.
 ## Technologies
 
 - [Docker](https://www.docker.com/)
-- [yarn](https://yarnpkg.com)
+- [Bun](https://bun.com/)
 - [TypeScript](https://www.typescriptlang.org)
 - [Node.js](https://nodejs.org/en/) v22.15.0
 - [Vercel](https://vercel.com/) for deployment (on Davide's personal account)
-- [eslint](https://eslint.org/) for code linting
-- [prettier](https://prettier.io/) for code formatting (?)
+- [Biomejs](https://biomejs.dev/) for code linting & formatting
 - [husky](https://typicode.github.io/husky) for pre-commit hooks
 
 ### Web App
@@ -147,4 +146,3 @@ We cannot merge directly in `main` and we will require the pipelines to pass.
 - [Prisma](https://www.prisma.io)
 - [Supabase](https://supabase.com)
 - [PostgreSQL](https://www.postgresql.org)
-

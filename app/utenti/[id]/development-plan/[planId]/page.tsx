@@ -1,7 +1,7 @@
-import { getDevelopmentPlanById } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
-import DevelopmentPlanDetail from "@/components/development-plan/development-plan-detail";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { getDevelopmentPlanById } from "@/app/server-actions/development-plan/getDevelopmentPlanById";
+import DevelopmentPlanDetail from "@/components/development-plan/development-plan-detail";
 
 export const dynamic = "force-dynamic";
 
@@ -20,11 +20,7 @@ export default async function DevelopmentPlanDetailPage({
   if (!plan) redirect("not-found");
   return (
     <div className="space-y-6">
-      <DevelopmentPlanDetail
-        user={plan.user}
-        plan={plan}
-        isLatestPlan={isLatestPlan}
-      />
+      <DevelopmentPlanDetail user={plan.user} plan={plan} isLatestPlan={isLatestPlan} />
     </div>
   );
 }

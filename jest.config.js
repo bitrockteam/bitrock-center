@@ -1,16 +1,14 @@
 /** @type {import('jest').Config} */
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-require("dotenv").config({ path: ".env" });
+const dotenv = require("dotenv");
+
+dotenv.config({ path: ".env" });
 
 module.exports = {
   preset: "ts-jest",
   testEnvironment: "jsdom",
   transform: {
-    "^.+\\.(js|jsx|ts|tsx)$": [
-      "babel-jest",
-      { configFile: "./test/babel.config.js" },
-    ],
+    "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { configFile: "./test/babel.config.js" }],
   },
   moduleNameMapper: {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
@@ -20,6 +18,8 @@ module.exports = {
     "^@/config/(.*)$": "<rootDir>/config/$1",
     "^@/components/(.*)$": "<rootDir>/components/$1",
     "^@/utils/(.*)$": "<rootDir>/utils/$1",
+    "^@/db$": "<rootDir>/db",
+    "^@/(.*)$": "<rootDir>/$1",
   },
   transformIgnorePatterns: ["<rootDir>/node_modules/"],
   collectCoverage: true,

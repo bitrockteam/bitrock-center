@@ -4,30 +4,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 
-export default function ProjectsHeader({
-  canCreateProject,
-}: {
-  canCreateProject?: boolean;
-}) {
+export default function ProjectsHeader({ canCreateProject }: { canCreateProject?: boolean }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showAddDialog, setShowAddDialog] = useState(false);
-
-  const searchParams = new URLSearchParams(window?.location?.search);
-  const [textSearch, setTextSearch] = useState(
-    searchParams.get("params") ?? "",
-  );
+  const [textSearch, setTextSearch] = useState(searchParams.get("params") ?? "");
   const [debouncedInput, setDebouncedInput] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextSearch(e.target.value);
 
     if (e.target.value === "") {
-      searchParams.delete("params");
-      router.push(`/progetti`);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("params");
+      const newSearch = params.toString();
+      router.push(newSearch ? `/progetti?${newSearch}` : `/progetti`);
     }
   };
 
@@ -40,11 +35,11 @@ export default function ProjectsHeader({
 
   useEffect(() => {
     if (debouncedInput !== "") {
-      searchParams.set("params", debouncedInput);
-      router.push(`/progetti?${searchParams.toString()}`);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("params", debouncedInput);
+      router.push(`/progetti?${params.toString()}`);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedInput]);
+  }, [debouncedInput, searchParams, router]);
 
   return (
     <motion.div

@@ -39,6 +39,4 @@ export async function findUsersWithProjects(search?: string) {
   });
 }
 
-export type FindUsersWithProjects = Awaited<
-  ReturnType<typeof findUsersWithProjects>
->[number];
+export type FindUsersWithProjects = Awaited<ReturnType<typeof findUsersWithProjects>>[number];

@@ -14,9 +14,7 @@ export default function SkillsHeader() {
         <Brain className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Skills</h1>
-          <p className="text-muted-foreground">
-            Gestione delle competenze aziendali
-          </p>
+          <p className="text-muted-foreground">Gestione delle competenze aziendali</p>
         </div>
       </div>
     </motion.div>

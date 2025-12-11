@@ -13,7 +13,7 @@ type UseApiOptions = {
   onError?: (error: string) => void;
 };
 
-export const useApi = <T = unknown,>(options: UseApiOptions = {}) => {
+export const useApi = <T = unknown>(options: UseApiOptions = {}) => {
   const [data, setData] = useState<T | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,8 +50,7 @@ export const useApi = <T = unknown,>(options: UseApiOptions = {}) => {
           throw new Error(result.error || "API request failed");
         }
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Unknown error";
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
         setError(errorMessage);
         optionsRef.current.onError?.(errorMessage);
         throw err;
@@ -59,7 +58,7 @@ export const useApi = <T = unknown,>(options: UseApiOptions = {}) => {
         setLoading(false);
       }
     },
-    [], // Empty dependency array to ensure callApi is stable
+    [] // Empty dependency array to ensure callApi is stable
   );
 
   const reset = useCallback(() => {

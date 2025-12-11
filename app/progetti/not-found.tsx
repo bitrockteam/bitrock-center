@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Briefcase, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function ProjectNotFound() {
   const router = useRouter();
@@ -28,9 +28,7 @@ export default function ProjectNotFound() {
         </motion.div>
 
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Progetto non trovato
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Progetto non trovato</h1>
           <p className="text-muted-foreground">
             Il progetto che stai cercando non esiste o è stato rimosso.
           </p>
@@ -38,10 +36,7 @@ export default function ProjectNotFound() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              onClick={() => router.push("/progetti")}
-              className="w-full sm:w-auto"
-            >
+            <Button onClick={() => router.push("/progetti")} className="w-full sm:w-auto">
               <Briefcase className="mr-2 h-4 w-4" />
               Tutti i Progetti
             </Button>

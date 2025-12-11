@@ -1,5 +1,5 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { fetchWorkItemTimeEntries } from "@/app/server-actions/work-item/fetchWorkItemTimeEntries";
-import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     if (!workItemId) {
       return NextResponse.json(
         { error: "Missing required parameter: workItemId" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -17,9 +17,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching work item time entries:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch time entries" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to fetch time entries" }, { status: 500 });
   }
 }

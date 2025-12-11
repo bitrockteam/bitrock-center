@@ -1,4 +1,3 @@
-import { SeniorityLevel } from "@/db";
 import {
   Brain,
   Clock,
@@ -12,7 +11,7 @@ import {
   HardDrive,
   Heart,
   Lightbulb,
-  LucideIcon,
+  type LucideIcon,
   MessageCircle,
   Monitor,
   Palette,
@@ -27,6 +26,7 @@ import {
   Wifi,
   Zap,
 } from "lucide-react";
+import type { SeniorityLevel } from "@/db";
 
 // Funzione per ottenere le icone disponibili per le skills
 export const getAvailableIcons = () => [
@@ -60,7 +60,7 @@ export const getAvailableIcons = () => [
 // Funzione per formattare il nome della skill con il livello di seniority
 export const formatSkillWithSeniority = (
   skillName: string,
-  seniorityLevel: SeniorityLevel,
+  seniorityLevel: SeniorityLevel
 ): string => {
   const levelLabel = getSeniorityLevelLabel(seniorityLevel);
   return `${skillName} (${levelLabel})`;
@@ -95,7 +95,6 @@ export const getSeniorityLevelColor = (level: SeniorityLevel): string => {
 export const getSkillIcon = (iconName?: string) => {
   console.info("Fetching icon for:", iconName);
   const availableIcons = getAvailableIcons();
-  const LucideIcon = availableIcons.find((icon) => icon.name === iconName)
-    ?.icon as LucideIcon;
+  const LucideIcon = availableIcons.find((icon) => icon.name === iconName)?.icon as LucideIcon;
   return LucideIcon || (() => <span>🔧</span>);
 };

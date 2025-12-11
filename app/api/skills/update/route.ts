@@ -1,5 +1,5 @@
 import { updateSkill } from "@/app/server-actions/skills/updateSkill";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const updateSkillSchema = z.object({
@@ -33,9 +33,9 @@ export async function PUT(request: NextRequest) {
         {
           success: false,
           error: "Invalid input data",
-          details: error.errors,
+          details: error.issues,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -44,7 +44,7 @@ export async function PUT(request: NextRequest) {
         success: false,
         error: "Failed to update skill",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

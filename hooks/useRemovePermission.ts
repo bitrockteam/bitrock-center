@@ -1,4 +1,4 @@
-import { user_permission } from "@/db";
+import type { user_permission } from "@/db";
 
 export const useRemovePermission = () => {
   const removePermission = async ({

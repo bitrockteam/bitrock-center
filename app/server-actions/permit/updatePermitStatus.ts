@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { PermitStatus } from "@/db";
+import type { PermitStatus } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
 export async function updatePermitStatus(id: string, status: PermitStatus) {

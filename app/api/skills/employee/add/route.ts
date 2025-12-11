@@ -1,6 +1,6 @@
 import { addSkillToEmployee } from "@/app/server-actions/skills/addSkillToEmployee";
-import { SeniorityLevel } from "@/db";
-import { NextRequest, NextResponse } from "next/server";
+import type { SeniorityLevel } from "@/db";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const addSkillToEmployeeSchema = z.object({
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     await addSkillToEmployee(
       validatedData.employeeId,
       validatedData.skillId,
-      validatedData.seniorityLevel as SeniorityLevel,
+      validatedData.seniorityLevel as SeniorityLevel
     );
 
     return NextResponse.json({
@@ -31,9 +31,9 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Invalid input data",
-          details: error.errors,
+          details: error.issues,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: "Failed to add skill to employee",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -1,5 +1,5 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { createBulkPermits } from "@/app/server-actions/permit/createBulkPermits";
-import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,9 +8,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error creating bulk permits:", error);
-    return NextResponse.json(
-      { error: "Failed to create bulk permits" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to create bulk permits" }, { status: 500 });
   }
 }

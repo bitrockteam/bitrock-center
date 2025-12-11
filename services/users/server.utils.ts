@@ -1,5 +1,5 @@
 "use server";
-import { Permissions, Role } from "@/db";
+import type { Permissions, Role } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
 export async function allowRoles(roles: Role[]) {

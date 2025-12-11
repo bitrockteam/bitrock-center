@@ -1,5 +1,5 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { getLatestEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getLatestEmployeeDevelopmentPlan";
-import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -7,19 +7,13 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get("userId");
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Missing required parameter: userId" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing required parameter: userId" }, { status: 400 });
     }
 
     const result = await getLatestEmployeeDevelopmentPlan(userId);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching latest development plan:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch development plan" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to fetch development plan" }, { status: 500 });
   }
 }

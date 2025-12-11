@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { permit, PermitStatus } from "@/db";
+import { PermitStatus, type permit } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
 export type CreateBulkPermitDTO = Omit<
@@ -16,7 +16,7 @@ export async function createBulkPermits(permitDTO: CreateBulkPermitDTO) {
     const permitsWithUserId = permitDTO.map((p) => ({
       ...p,
       user_id: userInfo.id,
-      reviewer_id: userInfo.referent_id!,
+      reviewer_id: userInfo.referent_id ?? "",
       status: PermitStatus.PENDING,
     }));
     return db.permit.createMany({

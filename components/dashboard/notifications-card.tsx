@@ -1,13 +1,7 @@
 "use client";
 
-import { LastestNotification } from "@/app/server-actions/dashboard/fetchLatestNotifications";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import type { LastestNotification } from "@/app/server-actions/dashboard/fetchLatestNotifications";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getStatusBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { Bell } from "lucide-react";
@@ -29,9 +23,7 @@ export default function NotificationsCard({
         <CardHeader className="flex flex-row items-center">
           <div className="flex-1">
             <CardTitle>Notifiche</CardTitle>
-            <CardDescription>
-              Richieste in attesa di approvazione
-            </CardDescription>
+            <CardDescription>Richieste in attesa di approvazione</CardDescription>
           </div>
           <Bell className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -42,7 +34,7 @@ export default function NotificationsCard({
             ) : (
               notifications?.map((notification, index) => (
                 <motion.div
-                  key={index}
+                  key={notification.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -58,9 +50,7 @@ export default function NotificationsCard({
                             ? "Richiesta di malattia"
                             : "Notifica generica"}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {notification.description}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{notification.description}</p>
                   </div>
                   {getStatusBadge(notification.status)}
                 </motion.div>

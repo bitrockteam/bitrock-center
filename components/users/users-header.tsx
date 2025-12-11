@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { user } from "@/db";
+import type { user } from "@/db";
 import { motion } from "framer-motion";
 import { PlusCircle, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -20,9 +20,7 @@ export default function UsersHeader({
   const serachParams = useSearchParams();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [textSearch, setTextSearch] = useState(
-    serachParams.get("params") ?? "",
-  );
+  const [textSearch, setTextSearch] = useState(serachParams.get("params") ?? "");
   const [debouncedInput, setDebouncedInput] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,6 +38,7 @@ export default function UsersHeader({
     return () => clearTimeout(timeoutId);
   }, [textSearch]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we need to push the search params to the url
   useEffect(() => {
     if (debouncedInput !== "") {
       const newParams = new URLSearchParams(serachParams.toString());
@@ -74,10 +73,7 @@ export default function UsersHeader({
         </div>
         {canCreateUser && (
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              onClick={() => setShowAddDialog(true)}
-              className="cursor-pointer	"
-            >
+            <Button onClick={() => setShowAddDialog(true)} className="cursor-pointer	">
               <PlusCircle className="mr-2 h-4 w-4" />
               Nuovo Utente
             </Button>

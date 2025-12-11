@@ -16,9 +16,7 @@ export default function ProjectPlan({ id }: { id: string }) {
   const project = getProjectById(fakeProjectId);
   const planData = getProjectPlanData(fakeProjectId);
 
-  const [expandedEpics, setExpandedEpics] = useState<Record<string, boolean>>(
-    {},
-  );
+  const [expandedEpics, setExpandedEpics] = useState<Record<string, boolean>>({});
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Inizializza tutti gli epic come espansi
@@ -61,17 +59,11 @@ export default function ProjectPlan({ id }: { id: string }) {
     >
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push(`/progetti/${id}`)}
-          >
+          <Button variant="outline" size="icon" onClick={() => router.push(`/progetti/${id}`)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Piano di Delivery
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">Piano di Delivery</h1>
             <p className="text-muted-foreground">
               {project.name} - {project.client}
             </p>
@@ -93,21 +85,21 @@ export default function ProjectPlan({ id }: { id: string }) {
                 <div className="w-96 min-w-96 border-r border-primary-foreground/20 p-3 font-medium">
                   Attività
                 </div>
-                <div className="w-24 min-w-24 overflow-auto p-3 font-medium text-center">
-                  DIFF
-                </div>
+                <div className="w-24 min-w-24 overflow-auto p-3 font-medium text-center">DIFF</div>
               </div>
             </div>
 
             {/* Corpo della sidebar */}
             <div>
               {planData.epics.map((epic, epicIndex) => (
-                <div key={epicIndex}>
+                <div key={epic.id}>
                   {/* Riga dell'epic */}
+                  {/** biome-ignore lint/a11y/noStaticElementInteractions: no explanation needed */}
+                  {/** biome-ignore lint/a11y/useKeyWithClickEvents: is reactive to the click event */}
                   <div
                     className={cn(
                       "flex hover:bg-muted/50 cursor-pointer border-b border-border",
-                      epicIndex % 2 === 0 ? "bg-muted/20" : "",
+                      epicIndex % 2 === 0 ? "bg-muted/20" : ""
                     )}
                     onClick={() => toggleEpic(epic.id)}
                   >
@@ -127,7 +119,7 @@ export default function ProjectPlan({ id }: { id: string }) {
                           ? "text-destructive font-medium"
                           : epic.diff > 0
                             ? "text-green-600 dark:text-green-500 font-medium"
-                            : "",
+                            : ""
                       )}
                     >
                       {epic.diff}
@@ -136,18 +128,16 @@ export default function ProjectPlan({ id }: { id: string }) {
 
                   {/* Righe delle attività dell'epic */}
                   {expandedEpics[epic.id] &&
-                    epic.activities.map((activity, activityIndex) => (
+                    epic.activities.map((activity) => (
                       <div
-                        key={activityIndex}
+                        key={activity.id}
                         className={cn(
                           "flex hover:bg-muted/30 border-b border-border",
-                          epicIndex % 2 === 0 ? "bg-muted/10" : "",
+                          epicIndex % 2 === 0 ? "bg-muted/10" : ""
                         )}
                       >
                         <div className="w-96 min-w-96 border-r border-border p-3 pl-8 overflow-auto">
-                          <span className="truncate text-xs">
-                            {activity.name}
-                          </span>
+                          <span className="truncate text-xs">{activity.name}</span>
                         </div>
                         <div
                           className={cn(
@@ -156,7 +146,7 @@ export default function ProjectPlan({ id }: { id: string }) {
                               ? "text-destructive font-medium"
                               : activity.diff > 0
                                 ? "text-green-600 dark:text-green-500 font-medium"
-                                : "",
+                                : ""
                           )}
                         >
                           {activity.diff}
@@ -173,12 +163,12 @@ export default function ProjectPlan({ id }: { id: string }) {
             {/* Header dei giorni */}
             <div className="sticky top-0 z-10 bg-primary text-primary-foreground w-fit">
               <div className="flex">
-                {planData.days.map((day, index) => (
+                {planData.days.map((day) => (
                   <div
-                    key={index}
+                    key={day.date}
                     className={cn(
                       "w-16 min-w-16 border-r border-primary-foreground/20 p-2 text-center text-xs font-medium",
-                      day.isWeekend ? "bg-primary-foreground/10" : "",
+                      day.isWeekend ? "bg-primary-foreground/10" : ""
                     )}
                   >
                     <div>{day.date}</div>
@@ -191,21 +181,19 @@ export default function ProjectPlan({ id }: { id: string }) {
             {/* Corpo dei giorni */}
             <div>
               {planData.epics.map((epic, epicIndex) => (
-                <div key={epicIndex}>
+                <div key={epic.id}>
                   {/* Riga dell'epic per i giorni */}
                   <div
                     className={cn(
                       "flex border-b border-border",
-                      epicIndex % 2 === 0 ? "bg-muted/20" : "",
+                      epicIndex % 2 === 0 ? "bg-muted/20" : ""
                     )}
                   >
-                    {planData.days.map((day, dayIndex) => {
-                      const cellData = epic.timeline.find(
-                        (t) => t.day === day.date,
-                      );
+                    {planData.days.map((day) => {
+                      const cellData = epic.timeline.find((t) => t.day === day.date);
                       return (
                         <div
-                          key={dayIndex}
+                          key={day.date}
                           className={cn(
                             "w-16 min-w-16 border-r border-border h-12",
                             day.isWeekend ? "bg-muted/30" : "",
@@ -213,7 +201,7 @@ export default function ProjectPlan({ id }: { id: string }) {
                               ? "bg-blue-200 dark:bg-blue-900/50"
                               : cellData?.status === "weekend"
                                 ? "bg-amber-200 dark:bg-amber-900/50"
-                                : "",
+                                : ""
                           )}
                         >
                           &nbsp;
@@ -224,21 +212,19 @@ export default function ProjectPlan({ id }: { id: string }) {
 
                   {/* Righe delle attività dell'epic per i giorni */}
                   {expandedEpics[epic.id] &&
-                    epic.activities.map((activity, activityIndex) => (
+                    epic.activities.map((activity) => (
                       <div
-                        key={activityIndex}
+                        key={activity.id}
                         className={cn(
                           "flex border-b border-border",
-                          epicIndex % 2 === 0 ? "bg-muted/10" : "",
+                          epicIndex % 2 === 0 ? "bg-muted/10" : ""
                         )}
                       >
-                        {planData.days.map((day, dayIndex) => {
-                          const cellData = activity.timeline.find(
-                            (t) => t.day === day.date,
-                          );
+                        {planData.days.map((day) => {
+                          const cellData = activity.timeline.find((t) => t.day === day.date);
                           return (
                             <div
-                              key={dayIndex}
+                              key={day.date}
                               className={cn(
                                 "w-16 min-w-16 border-r border-border h-12",
                                 day.isWeekend ? "bg-muted/30" : "",
@@ -248,7 +234,7 @@ export default function ProjectPlan({ id }: { id: string }) {
                                     ? "bg-amber-200 dark:bg-amber-900/50"
                                     : cellData?.status === "critical"
                                       ? "bg-blue-800 dark:bg-blue-950"
-                                      : "",
+                                      : ""
                               )}
                             >
                               &nbsp;

@@ -1,8 +1,8 @@
+import type { Metadata } from "next";
 import EmployeesSkillsList from "@/components/skills/employees-skills-list";
 import SkillsAdminSection from "@/components/skills/skills-admin-section";
 import SkillsHeader from "@/components/skills/skills-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 

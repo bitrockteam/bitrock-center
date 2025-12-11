@@ -28,6 +28,4 @@ export async function getEmployeeWithSkillsById(id: string) {
   });
 }
 
-export type EmployeeSkill = Awaited<
-  ReturnType<typeof getEmployeeWithSkillsById>
->;
+export type EmployeeSkill = Awaited<ReturnType<typeof getEmployeeWithSkillsById>>;

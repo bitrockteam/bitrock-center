@@ -1,7 +1,7 @@
-import ClientDetail from "@/components/client/client-detail";
-import { hasPermission } from "@/services/users/server.utils";
-import { Permissions } from "@/db";
 import type { Metadata } from "next";
+import ClientDetail from "@/components/client/client-detail";
+import { Permissions } from "@/db";
+import { hasPermission } from "@/services/users/server.utils";
 
 export const dynamic = "force-dynamic";
 
@@ -10,11 +10,7 @@ export const metadata: Metadata = {
   description: "Visualizza i dettagli del cliente",
 };
 
-export default async function ClientDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const CAN_EDIT_CLIENT = await hasPermission(Permissions.CAN_EDIT_CLIENT);
   return (

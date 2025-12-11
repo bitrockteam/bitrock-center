@@ -1,6 +1,6 @@
-import { FetchTeam } from "@/app/server-actions/user/fetchMyTeam";
-import { FetchMyTeam } from "@/app/server-actions/user/fetchTeam";
-import { user } from "@/db";
+import type { FetchTeam } from "@/app/server-actions/user/fetchMyTeam";
+import type { FetchMyTeam } from "@/app/server-actions/user/fetchTeam";
+import type { user } from "@/db";
 
 export type TeamMember = FetchTeam;
 export type MyTeamData = FetchMyTeam;

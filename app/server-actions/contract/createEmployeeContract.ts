@@ -1,15 +1,12 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { contract } from "@/db";
+import type { contract } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
 export async function createEmployeeContract(
   employeeId: string,
-  data: Pick<
-    contract,
-    "ral" | "contract_type" | "working_hours" | "remote_policy" | "notes"
-  >,
+  data: Pick<contract, "ral" | "contract_type" | "working_hours" | "remote_policy" | "notes">
 ) {
   const { ral, contract_type, working_hours, remote_policy, notes } = data;
   const currentUser = await getUserInfoFromCookie();

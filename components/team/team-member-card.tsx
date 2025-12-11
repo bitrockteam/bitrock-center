@@ -1,20 +1,13 @@
-import { useTeamApi } from "@/hooks/useTeamApi";
-import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { Mail, Plus } from "lucide-react";
 import Link from "next/link";
+import { useTeamApi } from "@/hooks/useTeamApi";
+import { getRoleBadge } from "@/utils/mapping";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { AddDialogMemberTeam } from "./add-dialog-member-team";
 import { RemoveMemberDialog } from "./remove-member-dialog";
-import { TeamMemberCardProps } from "./types";
+import type { TeamMemberCardProps } from "./types";
 
 export function TeamMemberCard({
   teamMember,
@@ -71,15 +64,10 @@ export function TeamMemberCard({
               <CardTitle className="flex flex-row items-center gap-4">
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={
-                      teamMember.avatar_url ||
-                      "/placeholder.svg?height=32&width=32"
-                    }
+                    src={teamMember.avatar_url || "/logo.png"}
                     alt={`Avatar di ${teamMember.name}`}
                   />
-                  <AvatarFallback>
-                    {teamMember.name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
+                  <AvatarFallback>{teamMember.name.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <span className="truncate">{teamMember.name}</span>
               </CardTitle>
@@ -90,9 +78,7 @@ export function TeamMemberCard({
             <CardContent>
               <div className="flex items-center gap-2">
                 <Mail className="h-3 w-3 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground truncate">
-                  {teamMember.email}
-                </p>
+                <p className="text-sm text-muted-foreground truncate">{teamMember.email}</p>
               </div>
             </CardContent>
           </Card>
@@ -101,10 +87,7 @@ export function TeamMemberCard({
         {/* Remove button - only show for team owners */}
         {isOwner && (
           <div className="absolute top-2 right-2">
-            <RemoveMemberDialog
-              teamMember={teamMember}
-              onConfirm={handleRemoveMember}
-            />
+            <RemoveMemberDialog teamMember={teamMember} onConfirm={handleRemoveMember} />
           </div>
         )}
       </div>

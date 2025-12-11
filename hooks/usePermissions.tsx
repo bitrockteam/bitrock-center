@@ -1,7 +1,7 @@
 "use client";
-import { Role } from "@/db";
-import { allowRoles } from "@/services/users/server.utils";
 import { useEffect, useState } from "react";
+import type { Role } from "@/db";
+import { allowRoles } from "@/services/users/server.utils";
 
 type PermissionType =
   | "canUserEdit"
@@ -10,10 +10,10 @@ type PermissionType =
   | "isAdminOrSuperAdmin";
 
 const PermissionsRoles: Record<PermissionType, Role[]> = {
-  canUserAllocateResources: ["Admin", "Key_Client"],
-  canUserDealProjects: ["Admin", "Super_Admin"],
-  isAdminOrSuperAdmin: ["Admin", "Super_Admin"],
-  canUserEdit: ["Admin", "Super_Admin"],
+  canUserAllocateResources: ["Admin", "Key Client"] as Role[],
+  canUserDealProjects: ["Admin", "Super Admin"] as Role[],
+  isAdminOrSuperAdmin: ["Admin", "Super Admin"] as Role[],
+  canUserEdit: ["Admin", "Super Admin"] as Role[],
 };
 
 export const usePermissions = (permission: PermissionType) => {

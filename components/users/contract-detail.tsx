@@ -1,16 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { contract, contractstatus, contracttype } from "@/db";
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -26,6 +15,11 @@ import {
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { type contract, contractstatus, contracttype } from "@/db";
 import CloseContractDialog from "./close-contract-dialog";
 import EditContractDialog from "./edit-contract-dialog";
 
@@ -120,9 +114,7 @@ export default function ContractDetail({
   };
 
   // Helper function to safely convert date strings to Date objects
-  const safeDateString = (
-    dateValue: string | Date | null | undefined,
-  ): string => {
+  const safeDateString = (dateValue: string | Date | null | undefined): string => {
     if (!dateValue) return "";
     const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
     return date.toDateString();
@@ -138,9 +130,7 @@ export default function ContractDetail({
         <Card>
           <CardHeader>
             <CardTitle>Contratto</CardTitle>
-            <CardDescription>
-              Informazioni contrattuali non disponibili
-            </CardDescription>
+            <CardDescription>Informazioni contrattuali non disponibili</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center justify-center py-12">
@@ -168,20 +158,12 @@ export default function ContractDetail({
                   <FileText className="h-5 w-5" />
                   Informazioni Contrattuali
                 </CardTitle>
-                <CardDescription>
-                  Dettagli del contratto di lavoro
-                </CardDescription>
+                <CardDescription>Dettagli del contratto di lavoro</CardDescription>
               </div>
               <div className="flex items-center gap-2">
                 <Badge
-                  variant={
-                    contract.status === "active" ? "default" : "secondary"
-                  }
-                  className={
-                    contract.status === "active"
-                      ? "bg-green-600"
-                      : "bg-gray-600"
-                  }
+                  variant={contract.status === "active" ? "default" : "secondary"}
+                  className={contract.status === "active" ? "bg-green-600" : "bg-gray-600"}
                 >
                   {contract.status === "active" ? (
                     <CheckCircle className="h-3 w-3 mr-1" />
@@ -192,11 +174,7 @@ export default function ContractDetail({
                 </Badge>
                 {canEdit && (
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowUpsertDialog(true)}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setShowUpsertDialog(true)}>
                       <Edit className="h-4 w-4 mr-2" />
                       Modifica Contratto
                     </Button>
@@ -223,9 +201,7 @@ export default function ContractDetail({
                   <DollarSign className="h-4 w-4 mr-2" />
                   RAL Annuale
                 </div>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(contract.ral)}
-                </div>
+                <div className="text-2xl font-bold">{formatCurrency(contract.ral)}</div>
               </div>
 
               <div className="space-y-2">
@@ -272,9 +248,7 @@ export default function ContractDetail({
                       <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
                       Data Inizio
                     </div>
-                    <div className="text-sm">
-                      {formatDate(safeDateString(contract.start_date))}
-                    </div>
+                    <div className="text-sm">{formatDate(safeDateString(contract.start_date))}</div>
                   </div>
 
                   {contract.end_date && (
@@ -283,9 +257,7 @@ export default function ContractDetail({
                         <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
                         Data Fine
                       </div>
-                      <div className="text-sm">
-                        {formatDate(safeDateString(contract.end_date))}
-                      </div>
+                      <div className="text-sm">{formatDate(safeDateString(contract.end_date))}</div>
                     </div>
                   )}
 
@@ -306,13 +278,9 @@ export default function ContractDetail({
 
                 <div className="bg-muted/30 rounded-lg p-4 min-h-[120px]">
                   {contract.notes ? (
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                      {contract.notes}
-                    </p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{contract.notes}</p>
                   ) : (
-                    <p className="text-sm text-muted-foreground italic">
-                      Nessuna nota aggiuntiva
-                    </p>
+                    <p className="text-sm text-muted-foreground italic">Nessuna nota aggiuntiva</p>
                   )}
                 </div>
               </div>
@@ -323,35 +291,30 @@ export default function ContractDetail({
               <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="h-5 w-5 text-destructive" />
-                  <h4 className="font-semibold text-destructive">
-                    Contratto Chiuso
-                  </h4>
+                  <h4 className="font-semibold text-destructive">Contratto Chiuso</h4>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Questo contratto è stato chiuso il{" "}
-                  {contract.end_date &&
-                    formatDate(safeDateString(contract.end_date))}
-                  . Il dipendente non può più essere assegnato a nuovi progetti.
+                  {contract.end_date && formatDate(safeDateString(contract.end_date))}. Il
+                  dipendente non può più essere assegnato a nuovi progetti.
                 </p>
               </div>
             )}
 
             {/* Contract Type Specific Information */}
-            {contract.contract_type === contracttype.fixed_term &&
-              !contract.end_date && (
-                <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="h-5 w-5 text-amber-600" />
-                    <h4 className="font-semibold text-amber-800 dark:text-amber-200">
-                      Contratto a Tempo Determinato
-                    </h4>
-                  </div>
-                  <p className="text-sm text-amber-700 dark:text-amber-300">
-                    Ricorda di impostare una data di fine per questo contratto a
-                    tempo determinato.
-                  </p>
+            {contract.contract_type === contracttype.fixed_term && !contract.end_date && (
+              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                  <h4 className="font-semibold text-amber-800 dark:text-amber-200">
+                    Contratto a Tempo Determinato
+                  </h4>
                 </div>
-              )}
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  Ricorda di impostare una data di fine per questo contratto a tempo determinato.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

@@ -1,23 +1,17 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { updateWorkItem } from "@/app/server-actions/work-item/updateWorkItem";
 import { work_item_type } from "@/db";
-import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(req: NextRequest) {
   try {
     const { id, updates, enabled_users } = await req.json();
 
     if (!id) {
-      return NextResponse.json(
-        { error: "Missing required field: id" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing required field: id" }, { status: 400 });
     }
 
     if (!Array.isArray(enabled_users)) {
-      return NextResponse.json(
-        { error: "enabled_users must be an array" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "enabled_users must be an array" }, { status: 400 });
     }
 
     // Validate work item type constraints
@@ -27,16 +21,15 @@ export async function PUT(req: NextRequest) {
           {
             error: "Time & Material work items require a valid hourly_rate > 0",
           },
-          { status: 400 },
+          { status: 400 }
         );
       }
       if (!updates.estimated_hours || updates.estimated_hours <= 0) {
         return NextResponse.json(
           {
-            error:
-              "Time & Material work items require valid estimated_hours > 0",
+            error: "Time & Material work items require valid estimated_hours > 0",
           },
-          { status: 400 },
+          { status: 400 }
         );
       }
       // Ensure fixed_price is null for time-material
@@ -45,7 +38,7 @@ export async function PUT(req: NextRequest) {
       if (!updates.fixed_price || updates.fixed_price <= 0) {
         return NextResponse.json(
           { error: "Fixed Price work items require a valid fixed_price > 0" },
-          { status: 400 },
+          { status: 400 }
         );
       }
       // Ensure hourly_rate and estimated_hours are null for fixed-price
@@ -57,9 +50,6 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error updating work item:", error);
-    return NextResponse.json(
-      { error: "Failed to update work item" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to update work item" }, { status: 500 });
   }
 }

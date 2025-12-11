@@ -1,5 +1,5 @@
 import { removeUserFromTeam } from "@/app/server-actions/user/removeUserFromTeam";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const removeMemberSchema = z.object({
@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Dati non validi",
-          details: error.errors,
+          details: error.issues,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -34,11 +34,9 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error:
-          error instanceof Error
-            ? error.message
-            : "Errore nella rimozione del membro dal team",
+          error instanceof Error ? error.message : "Errore nella rimozione del membro dal team",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

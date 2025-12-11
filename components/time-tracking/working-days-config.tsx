@@ -1,6 +1,7 @@
 "use client";
-import { Card } from "@/components/ui/card";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -10,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
 
 type WorkingDay = { day: string; hours: string; lunch: string };
 type Holiday = { name: string; date: string };
@@ -28,13 +28,10 @@ const defaultHolidays: Holiday[] = [
   { name: "Christmas", date: "2024-12-25" },
   { name: "Easter", date: "2024-03-31" },
 ];
-const defaultEvents: Event[] = [
-  { name: "Company Convention", date: "2024-09-15" },
-];
+const defaultEvents: Event[] = [{ name: "Company Convention", date: "2024-09-15" }];
 
 const WorkingDaysConfig = () => {
-  const [workingDays, setWorkingDays] =
-    useState<WorkingDay[]>(defaultWorkingDays);
+  const [workingDays, setWorkingDays] = useState<WorkingDay[]>(defaultWorkingDays);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editHours, setEditHours] = useState("");
   const [editLunch, setEditLunch] = useState("");
@@ -71,10 +68,7 @@ const WorkingDaysConfig = () => {
   // Holiday Handlers
   const handleAddHoliday = () => {
     if (!newHolidayName.trim() || !newHolidayDate) return;
-    setHolidays([
-      ...holidays,
-      { name: newHolidayName.trim(), date: newHolidayDate },
-    ]);
+    setHolidays([...holidays, { name: newHolidayName.trim(), date: newHolidayDate }]);
     setNewHolidayName("");
     setNewHolidayDate("");
   };
@@ -118,10 +112,7 @@ const WorkingDaysConfig = () => {
   };
 
   return (
-    <Card
-      className="p-6 space-y-8"
-      aria-label="Working Days and Events Configuration"
-    >
+    <Card className="p-6 space-y-8" aria-label="Working Days and Events Configuration">
       <div>
         <h2 className="text-lg font-semibold mb-2">Working Days</h2>
         <Table>
@@ -212,12 +203,7 @@ const WorkingDaysConfig = () => {
               tabIndex={0}
               className="w-40"
             />
-            <Button
-              onClick={handleAddHoliday}
-              aria-label="Add holiday"
-              tabIndex={0}
-              size="sm"
-            >
+            <Button onClick={handleAddHoliday} aria-label="Add holiday" tabIndex={0} size="sm">
               Add
             </Button>
           </div>
@@ -256,9 +242,7 @@ const WorkingDaysConfig = () => {
                 ) : (
                   <div className="flex gap-2 items-center">
                     <span>{holiday.name}</span>
-                    <span className="text-xs text-gray-500">
-                      {holiday.date}
-                    </span>
+                    <span className="text-xs text-gray-500">{holiday.date}</span>
                     <Button
                       onClick={() => handleEditHoliday(idx)}
                       aria-label={`Edit ${holiday.name}`}
@@ -305,21 +289,13 @@ const WorkingDaysConfig = () => {
               tabIndex={0}
               className="w-40"
             />
-            <Button
-              onClick={handleAddEvent}
-              aria-label="Add event"
-              tabIndex={0}
-              size="sm"
-            >
+            <Button onClick={handleAddEvent} aria-label="Add event" tabIndex={0} size="sm">
               Add
             </Button>
           </div>
           <ul className="list-disc pl-5">
             {events.map((event, idx) => (
-              <li
-                key={event.name + event.date}
-                className="flex items-center justify-between gap-2"
-              >
+              <li key={event.name + event.date} className="flex items-center justify-between gap-2">
                 {editEventIndex === idx ? (
                   <div className="flex gap-2 flex-wrap items-center">
                     <Input

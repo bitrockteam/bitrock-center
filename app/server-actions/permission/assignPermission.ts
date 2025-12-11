@@ -1,12 +1,9 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { Permissions } from "@/db";
+import type { Permissions } from "@/db";
 
-export async function assignPermission(params: {
-  user_id: string;
-  permission_id: Permissions;
-}) {
+export async function assignPermission(params: { user_id: string; permission_id: Permissions }) {
   const { user_id, permission_id } = params;
 
   if (!user_id || !permission_id) {
@@ -36,6 +33,4 @@ export async function assignPermission(params: {
   }
 }
 
-export type AssignPermissionResult = Awaited<
-  ReturnType<typeof assignPermission>
->;
+export type AssignPermissionResult = Awaited<ReturnType<typeof assignPermission>>;

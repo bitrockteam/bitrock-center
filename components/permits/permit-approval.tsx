@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -37,12 +31,7 @@ type PermitByReviewer = {
 };
 
 export default function PermitApprovalTable() {
-  const {
-    data: permits,
-    loading,
-    error,
-    callApi,
-  } = useApi<PermitByReviewer[]>();
+  const { data: permits, loading, error, callApi } = useApi<PermitByReviewer[]>();
 
   useEffect(() => {
     callApi("/api/permit/get-permits-by-reviewer");
@@ -136,35 +125,24 @@ export default function PermitApprovalTable() {
               <TableBody>
                 {!permits || permits.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center py-6 text-muted-foreground"
-                    >
+                    <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                       Nessuna richiesta trovata
                     </TableCell>
                   </TableRow>
                 ) : (
-                  permits.map((permit, index) => (
-                    <TableRow key={index}>
+                  permits.map((permit) => (
+                    <TableRow key={permit.id}>
                       <TableCell>{getTypeLabel(permit.type)}</TableCell>
-                      <TableCell>
-                        {new Date(permit.date).toLocaleDateString()}{" "}
-                      </TableCell>
+                      <TableCell>{new Date(permit.date).toLocaleDateString()} </TableCell>
                       <TableCell>{Number(permit.duration)}</TableCell>
-                      <TableCell className="max-w-[200px] truncate">
-                        {permit.description}
-                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">{permit.description}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {permit.user_permit_user_idTouser.name}
                       </TableCell>
                       <TableCell>{getStatusBadge(permit.status)}</TableCell>
                       <TableCell className="text-right space-x-2">
-                        <Button onClick={() => approvePermit(permit.id)}>
-                          Approva
-                        </Button>
-                        <Button onClick={() => rejectPermit(permit.id)}>
-                          Respingi
-                        </Button>
+                        <Button onClick={() => approvePermit(permit.id)}>Approva</Button>
+                        <Button onClick={() => rejectPermit(permit.id)}>Respingi</Button>
                       </TableCell>
                     </TableRow>
                   ))

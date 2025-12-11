@@ -1,5 +1,10 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,13 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { PermitType, user } from "@/db";
+import { PermitType, type user } from "@/db";
 import { useApi } from "@/hooks/useApi";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { DatePicker } from "../custom/DatePicker";
 
 type CreateBulkPermitDTO = Array<{
@@ -48,15 +48,9 @@ interface PermitRequestFormProps {
   onPermitCreated?: () => void;
 }
 
-export default function PermitRequestForm({
-  onPermitCreated,
-}: PermitRequestFormProps) {
+export default function PermitRequestForm({ onPermitCreated }: PermitRequestFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
-  const {
-    data: reviewers,
-    loading: reviewersLoading,
-    callApi: fetchReviewers,
-  } = useApi<user[]>();
+  const { data: reviewers, loading: reviewersLoading, callApi: fetchReviewers } = useApi<user[]>();
   const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
@@ -71,9 +65,7 @@ export default function PermitRequestForm({
     },
   });
 
-  const prepareMultiplePermits = (
-    data: PermitFormValues,
-  ): CreateBulkPermitDTO => {
+  const prepareMultiplePermits = (data: PermitFormValues): CreateBulkPermitDTO => {
     const permits: CreateBulkPermitDTO = [];
     const startDate = new Date(data.startDate);
     const endDate = data.endDate ? new Date(data.endDate) : null;
@@ -94,9 +86,7 @@ export default function PermitRequestForm({
       });
     } else {
       if (endDate && endDate > startDate) {
-        const days = Math.ceil(
-          (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24),
-        );
+        const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24));
 
         for (let i = 1; i <= days + 1; i++) {
           const currentDate = new Date(startDate);
@@ -172,25 +162,16 @@ export default function PermitRequestForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipo di Richiesta</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleziona tipo" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value={PermitType.VACATION}>
-                          Ferie
-                        </SelectItem>
-                        <SelectItem value={PermitType.PERMISSION}>
-                          Permesso
-                        </SelectItem>
-                        <SelectItem value={PermitType.SICKNESS}>
-                          Malattia
-                        </SelectItem>
+                        <SelectItem value={PermitType.VACATION}>Ferie</SelectItem>
+                        <SelectItem value={PermitType.PERMISSION}>Permesso</SelectItem>
+                        <SelectItem value={PermitType.SICKNESS}>Malattia</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -205,15 +186,10 @@ export default function PermitRequestForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Data{" "}
-                      {form.watch("type") !== PermitType.PERMISSION && "Inizio"}
+                      Data {form.watch("type") !== PermitType.PERMISSION && "Inizio"}
                     </FormLabel>
                     <FormControl>
-                      <DatePicker
-                        {...field}
-                        date={field.value}
-                        setDate={field.onChange}
-                      />
+                      <DatePicker {...field} date={field.value} setDate={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -227,11 +203,7 @@ export default function PermitRequestForm({
                     validate: (value) => {
                       const startDate = form.getValues("startDate");
 
-                      if (
-                        value &&
-                        startDate &&
-                        new Date(value) < new Date(startDate)
-                      ) {
+                      if (value && startDate && new Date(value) < new Date(startDate)) {
                         return "La data di fine non può essere prima della data di inizio";
                       }
 
@@ -242,11 +214,7 @@ export default function PermitRequestForm({
                     <FormItem>
                       <FormLabel>Data Fine</FormLabel>
                       <FormControl>
-                        <DatePicker
-                          {...field}
-                          date={field.value}
-                          setDate={field.onChange}
-                        />
+                        <DatePicker {...field} date={field.value} setDate={field.onChange} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -260,8 +228,7 @@ export default function PermitRequestForm({
                   rules={{
                     required: "Durata richiesta",
                     validate: (value) =>
-                      parseFloat(value) > 0 ||
-                      "Durata deve essere maggiore di 0",
+                      parseFloat(value) > 0 || "Durata deve essere maggiore di 0",
                   }}
                   name="duration"
                   render={({ field }) => (
@@ -309,23 +276,14 @@ export default function PermitRequestForm({
                 )}
               />
 
-              {errorMessage && (
-                <p className="text-red-500 text-sm">{errorMessage}</p>
-              )}
+              {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
 
-              <motion.div
-                className="pt-2"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div className="pt-2" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   type="submit"
                   className="w-full"
                   disabled={
-                    isPending ||
-                    reviewersLoading ||
-                    !reviewers ||
-                    !Array.isArray(reviewers)
+                    isPending || reviewersLoading || !reviewers || !Array.isArray(reviewers)
                   }
                 >
                   {isPending ? "Invio in corso..." : "Invia Richiesta"}

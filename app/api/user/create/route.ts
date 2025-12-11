@@ -1,6 +1,6 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { createUser } from "@/app/server-actions/user/createUser";
-import { user } from "@/db";
-import { NextRequest, NextResponse } from "next/server";
+import type { user } from "@/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     if (!userData.name || !userData.email || !userData.role) {
       return NextResponse.json(
         { error: "Missing required fields: name, email, and role" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -17,9 +17,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error creating user:", error);
-    return NextResponse.json(
-      { error: "Failed to create user" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
   }
 }

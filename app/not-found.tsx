@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { FileQuestion, Home, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   const router = useRouter();
@@ -28,9 +28,7 @@ export default function NotFound() {
         </motion.div>
 
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">
-            404 - Pagina non trovata
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">404 - Pagina non trovata</h1>
           <p className="text-muted-foreground">
             La pagina che stai cercando non esiste o è stata spostata.
           </p>
@@ -38,20 +36,13 @@ export default function NotFound() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              onClick={() => router.push("/dashboard")}
-              className="w-full sm:w-auto"
-            >
+            <Button onClick={() => router.push("/dashboard")} className="w-full sm:w-auto">
               <Home className="mr-2 h-4 w-4" />
               Torna alla Dashboard
             </Button>
           </motion.div>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="outline"
-              onClick={() => router.back()}
-              className="w-full sm:w-auto"
-            >
+            <Button variant="outline" onClick={() => router.back()} className="w-full sm:w-auto">
               <Search className="mr-2 h-4 w-4" />
               Torna indietro
             </Button>

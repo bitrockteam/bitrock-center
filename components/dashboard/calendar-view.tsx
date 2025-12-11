@@ -1,15 +1,9 @@
 "use client";
 
-import { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
+import type { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -18,13 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { permit, PermitStatus, PermitType } from "@/db";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PermitStatus, PermitType, type permit } from "@/db";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { use, useMemo, useState } from "react";
@@ -72,16 +61,12 @@ export default function CalendarView({
 
   // Funzione per passare al mese precedente
   const goToPreviousMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
-    );
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
   };
 
   // Funzione per passare al mese successivo
   const goToNextMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
-    );
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
   // Funzione per ottenere gli eventi di un giorno specifico
@@ -173,9 +158,7 @@ export default function CalendarView({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Calendario Attività</CardTitle>
-              <CardDescription>
-                Visualizza ore lavorate, ferie e permessi
-              </CardDescription>
+              <CardDescription>Visualizza ore lavorate, ferie e permessi</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="icon" onClick={goToPreviousMonth}>
@@ -195,20 +178,17 @@ export default function CalendarView({
         <CardContent>
           <div className="grid grid-cols-7 gap-1">
             {/* Intestazioni dei giorni della settimana */}
-            {weekDays.map((day, index) => (
-              <div key={index} className="text-center font-medium text-sm py-2">
+            {weekDays.map((day) => (
+              <div key={day} className="text-center font-medium text-sm py-2">
                 {day}
               </div>
             ))}
 
             {/* Giorni del calendario */}
-            {calendarDays.map((day, index) => {
+            {calendarDays.map((day) => {
               if (day === null) {
                 return (
-                  <div
-                    key={`empty-${index}`}
-                    className="h-24 p-1 border border-transparent"
-                  ></div>
+                  <div key={`empty-${day}`} className="h-24 p-1 border border-transparent"></div>
                 );
               }
 
@@ -218,8 +198,7 @@ export default function CalendarView({
                 new Date().getMonth() === currentDate.getMonth() &&
                 new Date().getFullYear() === currentDate.getFullYear();
 
-              const totalEvents =
-                dailyEvents.permits.length + dailyEvents.timesheet.length;
+              const totalEvents = dailyEvents.permits.length + dailyEvents.timesheet.length;
 
               return (
                 <div
@@ -227,9 +206,7 @@ export default function CalendarView({
                   className={`h-24 p-1 border rounded-md ${isToday ? "border-primary" : "border-border"} overflow-hidden`}
                 >
                   <div className="flex justify-between items-start">
-                    <span
-                      className={`text-sm font-medium ${isToday ? "text-primary" : ""}`}
-                    >
+                    <span className={`text-sm font-medium ${isToday ? "text-primary" : ""}`}>
                       {day}
                     </span>
                     {dailyEvents.permits.length > 0 && (
@@ -255,15 +232,10 @@ export default function CalendarView({
                             </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4 mt-4">
-                            {dailyEvents.permits.map((event, eventIndex) => (
-                              <div
-                                key={eventIndex}
-                                className="border rounded-md p-3"
-                              >
+                            {dailyEvents.permits.map((event) => (
+                              <div key={event.id} className="border rounded-md p-3">
                                 <div className="flex items-center space-x-2 mb-2">
-                                  <Badge
-                                    className={getEventBadgeColor(event.type)}
-                                  >
+                                  <Badge className={getEventBadgeColor(event.type)}>
                                     {getEventTypeLabel(event.type)}
                                   </Badge>
                                   <Badge
@@ -283,13 +255,9 @@ export default function CalendarView({
                                   </Badge>
                                 </div>
                                 {event.duration && (
-                                  <p className="text-sm mb-1">
-                                    Ore: {Number(event.duration)}h
-                                  </p>
+                                  <p className="text-sm mb-1">Ore: {Number(event.duration)}h</p>
                                 )}
-                                <p className="text-sm text-muted-foreground">
-                                  {event.description}
-                                </p>
+                                <p className="text-sm text-muted-foreground">{event.description}</p>
                               </div>
                             ))}
                           </div>
@@ -298,30 +266,26 @@ export default function CalendarView({
                     )}
                   </div>
                   <div className="mt-1 space-y-1">
-                    {dailyEvents.timesheet
-                      .slice(0, 2)
-                      .map((event, eventIndex) => (
-                        <TooltipProvider key={eventIndex}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div
-                                className={`text-xs px-1 py-0.5 rounded ${getEventBadgeColor()} text-white truncate`}
-                              >
-                                {`${event.hours}h`}
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{getEventTypeLabel()}</p>
-                              {event.hours && <p>Ore: {event.hours}</p>}
-                              <p>{event.description}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ))}
+                    {dailyEvents.timesheet.slice(0, 2).map((event) => (
+                      <TooltipProvider key={event.id}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              className={`text-xs px-1 py-0.5 rounded ${getEventBadgeColor()} text-white truncate`}
+                            >
+                              {`${event.hours}h`}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{getEventTypeLabel()}</p>
+                            {event.hours && <p>Ore: {event.hours}</p>}
+                            <p>{event.description}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ))}
                     {totalEvents > 2 && (
-                      <div className="text-xs text-muted-foreground">
-                        +{totalEvents - 2} altri
-                      </div>
+                      <div className="text-xs text-muted-foreground">+{totalEvents - 2} altri</div>
                     )}
                   </div>
                 </div>

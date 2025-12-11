@@ -1,11 +1,7 @@
 "use server";
 import { db } from "@/config/prisma";
 
-export async function updateTodoStatus(
-  goalId: string,
-  todoId: string,
-  completed: boolean,
-) {
+export async function updateTodoStatus(goalId: string, todoId: string, completed: boolean) {
   const updatedTodo = await db.todo_item.update({
     where: {
       id: todoId,

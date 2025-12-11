@@ -1,7 +1,7 @@
 "use server";
 
+import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/server";
-import { User } from "@supabase/supabase-js";
 
 export async function createUserInfo(userInfo?: User) {
   console.log(userInfo);

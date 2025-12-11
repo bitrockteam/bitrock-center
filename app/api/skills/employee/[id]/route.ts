@@ -1,10 +1,7 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { getEmployeeWithSkillsById } from "@/app/server-actions/skills/getEmployeeWithSkillsById";
-import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const employee = await getEmployeeWithSkillsById(id);
@@ -15,7 +12,7 @@ export async function GET(
           success: false,
           error: "Employee not found",
         },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -31,7 +28,7 @@ export async function GET(
         success: false,
         error: "Failed to fetch employee with skills",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

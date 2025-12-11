@@ -1,11 +1,11 @@
 "use client";
 
-import { UserTimesheetById } from "@/app/server-actions/timesheet/fetchUserTimesheetById";
-import { Button } from "@/components/ui/button";
-import { user } from "@/db";
 import { motion } from "framer-motion";
 import { PlusCircle } from "lucide-react";
 import { useState } from "react";
+import type { UserTimesheetById } from "@/app/server-actions/timesheet/fetchUserTimesheetById";
+import { Button } from "@/components/ui/button";
+import type { user } from "@/db";
 import AddHoursDialog from "./add-hours-dialog";
 
 export default function TimeTrackingHeader({
@@ -18,7 +18,7 @@ export default function TimeTrackingHeader({
   userTimesheet?: UserTimesheetById;
 }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -39,17 +39,13 @@ export default function TimeTrackingHeader({
       {!isReadByAdmin && (
         <>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button onClick={() => setShowAddDialog(true)}>
+            <Button onClick={() => setShowAddDialog(true)} color="primary">
               <PlusCircle className="mr-2 h-4 w-4" />
               Aggiungi Ore
             </Button>
           </motion.div>
 
-          <AddHoursDialog
-            open={showAddDialog}
-            onOpenChange={setShowAddDialog}
-            user={user}
-          />
+          <AddHoursDialog open={showAddDialog} onOpenChange={setShowAddDialog} user={user} />
         </>
       )}
     </motion.div>
