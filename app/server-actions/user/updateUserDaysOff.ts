@@ -16,9 +16,7 @@ export async function updateUserDaysOff({
 
   // Only allow users to update their own days off
   if (currentUser.id !== userId) {
-    throw new Error(
-      "Non autorizzato: puoi modificare solo i tuoi giorni di ferie"
-    );
+    throw new Error("Non autorizzato: puoi modificare solo i tuoi giorni di ferie");
   }
 
   return db.user.update({

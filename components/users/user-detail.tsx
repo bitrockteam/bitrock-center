@@ -36,9 +36,7 @@ export default function UserDetail({
 }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [selectedPermission, setSelectedPermission] = useState<
-    Permissions | undefined
-  >(undefined);
+  const [selectedPermission, setSelectedPermission] = useState<Permissions | undefined>(undefined);
   const { loading, error, reset } = useApi();
   const { removePermission } = useRemovePermission();
   const { assignPermission } = useAssignPermission();
@@ -76,11 +74,7 @@ export default function UserDetail({
     >
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push("/utenti")}
-          >
+          <Button variant="outline" size="icon" onClick={() => router.push("/utenti")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
@@ -93,9 +87,7 @@ export default function UserDetail({
             <h1 className="text-3xl font-bold tracking-tight">
               {formatDisplayName({ name: user.name })}
             </h1>
-            {user.role && (
-              <div className="flex items-center space-x-2">{user.role}</div>
-            )}
+            {user.role && <div className="flex items-center space-x-2">{user.role}</div>}
           </div>
         </div>
 
@@ -108,10 +100,7 @@ export default function UserDetail({
             Development Plan
           </Button>
           {
-            <Button
-              className="cursor-pointer"
-              onClick={() => setShowEditDialog(true)}
-            >
+            <Button className="cursor-pointer" onClick={() => setShowEditDialog(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Modifica Utente
             </Button>
@@ -129,10 +118,7 @@ export default function UserDetail({
           <CardContent>
             {user.user_permission && user.user_permission.length > 0 ? (
               // biome-ignore lint/a11y/useAriaPropsSupportedByRole: no explanation needed
-              <div
-                className="flex flex-wrap gap-2"
-                aria-label="user permissions list"
-              >
+              <div className="flex flex-wrap gap-2" aria-label="user permissions list">
                 {user.user_permission.map((p) => (
                   <div key={p.permission_id} className="flex items-center">
                     <Badge
@@ -192,10 +178,7 @@ export default function UserDetail({
                   onValueChange={(v) => setSelectedPermission(v as Permissions)}
                   disabled={!hasAvailablePermissions}
                 >
-                  <SelectTrigger
-                    className="w-[280px]"
-                    aria-label="Select permission to assign"
-                  >
+                  <SelectTrigger className="w-[280px]" aria-label="Select permission to assign">
                     <SelectValue placeholder="Select a permission" />
                   </SelectTrigger>
                   <SelectContent>
@@ -207,9 +190,7 @@ export default function UserDetail({
                   </SelectContent>
                 </Select>
                 <Button
-                  disabled={
-                    !selectedPermission || !hasAvailablePermissions || loading
-                  }
+                  disabled={!selectedPermission || !hasAvailablePermissions || loading}
                   onClick={async () => {
                     try {
                       if (!selectedPermission) return;
@@ -253,8 +234,7 @@ export default function UserDetail({
               </div>
               {!hasAvailablePermissions && (
                 <p className="text-sm text-muted-foreground">
-                  Tutti i permessi disponibili sono già stati assegnati a questo
-                  utente.
+                  Tutti i permessi disponibili sono già stati assegnati a questo utente.
                 </p>
               )}
               {error && (

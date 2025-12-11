@@ -8,9 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function PermissionsPage() {
   const [data] = await Promise.all([getPermissions()]);
-  const CAN_SEE_PERMISSIONS = await hasPermission(
-    Permissions.CAN_SEE_PERMISSIONS
-  );
+  const CAN_SEE_PERMISSIONS = await hasPermission(Permissions.CAN_SEE_PERMISSIONS);
 
   if (!CAN_SEE_PERMISSIONS) redirect("/dashboard");
 

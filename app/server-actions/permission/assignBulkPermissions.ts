@@ -40,6 +40,4 @@ export async function assignBulkPermissions(params: {
   }
 }
 
-export type AssignBulkPermissionsResult = Awaited<
-  ReturnType<typeof assignBulkPermissions>
->;
+export type AssignBulkPermissionsResult = Awaited<ReturnType<typeof assignBulkPermissions>>;

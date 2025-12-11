@@ -32,9 +32,7 @@ export async function PATCH(request: Request) {
       {
         success: false,
         error:
-          error instanceof Error
-            ? error.message
-            : "Errore nell'aggiornamento dei giorni di ferie",
+          error instanceof Error ? error.message : "Errore nell'aggiornamento dei giorni di ferie",
       },
       { status: 500 }
     );

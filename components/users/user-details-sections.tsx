@@ -29,9 +29,7 @@ export default function UserDetailsSections({
   useEffect(() => {
     if (user?.id && userIdRef.current !== user.id) {
       userIdRef.current = user.id;
-      fetchDevelopmentPlan(
-        `/api/user/development-plan/latest?userId=${user.id}`
-      );
+      fetchDevelopmentPlan(`/api/user/development-plan/latest?userId=${user.id}`);
       fetchContract(`/api/user/contract?employeeId=${user.id}`);
     }
   }, [user?.id, fetchDevelopmentPlan, fetchContract]);
@@ -59,10 +57,7 @@ export default function UserDetailsSections({
         <UserDetailsOverview user={user} plan={activePlan} />
       </TabsContent>
       <TabsContent value="allocations" className="space-y-6">
-        <UserDetailsAllocations
-          userId={user.id}
-          currentUserId={currentUserId}
-        />
+        <UserDetailsAllocations userId={user.id} currentUserId={currentUserId} />
       </TabsContent>
       <TabsContent value="skills" className="space-y-6">
         <UserDetailsSkills user={user} />
@@ -74,12 +69,7 @@ export default function UserDetailsSections({
         <UserDetailsActivity />
       </TabsContent>
       <TabsContent value="contract">
-        <ContractDetail
-          contract={contract}
-          canEdit
-          canView
-          employeeId={user.id}
-        />
+        <ContractDetail contract={contract} canEdit canView employeeId={user.id} />
       </TabsContent>
     </Tabs>
   );

@@ -12,17 +12,11 @@ export const metadata: Metadata = {
   description: "Visualizza i dettagli dell'utente",
 };
 
-export default async function UserDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await findUserById(id);
   const currentUser = await getUserInfoFromCookie();
-  const CAN_DEAL_PERMISSIONS = await hasPermission(
-    Permissions.CAN_DEAL_PERMISSIONS
-  );
+  const CAN_DEAL_PERMISSIONS = await hasPermission(Permissions.CAN_DEAL_PERMISSIONS);
 
   return (
     <div className="space-y-6 h-full w-full">

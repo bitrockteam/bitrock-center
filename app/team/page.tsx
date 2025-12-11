@@ -35,9 +35,7 @@ export default async function TeamPage() {
     console.error("Error loading team data:", error);
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <h1 className="text-2xl font-semibold text-destructive">
-          Errore nel caricamento del team
-        </h1>
+        <h1 className="text-2xl font-semibold text-destructive">Errore nel caricamento del team</h1>
         <p className="text-muted-foreground">
           Si è verificato un errore durante il caricamento dei dati del team.
         </p>

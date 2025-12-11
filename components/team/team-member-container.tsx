@@ -47,8 +47,7 @@ export function TeamMemberContainer({
     const query = searchQuery.toLowerCase();
     return team.filter(
       (member) =>
-        member.name.toLowerCase().includes(query) ||
-        member.email.toLowerCase().includes(query)
+        member.name.toLowerCase().includes(query) || member.email.toLowerCase().includes(query)
     );
   }, [team, searchQuery]);
 
@@ -57,8 +56,7 @@ export function TeamMemberContainer({
     const query = searchQuery.toLowerCase();
     return myTeam.members.filter(
       (member) =>
-        member.name.toLowerCase().includes(query) ||
-        member.email.toLowerCase().includes(query)
+        member.name.toLowerCase().includes(query) || member.email.toLowerCase().includes(query)
     );
   }, [myTeam.members, searchQuery]);
 
@@ -68,10 +66,7 @@ export function TeamMemberContainer({
     }
   };
 
-  const totalMembers = team.length + myTeam.members.length;
-  const activeAllocations = ownerTeamAllocationsRecap.filter(
-    (a) => a.activeAllocations > 0
-  ).length;
+  const activeAllocations = ownerTeamAllocationsRecap.filter((a) => a.activeAllocations > 0).length;
 
   return (
     <>
@@ -90,9 +85,7 @@ export function TeamMemberContainer({
             </div>
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Team</h1>
-              <p className="text-muted-foreground">
-                Gestisci il tuo team e collaboratori
-              </p>
+              <p className="text-muted-foreground">Gestisci il tuo team e collaboratori</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -140,11 +133,7 @@ export function TeamMemberContainer({
                 {user.name}&apos;s Team
               </TabsTrigger>
             )}
-            <TabsTrigger
-              className="w-2xs"
-              value="my-team"
-              aria-label="Il mio team"
-            >
+            <TabsTrigger className="w-2xs" value="my-team" aria-label="Il mio team">
               My Team
             </TabsTrigger>
           </TabsList>
@@ -159,9 +148,7 @@ export function TeamMemberContainer({
                   className="flex flex-col items-center justify-center rounded-xl border border-dashed py-12"
                 >
                   <Users className="mb-4 h-12 w-12 text-muted-foreground/50" />
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Nessun membro trovato
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Nessun membro trovato</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Prova a modificare la tua ricerca
                   </p>
@@ -173,7 +160,7 @@ export function TeamMemberContainer({
                   animate="show"
                   className="flex flex-wrap gap-4"
                 >
-                  {filteredTeam.map((member, index) => (
+                  {filteredTeam.map((member) => (
                     <motion.div key={member.id} variants={item}>
                       <TeamMemberCard
                         teamMember={member}
@@ -184,17 +171,12 @@ export function TeamMemberContainer({
                   ))}
                   {(!searchQuery || filteredTeam.length > 0) && (
                     <motion.div variants={item}>
-                      <TeamMemberCard
-                        isOwner={isOwner}
-                        onMemberRemoved={handleMemberRemoved}
-                      />
+                      <TeamMemberCard isOwner={isOwner} onMemberRemoved={handleMemberRemoved} />
                     </motion.div>
                   )}
                 </motion.div>
               )}
-              <TeamAllocationsRecap
-                allocationsRecap={ownerTeamAllocationsRecap}
-              />
+              <TeamAllocationsRecap allocationsRecap={ownerTeamAllocationsRecap} />
             </div>
           </TabsContent>
 
@@ -209,9 +191,7 @@ export function TeamMemberContainer({
                 >
                   <p className="text-sm text-muted-foreground">
                     Referente:{" "}
-                    <span className="font-medium text-foreground">
-                      {myTeam.referent.name}
-                    </span>
+                    <span className="font-medium text-foreground">{myTeam.referent.name}</span>
                   </p>
                 </motion.div>
               ) : (
@@ -221,9 +201,7 @@ export function TeamMemberContainer({
                   transition={{ duration: 0.3 }}
                   className="rounded-lg border border-dashed bg-muted/20 p-4"
                 >
-                  <p className="text-sm text-muted-foreground">
-                    Nessun referente assegnato
-                  </p>
+                  <p className="text-sm text-muted-foreground">Nessun referente assegnato</p>
                 </motion.div>
               )}
               {filteredMyTeam.length === 0 && searchQuery ? (
@@ -234,9 +212,7 @@ export function TeamMemberContainer({
                   className="flex flex-col items-center justify-center rounded-xl border border-dashed py-12"
                 >
                   <Users className="mb-4 h-12 w-12 text-muted-foreground/50" />
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Nessun membro trovato
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Nessun membro trovato</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Prova a modificare la tua ricerca
                   </p>
@@ -250,10 +226,7 @@ export function TeamMemberContainer({
                 >
                   {filteredMyTeam.map((member) => (
                     <motion.div key={member.id} variants={item}>
-                      <TeamMemberCard
-                        teamMember={member}
-                        onMemberRemoved={handleMemberRemoved}
-                      />
+                      <TeamMemberCard teamMember={member} onMemberRemoved={handleMemberRemoved} />
                     </motion.div>
                   ))}
                 </motion.div>

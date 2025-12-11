@@ -4,8 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const body: { user_id: string; permission_ids: Permissions[] } =
-      await request.json();
+    const body: { user_id: string; permission_ids: Permissions[] } = await request.json();
     const { user_id, permission_ids } = body;
 
     if (!user_id || !permission_ids || permission_ids.length === 0) {
@@ -20,9 +19,6 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("[POST /api/permission/assign-bulk] Error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json(
-      { success: false, error: message },
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
 }

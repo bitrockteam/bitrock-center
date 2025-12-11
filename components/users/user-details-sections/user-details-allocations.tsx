@@ -3,13 +3,7 @@
 import type { UserAllocationRecap } from "@/app/server-actions/user/fetchUserAllocations";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -35,8 +29,7 @@ export default function UserDetailsAllocations({
   userId,
   currentUserId,
 }: UserDetailsAllocationsProps) {
-  const { data: allocationsData, callApi: fetchAllocations } =
-    useApi<UserAllocationRecap>();
+  const { data: allocationsData, callApi: fetchAllocations } = useApi<UserAllocationRecap>();
   const { callApi: updateDaysOff } = useApi();
 
   const userIdRef = useRef<string | null>(null);
@@ -189,17 +182,13 @@ export default function UserDetailsAllocations({
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Allocazioni Attive</CardDescription>
-            <CardTitle className="text-2xl">
-              {allocationsData.activeAllocations}
-            </CardTitle>
+            <CardTitle className="text-2xl">{allocationsData.activeAllocations}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Totale Allocazioni</CardDescription>
-            <CardTitle className="text-2xl">
-              {allocationsData.totalAllocations}
-            </CardTitle>
+            <CardTitle className="text-2xl">{allocationsData.totalAllocations}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -217,13 +206,9 @@ export default function UserDetailsAllocations({
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
                 <CardDescription>Ferie Rimanenti</CardDescription>
-                {isOwnProfile &&
-                  allocationsData.hasCustomValues &&
-                  !isEditingLeft && (
-                    <span className="text-xs text-muted-foreground mt-1">
-                      Valore personalizzato
-                    </span>
-                  )}
+                {isOwnProfile && allocationsData.hasCustomValues && !isEditingLeft && (
+                  <span className="text-xs text-muted-foreground mt-1">Valore personalizzato</span>
+                )}
               </div>
               {isOwnProfile && !isEditingLeft && (
                 <div className="flex gap-1">
@@ -258,11 +243,7 @@ export default function UserDetailsAllocations({
                     type="number"
                     value={daysOffLeft ?? ""}
                     onChange={(e) =>
-                      setDaysOffLeft(
-                        e.target.value === ""
-                          ? null
-                          : parseInt(e.target.value, 10)
-                      )
+                      setDaysOffLeft(e.target.value === "" ? null : parseInt(e.target.value, 10))
                     }
                     className="w-24"
                     min="0"
@@ -297,8 +278,8 @@ export default function UserDetailsAllocations({
                   allocationsData.daysOffLeft <= 5
                     ? "text-destructive"
                     : allocationsData.daysOffLeft <= 10
-                    ? "text-yellow-600"
-                    : ""
+                      ? "text-yellow-600"
+                      : ""
                 }`}
               >
                 {allocationsData.daysOffLeft} giorni
@@ -311,13 +292,9 @@ export default function UserDetailsAllocations({
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
                 <CardDescription>Ferie Pianificate</CardDescription>
-                {isOwnProfile &&
-                  allocationsData.hasCustomValues &&
-                  !isEditingPlanned && (
-                    <span className="text-xs text-muted-foreground mt-1">
-                      Valore personalizzato
-                    </span>
-                  )}
+                {isOwnProfile && allocationsData.hasCustomValues && !isEditingPlanned && (
+                  <span className="text-xs text-muted-foreground mt-1">Valore personalizzato</span>
+                )}
               </div>
               {isOwnProfile && !isEditingPlanned && (
                 <div className="flex gap-1">
@@ -352,11 +329,7 @@ export default function UserDetailsAllocations({
                     type="number"
                     value={daysOffPlanned ?? ""}
                     onChange={(e) =>
-                      setDaysOffPlanned(
-                        e.target.value === ""
-                          ? null
-                          : parseInt(e.target.value, 10)
-                      )
+                      setDaysOffPlanned(e.target.value === "" ? null : parseInt(e.target.value, 10))
                     }
                     className="w-24"
                     min="0"
@@ -397,9 +370,7 @@ export default function UserDetailsAllocations({
       <Card>
         <CardHeader>
           <CardTitle>Allocazioni Progetti</CardTitle>
-          <CardDescription>
-            Elenco completo delle allocazioni ai progetti
-          </CardDescription>
+          <CardDescription>Elenco completo delle allocazioni ai progetti</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -417,10 +388,7 @@ export default function UserDetailsAllocations({
             <TableBody>
               {allocationsData.allocations.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-6 text-muted-foreground"
-                  >
+                  <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                     Nessuna allocazione trovata
                   </TableCell>
                 </TableRow>
@@ -437,9 +405,7 @@ export default function UserDetailsAllocations({
                       </Link>
                     </TableCell>
                     <TableCell>{allocation.clientName}</TableCell>
-                    <TableCell>
-                      {getStatusBadge(allocation.projectStatus)}
-                    </TableCell>
+                    <TableCell>{getStatusBadge(allocation.projectStatus)}</TableCell>
                     <TableCell>{allocation.percentage}%</TableCell>
                     <TableCell>{formatDate(allocation.startDate)}</TableCell>
                     <TableCell>{formatDate(allocation.endDate)}</TableCell>

@@ -12,6 +12,8 @@ export interface UserInfo {
   referent_id: string | null;
   role: Role;
   permissions: Permissions[];
+  custom_days_off_left: number | null;
+  custom_days_off_planned: number | null;
 }
 
 export async function getUserInfo(email?: string) {
@@ -37,6 +39,8 @@ export async function getUserInfo(email?: string) {
       referent_id: res?.referent_id ?? null,
       role: res?.role,
       permissions: permissions?.map((permission) => permission.permission_id) || [],
+      custom_days_off_left: res?.custom_days_off_left ?? null,
+      custom_days_off_planned: res?.custom_days_off_planned ?? null,
     } as UserInfo;
   } catch (error) {
     console.error("Error in getUserInfo:", error);

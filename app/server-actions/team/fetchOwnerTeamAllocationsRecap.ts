@@ -5,9 +5,7 @@ import { PermitStatus, PermitType } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { TeamMemberAllocationRecap } from "./fetchTeamAllocationsRecap";
 
-export async function fetchOwnerTeamAllocationsRecap(): Promise<
-  TeamMemberAllocationRecap[]
-> {
+export async function fetchOwnerTeamAllocationsRecap(): Promise<TeamMemberAllocationRecap[]> {
   const userInfo = await getUserInfoFromCookie();
 
   const teamMembers = await db.user.findMany({
@@ -38,9 +36,7 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<
       const now = new Date();
 
       const activeAllocation = member.allocation.find(
-        (alloc) =>
-          alloc.start_date <= now &&
-          (alloc.end_date === null || alloc.end_date >= now)
+        (alloc) => alloc.start_date <= now && (alloc.end_date === null || alloc.end_date >= now)
       );
 
       const vacationPermits = member.permit_permit_user_idTouser.filter(
@@ -58,8 +54,7 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<
       const computedDaysOffPlanned = vacationPermits
         .filter(
           (permit) =>
-            (permit.status === PermitStatus.APPROVED ||
-              permit.status === PermitStatus.PENDING) &&
+            (permit.status === PermitStatus.APPROVED || permit.status === PermitStatus.PENDING) &&
             new Date(permit.date) >= now
         )
         .reduce((sum, permit) => sum + permit.duration, 0);
@@ -68,14 +63,11 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<
 
       // Use custom values if set, otherwise use computed values
       const daysOffLeft = member.custom_days_off_left ?? computedDaysOffLeft;
-      const daysOffPlanned =
-        member.custom_days_off_planned ?? computedDaysOffPlanned;
+      const daysOffPlanned = member.custom_days_off_planned ?? computedDaysOffPlanned;
 
       // Find all active allocations
       const activeAllocations = member.allocation.filter(
-        (alloc) =>
-          alloc.start_date <= now &&
-          (alloc.end_date === null || alloc.end_date >= now)
+        (alloc) => alloc.start_date <= now && (alloc.end_date === null || alloc.end_date >= now)
       );
 
       // Find the latest end date from all active allocations

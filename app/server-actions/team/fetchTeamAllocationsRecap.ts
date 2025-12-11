@@ -23,9 +23,7 @@ export type TeamMemberAllocationRecap = {
   activeAllocations: number;
 };
 
-export async function fetchTeamAllocationsRecap(): Promise<
-  TeamMemberAllocationRecap[]
-> {
+export async function fetchTeamAllocationsRecap(): Promise<TeamMemberAllocationRecap[]> {
   const userInfo = await getUserInfoFromCookie();
 
   if (!userInfo.referent_id) {
@@ -60,9 +58,7 @@ export async function fetchTeamAllocationsRecap(): Promise<
       const now = new Date();
 
       const activeAllocation = member.allocation.find(
-        (alloc) =>
-          alloc.start_date <= now &&
-          (alloc.end_date === null || alloc.end_date >= now)
+        (alloc) => alloc.start_date <= now && (alloc.end_date === null || alloc.end_date >= now)
       );
 
       const vacationPermits = member.permit_permit_user_idTouser.filter(
@@ -80,8 +76,7 @@ export async function fetchTeamAllocationsRecap(): Promise<
       const computedDaysOffPlanned = vacationPermits
         .filter(
           (permit) =>
-            (permit.status === PermitStatus.APPROVED ||
-              permit.status === PermitStatus.PENDING) &&
+            (permit.status === PermitStatus.APPROVED || permit.status === PermitStatus.PENDING) &&
             new Date(permit.date) >= now
         )
         .reduce((sum, permit) => sum + permit.duration, 0);
@@ -90,14 +85,11 @@ export async function fetchTeamAllocationsRecap(): Promise<
 
       // Use custom values if set, otherwise use computed values
       const daysOffLeft = member.custom_days_off_left ?? computedDaysOffLeft;
-      const daysOffPlanned =
-        member.custom_days_off_planned ?? computedDaysOffPlanned;
+      const daysOffPlanned = member.custom_days_off_planned ?? computedDaysOffPlanned;
 
       // Find all active allocations
       const activeAllocations = member.allocation.filter(
-        (alloc) =>
-          alloc.start_date <= now &&
-          (alloc.end_date === null || alloc.end_date >= now)
+        (alloc) => alloc.start_date <= now && (alloc.end_date === null || alloc.end_date >= now)
       );
 
       // Find the latest end date from all active allocations

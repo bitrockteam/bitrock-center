@@ -63,11 +63,7 @@ const getPermissionColor = (id: string): string => {
   return "bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20";
 };
 
-export default function PermissionsContent({
-  permissions,
-}: {
-  permissions: Permissions;
-}) {
+export default function PermissionsContent({ permissions }: { permissions: Permissions }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredPermissions = useMemo(() => {
@@ -75,8 +71,7 @@ export default function PermissionsContent({
     const query = searchQuery.toLowerCase();
     return permissions.filter(
       (p) =>
-        p.id.toLowerCase().includes(query) ||
-        formatPermissionId(p.id).toLowerCase().includes(query)
+        p.id.toLowerCase().includes(query) || formatPermissionId(p.id).toLowerCase().includes(query)
     );
   }, [permissions, searchQuery]);
 
@@ -106,16 +101,13 @@ export default function PermissionsContent({
           </div>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Permissions</h1>
-            <p className="text-muted-foreground">
-              Manage system access and capabilities
-            </p>
+            <p className="text-muted-foreground">Manage system access and capabilities</p>
           </div>
         </div>
         <div className="flex items-center space-x-4">
           <Badge variant="secondary" className="text-sm px-3 py-1.5">
             <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
-            {permissions.length}{" "}
-            {permissions.length === 1 ? "Permission" : "Permissions"}
+            {permissions.length} {permissions.length === 1 ? "Permission" : "Permissions"}
           </Badge>
         </div>
       </motion.div>
@@ -148,12 +140,8 @@ export default function PermissionsContent({
           className="flex flex-col items-center justify-center rounded-xl border border-dashed py-12"
         >
           <Shield className="mb-4 h-12 w-12 text-muted-foreground/50" />
-          <p className="text-sm font-medium text-muted-foreground">
-            No permissions found
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Try adjusting your search query
-          </p>
+          <p className="text-sm font-medium text-muted-foreground">No permissions found</p>
+          <p className="mt-1 text-xs text-muted-foreground">Try adjusting your search query</p>
         </motion.div>
       ) : (
         <motion.div
@@ -208,9 +196,7 @@ export default function PermissionsContent({
           transition={{ duration: 0.5, delay: 0.2 }}
           className="rounded-xl border bg-muted/30 p-4"
         >
-          <p className="mb-3 text-sm font-medium text-muted-foreground">
-            Categories
-          </p>
+          <p className="mb-3 text-sm font-medium text-muted-foreground">Categories</p>
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => {
               const count = permissions.filter(
