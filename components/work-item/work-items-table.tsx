@@ -88,10 +88,7 @@ export default function WorkItemsTable({
         );
       case work_item_type.fixed_price:
         return (
-          <Badge
-            variant="outline"
-            className="border-purple-500 text-purple-500"
-          >
+          <Badge variant="outline" className="border-purple-500 text-purple-500">
             Prezzo Fisso
           </Badge>
         );
@@ -124,9 +121,7 @@ export default function WorkItemsTable({
   };
 
   // Helper function to safely convert date strings to Date objects
-  const safeDateString = (
-    dateValue: string | Date | null | undefined
-  ): string => {
+  const safeDateString = (dateValue: string | Date | null | undefined): string => {
     if (!dateValue) return "";
     const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
     return date.toISOString().substring(0, 10);
@@ -166,10 +161,7 @@ export default function WorkItemsTable({
                 <TableBody>
                   {filteredWorkItems?.length === 0 ? (
                     <TableRow>
-                      <TableCell
-                        colSpan={8}
-                        className="text-center py-6 text-muted-foreground"
-                      >
+                      <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
                         Nessuna commessa trovata
                       </TableCell>
                     </TableRow>
@@ -195,9 +187,7 @@ export default function WorkItemsTable({
                               {item.project?.name}
                             </span>
                           ) : (
-                            <span className="text-sm text-muted-foreground">
-                              Nessun progetto
-                            </span>
+                            <span className="text-sm text-muted-foreground">Nessun progetto</span>
                           )}
                         </TableCell>
                         <TableCell>{getTypeBadge(item.type)}</TableCell>
@@ -212,10 +202,8 @@ export default function WorkItemsTable({
                                     key={user_id}
                                     className="h-6 w-6 border-2 border-background group-hover/row:ring-primary/20 transition-all"
                                   >
-                                    <AvatarImage
-                                      src={user?.avatar_url || "/logo.png"}
-                                    />
-                                    <AvatarFallback className="text-xs bg-gradient-to-br from-primary/20 to-purple-500/20 text-primary font-semibold">
+                                    {user?.avatar_url && <AvatarImage src={user.avatar_url} />}
+                                    <AvatarFallback className="text-xs">
                                       {user?.name.charAt(0)}
                                     </AvatarFallback>
                                   </Avatar>
@@ -242,18 +230,14 @@ export default function WorkItemsTable({
                               </>
                             ) : (
                               <>
-                                <Clock className="mr-1 h-3 w-3" />€
-                                {item.hourly_rate}/h
+                                <Clock className="mr-1 h-3 w-3" />€{item.hourly_rate}/h
                               </>
                             )}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
-                            <DropdownMenuTrigger
-                              asChild
-                              onClick={(e) => e.stopPropagation()}
-                            >
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -321,9 +305,7 @@ export default function WorkItemsTable({
                     client_id: editWorkItem.client_id ?? "",
                     type: editWorkItem.type,
                     status: editWorkItem.status,
-                    enabled_users: editWorkItem.work_item_enabled_users.map(
-                      (user) => user.user_id
-                    ),
+                    enabled_users: editWorkItem.work_item_enabled_users.map((user) => user.user_id),
                     start_date: safeDateString(editWorkItem.start_date),
                     end_date: safeDateString(editWorkItem.end_date),
                     project_id: editWorkItem.project_id ?? "",
@@ -344,18 +326,14 @@ export default function WorkItemsTable({
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>
-                Sei sicuro di voler eliminare questa commessa?
-              </AlertDialogTitle>
+              <AlertDialogTitle>Sei sicuro di voler eliminare questa commessa?</AlertDialogTitle>
               <AlertDialogDescription>
-                Questa azione non può essere annullata. La commessa verrà
-                eliminata permanentemente dal sistema.
+                Questa azione non può essere annullata. La commessa verrà eliminata permanentemente
+                dal sistema.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleting}>
-                Annulla
-              </AlertDialogCancel>
+              <AlertDialogCancel disabled={isDeleting}>Annulla</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive text-destructive-foreground"
                 onClick={handleDeleteWorkItem}

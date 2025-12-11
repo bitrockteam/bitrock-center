@@ -15,13 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -29,12 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { timesheet, user } from "@/db";
 import { useTimesheetApi } from "@/hooks/useTimesheetApi";
 import { motion } from "framer-motion";
@@ -130,11 +119,7 @@ export default function TimeTrackingCalendar({
 
   // Ottieni le voci per un giorno specifico
   const getEntriesForDay = (day: number) => {
-    const date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day
-    );
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     const dateKey = getLocalDateString(date);
     return filteredEntriesByDate[dateKey] || [];
   };
@@ -155,11 +140,7 @@ export default function TimeTrackingCalendar({
 
   // Funzione per aprire il dialog di aggiunta ore
   const handleAddHours = (day: number) => {
-    const date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day
-    );
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     const dateKey = getLocalDateString(date);
     setSelectedDate(dateKey);
     setShowAddDialog(true);
@@ -242,15 +223,10 @@ export default function TimeTrackingCalendar({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
               <CardTitle>Calendario Ore</CardTitle>
-              <CardDescription>
-                Visualizza le ore lavorate in formato calendario
-              </CardDescription>
+              <CardDescription>Visualizza le ore lavorate in formato calendario</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
-              <Select
-                value={selectedProject}
-                onValueChange={setSelectedProject}
-              >
+              <Select value={selectedProject} onValueChange={setSelectedProject}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Filtra per progetto" />
                 </SelectTrigger>
@@ -271,12 +247,7 @@ export default function TimeTrackingCalendar({
               variant="outline"
               size="icon"
               onClick={() =>
-                setCurrentDate(
-                  new Date(
-                    currentDate.getFullYear(),
-                    currentDate.getMonth() - 1
-                  )
-                )
+                setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
               }
               className="transition-all duration-300 hover:scale-110"
             >
@@ -292,12 +263,7 @@ export default function TimeTrackingCalendar({
               variant="outline"
               size="icon"
               onClick={() =>
-                setCurrentDate(
-                  new Date(
-                    currentDate.getFullYear(),
-                    currentDate.getMonth() + 1
-                  )
-                )
+                setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
               }
               className="transition-all duration-300 hover:scale-110"
             >
@@ -318,10 +284,7 @@ export default function TimeTrackingCalendar({
             {calendarDays.map((day) => {
               if (day === null) {
                 return (
-                  <div
-                    key={`empty-${day}`}
-                    className="h-24 p-1 border border-transparent"
-                  ></div>
+                  <div key={`empty-${day}`} className="h-24 p-1 border border-transparent"></div>
                 );
               }
 
@@ -332,16 +295,8 @@ export default function TimeTrackingCalendar({
                 new Date().getMonth() === currentDate.getMonth() &&
                 new Date().getFullYear() === currentDate.getFullYear();
               const isWeekend =
-                new Date(
-                  currentDate.getFullYear(),
-                  currentDate.getMonth(),
-                  day
-                ).getDay() === 0 ||
-                new Date(
-                  currentDate.getFullYear(),
-                  currentDate.getMonth(),
-                  day
-                ).getDay() === 6;
+                new Date(currentDate.getFullYear(), currentDate.getMonth(), day).getDay() === 0 ||
+                new Date(currentDate.getFullYear(), currentDate.getMonth(), day).getDay() === 6;
 
               return (
                 <motion.div
@@ -380,8 +335,8 @@ export default function TimeTrackingCalendar({
                         isToday
                           ? "text-primary"
                           : isWeekend
-                          ? "text-muted-foreground group-hover/day:text-primary"
-                          : "group-hover/day:text-primary"
+                            ? "text-muted-foreground group-hover/day:text-primary"
+                            : "group-hover/day:text-primary"
                       }`}
                     >
                       {day}
@@ -404,15 +359,9 @@ export default function TimeTrackingCalendar({
                           <TooltipTrigger asChild>
                             <div className="flex items-center justify-between text-xs bg-background/80 rounded px-1 py-0.5">
                               <span className="truncate">
-                                {
-                                  work_items?.find(
-                                    (p) => p.id === entry.work_item_id
-                                  )?.title
-                                }
+                                {work_items?.find((p) => p.id === entry.work_item_id)?.title}
                               </span>
-                              <span className="font-medium">
-                                {entry.hours}h
-                              </span>
+                              <span className="font-medium">{entry.hours}h</span>
                               {!isReadyOnly && (
                                 <div className="flex items-center space-x-1">
                                   <Button
@@ -439,29 +388,20 @@ export default function TimeTrackingCalendar({
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                       <AlertDialogHeader>
-                                        <AlertDialogTitle>
-                                          Conferma eliminazione
-                                        </AlertDialogTitle>
+                                        <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                          Sei sicuro di voler eliminare questa
-                                          registrazione? Questa azione non può
-                                          essere annullata.
+                                          Sei sicuro di voler eliminare questa registrazione? Questa
+                                          azione non può essere annullata.
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
                                       <AlertDialogFooter>
-                                        <AlertDialogCancel>
-                                          Annulla
-                                        </AlertDialogCancel>
+                                        <AlertDialogCancel>Annulla</AlertDialogCancel>
                                         <AlertDialogAction
-                                          onClick={() =>
-                                            handleDeleteEntry(entry.id)
-                                          }
+                                          onClick={() => handleDeleteEntry(entry.id)}
                                           disabled={loading}
                                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                         >
-                                          {loading
-                                            ? "Eliminazione..."
-                                            : "Elimina"}
+                                          {loading ? "Eliminazione..." : "Elimina"}
                                         </AlertDialogAction>
                                       </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -473,16 +413,10 @@ export default function TimeTrackingCalendar({
                           <TooltipContent>
                             <div>
                               <p className="font-medium">
-                                {
-                                  work_items?.find(
-                                    (p) => p.id === entry.work_item_id
-                                  )?.title
-                                }
+                                {work_items?.find((p) => p.id === entry.work_item_id)?.title}
                               </p>
                               <p>{entry.hours} ore</p>
-                              {entry.description && (
-                                <p className="text-xs">{entry.description}</p>
-                              )}
+                              {entry.description && <p className="text-xs">{entry.description}</p>}
                             </div>
                           </TooltipContent>
                         </Tooltip>

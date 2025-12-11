@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -50,9 +44,7 @@ export default function HoursChart() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Distribuzione Ore</CardTitle>
-              <CardDescription>
-                Visualizzazione delle ore lavorate
-              </CardDescription>
+              <CardDescription>Visualizzazione delle ore lavorate</CardDescription>
             </div>
             <Tabs defaultValue="weekly" value={view} onValueChange={setView}>
               <TabsList>

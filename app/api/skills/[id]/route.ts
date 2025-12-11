@@ -1,10 +1,7 @@
 import { getSkillById } from "@/app/server-actions/skills/getSkillById";
 import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const skill = await getSkillById(id);

@@ -18,10 +18,7 @@ export default function SkillsPage() {
 
       <Tabs defaultValue="employees" className="space-y-6">
         <TabsList className="grid min-w-md grid-cols-2">
-          <TabsTrigger
-            value="employees"
-            className="transition-all duration-300"
-          >
+          <TabsTrigger value="employees" className="transition-all duration-300">
             Skills Dipendenti
           </TabsTrigger>
           <TabsTrigger value="admin" className="transition-all duration-300">

@@ -4,22 +4,12 @@ import type { SkillWithUsers } from "@/app/server-actions/skills/getSkillById";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  getSeniorityLevelColor,
-  getSeniorityLevelLabel,
-  getSkillIcon,
-} from "./utils";
+import { getSeniorityLevelColor, getSeniorityLevelLabel, getSkillIcon } from "./utils";
 
 export default function SkillDetail({ skill }: { skill: SkillWithUsers }) {
   const router = useRouter();
@@ -62,14 +52,10 @@ export default function SkillDetail({ skill }: { skill: SkillWithUsers }) {
             <div>
               <h1 className="text-3xl font-bold">{skill.name}</h1>
               <div className="flex items-center space-x-2 mt-1">
-                <Badge
-                  variant={skill.category === "hard" ? "default" : "secondary"}
-                >
+                <Badge variant={skill.category === "hard" ? "default" : "secondary"}>
                   {skill.category === "hard" ? "Hard Skill" : "Soft Skill"}
                 </Badge>
-                {!skill.active && (
-                  <Badge variant="destructive">Non attiva</Badge>
-                )}
+                {!skill.active && <Badge variant="destructive">Non attiva</Badge>}
               </div>
             </div>
           </div>
@@ -102,9 +88,7 @@ export default function SkillDetail({ skill }: { skill: SkillWithUsers }) {
                   ? "Nessun dipendente possiede questa skill"
                   : `${employeesWithSkill.length} dipendente${
                       employeesWithSkill.length !== 1 ? "i" : ""
-                    } possiede${
-                      employeesWithSkill.length !== 1 ? "ono" : ""
-                    } questa skill`}
+                    } possiede${employeesWithSkill.length !== 1 ? "ono" : ""} questa skill`}
               </CardDescription>
             </div>
           </div>
@@ -135,25 +119,20 @@ export default function SkillDetail({ skill }: { skill: SkillWithUsers }) {
                   >
                     <div className="flex items-center space-x-4 flex-1">
                       <Avatar>
-                        <AvatarImage
-                          src={employee.avatar_url || "/logo.png"}
-                          alt={displayName}
-                        />
+                        {employee.avatar_url && (
+                          <AvatarImage src={employee.avatar_url} alt={displayName} />
+                        )}
                         <AvatarFallback>{initials}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <h4 className="font-medium">{displayName}</h4>
                         {employee.email && (
-                          <p className="text-sm text-muted-foreground">
-                            {employee.email}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{employee.email}</p>
                         )}
                       </div>
                     </div>
                     <Badge
-                      className={`text-white ${getSeniorityLevelColor(
-                        userSkill.seniorityLevel
-                      )}`}
+                      className={`text-white ${getSeniorityLevelColor(userSkill.seniorityLevel)}`}
                     >
                       {getSeniorityLevelLabel(userSkill.seniorityLevel)}
                     </Badge>

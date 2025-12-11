@@ -20,9 +20,7 @@ export default function UsersHeader({
   const serachParams = useSearchParams();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [textSearch, setTextSearch] = useState(
-    serachParams.get("params") ?? ""
-  );
+  const [textSearch, setTextSearch] = useState(serachParams.get("params") ?? "");
   const [debouncedInput, setDebouncedInput] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,10 +78,7 @@ export default function UsersHeader({
         </div>
         {canCreateUser && (
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              onClick={() => setShowAddDialog(true)}
-              className="cursor-pointer	"
-            >
+            <Button onClick={() => setShowAddDialog(true)} className="cursor-pointer	">
               <PlusCircle className="mr-2 h-4 w-4" />
               Nuovo Utente
             </Button>

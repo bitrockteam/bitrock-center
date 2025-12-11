@@ -8,17 +8,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 
-export default function ProjectsHeader({
-  canCreateProject,
-}: {
-  canCreateProject?: boolean;
-}) {
+export default function ProjectsHeader({ canCreateProject }: { canCreateProject?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [textSearch, setTextSearch] = useState(
-    searchParams.get("params") ?? ""
-  );
+  const [textSearch, setTextSearch] = useState(searchParams.get("params") ?? "");
   const [debouncedInput, setDebouncedInput] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

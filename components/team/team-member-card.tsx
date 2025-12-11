@@ -4,14 +4,7 @@ import { motion } from "framer-motion";
 import { Mail, Plus } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { AddDialogMemberTeam } from "./add-dialog-member-team";
 import { RemoveMemberDialog } from "./remove-member-dialog";
 import type { TeamMemberCardProps } from "./types";
@@ -85,15 +78,11 @@ export function TeamMemberCard({
                         alt={`Avatar di ${teamMember.name}`}
                       />
                     )}
-                    <AvatarFallback>
-                      {teamMember.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
+                    <AvatarFallback>{teamMember.name.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-background bg-green-500 group-hover:scale-110 transition-transform" />
                 </div>
-                <span className="truncate font-semibold">
-                  {teamMember.name}
-                </span>
+                <span className="truncate font-semibold">{teamMember.name}</span>
               </CardTitle>
               <CardDescription className="text-left">
                 {getRoleBadge(teamMember.role)}
@@ -102,9 +91,7 @@ export function TeamMemberCard({
             <CardContent className="relative">
               <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2 group-hover:bg-muted transition-colors">
                 <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground truncate">
-                  {teamMember.email}
-                </p>
+                <p className="text-sm text-muted-foreground truncate">{teamMember.email}</p>
               </div>
             </CardContent>
           </Card>
@@ -119,10 +106,7 @@ export function TeamMemberCard({
           transition={{ duration: 0.2, delay: 0.1 }}
           className="absolute top-2 right-2 z-10"
         >
-          <RemoveMemberDialog
-            teamMember={teamMember}
-            onConfirm={handleRemoveMember}
-          />
+          <RemoveMemberDialog teamMember={teamMember} onConfirm={handleRemoveMember} />
         </motion.div>
       )}
     </div>

@@ -37,9 +37,7 @@ export default function TimeTrackingHeader({
               Visualizza le ore lavorate per {userTimesheet?.user?.name}
             </p>
           ) : (
-            <p className="text-muted-foreground">
-              Gestisci le tue ore lavorate
-            </p>
+            <p className="text-muted-foreground">Gestisci le tue ore lavorate</p>
           )}
         </div>
       </div>
@@ -56,11 +54,7 @@ export default function TimeTrackingHeader({
             </Button>
           </motion.div>
 
-          <AddHoursDialog
-            open={showAddDialog}
-            onOpenChange={setShowAddDialog}
-            user={user}
-          />
+          <AddHoursDialog open={showAddDialog} onOpenChange={setShowAddDialog} user={user} />
         </>
       )}
     </motion.div>

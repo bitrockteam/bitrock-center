@@ -10,11 +10,7 @@ export const metadata: Metadata = {
   description: "Dettagli skill o competenze dipendente",
 };
 
-export default async function SkillDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function SkillDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   // Use environment variable or fallback to localhost

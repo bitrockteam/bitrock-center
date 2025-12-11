@@ -41,11 +41,8 @@ import AddProjectDialog from "./add-project-dialog";
 
 export default function ProjectsTable({ projects }: { projects: Project[] }) {
   const router = useRouter();
-  const [editProjectDialog, setEditProjectDialog] = useState<Project | null>(
-    null
-  );
-  const [deleteProjectDialog, setDeleteProjectDialog] =
-    useState<project | null>(null);
+  const [editProjectDialog, setEditProjectDialog] = useState<Project | null>(null);
+  const [deleteProjectDialog, setDeleteProjectDialog] = useState<project | null>(null);
 
   const handleViewProject = (id: string) => {
     router.push(`/progetti/${id}`);
@@ -79,10 +76,7 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
             <TableBody>
               {projects.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-6 text-muted-foreground"
-                  >
+                  <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                     Nessun progetto trovato
                   </TableCell>
                 </TableRow>
@@ -102,24 +96,17 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                     <TableCell className="group-hover/row:text-primary transition-colors">
                       {project?.client.name}
                     </TableCell>
-                    <TableCell>
-                      {getProjectStatusBadge(project?.status)}
-                    </TableCell>
+                    <TableCell>{getProjectStatusBadge(project?.status)}</TableCell>
 
                     <TableCell className="group-hover/row:text-primary transition-colors">
                       {dayjs(project?.start_date).format("MM DD YYYY")}
                     </TableCell>
                     <TableCell className="group-hover/row:text-primary transition-colors">
-                      {project?.end_date
-                        ? dayjs(project?.end_date).format("MM DD YYYY")
-                        : "-"}
+                      {project?.end_date ? dayjs(project?.end_date).format("MM DD YYYY") : "-"}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
-                        <DropdownMenuTrigger
-                          asChild
-                          onClick={(e) => e.stopPropagation()}
-                        >
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -186,12 +173,10 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Sei sicuro di voler eliminare questo progetto?
-            </AlertDialogTitle>
+            <AlertDialogTitle>Sei sicuro di voler eliminare questo progetto?</AlertDialogTitle>
             <AlertDialogDescription>
-              Questa azione non può essere annullata. Il progetto verrà
-              eliminato permanentemente dal sistema.
+              Questa azione non può essere annullata. Il progetto verrà eliminato permanentemente
+              dal sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

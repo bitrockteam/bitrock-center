@@ -141,9 +141,7 @@ export default function TimeTrackingTable({
                   <TableHead>Progetto</TableHead>
                   <TableHead>Ore</TableHead>
                   <TableHead>Descrizione</TableHead>
-                  {!isReadOnly && (
-                    <TableHead className="text-right">Azioni</TableHead>
-                  )}
+                  {!isReadOnly && <TableHead className="text-right">Azioni</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -170,10 +168,7 @@ export default function TimeTrackingTable({
                       </TableCell>
 
                       <TableCell className="group-hover/row:text-primary transition-colors">
-                        {
-                          work_items?.find((w) => w.id === entry.work_item_id)
-                            ?.title
-                        }
+                        {work_items?.find((w) => w.id === entry.work_item_id)?.title}
                       </TableCell>
                       <TableCell className="group-hover/row:text-primary transition-colors font-medium">
                         {entry.hours}
@@ -204,13 +199,10 @@ export default function TimeTrackingTable({
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Conferma eliminazione
-                                  </AlertDialogTitle>
+                                  <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Sei sicuro di voler eliminare questa
-                                    registrazione? Questa azione non può essere
-                                    annullata.
+                                    Sei sicuro di voler eliminare questa registrazione? Questa
+                                    azione non può essere annullata.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

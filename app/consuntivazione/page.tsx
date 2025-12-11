@@ -21,18 +21,14 @@ export default async function TimeTrackingPage() {
   const user = await getUserInfoFromCookie();
   const workItems = await fetchAllWorkItems();
   const timesheets = await fetchUserTimesheet();
-  const CAN_EDIT_WORKING_DAY = await hasPermission(
-    Permissions.CAN_EDIT_WORKING_DAY
-  );
+  const CAN_EDIT_WORKING_DAY = await hasPermission(Permissions.CAN_EDIT_WORKING_DAY);
 
   return (
     <div className="space-y-6">
       <TimeTrackingHeader user={user} />
       <Tabs defaultValue="table" className="w-full">
         <TabsList
-          className={`grid w-full max-w-md ${
-            CAN_EDIT_WORKING_DAY ? "grid-cols-3" : "grid-cols-2"
-          }`}
+          className={`grid w-full max-w-md ${CAN_EDIT_WORKING_DAY ? "grid-cols-3" : "grid-cols-2"}`}
         >
           <TabsTrigger value="table" className="transition-all duration-300">
             Tabella
@@ -47,18 +43,10 @@ export default async function TimeTrackingPage() {
           )}
         </TabsList>
         <TabsContent value="table" className="mt-6">
-          <TimeTrackingTable
-            user={user}
-            work_items={workItems}
-            timesheets={timesheets}
-          />
+          <TimeTrackingTable user={user} work_items={workItems} timesheets={timesheets} />
         </TabsContent>
         <TabsContent value="calendar" className="mt-6">
-          <TimeTrackingCalendar
-            user={user}
-            work_items={workItems}
-            timesheets={timesheets}
-          />
+          <TimeTrackingCalendar user={user} work_items={workItems} timesheets={timesheets} />
         </TabsContent>
         {CAN_EDIT_WORKING_DAY && (
           <TabsContent value="config" className="mt-6">

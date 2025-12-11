@@ -3,13 +3,7 @@
 import type { UserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -18,12 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PermitStatus, PermitType, type permit } from "@/db";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
@@ -72,16 +61,12 @@ export default function CalendarView({
 
   // Funzione per passare al mese precedente
   const goToPreviousMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
-    );
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
   };
 
   // Funzione per passare al mese successivo
   const goToNextMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
-    );
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
   // Funzione per ottenere gli eventi di un giorno specifico
@@ -175,9 +160,7 @@ export default function CalendarView({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Calendario Attività</CardTitle>
-              <CardDescription>
-                Visualizza ore lavorate, ferie e permessi
-              </CardDescription>
+              <CardDescription>Visualizza ore lavorate, ferie e permessi</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -217,10 +200,7 @@ export default function CalendarView({
             {calendarDays.map((day) => {
               if (day === null) {
                 return (
-                  <div
-                    key={`empty-${day}`}
-                    className="h-24 p-1 border border-transparent"
-                  ></div>
+                  <div key={`empty-${day}`} className="h-24 p-1 border border-transparent"></div>
                 );
               }
 
@@ -230,8 +210,7 @@ export default function CalendarView({
                 new Date().getMonth() === currentDate.getMonth() &&
                 new Date().getFullYear() === currentDate.getFullYear();
 
-              const totalEvents =
-                dailyEvents.permits.length + dailyEvents.timesheet.length;
+              const totalEvents = dailyEvents.permits.length + dailyEvents.timesheet.length;
 
               return (
                 <motion.div
@@ -247,9 +226,7 @@ export default function CalendarView({
                   <div className="flex justify-between items-start">
                     <span
                       className={`text-sm font-medium transition-colors ${
-                        isToday
-                          ? "text-primary"
-                          : "group-hover/day:text-primary"
+                        isToday ? "text-primary" : "group-hover/day:text-primary"
                       }`}
                     >
                       {day}
@@ -283,9 +260,7 @@ export default function CalendarView({
                                 className="border rounded-md p-3 transition-all duration-300 hover:border-primary/50 hover:bg-muted/50"
                               >
                                 <div className="flex items-center space-x-2 mb-2">
-                                  <Badge
-                                    className={getEventBadgeColor(event.type)}
-                                  >
+                                  <Badge className={getEventBadgeColor(event.type)}>
                                     {getEventTypeLabel(event.type)}
                                   </Badge>
                                   <Badge
@@ -293,25 +268,21 @@ export default function CalendarView({
                                       event.status === PermitStatus.APPROVED
                                         ? "outline"
                                         : event.status === PermitStatus.PENDING
-                                        ? "secondary"
-                                        : "destructive"
+                                          ? "secondary"
+                                          : "destructive"
                                     }
                                   >
                                     {event.status === PermitStatus.APPROVED
                                       ? "Approvato"
                                       : event.status === PermitStatus.PENDING
-                                      ? "In attesa"
-                                      : "Rifiutato"}
+                                        ? "In attesa"
+                                        : "Rifiutato"}
                                   </Badge>
                                 </div>
                                 {event.duration && (
-                                  <p className="text-sm mb-1">
-                                    Ore: {Number(event.duration)}h
-                                  </p>
+                                  <p className="text-sm mb-1">Ore: {Number(event.duration)}h</p>
                                 )}
-                                <p className="text-sm text-muted-foreground">
-                                  {event.description}
-                                </p>
+                                <p className="text-sm text-muted-foreground">{event.description}</p>
                               </div>
                             ))}
                           </div>
@@ -340,9 +311,7 @@ export default function CalendarView({
                       </TooltipProvider>
                     ))}
                     {totalEvents > 2 && (
-                      <div className="text-xs text-muted-foreground">
-                        +{totalEvents - 2} altri
-                      </div>
+                      <div className="text-xs text-muted-foreground">+{totalEvents - 2} altri</div>
                     )}
                   </div>
                 </motion.div>

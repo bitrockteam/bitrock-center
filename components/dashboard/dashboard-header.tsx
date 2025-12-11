@@ -16,8 +16,7 @@ export function DashboardHeader({ userData }: { userData: Promise<user> }) {
   }).format(currentDate);
 
   // Capitalize first letter
-  const capitalizedDate =
-    formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
   return (
     <motion.div
@@ -33,8 +32,7 @@ export function DashboardHeader({ userData }: { userData: Promise<user> }) {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
-            Benvenuto, {getFirstnameAndLastname(user?.name).firstName}.{" "}
-            {capitalizedDate}
+            Benvenuto, {getFirstnameAndLastname(user?.name).firstName}. {capitalizedDate}
           </p>
         </div>
       </div>

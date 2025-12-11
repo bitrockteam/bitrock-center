@@ -1,13 +1,7 @@
 "use client";
 
 import type { LastestNotification } from "@/app/server-actions/dashboard/fetchLatestNotifications";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getStatusBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { Bell } from "lucide-react";
@@ -31,9 +25,7 @@ export default function NotificationsCard({
         <CardHeader className="relative flex flex-row items-center">
           <div className="flex-1">
             <CardTitle>Notifiche</CardTitle>
-            <CardDescription>
-              Richieste in attesa di approvazione
-            </CardDescription>
+            <CardDescription>Richieste in attesa di approvazione</CardDescription>
           </div>
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/20 group-hover:from-amber-500/30 group-hover:to-amber-600/30 transition-colors">
             <Bell className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -58,14 +50,12 @@ export default function NotificationsCard({
                       {notification.type === "PERMISSION"
                         ? "Richiesta di permesso"
                         : notification.type === "VACATION"
-                        ? "Richiesta di ferie"
-                        : notification.type === "SICKNESS"
-                        ? "Richiesta di malattia"
-                        : "Notifica generica"}
+                          ? "Richiesta di ferie"
+                          : notification.type === "SICKNESS"
+                            ? "Richiesta di malattia"
+                            : "Notifica generica"}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {notification.description}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{notification.description}</p>
                   </div>
                   {getStatusBadge(notification.status)}
                 </motion.div>

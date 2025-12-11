@@ -37,11 +37,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
-export default function ClientsTable({
-  canEditClient,
-}: {
-  canEditClient: boolean;
-}) {
+export default function ClientsTable({ canEditClient }: { canEditClient: boolean }) {
   const router = useRouter();
   const [editClient, setEditClient] = useState<string>();
   const [deleteClient, setDeleteClient] = useState<string>();
@@ -93,10 +89,7 @@ export default function ClientsTable({
               <TableBody>
                 {clients?.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="text-center py-6 text-muted-foreground"
-                    >
+                    <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                       Nessun cliente trovato
                     </TableCell>
                   </TableRow>
@@ -133,10 +126,7 @@ export default function ClientsTable({
                       <TableCell>{getStatusBadge(client.status)}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
-                          <DropdownMenuTrigger
-                            asChild
-                            onClick={(e) => e.stopPropagation()}
-                          >
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                             <Button
                               variant="ghost"
                               size="icon"
@@ -208,12 +198,10 @@ export default function ClientsTable({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Sei sicuro di voler eliminare questo cliente?
-            </AlertDialogTitle>
+            <AlertDialogTitle>Sei sicuro di voler eliminare questo cliente?</AlertDialogTitle>
             <AlertDialogDescription>
-              Questa azione non può essere annullata. Il cliente verrà eliminato
-              permanentemente dal sistema.
+              Questa azione non può essere annullata. Il cliente verrà eliminato permanentemente dal
+              sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

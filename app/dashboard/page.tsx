@@ -48,10 +48,7 @@ export default async function DashboardPage() {
           </div>
         </TabsContent>
         <TabsContent value="calendar" className="mt-6">
-          <CalendarView
-            timesheetData={latestTimesheets}
-            permitsData={permits}
-          />
+          <CalendarView timesheetData={latestTimesheets} permitsData={permits} />
         </TabsContent>
       </Tabs>
     </div>

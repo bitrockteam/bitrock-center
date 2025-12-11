@@ -29,13 +29,10 @@ const defaultHolidays: Holiday[] = [
   { name: "Christmas", date: "2024-12-25" },
   { name: "Easter", date: "2024-03-31" },
 ];
-const defaultEvents: Event[] = [
-  { name: "Company Convention", date: "2024-09-15" },
-];
+const defaultEvents: Event[] = [{ name: "Company Convention", date: "2024-09-15" }];
 
 const WorkingDaysConfig = () => {
-  const [workingDays, setWorkingDays] =
-    useState<WorkingDay[]>(defaultWorkingDays);
+  const [workingDays, setWorkingDays] = useState<WorkingDay[]>(defaultWorkingDays);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editHours, setEditHours] = useState("");
   const [editLunch, setEditLunch] = useState("");
@@ -72,10 +69,7 @@ const WorkingDaysConfig = () => {
   // Holiday Handlers
   const handleAddHoliday = () => {
     if (!newHolidayName.trim() || !newHolidayDate) return;
-    setHolidays([
-      ...holidays,
-      { name: newHolidayName.trim(), date: newHolidayDate },
-    ]);
+    setHolidays([...holidays, { name: newHolidayName.trim(), date: newHolidayDate }]);
     setNewHolidayName("");
     setNewHolidayDate("");
   };
@@ -157,9 +151,7 @@ const WorkingDaysConfig = () => {
                         onChange={(e) => setEditHours(e.target.value)}
                         aria-label={`Edit hours for ${day.day}`}
                         tabIndex={0}
-                        onKeyDown={(e) =>
-                          e.key === "Enter" && handleSaveDay(idx)
-                        }
+                        onKeyDown={(e) => e.key === "Enter" && handleSaveDay(idx)}
                         className="w-32"
                       />
                     ) : (
@@ -173,9 +165,7 @@ const WorkingDaysConfig = () => {
                         onChange={(e) => setEditLunch(e.target.value)}
                         aria-label={`Edit lunch for ${day.day}`}
                         tabIndex={0}
-                        onKeyDown={(e) =>
-                          e.key === "Enter" && handleSaveDay(idx)
-                        }
+                        onKeyDown={(e) => e.key === "Enter" && handleSaveDay(idx)}
                         className="w-32"
                       />
                     ) : (
@@ -231,12 +221,7 @@ const WorkingDaysConfig = () => {
                 tabIndex={0}
                 className="w-40"
               />
-              <Button
-                onClick={handleAddHoliday}
-                aria-label="Add holiday"
-                tabIndex={0}
-                size="sm"
-              >
+              <Button onClick={handleAddHoliday} aria-label="Add holiday" tabIndex={0} size="sm">
                 Add
               </Button>
             </div>
@@ -275,9 +260,7 @@ const WorkingDaysConfig = () => {
                   ) : (
                     <div className="flex gap-2 items-center">
                       <span>{holiday.name}</span>
-                      <span className="text-xs text-gray-500">
-                        {holiday.date}
-                      </span>
+                      <span className="text-xs text-gray-500">{holiday.date}</span>
                       <Button
                         onClick={() => handleEditHoliday(idx)}
                         aria-label={`Edit ${holiday.name}`}
@@ -324,12 +307,7 @@ const WorkingDaysConfig = () => {
                 tabIndex={0}
                 className="w-40"
               />
-              <Button
-                onClick={handleAddEvent}
-                aria-label="Add event"
-                tabIndex={0}
-                size="sm"
-              >
+              <Button onClick={handleAddEvent} aria-label="Add event" tabIndex={0} size="sm">
                 Add
               </Button>
             </div>
@@ -368,9 +346,7 @@ const WorkingDaysConfig = () => {
                   ) : (
                     <div className="flex gap-2 items-center">
                       <span>{event.name}</span>
-                      <span className="text-xs text-gray-500">
-                        {event.date}
-                      </span>
+                      <span className="text-xs text-gray-500">{event.date}</span>
                       <Button
                         onClick={() => handleEditEvent(idx)}
                         aria-label={`Edit ${event.name}`}

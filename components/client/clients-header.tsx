@@ -7,11 +7,7 @@ import { Building2, PlusCircle, Search } from "lucide-react";
 import { useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
-export default function ClientsHeader({
-  canCreateClient,
-}: {
-  canCreateClient: boolean;
-}) {
+export default function ClientsHeader({ canCreateClient }: { canCreateClient: boolean }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   return (

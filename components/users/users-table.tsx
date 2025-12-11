@@ -17,13 +17,7 @@ import { canUserEdit, formatDisplayName } from "@/services/users/utils";
 import { getRoleBadge } from "@/utils/mapping";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 export default function UsersTable({
   users,
@@ -63,10 +57,7 @@ export default function UsersTable({
             <TableBody>
               {users?.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center py-6 text-muted-foreground"
-                  >
+                  <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                     Nessun utente trovato
                   </TableCell>
                 </TableRow>
@@ -117,10 +108,7 @@ export default function UsersTable({
                               });
                               refetch();
                             } catch (error) {
-                              console.error(
-                                "Failed to update user role:",
-                                error
-                              );
+                              console.error("Failed to update user role:", error);
                             }
                           }}
                           value={us.role}

@@ -230,7 +230,7 @@ export default function ProjectDetail({
                                   key={user_id}
                                   className="h-6 w-6 border-2 border-background"
                                 >
-                                  <AvatarImage src={user?.avatar_url || "/logo.png"} />
+                                  {user?.avatar_url && <AvatarImage src={user.avatar_url} />}
                                   <AvatarFallback className="text-xs">
                                     {formatDisplayName({
                                       name: user?.name || "Utente",
@@ -297,7 +297,9 @@ export default function ProjectDetail({
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Avatar className="h-6 w-6">
-                              <AvatarImage src={entry?.user?.avatar_url ?? "/logo.png"} />
+                              {entry?.user?.avatar_url && (
+                                <AvatarImage src={entry.user.avatar_url} />
+                              )}
                               <AvatarFallback>
                                 {formatDisplayName({
                                   name: entry?.user.name ?? "",

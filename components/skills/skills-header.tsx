@@ -17,9 +17,7 @@ export default function SkillsHeader() {
         </div>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Skills</h1>
-          <p className="text-muted-foreground">
-            Gestione delle competenze aziendali
-          </p>
+          <p className="text-muted-foreground">Gestione delle competenze aziendali</p>
         </div>
       </div>
     </motion.div>

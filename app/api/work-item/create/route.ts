@@ -6,12 +6,7 @@ export async function POST(req: NextRequest) {
   try {
     const { workItem, enabled_users } = await req.json();
 
-    if (
-      !workItem.title ||
-      !workItem.client_id ||
-      !workItem.type ||
-      !workItem.status
-    ) {
+    if (!workItem.title || !workItem.client_id || !workItem.type || !workItem.status) {
       return NextResponse.json(
         {
           error: "Missing required fields: title, client_id, type, and status",
@@ -21,10 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!Array.isArray(enabled_users)) {
-      return NextResponse.json(
-        { error: "enabled_users must be an array" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "enabled_users must be an array" }, { status: 400 });
     }
 
     // Convert start_date from string to Date, or use today's date if not provided
@@ -59,8 +51,7 @@ export async function POST(req: NextRequest) {
       if (!workItem.estimated_hours || workItem.estimated_hours <= 0) {
         return NextResponse.json(
           {
-            error:
-              "Time & Material work items require valid estimated_hours > 0",
+            error: "Time & Material work items require valid estimated_hours > 0",
           },
           { status: 400 }
         );
@@ -86,11 +77,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error creating work item:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Failed to create work item";
-    return NextResponse.json(
-      { success: false, error: errorMessage },
-      { status: 500 }
-    );
+    const errorMessage = error instanceof Error ? error.message : "Failed to create work item";
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }

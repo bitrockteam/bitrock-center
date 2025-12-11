@@ -37,12 +37,9 @@ export default function WorkItemsHeader({
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
     try {
-      await searchWorkItems(
-        `/api/work-item/search?q=${encodeURIComponent(query)}`,
-        {
-          method: "GET",
-        }
-      );
+      await searchWorkItems(`/api/work-item/search?q=${encodeURIComponent(query)}`, {
+        method: "GET",
+      });
       // The search results will be handled by the parent component through router.refresh()
       router.refresh();
     } catch (error) {
@@ -63,9 +60,7 @@ export default function WorkItemsHeader({
         </div>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Commesse</h1>
-          <p className="text-muted-foreground">
-            Gestisci le attività lavorative e commesse
-          </p>
+          <p className="text-muted-foreground">Gestisci le attività lavorative e commesse</p>
         </div>
       </div>
       <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
@@ -79,11 +74,7 @@ export default function WorkItemsHeader({
             onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
-        <Select
-          onValueChange={(value) =>
-            onClientFilter?.(value === "all" ? null : value)
-          }
-        >
+        <Select onValueChange={(value) => onClientFilter?.(value === "all" ? null : value)}>
           <SelectTrigger className="w-[180px]">
             <Filter className="mr-2 h-4 w-4" />
             <SelectValue placeholder="Filtra per cliente" />

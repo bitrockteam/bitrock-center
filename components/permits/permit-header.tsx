@@ -3,14 +3,17 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Calendar, PlusCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import PermitRequestForm from "./permit-form";
 
 export default function PermitHeader() {
   const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const router = useRouter();
 
   const handlePermitCreated = () => {
     setShowRequestDialog(false);
+    router.refresh();
   };
 
   return (
@@ -31,7 +34,10 @@ export default function PermitHeader() {
           </div>
         </div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button onClick={() => setShowRequestDialog(true)} className="transition-all duration-300">
+          <Button
+            onClick={() => setShowRequestDialog(true)}
+            className="transition-all duration-300"
+          >
             <PlusCircle className="mr-2 h-4 w-4" />
             Nuova Richiesta
           </Button>

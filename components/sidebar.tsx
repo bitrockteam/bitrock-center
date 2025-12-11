@@ -1,5 +1,19 @@
 "use client";
 
+import { logout } from "@/app/login/actions";
+import { ModeToggle } from "@/components/mode-toggle";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Permissions, type user } from "@/db";
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   Briefcase,
@@ -20,20 +34,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { logout } from "@/app/login/actions";
-import { ModeToggle } from "@/components/mode-toggle";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Permissions, type user } from "@/db";
-import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const navItems = [
@@ -165,7 +165,7 @@ export default function Sidebar({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar_url || "/logo.png"} alt="user avatar" />
+                        {user.avatar_url && <AvatarImage src={user.avatar_url} alt="user avatar" />}
                         <AvatarFallback>
                           {user.name
                             .trim()
