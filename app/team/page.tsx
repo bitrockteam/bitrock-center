@@ -1,8 +1,10 @@
-import type { Metadata } from "next";
+import { fetchOwnerTeamAllocationsRecap } from "@/app/server-actions/team/fetchOwnerTeamAllocationsRecap";
+import { fetchTeamAllocationsRecap } from "@/app/server-actions/team/fetchTeamAllocationsRecap";
 import { fetchTeam } from "@/app/server-actions/user/fetchMyTeam";
 import { fetchMyTeam } from "@/app/server-actions/user/fetchTeam";
 import { TeamMemberContainer } from "@/components/team/team-member-container";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +18,8 @@ export default async function TeamPage() {
     const user = await getUserInfoFromCookie();
     const teamMembers = await fetchTeam();
     const myTeamData = await fetchMyTeam();
+    const allocationsRecap = await fetchTeamAllocationsRecap();
+    const ownerTeamAllocationsRecap = await fetchOwnerTeamAllocationsRecap();
 
     return (
       <TeamMemberContainer
@@ -23,6 +27,8 @@ export default async function TeamPage() {
         team={teamMembers}
         isOwner={teamMembers.length > 0}
         user={user}
+        allocationsRecap={allocationsRecap}
+        ownerTeamAllocationsRecap={ownerTeamAllocationsRecap}
       />
     );
   } catch (error) {

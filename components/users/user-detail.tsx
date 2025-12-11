@@ -14,26 +14,41 @@ import {
 } from "@/components/ui/select";
 import { Permissions } from "@/db";
 import { useApi } from "@/hooks/useApi";
+import { useAssignBulkPermissions } from "@/hooks/useAssignBulkPermissions";
 import { useAssignPermission } from "@/hooks/useAssignPermission";
 import { useRemovePermission } from "@/hooks/useRemovePermission";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, Edit, Target, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import AddUserDialog from "./add-user-dialog";
 import UserDetailsSections from "./user-details-sections";
 
 export default function UserDetail({
   user,
   canDealPermissions = false,
-}: Readonly<{ user: FindUserById; canDealPermissions: boolean }>) {
+  currentUserId,
+}: Readonly<{
+  user: FindUserById;
+  canDealPermissions: boolean;
+  currentUserId?: string;
+}>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState<Permissions | undefined>(undefined);
   const { loading, error, reset } = useApi();
   const { removePermission } = useRemovePermission();
   const { assignPermission } = useAssignPermission();
+  const { assignBulkPermissions } = useAssignBulkPermissions();
+
+  const availablePermissions = useMemo(() => {
+    return Object.values(Permissions).filter(
+      (perm) => !user?.user_permission?.some((p) => p.permission_id === perm)
+    );
+  }, [user?.user_permission]);
+
+  const hasAvailablePermissions = availablePermissions.length > 0;
 
   if (!user) {
     return (
@@ -93,7 +108,7 @@ export default function UserDetail({
         </div>
       </div>
 
-      <UserDetailsSections user={user} />
+      <UserDetailsSections user={user} currentUserId={currentUserId} />
 
       {canDealPermissions && (
         <Card>
@@ -157,41 +172,71 @@ export default function UserDetail({
               </div>
             )}
 
-            <div className="mt-4 flex items-center gap-2">
-              <Select onValueChange={(v) => setSelectedPermission(v as Permissions)}>
-                <SelectTrigger className="w-[280px]" aria-label="Select permission to assign">
-                  <SelectValue placeholder="Select a permission" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(Permissions)
-                    .filter((perm) => !user.user_permission?.some((p) => p.permission_id === perm))
-                    .map((perm) => (
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <Select
+                  onValueChange={(v) => setSelectedPermission(v as Permissions)}
+                  disabled={!hasAvailablePermissions}
+                >
+                  <SelectTrigger className="w-[280px]" aria-label="Select permission to assign">
+                    <SelectValue placeholder="Select a permission" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availablePermissions.map((perm) => (
                       <SelectItem key={perm} value={perm}>
                         {perm}
                       </SelectItem>
                     ))}
-                </SelectContent>
-              </Select>
-              <Button
-                disabled={!selectedPermission || loading}
-                onClick={async () => {
-                  try {
-                    if (!selectedPermission) return;
-                    await assignPermission({
-                      user_id: user.id,
-                      permission_id: selectedPermission,
-                    });
-                    reset();
-                    setSelectedPermission(undefined);
-                    router.refresh();
-                  } catch {
-                    // error handled by useApi
-                  }
-                }}
-                aria-label="Assign selected permission"
-              >
-                {loading ? "Assegnando…" : "Assegna"}
-              </Button>
+                  </SelectContent>
+                </Select>
+                <Button
+                  disabled={!selectedPermission || !hasAvailablePermissions || loading}
+                  onClick={async () => {
+                    try {
+                      if (!selectedPermission) return;
+                      await assignPermission({
+                        user_id: user.id,
+                        permission_id: selectedPermission,
+                      });
+                      reset();
+                      setSelectedPermission(undefined);
+                      router.refresh();
+                    } catch {
+                      // error handled by useApi
+                    }
+                  }}
+                  aria-label="Assign selected permission"
+                >
+                  {loading ? "Assegnando…" : "Assegna"}
+                </Button>
+                {hasAvailablePermissions && (
+                  <Button
+                    variant="outline"
+                    disabled={loading}
+                    onClick={async () => {
+                      try {
+                        await assignBulkPermissions({
+                          user_id: user.id,
+                          permission_ids: availablePermissions,
+                        });
+                        reset();
+                        setSelectedPermission(undefined);
+                        router.refresh();
+                      } catch {
+                        // error handled by useApi
+                      }
+                    }}
+                    aria-label="Assign all remaining permissions"
+                  >
+                    {loading ? "Assegnando…" : "Add all"}
+                  </Button>
+                )}
+              </div>
+              {!hasAvailablePermissions && (
+                <p className="text-sm text-muted-foreground">
+                  Tutti i permessi disponibili sono già stati assegnati a questo utente.
+                </p>
+              )}
               {error && (
                 <span className="text-sm text-red-600" role="alert">
                   {error}
