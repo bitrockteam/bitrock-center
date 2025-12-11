@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { Role } from "@/db";
 import { formatDisplayName } from "@/services/users/utils";
 import { getRoleBadge } from "@/utils/mapping";
 import dayjs from "dayjs";
@@ -105,7 +106,7 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                         </div>
                       </Link>
                     </TableCell>
-                    <TableCell>{getRoleBadge(member.userRole)}</TableCell>
+                    <TableCell>{getRoleBadge(member.userRole as Role)}</TableCell>
                     <TableCell>
                       {member.currentProject ? (
                         <Link

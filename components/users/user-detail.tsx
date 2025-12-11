@@ -44,9 +44,9 @@ export default function UserDetail({
 
   const availablePermissions = useMemo(() => {
     return Object.values(Permissions).filter(
-      (perm) => !user.user_permission?.some((p) => p.permission_id === perm)
+      (perm) => !user?.user_permission?.some((p) => p.permission_id === perm)
     );
-  }, [user.user_permission]);
+  }, [user?.user_permission]);
 
   const hasAvailablePermissions = availablePermissions.length > 0;
 
