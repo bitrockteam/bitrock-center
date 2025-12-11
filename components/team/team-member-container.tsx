@@ -1,7 +1,8 @@
 "use client";
-import { motion } from "framer-motion";
 import { useTeamApi } from "@/hooks/useTeamApi";
+import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { TeamAllocationsRecap } from "./team-allocations-recap";
 import { TeamMemberCard } from "./team-member-card";
 import { TeamUpdateIndicator } from "./team-update-indicator";
 import type { TeamMemberContainerProps } from "./types";
@@ -11,6 +12,8 @@ export function TeamMemberContainer({
   team,
   isOwner = true,
   user,
+  allocationsRecap = [],
+  ownerTeamAllocationsRecap = [],
 }: TeamMemberContainerProps) {
   const { refreshTeamData, isUpdating } = useTeamApi();
 
@@ -44,22 +47,34 @@ export function TeamMemberContainer({
                 {user.name}&apos;s Team
               </TabsTrigger>
             )}
-            <TabsTrigger className="w-2xs" value="my-team" aria-label="Il mio team">
+            <TabsTrigger
+              className="w-2xs"
+              value="my-team"
+              aria-label="Il mio team"
+            >
               My Team
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="team-member" className="space-y-4">
-            <div className="flex flex-wrap gap-4">
-              {team.map((member) => (
+            <div className="flex flex-col space-y-4">
+              <div className="flex flex-wrap gap-4">
+                {team.map((member) => (
+                  <TeamMemberCard
+                    key={member.id}
+                    teamMember={member}
+                    isOwner={isOwner}
+                    onMemberRemoved={handleMemberRemoved}
+                  />
+                ))}
                 <TeamMemberCard
-                  key={member.id}
-                  teamMember={member}
                   isOwner={isOwner}
                   onMemberRemoved={handleMemberRemoved}
                 />
-              ))}
-              <TeamMemberCard isOwner={isOwner} onMemberRemoved={handleMemberRemoved} />
+              </div>
+              <TeamAllocationsRecap
+                allocationsRecap={ownerTeamAllocationsRecap}
+              />
             </div>
           </TabsContent>
 
@@ -67,10 +82,13 @@ export function TeamMemberContainer({
             <div className="flex flex-col space-y-4">
               {myTeam.referent ? (
                 <p className="text-sm text-muted-foreground">
-                  Referente: <span className="font-medium">{myTeam.referent.name}</span>
+                  Referente:{" "}
+                  <span className="font-medium">{myTeam.referent.name}</span>
                 </p>
               ) : (
-                <p className="text-sm text-muted-foreground">Nessun referente assegnato</p>
+                <p className="text-sm text-muted-foreground">
+                  Nessun referente assegnato
+                </p>
               )}
               <div className="flex flex-wrap gap-4">
                 {myTeam.members.map((member) => (
@@ -81,6 +99,7 @@ export function TeamMemberContainer({
                   />
                 ))}
               </div>
+              <TeamAllocationsRecap allocationsRecap={allocationsRecap} />
             </div>
           </TabsContent>
         </Tabs>

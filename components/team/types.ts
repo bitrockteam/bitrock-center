@@ -1,3 +1,4 @@
+import type { TeamMemberAllocationRecap } from "@/app/server-actions/team/fetchTeamAllocationsRecap";
 import type { FetchTeam } from "@/app/server-actions/user/fetchMyTeam";
 import type { FetchMyTeam } from "@/app/server-actions/user/fetchTeam";
 import type { user } from "@/db";
@@ -11,6 +12,8 @@ export interface TeamMemberContainerProps {
   team: TeamMember[];
   isOwner?: boolean;
   user: CurrentUser;
+  allocationsRecap?: TeamMemberAllocationRecap[];
+  ownerTeamAllocationsRecap?: TeamMemberAllocationRecap[];
 }
 
 export interface TeamMemberCardProps {
