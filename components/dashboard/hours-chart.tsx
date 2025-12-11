@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -36,13 +42,17 @@ export default function HoursChart() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
     >
-      <Card>
-        <CardHeader>
+      <Card className="group relative overflow-hidden border-2 transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <CardHeader className="relative">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Distribuzione Ore</CardTitle>
-              <CardDescription>Visualizzazione delle ore lavorate</CardDescription>
+              <CardDescription>
+                Visualizzazione delle ore lavorate
+              </CardDescription>
             </div>
             <Tabs defaultValue="weekly" value={view} onValueChange={setView}>
               <TabsList>
@@ -52,13 +62,16 @@ export default function HoursChart() {
             </Tabs>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <div className="h-[300px] w-full pb-4">
             <div className="flex h-full items-end gap-2">
               {chartData.map((item, index) => (
-                <div key={item.label} className="relative flex w-full flex-col justify-end h-full">
+                <div
+                  key={item.label}
+                  className="relative flex w-full flex-col justify-end h-full group/bar"
+                >
                   <motion.div
-                    className="w-full bg-primary rounded-md"
+                    className="w-full bg-primary rounded-md transition-all duration-300 group-hover/bar:bg-primary/80 group-hover/bar:shadow-md"
                     initial={{ height: 0 }}
                     animate={{
                       height: `${(item.hours / maxValue) * 100}%`,

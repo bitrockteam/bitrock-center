@@ -14,7 +14,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -44,9 +50,17 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Edit, Plus, Save, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getSeniorityLevelColor, getSeniorityLevelLabel, getSkillIcon } from "./utils";
+import {
+  getSeniorityLevelColor,
+  getSeniorityLevelLabel,
+  getSkillIcon,
+} from "./utils";
 
-export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSkill }) {
+export default function EmployeeSkillDetail({
+  employee,
+}: {
+  employee: EmployeeSkill;
+}) {
   const router = useRouter();
   const skillsCatalogApi = useSkillsCatalog();
   const addSkillApi = useAddSkillToEmployee();
@@ -80,7 +94,8 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
 
   // Competenze disponibili per l'aggiunta (non già presenti e attive)
   const availableSkills = skillsCatalogApi.data?.filter(
-    (skill: Skill) => !employee.user_skill.some((empSkill) => empSkill.skill_id === skill.id)
+    (skill: Skill) =>
+      !employee.user_skill.some((empSkill) => empSkill.skill_id === skill.id)
   );
 
   const handleSave = () => {
@@ -113,7 +128,10 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
     setSkillToDelete(null);
   };
 
-  const handleUpdateSkillLevel = async (skillId: string, newLevel: SeniorityLevel) => {
+  const handleUpdateSkillLevel = async (
+    skillId: string,
+    newLevel: SeniorityLevel
+  ) => {
     await skillsApi.updateEmployeeSkillLevel(updateSkillLevelApi, {
       employeeId: employee.id,
       skillId,
@@ -140,22 +158,26 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
     >
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div className="flex items-center space-x-4">
-          <Button variant="outline" size="icon" onClick={() => router.push("/skills")}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => router.push("/skills")}
+          >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
             <AvatarImage src={employee.avatar_url || "/logo.png"} />
             <AvatarFallback>
-              <AvatarFallback>
-                {formatDisplayName({
-                  name: employee.name,
-                  initials: true,
-                })}
-              </AvatarFallback>
+              {formatDisplayName({
+                name: employee.name,
+                initials: true,
+              })}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{employee.name}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {employee.name}
+            </h1>
             <p className="text-muted-foreground">{employee.role}</p>
             <div className="flex items-center space-x-2 mt-1">
               <span className="text-sm text-muted-foreground">
@@ -192,14 +214,19 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Hard Skills</CardTitle>
-                <CardDescription>Competenze tecniche e strumenti</CardDescription>
+                <CardDescription>
+                  Competenze tecniche e strumenti
+                </CardDescription>
               </div>
               {isEditing && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAddDialog(true)}
-                  disabled={availableSkills?.filter((s) => s.category === "hard").length === 0}
+                  disabled={
+                    availableSkills?.filter((s) => s.category === "hard")
+                      .length === 0
+                  }
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Aggiungi
@@ -229,7 +256,9 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
                         <div>
                           <h4 className="font-medium">{skill.name}</h4>
                           {skill.description && (
-                            <p className="text-sm text-muted-foreground">{skill.description}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {skill.description}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -254,14 +283,18 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => setSkillToDelete(empSkill.skill_id)}
+                              onClick={() =>
+                                setSkillToDelete(empSkill.skill_id)
+                              }
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </>
                         ) : (
                           <Badge
-                            className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                            className={`text-white ${getSeniorityLevelColor(
+                              empSkill.seniorityLevel
+                            )}`}
                           >
                             {getSeniorityLevelLabel(empSkill.seniorityLevel)}
                           </Badge>
@@ -281,14 +314,19 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Soft Skills</CardTitle>
-                <CardDescription>Competenze trasversali e relazionali</CardDescription>
+                <CardDescription>
+                  Competenze trasversali e relazionali
+                </CardDescription>
               </div>
               {isEditing && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAddDialog(true)}
-                  disabled={availableSkills?.filter((s) => s.category === "soft").length === 0}
+                  disabled={
+                    availableSkills?.filter((s) => s.category === "soft")
+                      .length === 0
+                  }
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Aggiungi
@@ -318,7 +356,9 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
                         <div>
                           <h4 className="font-medium">{skill.name}</h4>
                           {skill.description && (
-                            <p className="text-sm text-muted-foreground">{skill.description}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {skill.description}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -343,14 +383,18 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => setSkillToDelete(empSkill.skill_id)}
+                              onClick={() =>
+                                setSkillToDelete(empSkill.skill_id)
+                              }
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </>
                         ) : (
                           <Badge
-                            className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                            className={`text-white ${getSeniorityLevelColor(
+                              empSkill.seniorityLevel
+                            )}`}
                           >
                             {getSeniorityLevelLabel(empSkill.seniorityLevel)}
                           </Badge>
@@ -371,7 +415,8 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
           <DialogHeader>
             <DialogTitle>Aggiungi Competenza</DialogTitle>
             <DialogDescription>
-              Seleziona una competenza e il livello di seniority per {employee.name}.
+              Seleziona una competenza e il livello di seniority per{" "}
+              {employee.name}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -407,7 +452,9 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
               </label>
               <Select
                 value={newSkillLevel}
-                onValueChange={(value: SeniorityLevel) => setNewSkillLevel(value)}
+                onValueChange={(value: SeniorityLevel) =>
+                  setNewSkillLevel(value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -432,13 +479,16 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
       </Dialog>
 
       {/* Dialog di conferma eliminazione */}
-      <AlertDialog open={!!skillToDelete} onOpenChange={(open) => !open && setSkillToDelete(null)}>
+      <AlertDialog
+        open={!!skillToDelete}
+        onOpenChange={(open) => !open && setSkillToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Rimuovi Competenza</AlertDialogTitle>
             <AlertDialogDescription>
-              Sei sicuro di voler rimuovere questa competenza? Questa azione non può essere
-              annullata.
+              Sei sicuro di voler rimuovere questa competenza? Questa azione non
+              può essere annullata.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

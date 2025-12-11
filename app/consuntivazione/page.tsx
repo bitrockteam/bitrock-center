@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { fetchUserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
 import TimeTrackingCalendar from "@/components/time-tracking/time-tracking-calendar";
 import TimeTrackingHeader from "@/components/time-tracking/time-tracking-header";
@@ -8,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Permissions } from "@/db";
 import { hasPermission } from "@/services/users/server.utils";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import type { Metadata } from "next";
 import { fetchAllWorkItems } from "../server-actions/work-item/fetchAllWorkItems";
 
 export const dynamic = "force-dynamic";
@@ -21,27 +21,47 @@ export default async function TimeTrackingPage() {
   const user = await getUserInfoFromCookie();
   const workItems = await fetchAllWorkItems();
   const timesheets = await fetchUserTimesheet();
-  const CAN_EDIT_WORKING_DAY = await hasPermission(Permissions.CAN_EDIT_WORKING_DAY);
+  const CAN_EDIT_WORKING_DAY = await hasPermission(
+    Permissions.CAN_EDIT_WORKING_DAY
+  );
 
   return (
     <div className="space-y-6">
       <TimeTrackingHeader user={user} />
       <Tabs defaultValue="table" className="w-full">
         <TabsList
-          className={`grid w-full max-w-md ${CAN_EDIT_WORKING_DAY ? "grid-cols-3" : "grid-cols-2"}`}
+          className={`grid w-full max-w-md ${
+            CAN_EDIT_WORKING_DAY ? "grid-cols-3" : "grid-cols-2"
+          }`}
         >
-          <TabsTrigger value="table">Tabella</TabsTrigger>
-          <TabsTrigger value="calendar">Calendario</TabsTrigger>
-          {CAN_EDIT_WORKING_DAY && <TabsTrigger value="config">Configurazione Orari</TabsTrigger>}
+          <TabsTrigger value="table" className="transition-all duration-300">
+            Tabella
+          </TabsTrigger>
+          <TabsTrigger value="calendar" className="transition-all duration-300">
+            Calendario
+          </TabsTrigger>
+          {CAN_EDIT_WORKING_DAY && (
+            <TabsTrigger value="config" className="transition-all duration-300">
+              Configurazione Orari
+            </TabsTrigger>
+          )}
         </TabsList>
-        <TabsContent value="table">
-          <TimeTrackingTable user={user} work_items={workItems} timesheets={timesheets} />
+        <TabsContent value="table" className="mt-6">
+          <TimeTrackingTable
+            user={user}
+            work_items={workItems}
+            timesheets={timesheets}
+          />
         </TabsContent>
-        <TabsContent value="calendar">
-          <TimeTrackingCalendar user={user} work_items={workItems} timesheets={timesheets} />
+        <TabsContent value="calendar" className="mt-6">
+          <TimeTrackingCalendar
+            user={user}
+            work_items={workItems}
+            timesheets={timesheets}
+          />
         </TabsContent>
         {CAN_EDIT_WORKING_DAY && (
-          <TabsContent value="config">
+          <TabsContent value="config" className="mt-6">
             <WorkingDaysConfig />
           </TabsContent>
         )}

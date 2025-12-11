@@ -15,7 +15,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -23,7 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { timesheet, user } from "@/db";
 import { useTimesheetApi } from "@/hooks/useTimesheetApi";
 import { motion } from "framer-motion";
@@ -119,7 +130,11 @@ export default function TimeTrackingCalendar({
 
   // Ottieni le voci per un giorno specifico
   const getEntriesForDay = (day: number) => {
-    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    const date = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day
+    );
     const dateKey = getLocalDateString(date);
     return filteredEntriesByDate[dateKey] || [];
   };
@@ -140,7 +155,11 @@ export default function TimeTrackingCalendar({
 
   // Funzione per aprire il dialog di aggiunta ore
   const handleAddHours = (day: number) => {
-    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    const date = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day
+    );
     const dateKey = getLocalDateString(date);
     setSelectedDate(dateKey);
     setShowAddDialog(true);
@@ -215,16 +234,23 @@ export default function TimeTrackingCalendar({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
     >
-      <Card>
-        <CardHeader>
+      <Card className="group relative overflow-hidden border-2 transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <CardHeader className="relative">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
               <CardTitle>Calendario Ore</CardTitle>
-              <CardDescription>Visualizza le ore lavorate in formato calendario</CardDescription>
+              <CardDescription>
+                Visualizza le ore lavorate in formato calendario
+              </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
-              <Select value={selectedProject} onValueChange={setSelectedProject}>
+              <Select
+                value={selectedProject}
+                onValueChange={setSelectedProject}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Filtra per progetto" />
                 </SelectTrigger>
@@ -245,8 +271,14 @@ export default function TimeTrackingCalendar({
               variant="outline"
               size="icon"
               onClick={() =>
-                setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
+                setCurrentDate(
+                  new Date(
+                    currentDate.getFullYear(),
+                    currentDate.getMonth() - 1
+                  )
+                )
               }
+              className="transition-all duration-300 hover:scale-110"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -260,14 +292,20 @@ export default function TimeTrackingCalendar({
               variant="outline"
               size="icon"
               onClick={() =>
-                setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
+                setCurrentDate(
+                  new Date(
+                    currentDate.getFullYear(),
+                    currentDate.getMonth() + 1
+                  )
+                )
               }
+              className="transition-all duration-300 hover:scale-110"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <div className="grid grid-cols-7 gap-1">
             {/* Intestazioni dei giorni della settimana */}
             {weekDays.map((day) => (
@@ -280,7 +318,10 @@ export default function TimeTrackingCalendar({
             {calendarDays.map((day) => {
               if (day === null) {
                 return (
-                  <div key={`empty-${day}`} className="h-24 p-1 border border-transparent"></div>
+                  <div
+                    key={`empty-${day}`}
+                    className="h-24 p-1 border border-transparent"
+                  ></div>
                 );
               }
 
@@ -291,32 +332,65 @@ export default function TimeTrackingCalendar({
                 new Date().getMonth() === currentDate.getMonth() &&
                 new Date().getFullYear() === currentDate.getFullYear();
               const isWeekend =
-                new Date(currentDate.getFullYear(), currentDate.getMonth(), day).getDay() === 0 ||
-                new Date(currentDate.getFullYear(), currentDate.getMonth(), day).getDay() === 6;
+                new Date(
+                  currentDate.getFullYear(),
+                  currentDate.getMonth(),
+                  day
+                ).getDay() === 0 ||
+                new Date(
+                  currentDate.getFullYear(),
+                  currentDate.getMonth(),
+                  day
+                ).getDay() === 6;
 
               return (
-                // biome-ignore lint/a11y/noStaticElementInteractions: no explanation needed
-                // biome-ignore lint/a11y/useKeyWithClickEvents: no explanation needed
-                <div
+                <motion.div
                   key={`day-${day}`}
-                  className={`h-24 p-1 ${!isReadyOnly && "cursor-pointer"} border rounded-md ${isToday ? "border-primary" : "border-border"} ${getBackgroundColor(totalHours)} ${isWeekend ? "bg-opacity-50 dark:bg-opacity-50" : ""} overflow-hidden relative`}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                  whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                  // biome-ignore lint/a11y/noStaticElementInteractions: no explanation needed
+                  // biome-ignore lint/a11y/useKeyWithClickEvents: no explanation needed
+                  className={`group/day h-24 p-1 ${
+                    !isReadyOnly && "cursor-pointer"
+                  } border-2 rounded-md transition-all duration-300 ${
+                    isToday
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50 hover:bg-muted/30"
+                  } ${getBackgroundColor(totalHours)} ${
+                    isWeekend ? "bg-opacity-50 dark:bg-opacity-50" : ""
+                  } overflow-hidden relative`}
                   onClick={(e) => {
                     e.preventDefault();
                     if (isReadyOnly) return;
                     setSelectedDate(
-                      `${currentDate.getFullYear()}-${currentDate.getMonth() < 10 ? `0${currentDate.getMonth() + 1}` : currentDate.getMonth() + 1}-${day < 10 ? `0${day}` : day}`
+                      `${currentDate.getFullYear()}-${
+                        currentDate.getMonth() < 10
+                          ? `0${currentDate.getMonth() + 1}`
+                          : currentDate.getMonth() + 1
+                      }-${day < 10 ? `0${day}` : day}`
                     );
                     setShowAddDialog(true);
                   }}
                 >
                   <div className="flex justify-between items-start">
                     <span
-                      className={`text-sm font-medium ${isToday ? "text-primary" : ""} ${isWeekend ? "text-muted-foreground" : ""}`}
+                      className={`text-sm font-medium transition-colors ${
+                        isToday
+                          ? "text-primary"
+                          : isWeekend
+                          ? "text-muted-foreground group-hover/day:text-primary"
+                          : "group-hover/day:text-primary"
+                      }`}
                     >
                       {day}
                     </span>
                     {totalHours > 0 && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge
+                        variant="outline"
+                        className="text-xs transition-all duration-300 group-hover/day:scale-110"
+                      >
                         {totalHours}h
                       </Badge>
                     )}
@@ -330,15 +404,21 @@ export default function TimeTrackingCalendar({
                           <TooltipTrigger asChild>
                             <div className="flex items-center justify-between text-xs bg-background/80 rounded px-1 py-0.5">
                               <span className="truncate">
-                                {work_items?.find((p) => p.id === entry.work_item_id)?.title}
+                                {
+                                  work_items?.find(
+                                    (p) => p.id === entry.work_item_id
+                                  )?.title
+                                }
                               </span>
-                              <span className="font-medium">{entry.hours}h</span>
+                              <span className="font-medium">
+                                {entry.hours}h
+                              </span>
                               {!isReadyOnly && (
                                 <div className="flex items-center space-x-1">
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-4 w-4 p-0"
+                                    className="h-4 w-4 p-0 transition-all duration-300 hover:scale-125"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleEditEntry(entry);
@@ -351,7 +431,7 @@ export default function TimeTrackingCalendar({
                                       <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-4 w-4 p-0"
+                                        className="h-4 w-4 p-0 transition-all duration-300 hover:scale-125"
                                         onClick={(e) => e.stopPropagation()}
                                       >
                                         <Trash2 className="h-2 w-2" />
@@ -359,20 +439,29 @@ export default function TimeTrackingCalendar({
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                       <AlertDialogHeader>
-                                        <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+                                        <AlertDialogTitle>
+                                          Conferma eliminazione
+                                        </AlertDialogTitle>
                                         <AlertDialogDescription>
-                                          Sei sicuro di voler eliminare questa registrazione? Questa
-                                          azione non può essere annullata.
+                                          Sei sicuro di voler eliminare questa
+                                          registrazione? Questa azione non può
+                                          essere annullata.
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
                                       <AlertDialogFooter>
-                                        <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                        <AlertDialogCancel>
+                                          Annulla
+                                        </AlertDialogCancel>
                                         <AlertDialogAction
-                                          onClick={() => handleDeleteEntry(entry.id)}
+                                          onClick={() =>
+                                            handleDeleteEntry(entry.id)
+                                          }
                                           disabled={loading}
                                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                         >
-                                          {loading ? "Eliminazione..." : "Elimina"}
+                                          {loading
+                                            ? "Eliminazione..."
+                                            : "Elimina"}
                                         </AlertDialogAction>
                                       </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -384,10 +473,16 @@ export default function TimeTrackingCalendar({
                           <TooltipContent>
                             <div>
                               <p className="font-medium">
-                                {work_items?.find((p) => p.id === entry.work_item_id)?.title}
+                                {
+                                  work_items?.find(
+                                    (p) => p.id === entry.work_item_id
+                                  )?.title
+                                }
                               </p>
                               <p>{entry.hours} ore</p>
-                              {entry.description && <p className="text-xs">{entry.description}</p>}
+                              {entry.description && (
+                                <p className="text-xs">{entry.description}</p>
+                              )}
                             </div>
                           </TooltipContent>
                         </Tooltip>
@@ -404,13 +499,13 @@ export default function TimeTrackingCalendar({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute bottom-1 right-1 h-6 w-6 opacity-0 hover:opacity-100 focus:opacity-100 bg-background/80 dark:bg-background/80"
+                      className="absolute bottom-1 right-1 h-6 w-6 opacity-0 group-hover/day:opacity-100 focus:opacity-100 bg-background/80 dark:bg-background/80 transition-all duration-300 hover:scale-110"
                       onClick={() => handleAddHours(day)}
                     >
                       <Plus className="h-3 w-3" />
                     </Button>
                   )}
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -418,15 +513,15 @@ export default function TimeTrackingCalendar({
           <div className="flex items-center space-x-4 mt-6">
             <div className="text-sm font-medium">Legenda:</div>
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 transition-all duration-300 hover:scale-110">
                 <div className="w-3 h-3 rounded-full bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800"></div>
                 <span className="text-xs">&lt; 4 ore</span>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 transition-all duration-300 hover:scale-110">
                 <div className="w-3 h-3 rounded-full bg-blue-200 dark:bg-blue-900/40 border border-blue-300 dark:border-blue-700"></div>
                 <span className="text-xs">4-8 ore</span>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 transition-all duration-300 hover:scale-110">
                 <div className="w-3 h-3 rounded-full bg-blue-300 dark:bg-blue-900/60 border border-blue-400 dark:border-blue-600"></div>
                 <span className="text-xs">&gt; 8 ore</span>
               </div>

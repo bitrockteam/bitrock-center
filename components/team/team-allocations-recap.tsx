@@ -2,7 +2,13 @@
 
 import type { TeamMemberAllocationRecap } from "@/app/server-actions/team/fetchTeamAllocationsRecap";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -23,7 +29,9 @@ interface TeamAllocationsRecapProps {
   allocationsRecap: TeamMemberAllocationRecap[];
 }
 
-export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapProps) {
+export function TeamAllocationsRecap({
+  allocationsRecap,
+}: TeamAllocationsRecapProps) {
   if (allocationsRecap.length === 0) {
     return null;
   }
@@ -49,8 +57,8 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
             <div>
               <CardTitle>Riepilogo Allocazioni Team</CardTitle>
               <CardDescription>
-                Panoramica delle allocazioni, progetti correnti e giorni di ferie per ogni membro
-                del team
+                Panoramica delle allocazioni, progetti correnti e giorni di
+                ferie per ogni membro del team
               </CardDescription>
             </div>
           </div>
@@ -62,13 +70,25 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                 <TableRow className="bg-muted/50">
                   <TableHead className="font-semibold">Utente</TableHead>
                   <TableHead className="font-semibold">Ruolo</TableHead>
-                  <TableHead className="font-semibold">Progetto Corrente</TableHead>
+                  <TableHead className="font-semibold">
+                    Progetto Corrente
+                  </TableHead>
                   <TableHead className="font-semibold">% Allocazione</TableHead>
-                  <TableHead className="font-semibold">Fine Allocazione</TableHead>
-                  <TableHead className="font-semibold">Ferie Rimanenti</TableHead>
-                  <TableHead className="font-semibold">Ferie Pianificate</TableHead>
-                  <TableHead className="font-semibold">Allocazioni Attive</TableHead>
-                  <TableHead className="font-semibold">Totale Allocazioni</TableHead>
+                  <TableHead className="font-semibold">
+                    Fine Allocazione
+                  </TableHead>
+                  <TableHead className="font-semibold">
+                    Ferie Rimanenti
+                  </TableHead>
+                  <TableHead className="font-semibold">
+                    Ferie Pianificate
+                  </TableHead>
+                  <TableHead className="font-semibold">
+                    Allocazioni Attive
+                  </TableHead>
+                  <TableHead className="font-semibold">
+                    Totale Allocazioni
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -87,11 +107,13 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                         aria-label={`Visualizza dettagli di ${member.userName}`}
                       >
                         <Avatar className="h-9 w-9 ring-2 ring-background group-hover:ring-primary/20 transition-all">
-                          <AvatarImage
-                            src={member.userAvatarUrl || "/logo.png"}
-                            alt={`Avatar di ${member.userName}`}
-                          />
-                          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-500/20 text-primary font-semibold">
+                          {member.userAvatarUrl && (
+                            <AvatarImage
+                              src={member.userAvatarUrl}
+                              alt={`Avatar di ${member.userName}`}
+                            />
+                          )}
+                          <AvatarFallback>
                             {formatDisplayName({
                               name: member.userName,
                               initials: true,
@@ -102,11 +124,15 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                           <span className="font-semibold group-hover:text-primary transition-colors">
                             {member.userName}
                           </span>
-                          <span className="text-xs text-muted-foreground">{member.userEmail}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {member.userEmail}
+                          </span>
                         </div>
                       </Link>
                     </TableCell>
-                    <TableCell>{getRoleBadge(member.userRole as Role)}</TableCell>
+                    <TableCell>
+                      {getRoleBadge(member.userRole as Role)}
+                    </TableCell>
                     <TableCell>
                       {member.currentProject ? (
                         <Link
@@ -124,7 +150,9 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                       {member.currentProject ? (
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span className="font-medium">{member.currentProject.percentage}%</span>
+                          <span className="font-medium">
+                            {member.currentProject.percentage}%
+                          </span>
                         </div>
                       ) : (
                         <span className="text-muted-foreground">-</span>
@@ -134,10 +162,14 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                       {member.latestAllocationEndDate ? (
                         <div className="flex items-center gap-1.5">
                           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span>{formatDate(member.latestAllocationEndDate)}</span>
+                          <span>
+                            {formatDate(member.latestAllocationEndDate)}
+                          </span>
                         </div>
                       ) : member.activeAllocations > 0 ? (
-                        <span className="text-muted-foreground">Non definita</span>
+                        <span className="text-muted-foreground">
+                          Non definita
+                        </span>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
@@ -148,8 +180,8 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                           member.daysOffLeft <= 5
                             ? "text-destructive"
                             : member.daysOffLeft <= 10
-                              ? "text-yellow-600 dark:text-yellow-500"
-                              : "text-green-600 dark:text-green-500"
+                            ? "text-yellow-600 dark:text-yellow-500"
+                            : "text-green-600 dark:text-green-500"
                         }`}
                       >
                         <Calendar className="h-3.5 w-3.5" />
@@ -173,7 +205,9 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                       </span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-muted-foreground">{member.totalAllocations}</span>
+                      <span className="text-muted-foreground">
+                        {member.totalAllocations}
+                      </span>
                     </TableCell>
                   </motion.tr>
                 ))}

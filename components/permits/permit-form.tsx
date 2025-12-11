@@ -6,7 +6,13 @@ import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -45,10 +51,16 @@ interface PermitFormValues {
 }
 
 interface PermitRequestFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onPermitCreated?: () => void;
 }
 
-export default function PermitRequestForm({ onPermitCreated }: PermitRequestFormProps) {
+export default function PermitRequestForm({
+  open,
+  onOpenChange,
+  onPermitCreated,
+}: PermitRequestFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const { data: reviewers, loading: reviewersLoading, callApi: fetchReviewers } = useApi<user[]>();
   const [isPending, startTransition] = useTransition();
@@ -126,6 +138,7 @@ export default function PermitRequestForm({ onPermitCreated }: PermitRequestForm
         if (onPermitCreated) {
           onPermitCreated();
         }
+        onOpenChange(false);
       } else {
         setErrorMessage("Creazione permesso fallita o limite superato (8h).");
       }
@@ -143,18 +156,16 @@ export default function PermitRequestForm({ onPermitCreated }: PermitRequestForm
   }, [fetchReviewers]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle>Richiedi Permesso</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Richiedi Permesso</DialogTitle>
+          <DialogDescription>
+            Compila il modulo per richiedere ferie, permessi o segnalare malattia
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="type"
@@ -276,23 +287,32 @@ export default function PermitRequestForm({ onPermitCreated }: PermitRequestForm
                 )}
               />
 
-              {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+            {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
 
-              <motion.div className="pt-2" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="transition-all duration-300"
+              >
+                Annulla
+              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   type="submit"
-                  className="w-full"
                   disabled={
                     isPending || reviewersLoading || !reviewers || !Array.isArray(reviewers)
                   }
+                  className="transition-all duration-300"
                 >
                   {isPending ? "Invio in corso..." : "Invia Richiesta"}
                 </Button>
               </motion.div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </motion.div>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }

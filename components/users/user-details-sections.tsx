@@ -1,8 +1,11 @@
+"use client";
+
 import type { getContractByEmployeeId } from "@/app/server-actions/contract/getContractByEmployeeId";
 import type { GetLatestEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getLatestEmployeeDevelopmentPlan";
 import type { FindUserById } from "@/app/server-actions/user/findUserById";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApi } from "@/hooks/useApi";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import ContractDetail from "./contract-detail";
 import UserDetailsActivity from "./user-details-sections/user-details-activity";
@@ -20,6 +23,19 @@ export default function UserDetailsSections({
   user: FindUserById;
   currentUserId?: string;
 }) {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const validTabs = [
+    "overview",
+    "allocations",
+    "skills",
+    "development",
+    "activity",
+    "contract",
+  ];
+  const defaultTab =
+    tabParam && validTabs.includes(tabParam) ? tabParam : "overview";
+
   const { data: activePlan, callApi: fetchDevelopmentPlan } =
     useApi<GetLatestEmployeeDevelopmentPlan>();
   const { data: contract, callApi: fetchContract } = useApi<ContractResponse>();
@@ -29,7 +45,9 @@ export default function UserDetailsSections({
   useEffect(() => {
     if (user?.id && userIdRef.current !== user.id) {
       userIdRef.current = user.id;
-      fetchDevelopmentPlan(`/api/user/development-plan/latest?userId=${user.id}`);
+      fetchDevelopmentPlan(
+        `/api/user/development-plan/latest?userId=${user.id}`
+      );
       fetchContract(`/api/user/contract?employeeId=${user.id}`);
     }
   }, [user?.id, fetchDevelopmentPlan, fetchContract]);
@@ -43,7 +61,7 @@ export default function UserDetailsSections({
   }
 
   return (
-    <Tabs defaultValue="overview" className="space-y-6">
+    <Tabs defaultValue={defaultTab} className="space-y-6">
       <TabsList className="grid w-full grid-cols-6">
         <TabsTrigger value="overview">Panoramica</TabsTrigger>
         <TabsTrigger value="allocations">Allocazione</TabsTrigger>
@@ -57,7 +75,10 @@ export default function UserDetailsSections({
         <UserDetailsOverview user={user} plan={activePlan} />
       </TabsContent>
       <TabsContent value="allocations" className="space-y-6">
-        <UserDetailsAllocations userId={user.id} currentUserId={currentUserId} />
+        <UserDetailsAllocations
+          userId={user.id}
+          currentUserId={currentUserId}
+        />
       </TabsContent>
       <TabsContent value="skills" className="space-y-6">
         <UserDetailsSkills user={user} />
@@ -69,7 +90,12 @@ export default function UserDetailsSections({
         <UserDetailsActivity />
       </TabsContent>
       <TabsContent value="contract">
-        <ContractDetail contract={contract} canEdit canView employeeId={user.id} />
+        <ContractDetail
+          contract={contract}
+          canEdit
+          canView
+          employeeId={user.id}
+        />
       </TabsContent>
     </Tabs>
   );

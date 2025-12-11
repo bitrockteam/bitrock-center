@@ -8,15 +8,22 @@ export async function createWorkItem(
   enabled_users: string[]
 ) {
   await checkSession();
-  const workItemCreated = await db.work_items.create({
-    data: workItem,
-  });
 
-  return db.work_item_enabled_users.createMany({
-    data: enabled_users.map((userId) => ({
-      work_item_id: workItemCreated.id,
-      user_id: userId,
-    })),
+  return db.$transaction(async (tx) => {
+    const workItemCreated = await tx.work_items.create({
+      data: workItem,
+    });
+
+    if (enabled_users.length > 0) {
+      await tx.work_item_enabled_users.createMany({
+        data: enabled_users.map((userId) => ({
+          work_item_id: workItemCreated.id,
+          user_id: userId,
+        })),
+      });
+    }
+
+    return workItemCreated;
   });
 }
 

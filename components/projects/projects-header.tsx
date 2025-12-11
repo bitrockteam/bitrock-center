@@ -3,16 +3,22 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { PlusCircle, Search } from "lucide-react";
+import { FolderKanban, PlusCircle, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
 
-export default function ProjectsHeader({ canCreateProject }: { canCreateProject?: boolean }) {
+export default function ProjectsHeader({
+  canCreateProject,
+}: {
+  canCreateProject?: boolean;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [textSearch, setTextSearch] = useState(searchParams.get("params") ?? "");
+  const [textSearch, setTextSearch] = useState(
+    searchParams.get("params") ?? ""
+  );
   const [debouncedInput, setDebouncedInput] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,9 +54,14 @@ export default function ProjectsHeader({ canCreateProject }: { canCreateProject?
       transition={{ duration: 0.5 }}
       className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0"
     >
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Progetti</h1>
-        <p className="text-muted-foreground">Gestisci i progetti aziendali</p>
+      <div className="flex items-center space-x-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg">
+          <FolderKanban className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Progetti</h1>
+          <p className="text-muted-foreground">Gestisci i progetti aziendali</p>
+        </div>
       </div>
       <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
         <div className="relative">

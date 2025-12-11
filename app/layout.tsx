@@ -1,11 +1,12 @@
+import { PreLoader } from "@/components/custom/loader/pre-loader";
+import MainContainer from "@/components/main-container";
+import { tryGetUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
-import MainContainer from "@/components/main-container";
-import { tryGetUserInfoFromCookie } from "@/utils/supabase/server";
 import "../styles/globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -29,6 +30,7 @@ export default async function RootLayout({
   return (
     <html lang="it" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
+        <PreLoader />
         <Suspense>
           <ThemeProvider
             attribute="class"

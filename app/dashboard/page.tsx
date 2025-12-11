@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { fetchLatestNotifications } from "@/app/server-actions/dashboard/fetchLatestNotifications";
 import { fetchUserStats } from "@/app/server-actions/dashboard/fetchUserStats";
 import { fetchUserPermits } from "@/app/server-actions/permit/fetchUserPermits";
@@ -10,6 +9,7 @@ import HoursChart from "@/components/dashboard/hours-chart";
 import NotificationsCard from "@/components/dashboard/notifications-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -32,10 +32,14 @@ export default async function DashboardPage() {
 
       <Tabs defaultValue="chart" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="chart">Grafico</TabsTrigger>
-          <TabsTrigger value="calendar">Calendario</TabsTrigger>
+          <TabsTrigger value="chart" className="transition-all duration-300">
+            Grafico
+          </TabsTrigger>
+          <TabsTrigger value="calendar" className="transition-all duration-300">
+            Calendario
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="chart">
+        <TabsContent value="chart" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <HoursChart />
             <div className="space-y-6">
@@ -43,8 +47,11 @@ export default async function DashboardPage() {
             </div>
           </div>
         </TabsContent>
-        <TabsContent value="calendar">
-          <CalendarView timesheetData={latestTimesheets} permitsData={permits} />
+        <TabsContent value="calendar" className="mt-6">
+          <CalendarView
+            timesheetData={latestTimesheets}
+            permitsData={permits}
+          />
         </TabsContent>
       </Tabs>
     </div>
