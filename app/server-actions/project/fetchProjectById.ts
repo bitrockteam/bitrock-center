@@ -9,7 +9,7 @@ export async function fetchProjectById({ projectId }: { projectId: string }) {
       client: true,
       work_items: {
         include: {
-          work_item_enabled_users: true,
+          allocation: true,
         },
       },
     },

@@ -32,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { work_item_status, work_item_type } from "@/db";
 import { useApi } from "@/hooks/useApi";
 import { zodResolver } from "@hookform/resolvers/zod";
+import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -171,13 +172,18 @@ export default function AddWorkItemDialog({
         description: data.description || null,
         // start_date is required in the database, use today's date if not provided
         // Send as string to avoid timezone issues, will be converted to Date on server
-        start_date: data.start_date || new Date().toISOString().split("T")[0],
+        start_date:
+          data.start_date && dayjs(data.start_date).isValid()
+            ? dayjs(data.start_date).toISOString()
+            : dayjs().toISOString(),
         end_date: data.end_date || null,
         // Set fields based on type to match database constraints
         hourly_rate: data.type === work_item_type.time_material ? data.hourly_rate : null,
         estimated_hours: data.type === work_item_type.time_material ? data.estimated_hours : null,
         fixed_price: data.type === work_item_type.fixed_price ? data.fixed_price : null,
       };
+
+      console.log({ workItemData, data_start: data.start_date });
 
       if (isEditing) {
         await updateWorkItemApi("/api/work-item/update", {

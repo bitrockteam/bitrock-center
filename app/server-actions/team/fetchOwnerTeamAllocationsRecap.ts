@@ -15,7 +15,11 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<TeamMemberAlloca
     include: {
       allocation: {
         include: {
-          project: true,
+          work_items: {
+            include: {
+              project: true,
+            },
+          },
         },
         orderBy: {
           start_date: "desc",
@@ -75,7 +79,7 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<TeamMemberAlloca
       const latestEndDate =
         activeAllocations.length > 0
           ? activeAllocations
-              .map((alloc) => alloc.end_date ?? alloc.project.end_date)
+              .map((alloc) => alloc.end_date ?? alloc.work_items.project?.end_date)
               .filter((date): date is Date => date !== null)
               .sort((a, b) => b.getTime() - a.getTime())[0] || null
           : null;
@@ -88,8 +92,8 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<TeamMemberAlloca
         userRole: member.role,
         currentProject: activeAllocation
           ? {
-              id: activeAllocation.project.id,
-              name: activeAllocation.project.name,
+              id: activeAllocation.work_items.project?.id,
+              name: activeAllocation.work_items.project?.name,
               endDate: activeAllocation.end_date,
               percentage: activeAllocation.percentage,
             }

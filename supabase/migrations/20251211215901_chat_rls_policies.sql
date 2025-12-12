@@ -118,3 +118,4 @@ using (
     and "chat_session"."user_id" = public.get_current_user_id()
   )
 );
+

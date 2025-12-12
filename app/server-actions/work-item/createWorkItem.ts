@@ -15,10 +15,11 @@ export async function createWorkItem(
     });
 
     if (enabled_users.length > 0) {
-      await tx.work_item_enabled_users.createMany({
+      await tx.allocation.createMany({
         data: enabled_users.map((userId) => ({
           work_item_id: workItemCreated.id,
           user_id: userId,
+          percentage: 100,
         })),
       });
     }

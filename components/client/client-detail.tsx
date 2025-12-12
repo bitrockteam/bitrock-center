@@ -210,7 +210,6 @@ export default function ClientDetail({
                     <TableHead>Stato</TableHead>
                     <TableHead>Data Inizio</TableHead>
                     <TableHead>Data Fine</TableHead>
-                    <TableHead>Team</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -252,7 +251,6 @@ export default function ClientDetail({
                         </TableCell>
                         <TableCell>{project.start_date.toDateString()}</TableCell>
                         <TableCell>{project.end_date?.toDateString() || "-"}</TableCell>
-                        <TableCell>{project.allocation.length} membri</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -277,6 +275,7 @@ export default function ClientDetail({
                     <TableHead>Data Inizio</TableHead>
                     <TableHead>Data Fine</TableHead>
                     <TableHead>Progetto</TableHead>
+                    <TableHead>Team</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -305,6 +304,13 @@ export default function ClientDetail({
                             </span>
                           ) : (
                             <span className="text-sm text-muted-foreground">Nessun progetto</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {item.allocation.length ? (
+                            <span className="text-sm">{item.allocation.length} membri</span>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">Nessun team</span>
                           )}
                         </TableCell>
                       </TableRow>

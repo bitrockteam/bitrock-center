@@ -11,7 +11,7 @@ export async function fetchAllProjects(params?: string | null) {
       where: {
         work_items: {
           some: {
-            work_item_enabled_users: {
+            allocation: {
               some: {
                 user_id: user.id,
               },

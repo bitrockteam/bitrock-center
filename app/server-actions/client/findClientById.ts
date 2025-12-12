@@ -8,8 +8,8 @@ export async function findClientById(id: string) {
       id,
     },
     include: {
-      work_items: true,
-      project: {
+      project: true,
+      work_items: {
         include: {
           allocation: {
             include: {

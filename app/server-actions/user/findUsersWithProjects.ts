@@ -29,7 +29,11 @@ export async function findUsersWithProjects(search?: string) {
     include: {
       allocation: {
         include: {
-          project: true,
+          work_items: {
+            include: {
+              project: true,
+            },
+          },
         },
       },
     },
