@@ -21,6 +21,7 @@ export async function updateWorkItem(
       data: enabled_users.map((userId) => ({
         work_item_id: id,
         user_id: userId,
+        percentage: 100,
       })),
     }),
   ]);

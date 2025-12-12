@@ -4,7 +4,15 @@ import { db } from "@/config/prisma";
 export async function getAllClients() {
   return db.client.findMany({
     include: {
-      work_items: true,
+      work_items: {
+        include: {
+          allocation: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      },
       project: true,
     },
   });
