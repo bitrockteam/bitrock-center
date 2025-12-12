@@ -80,7 +80,7 @@ model user {
   avatar_url                          String?
   referent_id                         String?                   @db.Uuid
   role                                Role                      @default(Employee)
-  custom_days_off_left               Int?                      @db.SmallInt
+  custom_days_off_left                Int?                      @db.SmallInt
   custom_days_off_planned             Int?                      @db.SmallInt
   allocation                          allocation[]
   chat_session                        chat_session[]
