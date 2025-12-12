@@ -33,6 +33,7 @@ export const ChatWidget = () => {
   } = useChat();
 
   // Auto-scroll to bottom when messages change or loading state changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we want to scroll to bottom when messages change or loading state changes
   useEffect(() => {
     const scrollToBottom = () => {
       if (scrollViewportRef.current) {
