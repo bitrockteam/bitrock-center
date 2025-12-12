@@ -14,10 +14,10 @@ export async function updateWorkItem(
       where: { id },
       data: updates,
     }),
-    db.work_item_enabled_users.deleteMany({
+    db.allocation.deleteMany({
       where: { work_item_id: id },
     }),
-    db.work_item_enabled_users.createMany({
+    db.allocation.createMany({
       data: enabled_users.map((userId) => ({
         work_item_id: id,
         user_id: userId,

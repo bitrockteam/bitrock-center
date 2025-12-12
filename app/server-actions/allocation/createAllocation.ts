@@ -11,7 +11,7 @@ export async function createAllocation({
   return db.allocation.create({
     data: {
       user_id: allocation.user_id,
-      project_id: allocation.project_id,
+      work_item_id: allocation.work_item_id,
       start_date: allocation.start_date,
       end_date: allocation.end_date,
       percentage: allocation.percentage,

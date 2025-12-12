@@ -6,7 +6,7 @@ export async function fetchWorkItemById({ workItemId }: { workItemId: string }) 
   return db.work_items.findUnique({
     where: { id: workItemId },
     include: {
-      work_item_enabled_users: {
+      allocation: {
         include: {
           user: true,
         },

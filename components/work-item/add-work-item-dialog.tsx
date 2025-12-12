@@ -48,11 +48,7 @@ const workItemSchema = z
     client_id: z.string().min(1, "Il cliente è obbligatorio"),
     project_id: z.string().optional(),
     type: z.enum([work_item_type.time_material, work_item_type.fixed_price]),
-    status: z.enum([
-      work_item_status.active,
-      work_item_status.completed,
-      work_item_status.on_hold,
-    ]),
+    status: z.enum([work_item_status.active, work_item_status.completed, work_item_status.on_hold]),
     description: z.string().optional(),
     hourly_rate: z.number().nullable().optional(),
     estimated_hours: z.number().nullable().optional(),
@@ -134,11 +130,7 @@ export default function AddWorkItemDialog({
     callApi: fetchClients,
     loading: loadingClients,
   } = useApi<GetAllClientsResponse[]>();
-  const {
-    data: users,
-    callApi: fetchUsers,
-    loading: loadingUsers,
-  } = useApi<FindUsers[]>();
+  const { data: users, callApi: fetchUsers, loading: loadingUsers } = useApi<FindUsers[]>();
   const { callApi: createWorkItemApi } = useApi();
   const { callApi: updateWorkItemApi } = useApi();
 
@@ -180,18 +172,18 @@ export default function AddWorkItemDialog({
         description: data.description || null,
         // start_date is required in the database, use today's date if not provided
         // Send as string to avoid timezone issues, will be converted to Date on server
-        start_date: data.start_date || new Date(dayjs().format("YYYY-MM-DD")),
+        start_date:
+          data.start_date && dayjs(data.start_date).isValid()
+            ? dayjs(data.start_date).toISOString()
+            : dayjs().toISOString(),
         end_date: data.end_date || null,
         // Set fields based on type to match database constraints
-        hourly_rate:
-          data.type === work_item_type.time_material ? data.hourly_rate : null,
-        estimated_hours:
-          data.type === work_item_type.time_material
-            ? data.estimated_hours
-            : null,
-        fixed_price:
-          data.type === work_item_type.fixed_price ? data.fixed_price : null,
+        hourly_rate: data.type === work_item_type.time_material ? data.hourly_rate : null,
+        estimated_hours: data.type === work_item_type.time_material ? data.estimated_hours : null,
+        fixed_price: data.type === work_item_type.fixed_price ? data.fixed_price : null,
       };
+
+      console.log({ workItemData, data_start: data.start_date });
 
       if (isEditing) {
         await updateWorkItemApi("/api/work-item/update", {
@@ -219,11 +211,7 @@ export default function AddWorkItemDialog({
       router.refresh();
     } catch (error) {
       console.error("Error saving work item:", error);
-      toast.error(
-        isEditing
-          ? "Errore durante l'aggiornamento"
-          : "Errore durante la creazione"
-      );
+      toast.error(isEditing ? "Errore durante l'aggiornamento" : "Errore durante la creazione");
     } finally {
       setIsLoading(false);
     }
@@ -246,9 +234,7 @@ export default function AddWorkItemDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Modifica Commessa" : "Nuova Commessa"}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? "Modifica Commessa" : "Nuova Commessa"}</DialogTitle>
           <DialogDescription>
             {isEditing
               ? "Modifica i dettagli della commessa."
@@ -294,9 +280,7 @@ export default function AddWorkItemDialog({
                         <SelectItem value={work_item_type.time_material}>
                           Time & Material
                         </SelectItem>
-                        <SelectItem value={work_item_type.fixed_price}>
-                          Prezzo Fisso
-                        </SelectItem>
+                        <SelectItem value={work_item_type.fixed_price}>Prezzo Fisso</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -321,15 +305,9 @@ export default function AddWorkItemDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value={work_item_status.active}>
-                          Attiva
-                        </SelectItem>
-                        <SelectItem value={work_item_status.completed}>
-                          Completata
-                        </SelectItem>
-                        <SelectItem value={work_item_status.on_hold}>
-                          In Pausa
-                        </SelectItem>
+                        <SelectItem value={work_item_status.active}>Attiva</SelectItem>
+                        <SelectItem value={work_item_status.completed}>Completata</SelectItem>
+                        <SelectItem value={work_item_status.on_hold}>In Pausa</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -383,9 +361,7 @@ export default function AddWorkItemDialog({
                 control={form.control}
                 name="project_id"
                 render={({ field }) => {
-                  const selectedClient = clients?.find(
-                    (c) => c.id === form.watch("client_id")
-                  );
+                  const selectedClient = clients?.find((c) => c.id === form.watch("client_id"));
                   const projects = selectedClient?.project || [];
                   return (
                     <FormItem>
@@ -393,11 +369,7 @@ export default function AddWorkItemDialog({
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
-                        disabled={
-                          !selectedClient ||
-                          projects.length === 0 ||
-                          !canCreateWorkItem
-                        }
+                        disabled={!selectedClient || projects.length === 0 || !canCreateWorkItem}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -405,15 +377,11 @@ export default function AddWorkItemDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {projects.map(
-                            (
-                              project: GetAllClientsResponse["project"][number]
-                            ) => (
-                              <SelectItem key={project.id} value={project.id}>
-                                {project.name}
-                              </SelectItem>
-                            )
-                          )}
+                          {projects.map((project: GetAllClientsResponse["project"][number]) => (
+                            <SelectItem key={project.id} value={project.id}>
+                              {project.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -471,9 +439,7 @@ export default function AddWorkItemDialog({
                           placeholder="0.00"
                           value={field.value?.toString() || ""}
                           onChange={(e) =>
-                            field.onChange(
-                              e.target.value ? parseFloat(e.target.value) : null
-                            )
+                            field.onChange(e.target.value ? parseFloat(e.target.value) : null)
                           }
                         />
                       </FormControl>
@@ -496,9 +462,7 @@ export default function AddWorkItemDialog({
                           placeholder="0"
                           value={field.value?.toString() || ""}
                           onChange={(e) =>
-                            field.onChange(
-                              e.target.value ? parseFloat(e.target.value) : null
-                            )
+                            field.onChange(e.target.value ? parseFloat(e.target.value) : null)
                           }
                         />
                       </FormControl>
@@ -524,9 +488,7 @@ export default function AddWorkItemDialog({
                         placeholder="0.00"
                         value={field.value?.toString() || ""}
                         onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseFloat(e.target.value) : null
-                          )
+                          field.onChange(e.target.value ? parseFloat(e.target.value) : null)
                         }
                       />
                     </FormControl>
@@ -568,12 +530,9 @@ export default function AddWorkItemDialog({
                 ) : (
                   <FormItem>
                     <div className="mb-4">
-                      <FormLabel className="text-base">
-                        Utenti Abilitati
-                      </FormLabel>
+                      <FormLabel className="text-base">Utenti Abilitati</FormLabel>
                       <p className="text-sm text-muted-foreground">
-                        Seleziona gli utenti che possono registrare ore su
-                        questa commessa.
+                        Seleziona gli utenti che possono registrare ore su questa commessa.
                       </p>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
@@ -593,21 +552,14 @@ export default function AddWorkItemDialog({
                                     checked={field.value?.includes(user.id)}
                                     onCheckedChange={(checked) => {
                                       return checked
-                                        ? field.onChange([
-                                            ...field.value,
-                                            user.id,
-                                          ])
+                                        ? field.onChange([...field.value, user.id])
                                         : field.onChange(
-                                            field.value?.filter(
-                                              (value) => value !== user.id
-                                            )
+                                            field.value?.filter((value) => value !== user.id)
                                           );
                                     }}
                                   />
                                 </FormControl>
-                                <FormLabel className="text-sm font-normal">
-                                  {user.name}
-                                </FormLabel>
+                                <FormLabel className="text-sm font-normal">{user.name}</FormLabel>
                               </FormItem>
                             );
                           }}
@@ -629,14 +581,9 @@ export default function AddWorkItemDialog({
               >
                 Annulla
               </Button>
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isEditing ? "Aggiorna" : "Crea"} Commessa
                 </Button>
               </motion.div>

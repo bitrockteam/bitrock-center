@@ -12,11 +12,15 @@ export async function findUserById(userId: string) {
     include: {
       allocation: {
         select: {
-          project: {
-            select: {
-              id: true,
-              name: true,
-              status: true,
+          work_items: {
+            include: {
+              project: {
+                select: {
+                  id: true,
+                  name: true,
+                  status: true,
+                },
+              },
             },
           },
           start_date: true,

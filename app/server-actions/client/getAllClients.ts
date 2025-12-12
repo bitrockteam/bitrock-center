@@ -5,15 +5,7 @@ export async function getAllClients() {
   return db.client.findMany({
     include: {
       work_items: true,
-      project: {
-        include: {
-          allocation: {
-            include: {
-              user: true,
-            },
-          },
-        },
-      },
+      project: true,
     },
   });
 }

@@ -20,9 +20,7 @@ export interface ChatSession {
 
 export const useChat = (sessionId?: string) => {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
-    sessionId
-  );
+  const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(sessionId);
   const [isLoadingSessions, setIsLoadingSessions] = useState(false);
   const [input, setInput] = useState("");
   const fetchSessionsRef = useRef<(() => Promise<void>) | null>(null);
@@ -83,31 +81,23 @@ export const useChat = (sessionId?: string) => {
         hasMessage: !!options.message,
         messageId: options.message?.id,
         finishReason: options.finishReason,
-        messageStructure: options.message
-          ? JSON.stringify(options.message, null, 2)
-          : null,
+        messageStructure: options.message ? JSON.stringify(options.message, null, 2) : null,
       });
       const finishId = Math.random().toString(36).substring(7);
-      console.log(
-        `[onFinish:${finishId}] ===== ON FINISH CALLBACK START =====`
-      );
+      console.log(`[onFinish:${finishId}] ===== ON FINISH CALLBACK START =====`);
       console.log(`[onFinish:${finishId}] Options:`, {
         hasMessage: !!options.message,
         hasFinishReason: !!options.finishReason,
         finishReason: options.finishReason,
         messageParts: options.message?.parts,
         messagePartsLength: options.message?.parts?.length,
-        messagePartsTypes: options.message?.parts?.map(
-          (p: { type: string }) => p.type
-        ),
+        messagePartsTypes: options.message?.parts?.map((p: { type: string }) => p.type),
       });
 
       // Save assistant message to database (including errors)
       if (sessionIdRef.current && options.message) {
         try {
-          console.log(
-            `[onFinish:${finishId}] Step 1: Extracting text content from message...`
-          );
+          console.log(`[onFinish:${finishId}] Step 1: Extracting text content from message...`);
           // Extract text content from the message
           const textContent =
             options.message.parts
@@ -125,9 +115,7 @@ export const useChat = (sessionId?: string) => {
             preview: contentToSave.substring(0, 100),
           });
 
-          console.log(
-            `[onFinish:${finishId}] Step 2: Saving message to database...`
-          );
+          console.log(`[onFinish:${finishId}] Step 2: Saving message to database...`);
           const saveStart = Date.now();
           const response = await fetch("/api/chat/messages", {
             method: "POST",
@@ -148,12 +136,9 @@ export const useChat = (sessionId?: string) => {
             );
           } else {
             const responseData = await response.json();
-            console.log(
-              `[onFinish:${finishId}] Message saved successfully (${saveTime}ms):`,
-              {
-                messageId: responseData.data?.id,
-              }
-            );
+            console.log(`[onFinish:${finishId}] Message saved successfully (${saveTime}ms):`, {
+              messageId: responseData.data?.id,
+            });
           }
 
           console.log(`[onFinish:${finishId}] Step 3: Refreshing sessions...`);
@@ -163,19 +148,14 @@ export const useChat = (sessionId?: string) => {
             console.log(`[onFinish:${finishId}] Sessions refreshed`);
           }
 
-          console.log(
-            `[onFinish:${finishId}] Step 4: Reloading session messages to update UI...`
-          );
+          console.log(`[onFinish:${finishId}] Step 4: Reloading session messages to update UI...`);
           // Reload messages to show the new assistant message in the UI
           if (sessionIdRef.current && loadSessionRef.current) {
             try {
               await loadSessionRef.current(sessionIdRef.current);
               console.log(`[onFinish:${finishId}] Session messages reloaded`);
             } catch (reloadError) {
-              console.error(
-                `[onFinish:${finishId}] Error reloading session:`,
-                reloadError
-              );
+              console.error(`[onFinish:${finishId}] Error reloading session:`, reloadError);
             }
           } else {
             console.warn(
@@ -187,23 +167,15 @@ export const useChat = (sessionId?: string) => {
             );
           }
 
-          console.log(
-            `[onFinish:${finishId}] ===== ON FINISH CALLBACK END =====`
-          );
+          console.log(`[onFinish:${finishId}] ===== ON FINISH CALLBACK END =====`);
         } catch (error) {
-          console.error(
-            `[onFinish:${finishId}] Exception saving assistant message:`,
-            error
-          );
+          console.error(`[onFinish:${finishId}] Exception saving assistant message:`, error);
         }
       } else {
-        console.warn(
-          `[onFinish:${finishId}] Cannot save message - missing sessionId or message:`,
-          {
-            hasSessionId: !!sessionIdRef.current,
-            hasMessage: !!options.message,
-          }
-        );
+        console.warn(`[onFinish:${finishId}] Cannot save message - missing sessionId or message:`, {
+          hasSessionId: !!sessionIdRef.current,
+          hasMessage: !!options.message,
+        });
       }
     },
     onError: async (error) => {
@@ -214,14 +186,9 @@ export const useChat = (sessionId?: string) => {
       // Also save error messages
       if (sessionIdRef.current) {
         try {
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "An unknown error occurred";
+          const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
 
-          console.log(
-            `[onError:${errorId}] Saving error message to database...`
-          );
+          console.log(`[onError:${errorId}] Saving error message to database...`);
           const response = await fetch("/api/chat/messages", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -233,21 +200,13 @@ export const useChat = (sessionId?: string) => {
           });
 
           if (response.ok) {
-            console.log(
-              `[onError:${errorId}] Error message saved successfully`
-            );
+            console.log(`[onError:${errorId}] Error message saved successfully`);
           } else {
             const errorData = await response.json();
-            console.error(
-              `[onError:${errorId}] Failed to save error message:`,
-              errorData
-            );
+            console.error(`[onError:${errorId}] Failed to save error message:`, errorData);
           }
         } catch (saveError) {
-          console.error(
-            `[onError:${errorId}] Exception saving error message:`,
-            saveError
-          );
+          console.error(`[onError:${errorId}] Exception saving error message:`, saveError);
         }
       } else {
         console.warn(`[onError:${errorId}] Cannot save error - no sessionId`);
@@ -261,11 +220,7 @@ export const useChat = (sessionId?: string) => {
 
   // Handle input change
   const handleInputChange = useCallback(
-    (
-      e:
-        | React.ChangeEvent<HTMLInputElement>
-        | React.ChangeEvent<HTMLTextAreaElement>
-    ) => {
+    (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
       setInput(e.target.value);
     },
     []

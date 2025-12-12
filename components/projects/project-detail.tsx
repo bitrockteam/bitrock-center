@@ -28,7 +28,6 @@ import { ArrowLeft, Calendar, Clock, Edit, Euro, GanttChart, Users } from "lucid
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddProjectDialog from "./add-project-dialog";
-import { AddProjectMemberDialog } from "./add-project-member-dialog";
 
 export default function ProjectDetail({
   id,
@@ -62,7 +61,7 @@ export default function ProjectDetail({
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
 
   const workItems = project?.work_items;
-  const allAllocatedUsers = allocations?.flatMap((all) => all.work_item_enabled_users);
+  const allAllocatedUsers = allocations?.flatMap((all) => all.allocation);
 
   if (!project) {
     return (
@@ -223,7 +222,7 @@ export default function ProjectDetail({
                         </TableCell>
                         <TableCell>
                           <div className="flex -space-x-2">
-                            {item.work_item_enabled_users.slice(0, 3).map(({ user_id }) => {
+                            {item.allocation.slice(0, 3).map(({ user_id }) => {
                               const user = users?.find((u) => u.id === user_id);
                               return (
                                 <Avatar
@@ -240,9 +239,9 @@ export default function ProjectDetail({
                                 </Avatar>
                               );
                             })}
-                            {item.work_item_enabled_users.length > 3 && (
+                            {item.allocation.length > 3 && (
                               <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium">
-                                +{item.work_item_enabled_users.length - 3}
+                                +{item.allocation.length - 3}
                               </div>
                             )}
                           </div>
@@ -392,21 +391,6 @@ export default function ProjectDetail({
         onOpenChange={setShowEditDialog}
         editData={project}
         projectId={id}
-      />
-      <AddProjectMemberDialog
-        open={showAddMemberDialog}
-        onOpenChange={() => {
-          setShowAddMemberDialog(false);
-          setIsEditMode(false);
-          setEditedMember({ user_id: "" });
-        }}
-        projectId={id}
-        refetch={() => {
-          // todo
-          console.info("Refetching allocations...");
-        }}
-        isEdit={isEditMode}
-        initialData={editedMember}
       />
     </motion.div>
   );

@@ -8,7 +8,7 @@ export async function fetchAllocationsForProject({ projectId }: { projectId: str
       project_id: projectId,
     },
     include: {
-      work_item_enabled_users: {
+      allocation: {
         include: {
           user: true,
         },
