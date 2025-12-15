@@ -1,5 +1,5 @@
 import { toggleSkillActive } from "@/app/server-actions/skills/toggleSkillActive";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
+import { getErrorSummary, logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -21,7 +21,7 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     logErrorSummary("Error toggling skill active status", error);
     const summary = getErrorSummary(error);
-
+    console.log(summary);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {

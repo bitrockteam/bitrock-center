@@ -20,9 +20,7 @@ const normalizeDateField = (value: unknown) => {
     }
 
     const isoLikeValue =
-      trimmedValue.length === 10
-        ? `${trimmedValue}T00:00:00.000Z`
-        : trimmedValue;
+      trimmedValue.length === 10 ? `${trimmedValue}T00:00:00.000Z` : trimmedValue;
 
     const parsedDate = new Date(isoLikeValue);
 
@@ -47,17 +45,11 @@ export async function PUT(req: NextRequest) {
     };
 
     if (!id) {
-      return NextResponse.json(
-        { error: "Missing required field: id" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required field: id" }, { status: 400 });
     }
 
     if (!Array.isArray(allocations)) {
-      return NextResponse.json(
-        { error: "allocations must be an array" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "allocations must be an array" }, { status: 400 });
     }
 
     // Validate allocations structure
@@ -79,26 +71,18 @@ export async function PUT(req: NextRequest) {
     // Validate work item type constraints only if type is being updated
     if (normalizedUpdates.type !== undefined) {
       if (normalizedUpdates.type === work_item_type.time_material) {
-        if (
-          !normalizedUpdates.hourly_rate ||
-          normalizedUpdates.hourly_rate <= 0
-        ) {
+        if (!normalizedUpdates.hourly_rate || normalizedUpdates.hourly_rate <= 0) {
           return NextResponse.json(
             {
-              error:
-                "Time & Material work items require a valid hourly_rate > 0",
+              error: "Time & Material work items require a valid hourly_rate > 0",
             },
             { status: 400 }
           );
         }
-        if (
-          !normalizedUpdates.estimated_hours ||
-          normalizedUpdates.estimated_hours <= 0
-        ) {
+        if (!normalizedUpdates.estimated_hours || normalizedUpdates.estimated_hours <= 0) {
           return NextResponse.json(
             {
-              error:
-                "Time & Material work items require valid estimated_hours > 0",
+              error: "Time & Material work items require valid estimated_hours > 0",
             },
             { status: 400 }
           );
@@ -106,10 +90,7 @@ export async function PUT(req: NextRequest) {
         // Ensure fixed_price is null for time-material
         normalizedUpdates.fixed_price = null;
       } else if (normalizedUpdates.type === work_item_type.fixed_price) {
-        if (
-          !normalizedUpdates.fixed_price ||
-          normalizedUpdates.fixed_price <= 0
-        ) {
+        if (!normalizedUpdates.fixed_price || normalizedUpdates.fixed_price <= 0) {
           return NextResponse.json(
             { error: "Fixed Price work items require a valid fixed_price > 0" },
             { status: 400 }
@@ -127,9 +108,6 @@ export async function PUT(req: NextRequest) {
     logErrorSummary("Error updating work item - full error", error);
     const summary = getErrorSummary(error);
     logErrorSummary("update-work-item", error);
-    return NextResponse.json(
-      { success: false, error: summary.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }
