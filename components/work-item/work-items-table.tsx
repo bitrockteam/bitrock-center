@@ -298,7 +298,10 @@ export default function WorkItemsTable({
                     client_id: editWorkItem.client_id ?? "",
                     type: editWorkItem.type,
                     status: editWorkItem.status,
-                    enabled_users: editWorkItem.allocation.map((alloc) => alloc.user_id),
+                    allocations: editWorkItem.allocation.map((alloc) => ({
+                      user_id: alloc.user_id,
+                      percentage: alloc.percentage,
+                    })),
                     start_date: safeDateString(editWorkItem.start_date),
                     end_date: safeDateString(editWorkItem.end_date),
                     project_id: editWorkItem.project_id ?? "",

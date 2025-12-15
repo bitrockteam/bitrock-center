@@ -1,4 +1,5 @@
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 
 export const maxDuration = 30;
 
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
     // Get OpenAI API key
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      console.error("OPENAI_API_KEY is not set");
+      logErrorSummary("transcribe-api-key", new Error("OPENAI_API_KEY is not set"));
       return Response.json({ error: "OpenAI API key not configured" }, { status: 500 });
     }
 
@@ -97,7 +98,10 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
-      console.error("OpenAI Whisper API error:", errorData);
+      logErrorSummary(
+        "whisper-api",
+        new Error(errorData.error?.message || "OpenAI Whisper API error")
+      );
       return Response.json(
         { error: errorData.error?.message || "Failed to transcribe audio" },
         { status: response.status }
@@ -112,8 +116,8 @@ export async function POST(request: Request) {
 
     return Response.json({ success: true, text: data.text });
   } catch (error) {
-    console.error("Error in transcribe route:", error);
-    const errorMessage = error instanceof Error ? error.message : "Internal server error";
-    return Response.json({ error: errorMessage }, { status: 500 });
+    logErrorSummary("transcribe-route", error);
+    const summary = getErrorSummary(error);
+    return Response.json({ error: summary.message }, { status: 500 });
   }
 }

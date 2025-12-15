@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { addTimesheet } from "@/app/server-actions/timesheet/addTimesheet";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 
 const createTimesheetSchema = z.object({
   date: z.string().transform((val) => new Date(val)),
@@ -37,10 +38,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: timesheet });
   } catch (error) {
-    console.error("Error creating timesheet:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to create timesheet" },
-      { status: 500 }
-    );
+    logErrorSummary("create-timesheet", error);
+    const summary = getErrorSummary(error);
+    return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }

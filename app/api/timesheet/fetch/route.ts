@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { fetchUserTimesheet } from "@/app/server-actions/timesheet/fetchUserTimesheet";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
@@ -13,10 +14,8 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data: timesheets });
   } catch (error) {
-    console.error("Error fetching timesheet:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch timesheet" },
-      { status: 500 }
-    );
+    logErrorSummary("fetch-timesheet", error);
+    const summary = getErrorSummary(error);
+    return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }

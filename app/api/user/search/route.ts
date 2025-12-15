@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { findUsers } from "@/app/server-actions/user/findUsers";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,7 +10,8 @@ export async function GET(req: NextRequest) {
     const result = await findUsers(search);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error searching users:", error);
-    return NextResponse.json({ error: "Failed to search users" }, { status: 500 });
+    logErrorSummary("search-users", error);
+    const summary = getErrorSummary(error);
+    return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }

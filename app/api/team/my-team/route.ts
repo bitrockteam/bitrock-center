@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { fetchMyTeam } from "@/app/server-actions/user/fetchTeam";
 
 export async function GET() {
@@ -10,7 +11,8 @@ export async function GET() {
       data: myTeamData,
     });
   } catch (error) {
-    console.error("Error fetching my team data:", error);
+    logErrorSummary("Error fetching my team data", error);
+    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,

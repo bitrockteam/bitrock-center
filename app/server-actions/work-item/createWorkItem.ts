@@ -3,9 +3,14 @@ import { db } from "@/config/prisma";
 import type { work_items } from "@/db";
 import { checkSession } from "@/utils/supabase/server";
 
+type Allocation = {
+  user_id: string;
+  percentage: number;
+};
+
 export async function createWorkItem(
   workItem: Omit<work_items, "id" | "created_at">,
-  enabled_users: string[]
+  allocations: Allocation[]
 ) {
   await checkSession();
 
@@ -14,12 +19,13 @@ export async function createWorkItem(
       data: workItem,
     });
 
-    if (enabled_users.length > 0) {
+    if (allocations.length > 0) {
       await tx.allocation.createMany({
-        data: enabled_users.map((userId) => ({
+        data: allocations.map((alloc) => ({
           work_item_id: workItemCreated.id,
-          user_id: userId,
-          percentage: 100,
+          user_id: alloc.user_id,
+          percentage: Math.round(alloc.percentage),
+          start_date: new Date(),
         })),
       });
     }

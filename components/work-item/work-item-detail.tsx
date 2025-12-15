@@ -344,7 +344,10 @@ export default function WorkItemDetail({
             hourly_rate: workItem.hourly_rate || 0,
             fixed_price: workItem.fixed_price || 0,
             estimated_hours: workItem.estimated_hours || 0,
-            enabled_users: workItem.allocation.map((alloc) => alloc.user_id),
+            allocations: workItem.allocation.map((alloc) => ({
+              user_id: alloc.user_id,
+              percentage: alloc.percentage,
+            })),
             id: workItem.id,
             start_date: workItem.start_date
               ? workItem.start_date instanceof Date

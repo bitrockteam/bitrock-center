@@ -1,4 +1,5 @@
 import { updateUserDaysOff } from "@/app/server-actions/user/updateUserDaysOff";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function PATCH(request: Request) {
@@ -27,7 +28,8 @@ export async function PATCH(request: Request) {
       data: updated,
     });
   } catch (error) {
-    console.error("Error updating user days off:", error);
+    logErrorSummary("Error updating user days off", error);
+    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,

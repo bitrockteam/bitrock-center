@@ -1,4 +1,5 @@
 import { updateEmployeeSkillLevel } from "@/app/server-actions/skills/updateEmployeeSkillLevel";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import type { SeniorityLevel } from "@/db";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -24,7 +25,8 @@ export async function PATCH(request: NextRequest) {
       success: true,
     });
   } catch (error) {
-    console.error("Error updating employee skill level:", error);
+    logErrorSummary("Error updating employee skill level", error);
+    const summary = getErrorSummary(error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(

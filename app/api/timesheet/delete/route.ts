@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { z } from "zod";
 import { deleteTimesheet } from "@/app/server-actions/timesheet/deleteTimesheet";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
@@ -28,7 +29,8 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting timesheet:", error);
+    logErrorSummary("Error deleting timesheet", error);
+    const summary = getErrorSummary(error);
     return NextResponse.json(
       { success: false, error: "Failed to delete timesheet" },
       { status: 500 }

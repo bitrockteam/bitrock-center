@@ -1,5 +1,6 @@
 import { deleteChatSession } from "@/app/server-actions/chat/deleteSession";
 import { getChatMessages } from "@/app/server-actions/chat/getMessages";
+import { logErrorSummary } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -8,7 +9,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const messages = await getChatMessages(id);
     return NextResponse.json({ success: true, data: messages });
   } catch (error) {
-    console.error("Error fetching messages:", error);
+    logErrorSummary("Error fetching messages", error);
+
     return NextResponse.json(
       {
         success: false,
@@ -25,7 +27,8 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     await deleteChatSession(id);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting chat session:", error);
+    logErrorSummary("Error deleting chat session", error);
+
     return NextResponse.json(
       {
         success: false,

@@ -41,6 +41,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+const allocationSchema = z.object({
+  user_id: z.string(),
+  percentage: z.number().min(0).max(100),
+});
+
 const workItemSchema = z
   .object({
     id: z.string().optional(),
@@ -53,7 +58,7 @@ const workItemSchema = z
     hourly_rate: z.number().nullable().optional(),
     estimated_hours: z.number().nullable().optional(),
     fixed_price: z.number().nullable().optional(),
-    enabled_users: z.array(z.string()).min(1, "Seleziona almeno un utente"),
+    allocations: z.array(allocationSchema).min(1, "Seleziona almeno un utente"),
     start_date: z.string().optional(),
     end_date: z.string().optional(),
   })
@@ -143,7 +148,7 @@ export default function AddWorkItemDialog({
       type: editData?.type || work_item_type.time_material,
       start_date: editData?.start_date || "",
       end_date: editData?.end_date || "",
-      enabled_users: editData?.enabled_users || [],
+      allocations: editData?.allocations || [],
       status: editData?.status || work_item_status.active,
       description: editData?.description || "",
       hourly_rate: editData?.hourly_rate ?? null,
@@ -191,7 +196,7 @@ export default function AddWorkItemDialog({
           body: JSON.stringify({
             id: data.id,
             updates: workItemData,
-            enabled_users: data.enabled_users,
+            allocations: data.allocations,
           }),
         });
         toast.success("Commessa aggiornata con successo");
@@ -200,7 +205,7 @@ export default function AddWorkItemDialog({
           method: "POST",
           body: JSON.stringify({
             workItem: workItemData,
-            enabled_users: data.enabled_users,
+            allocations: data.allocations,
           }),
         });
         toast.success("Commessa creata con successo");
@@ -519,8 +524,8 @@ export default function AddWorkItemDialog({
 
             <FormField
               control={form.control}
-              name="enabled_users"
-              render={() =>
+              name="allocations"
+              render={({ field }) =>
                 loadingUsers ? (
                   <FormItem>
                     <FormControl>
@@ -532,39 +537,69 @@ export default function AddWorkItemDialog({
                     <div className="mb-4">
                       <FormLabel className="text-base">Utenti Abilitati</FormLabel>
                       <p className="text-sm text-muted-foreground">
-                        Seleziona gli utenti che possono registrare ore su questa commessa.
+                        Seleziona gli utenti che possono registrare ore su questa commessa e imposta
+                        la percentuale di allocazione.
                       </p>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      {users?.map((user: FindUsers) => (
-                        <FormField
-                          key={user.id}
-                          control={form.control}
-                          name="enabled_users"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={user.id}
-                                className="flex flex-row items-start space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes(user.id)}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([...field.value, user.id])
-                                        : field.onChange(
-                                            field.value?.filter((value) => value !== user.id)
-                                          );
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="text-sm font-normal">{user.name}</FormLabel>
-                              </FormItem>
-                            );
-                          }}
-                        />
-                      ))}
+                      {users?.map((user: FindUsers) => {
+                        const allocation = field.value?.find((alloc) => alloc.user_id === user.id);
+                        const isChecked = !!allocation;
+                        const percentage = allocation?.percentage ?? 100;
+
+                        return (
+                          <div
+                            key={user.id}
+                            className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-3"
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={isChecked}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    field.onChange([
+                                      ...(field.value?.filter((a) => a.user_id !== user.id) || []),
+                                      { user_id: user.id, percentage: 100 },
+                                    ]);
+                                  } else {
+                                    field.onChange(
+                                      field.value?.filter((a) => a.user_id !== user.id) || []
+                                    );
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-sm font-normal flex-1">
+                              {user.name}
+                            </FormLabel>
+                            {isChecked && (
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  step="1"
+                                  value={percentage}
+                                  onChange={(e) => {
+                                    const newPercentage = Number.parseInt(e.target.value, 10) || 0;
+                                    const clampedPercentage = Math.min(
+                                      100,
+                                      Math.max(0, newPercentage)
+                                    );
+                                    field.onChange([
+                                      ...(field.value?.filter((a) => a.user_id !== user.id) || []),
+                                      { user_id: user.id, percentage: clampedPercentage },
+                                    ]);
+                                  }}
+                                  className="w-20 h-8"
+                                  disabled={!canCreateWorkItem}
+                                />
+                                <span className="text-sm text-muted-foreground">%</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                     <FormMessage />
                   </FormItem>

@@ -1,4 +1,5 @@
 import { fetchUserReviewers } from "@/app/server-actions/permit/fetchUserReviewers";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -6,8 +7,8 @@ export async function GET() {
     const result = await fetchUserReviewers();
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Failed to fetch user reviewers";
-    console.error("Error fetching user reviewers:", errorMessage);
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    logErrorSummary("fetch-user-reviewers", error);
+    const summary = getErrorSummary(error);
+    return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }

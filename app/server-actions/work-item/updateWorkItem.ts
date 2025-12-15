@@ -3,28 +3,40 @@ import { db } from "@/config/prisma";
 import type { work_items } from "@/db";
 import { checkSession } from "@/utils/supabase/server";
 
+type Allocation = {
+  user_id: string;
+  percentage: number;
+};
+
 export async function updateWorkItem(
   id: string,
   updates: Partial<Omit<work_items, "id" | "created_at">>,
-  enabled_users: string[]
+  allocations: Allocation[]
 ) {
   await checkSession();
-  return db.$transaction([
-    db.work_items.update({
+  return db.$transaction(async (tx) => {
+    const updatedWorkItem = await tx.work_items.update({
       where: { id },
       data: updates,
-    }),
-    db.allocation.deleteMany({
+    });
+
+    await tx.allocation.deleteMany({
       where: { work_item_id: id },
-    }),
-    db.allocation.createMany({
-      data: enabled_users.map((userId) => ({
-        work_item_id: id,
-        user_id: userId,
-        percentage: 100,
-      })),
-    }),
-  ]);
+    });
+
+    if (allocations.length > 0) {
+      await tx.allocation.createMany({
+        data: allocations.map((alloc) => ({
+          work_item_id: id,
+          user_id: alloc.user_id,
+          percentage: Math.round(alloc.percentage),
+          start_date: new Date(),
+        })),
+      });
+    }
+
+    return updatedWorkItem;
+  });
 }
 
 export type UpdatedWorkItem = Awaited<ReturnType<typeof updateWorkItem>>;
