@@ -4,12 +4,12 @@ import { db } from "@/config/prisma";
 import { PermitStatus, PermitType } from "@/db";
 
 export type UserAllocationDetail = {
-  projectId: string;
-  projectName: string;
-  projectStatus: string;
-  clientName: string;
-  startDate: Date;
-  endDate: Date | null;
+  projectId: string | undefined;
+  projectName: string | undefined;
+  projectStatus: string | undefined;
+  clientName: string | undefined;
+  startDate: Date | undefined;
+  endDate: Date | null | undefined;
   percentage: number;
   isActive: boolean;
 };
@@ -42,11 +42,15 @@ export async function fetchUserAllocations(userId: string): Promise<UserAllocati
       user_id: userId,
     },
     include: {
-      project: {
+      work_items: {
         include: {
-          client: {
-            select: {
-              name: true,
+          project: {
+            include: {
+              client: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -91,12 +95,12 @@ export async function fetchUserAllocations(userId: string): Promise<UserAllocati
     user?.custom_days_off_left !== null || user?.custom_days_off_planned !== null;
 
   const allocationDetails: UserAllocationDetail[] = allocations.map((alloc) => ({
-    projectId: alloc.project.id,
-    projectName: alloc.project.name,
-    projectStatus: alloc.project.status,
-    clientName: alloc.project.client.name,
+    projectId: alloc.work_items.project?.id,
+    projectName: alloc.work_items.project?.name,
+    projectStatus: alloc.work_items.project?.status,
+    clientName: alloc.work_items.project?.client.name,
     startDate: alloc.start_date,
-    endDate: alloc.end_date ?? alloc.project.end_date,
+    endDate: alloc.end_date ?? alloc.work_items.project?.end_date,
     percentage: alloc.percentage,
     isActive: alloc.start_date <= now && (alloc.end_date === null || alloc.end_date >= now),
   }));
@@ -110,7 +114,7 @@ export async function fetchUserAllocations(userId: string): Promise<UserAllocati
   const latestAllocationEndDate =
     activeAllocationsList.length > 0
       ? activeAllocationsList
-          .map((alloc) => alloc.end_date ?? alloc.project.end_date)
+          .map((alloc) => alloc.end_date ?? alloc.work_items.project?.end_date)
           .filter((date): date is Date => date !== null)
           .sort((a, b) => b.getTime() - a.getTime())[0] || null
       : null;

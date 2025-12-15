@@ -104,12 +104,12 @@ export default function UnifiedPermitsTable({
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Fetch data
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we want to fetch data when canApprovePermit changes
   useEffect(() => {
     fetchUserPermits("/api/permit/fetch-user-permits");
     if (canApprovePermit) {
       fetchReviewerPermits("/api/permit/get-permits-by-reviewer");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canApprovePermit]);
 
   const refreshData = () => {
@@ -176,7 +176,7 @@ export default function UnifiedPermitsTable({
 
     // Sort by date descending
     return permits.sort((a, b) => b.date.getTime() - a.date.getTime());
-  }, [userPermits, reviewerPermits, canApprovePermit]);
+  }, [userPermits, reviewerPermits, canApprovePermit, getTimeStatus]);
 
   // Filter permits
   const filteredPermits = useMemo(() => {

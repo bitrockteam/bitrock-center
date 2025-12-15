@@ -1,4 +1,5 @@
 import { getChatConfig } from "@/lib/chat/config";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { getSystemPrompt } from "@/lib/chat/prompts";
 import { getProvider } from "@/lib/chat/providers";
 import { createClient, getUserInfoFromCookie } from "@/utils/supabase/server";
@@ -253,7 +254,7 @@ export async function POST(request: Request) {
 
         if (error) {
           queryError = error.message;
-          console.error(`[${requestId}] SQL execution failed (${executionTime}ms):`, error);
+          logErrorSummary(`sql-execution-${requestId}`, error);
         } else {
           queryResults = (data as unknown[]) || [];
           console.log(`[${requestId}] SQL execution successful (${executionTime}ms):`, {
@@ -265,7 +266,7 @@ export async function POST(request: Request) {
         }
       } catch (error) {
         queryError = error instanceof Error ? error.message : "Unknown error executing query";
-        console.error(`[${requestId}] SQL execution exception:`, error);
+        logErrorSummary(`sql-execution-exception-${requestId}`, error);
       }
 
       // Step 4: Format results through LLM
@@ -336,13 +337,9 @@ export async function POST(request: Request) {
     console.log(`[${requestId}] ===== CHAT REQUEST END (follow-up) =====`);
     return result.toUIMessageStreamResponse();
   } catch (error) {
-    console.error(`[${requestId}] ===== CHAT REQUEST ERROR =====`);
-    console.error(`[${requestId}] Error in chat API:`, error);
-    const errorMessage = error instanceof Error ? error.message : "Internal server error";
-    console.error(`[${requestId}] Error details:`, {
-      message: errorMessage,
-      stack: error instanceof Error ? error.stack : undefined,
-    });
+    logErrorSummary(`chat-api-${requestId}`, error);
+    const summary = getErrorSummary(error);
+    const errorMessage = summary.message;
 
     // Return a streamed error response so it can be saved via onFinish
     console.log(`[${requestId}] Step ERROR: Streaming error response...`);

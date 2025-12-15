@@ -1,5 +1,6 @@
 import { addSkillToEmployee } from "@/app/server-actions/skills/addSkillToEmployee";
 import type { SeniorityLevel } from "@/db";
+import { logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -24,8 +25,7 @@ export async function POST(request: NextRequest) {
       success: true,
     });
   } catch (error) {
-    console.error("Error adding skill to employee:", error);
-
+    logErrorSummary("Error adding skill to employee", error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {

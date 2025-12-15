@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createUser } from "@/app/server-actions/user/createUser";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import type { user } from "@/db";
 
 export async function POST(req: NextRequest) {
@@ -16,7 +17,8 @@ export async function POST(req: NextRequest) {
     const result = await createUser(userData);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error creating user:", error);
-    return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+    logErrorSummary("create-user", error);
+    const summary = getErrorSummary(error);
+    return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }

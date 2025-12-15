@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
 import { findUsers } from "@/app/server-actions/user/findUsers";
+import { logErrorSummary } from "@/lib/utils";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -10,7 +11,7 @@ export async function GET() {
       data: users,
     });
   } catch (error) {
-    console.error("Error fetching users:", error);
+    logErrorSummary("Error fetching users", error);
     return NextResponse.json(
       {
         success: false,

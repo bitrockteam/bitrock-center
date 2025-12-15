@@ -1,4 +1,5 @@
 import { updateSkill } from "@/app/server-actions/skills/updateSkill";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -26,8 +27,6 @@ export async function PUT(request: NextRequest) {
       data: skill,
     });
   } catch (error) {
-    console.error("Error updating skill:", error);
-
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
@@ -39,10 +38,12 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    logErrorSummary("update-skill", error);
+    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to update skill",
+        error: summary.message,
       },
       { status: 500 }
     );

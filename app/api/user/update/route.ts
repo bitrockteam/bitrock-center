@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateUser } from "@/app/server-actions/user/updateUser";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import type { user } from "@/db";
 
 export async function PUT(req: NextRequest) {
@@ -13,7 +14,8 @@ export async function PUT(req: NextRequest) {
     const result = await updateUser(userData);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error updating user:", error);
-    return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+    logErrorSummary("update-user", error);
+    const summary = getErrorSummary(error);
+    return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }

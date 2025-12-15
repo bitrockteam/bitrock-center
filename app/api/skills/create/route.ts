@@ -1,4 +1,5 @@
 import { createNewSkill } from "@/app/server-actions/skills/createNewSkill";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -25,8 +26,6 @@ export async function POST(request: NextRequest) {
       data: skill,
     });
   } catch (error) {
-    console.error("Error creating skill:", error);
-
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
@@ -38,10 +37,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    logErrorSummary("create-skill", error);
+    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to create skill",
+        error: summary.message,
       },
       { status: 500 }
     );

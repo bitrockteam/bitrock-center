@@ -1,4 +1,5 @@
 import { createClient, getUserInfoFromCookie } from "@/utils/supabase/server";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -65,11 +66,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data: message });
   } catch (error) {
-    console.error("Error saving message:", error);
+    logErrorSummary("save-message", error);
+    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to save message",
+        error: summary.message,
       },
       { status: 500 }
     );

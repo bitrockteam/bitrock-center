@@ -1,5 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { getContractByEmployeeId } from "@/app/server-actions/contract/getContractByEmployeeId";
+import { logErrorSummary } from "@/lib/utils";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
     const result = await getContractByEmployeeId(employeeId);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error fetching contract:", error);
+    logErrorSummary("Error fetching contract", error);
     return NextResponse.json({ error: "Failed to fetch contract" }, { status: 500 });
   }
 }

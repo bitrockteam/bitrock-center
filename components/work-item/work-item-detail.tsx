@@ -76,7 +76,7 @@ export default function WorkItemDetail({
 
   const totalHours = workItem.timesheet.reduce((sum, entry) => sum + entry.hours, 0);
 
-  const enabledUsers = workItem.work_item_enabled_users;
+  const enabledUsers = workItem.allocation;
   const timeEntries = workItem?.timesheet;
 
   return (
@@ -217,18 +217,18 @@ export default function WorkItemDetail({
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {enabledUsers?.map(({ user }) => (
+            {enabledUsers?.map((alloc) => (
               <div
-                key={user.id}
+                key={alloc.user.id}
                 className="flex items-center space-x-2 bg-muted/50 rounded-lg px-3 py-2"
               >
                 <Avatar className="h-6 w-6">
-                  {user.avatar_url && <AvatarImage src={user.avatar_url} />}
+                  {alloc.user.avatar_url && <AvatarImage src={alloc.user.avatar_url} />}
                   <AvatarFallback className="text-xs">
-                    {formatDisplayName({ name: user.name, initials: true })}
+                    {formatDisplayName({ name: alloc.user.name, initials: true })}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium">{user.name}</span>
+                <span className="text-sm font-medium">{alloc.user.name}</span>
               </div>
             ))}
           </div>
@@ -344,7 +344,10 @@ export default function WorkItemDetail({
             hourly_rate: workItem.hourly_rate || 0,
             fixed_price: workItem.fixed_price || 0,
             estimated_hours: workItem.estimated_hours || 0,
-            enabled_users: workItem.work_item_enabled_users.map((user) => user.user_id),
+            allocations: workItem.allocation.map((alloc) => ({
+              user_id: alloc.user_id,
+              percentage: alloc.percentage,
+            })),
             id: workItem.id,
             start_date: workItem.start_date
               ? workItem.start_date instanceof Date

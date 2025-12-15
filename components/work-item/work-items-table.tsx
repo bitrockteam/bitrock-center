@@ -32,7 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { work_item_type, type work_items } from "@/db";
+import { work_item_type } from "@/db";
 import { useApi } from "@/hooks/useApi";
 import { motion } from "framer-motion";
 import { Clock, Edit, Euro, Eye, MoreHorizontal, Trash2 } from "lucide-react";
@@ -194,29 +194,22 @@ export default function WorkItemsTable({
                         <TableCell>{getStatusBadge(item.status)}</TableCell>
                         <TableCell>
                           <div className="flex -space-x-2">
-                            {(item.work_item_enabled_users ?? [])
-                              .slice(0, 3)
-                              .map(({ user, user_id }) => {
-                                return (
-                                  <Avatar
-                                    key={user_id}
-                                    className="h-6 w-6 border-2 border-background group-hover/row:ring-primary/20 transition-all"
-                                  >
-                                    {user?.avatar_url && <AvatarImage src={user.avatar_url} />}
-                                    <AvatarFallback className="text-xs">
-                                      {user?.name.charAt(0)}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                );
-                              })}
-                            {(item.work_item_enabled_users.length ?? 0) > 3 && (
+                            {(item.allocation ?? []).slice(0, 3).map(({ user, user_id }) => {
+                              return (
+                                <Avatar
+                                  key={user_id}
+                                  className="h-6 w-6 border-2 border-background group-hover/row:ring-primary/20 transition-all"
+                                >
+                                  {user?.avatar_url && <AvatarImage src={user.avatar_url} />}
+                                  <AvatarFallback className="text-xs">
+                                    {user?.name.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                              );
+                            })}
+                            {(item.allocation.length ?? 0) > 3 && (
                               <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium">
-                                +
-                                {((
-                                  item as work_items & {
-                                    enabled_users?: string[];
-                                  }
-                                ).enabled_users?.length ?? 0) - 3}
+                                +{item.allocation.length - 3}
                               </div>
                             )}
                           </div>
@@ -305,7 +298,10 @@ export default function WorkItemsTable({
                     client_id: editWorkItem.client_id ?? "",
                     type: editWorkItem.type,
                     status: editWorkItem.status,
-                    enabled_users: editWorkItem.work_item_enabled_users.map((user) => user.user_id),
+                    allocations: editWorkItem.allocation.map((alloc) => ({
+                      user_id: alloc.user_id,
+                      percentage: alloc.percentage,
+                    })),
                     start_date: safeDateString(editWorkItem.start_date),
                     end_date: safeDateString(editWorkItem.end_date),
                     project_id: editWorkItem.project_id ?? "",

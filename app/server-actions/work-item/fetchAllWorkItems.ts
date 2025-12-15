@@ -9,7 +9,7 @@ export async function fetchAllWorkItems(params?: string | null) {
   if (user.permissions.find((perm) => perm === "CAN_SEE_WORK_ITEM") == null) {
     return db.work_items.findMany({
       where: {
-        work_item_enabled_users: {
+        allocation: {
           some: {
             user_id: user.id,
           },
@@ -24,7 +24,7 @@ export async function fetchAllWorkItems(params?: string | null) {
           : {}),
       },
       include: {
-        work_item_enabled_users: {
+        allocation: {
           include: {
             user: true,
           },
@@ -38,7 +38,7 @@ export async function fetchAllWorkItems(params?: string | null) {
   if (!params)
     return db.work_items.findMany({
       include: {
-        work_item_enabled_users: {
+        allocation: {
           include: {
             user: true,
           },
@@ -56,7 +56,7 @@ export async function fetchAllWorkItems(params?: string | null) {
       },
     },
     include: {
-      work_item_enabled_users: {
+      allocation: {
         include: {
           user: true,
         },

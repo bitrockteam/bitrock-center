@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { fetchAllWorkItems } from "@/app/server-actions/work-item/fetchAllWorkItems";
 import { Permissions } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
@@ -16,7 +17,8 @@ export async function GET(req: NextRequest) {
     const result = await fetchAllWorkItems(params);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error searching work items:", error);
-    return NextResponse.json({ error: "Failed to search work items" }, { status: 500 });
+    logErrorSummary("search-work-items", error);
+    const summary = getErrorSummary(error);
+    return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }

@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { fetchWorkItemTimeEntries } from "@/app/server-actions/work-item/fetchWorkItemTimeEntries";
 
 export async function GET(req: NextRequest) {
@@ -16,7 +17,8 @@ export async function GET(req: NextRequest) {
     const result = await fetchWorkItemTimeEntries(workItemId);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error fetching work item time entries:", error);
-    return NextResponse.json({ error: "Failed to fetch time entries" }, { status: 500 });
+    logErrorSummary("Error fetching work item time entries", error);
+    const summary = getErrorSummary(error);
+    return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }

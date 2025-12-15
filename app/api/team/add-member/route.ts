@@ -1,4 +1,5 @@
 import { addUserToTeam } from "@/app/server-actions/user/addUserToTeam";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -29,11 +30,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error("Error adding team member:", error);
+    logErrorSummary("add-team-member", error);
+    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,
-        error: "Errore nell'aggiunta del membro al team",
+        error: summary.message,
       },
       { status: 500 }
     );

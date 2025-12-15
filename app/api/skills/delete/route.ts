@@ -1,4 +1,5 @@
 import { deleteSkill } from "@/app/server-actions/skills/deleteSkill";
+import { logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -17,8 +18,7 @@ export async function DELETE(request: NextRequest) {
       success: true,
     });
   } catch (error) {
-    console.error("Error deleting skill:", error);
-
+    logErrorSummary("Error deleting skill", error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {

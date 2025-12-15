@@ -1,10 +1,11 @@
 import { createWorkItem } from "@/app/server-actions/work-item/createWorkItem";
 import { work_item_type } from "@/db";
+import { getErrorSummary, logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { workItem, enabled_users } = await req.json();
+    const { workItem, allocations } = await req.json();
 
     if (!workItem.title || !workItem.client_id || !workItem.type || !workItem.status) {
       return NextResponse.json(
@@ -15,8 +16,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!Array.isArray(enabled_users)) {
-      return NextResponse.json({ error: "enabled_users must be an array" }, { status: 400 });
+    if (!Array.isArray(allocations)) {
+      return NextResponse.json({ error: "allocations must be an array" }, { status: 400 });
+    }
+
+    // Validate allocations structure
+    for (const alloc of allocations) {
+      if (!alloc.user_id || typeof alloc.percentage !== "number") {
+        return NextResponse.json(
+          { error: "Each allocation must have user_id and percentage" },
+          { status: 400 }
+        );
+      }
+      if (alloc.percentage < 0 || alloc.percentage > 100) {
+        return NextResponse.json(
+          { error: "Percentage must be between 0 and 100" },
+          { status: 400 }
+        );
+      }
     }
 
     // Convert start_date from string to Date, or use today's date if not provided
@@ -73,11 +90,11 @@ export async function POST(req: NextRequest) {
       workItem.fixed_price = Math.round(workItem.fixed_price);
     }
 
-    const result = await createWorkItem(workItem, enabled_users);
+    const result = await createWorkItem(workItem, allocations);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error creating work item:", error);
-    const errorMessage = error instanceof Error ? error.message : "Failed to create work item";
-    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
+    logErrorSummary("create-work-item", error);
+    const summary = getErrorSummary(error);
+    return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }

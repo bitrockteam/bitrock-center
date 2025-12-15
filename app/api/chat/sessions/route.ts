@@ -1,4 +1,5 @@
 import { createChatSession } from "@/app/server-actions/chat/createSession";
+import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { deleteChatSession } from "@/app/server-actions/chat/deleteSession";
 import { getChatSessions } from "@/app/server-actions/chat/getSessions";
 import { NextResponse } from "next/server";
@@ -8,11 +9,12 @@ export async function GET() {
     const sessions = await getChatSessions();
     return NextResponse.json({ success: true, data: sessions });
   } catch (error) {
-    console.error("Error fetching chat sessions:", error);
+    logErrorSummary("Error fetching chat sessions", error);
+    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to fetch sessions",
+        error: summary.message,
       },
       { status: 500 }
     );
@@ -25,11 +27,12 @@ export async function POST(request: Request) {
     const session = await createChatSession(title || "New Chat");
     return NextResponse.json({ success: true, data: session });
   } catch (error) {
-    console.error("Error creating chat session:", error);
+    logErrorSummary("Error creating chat session", error);
+    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to create session",
+        error: summary.message,
       },
       { status: 500 }
     );
@@ -48,11 +51,12 @@ export async function DELETE(request: Request) {
     await deleteChatSession(sessionId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting chat session:", error);
+    logErrorSummary("Error deleting chat session", error);
+    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to delete session",
+        error: summary.message,
       },
       { status: 500 }
     );

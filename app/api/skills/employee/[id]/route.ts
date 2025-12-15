@@ -1,5 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { getEmployeeWithSkillsById } from "@/app/server-actions/skills/getEmployeeWithSkillsById";
+import { logErrorSummary } from "@/lib/utils";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -21,8 +22,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       data: employee,
     });
   } catch (error) {
-    console.error("Error fetching employee with skills:", error);
-
+    logErrorSummary("Error fetching employee with skills", error);
     return NextResponse.json(
       {
         success: false,

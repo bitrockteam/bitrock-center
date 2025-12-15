@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
 import { getEmployeesWithSkills } from "@/app/server-actions/skills/getEmployeesWithSkills";
+import { logErrorSummary } from "@/lib/utils";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -10,8 +11,7 @@ export async function GET() {
       data: employees,
     });
   } catch (error) {
-    console.error("Error fetching employees with skills:", error);
-
+    logErrorSummary("Error fetching employees with skills", error);
     return NextResponse.json(
       {
         success: false,

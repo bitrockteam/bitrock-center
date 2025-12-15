@@ -1,6 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { updateUserRole } from "@/app/server-actions/user/updateUserRole";
 import { Role } from "@/db";
+import { logErrorSummary } from "@/lib/utils";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
     const result = await updateUserRole(userId, role);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error updating user role:", error);
+    logErrorSummary("Error updating user role", error);
     return NextResponse.json({ error: "Failed to update user role" }, { status: 500 });
   }
 }

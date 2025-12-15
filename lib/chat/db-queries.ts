@@ -107,13 +107,13 @@ export const queryWorkItems = async (userInfo: UserInfo, search?: string) => {
   let query = supabase.from("work_items").select("*, client(*), project(*)");
 
   if (!canSeeAllWorkItems) {
-    // For regular users, only show work items they're enabled for
-    const { data: enabledItems } = await supabase
-      .from("work_item_enabled_users")
+    // For regular users, only show work items they're allocated to
+    const { data: allocatedItems } = await supabase
+      .from("allocation")
       .select("work_item_id")
       .eq("user_id", userInfo.id);
 
-    const workItemIds = enabledItems?.map((e) => e.work_item_id) || [];
+    const workItemIds = allocatedItems?.map((e) => e.work_item_id) || [];
     if (workItemIds.length === 0) {
       return [];
     }
