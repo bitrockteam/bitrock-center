@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { getLatestEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getLatestEmployeeDevelopmentPlan";
+import { logErrorSummary } from "@/lib/utils";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,7 +15,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     logErrorSummary("Error fetching latest development plan", error);
-    const summary = getErrorSummary(error);
     return NextResponse.json({ error: "Failed to fetch development plan" }, { status: 500 });
   }
 }

@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
-import { z } from "zod";
 import { updateTimesheet } from "@/app/server-actions/timesheet/updateTimesheet";
+import { logErrorSummary } from "@/lib/utils";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 const updateTimesheetSchema = z.object({
   id: z.string().uuid(),
@@ -46,7 +46,6 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ success: true, data: timesheet });
   } catch (error) {
     logErrorSummary("Error updating timesheet", error);
-    const summary = getErrorSummary(error);
     return NextResponse.json(
       { success: false, error: "Failed to update timesheet" },
       { status: 500 }

@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { getSkillsCatalog } from "@/app/server-actions/skills/getSkillsCatalog";
+import { logErrorSummary } from "@/lib/utils";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -12,8 +12,6 @@ export async function GET() {
     });
   } catch (error) {
     logErrorSummary("Error fetching skills catalog", error);
-    const summary = getErrorSummary(error);
-
     return NextResponse.json(
       {
         success: false,

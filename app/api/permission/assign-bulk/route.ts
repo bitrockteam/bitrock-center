@@ -1,6 +1,6 @@
 import { assignBulkPermissions } from "@/app/server-actions/permission/assignBulkPermissions";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import type { Permissions } from "@/db";
+import { logErrorSummary } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -19,7 +19,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, data }, { status: 200 });
   } catch (error) {
     logErrorSummary("[POST /api/permission/assign-bulk] Error", error);
-    const summary = getErrorSummary(error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }

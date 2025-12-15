@@ -1,5 +1,5 @@
 import { removeUserFromTeam } from "@/app/server-actions/user/removeUserFromTeam";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
+import { logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
     }
 
     logErrorSummary("Error removing team member", error);
-    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,

@@ -1,5 +1,5 @@
 import { getSkillById } from "@/app/server-actions/skills/getSkillById";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
+import { logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -23,8 +23,6 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     });
   } catch (error) {
     logErrorSummary("Error fetching skill", error);
-    const summary = getErrorSummary(error);
-
     return NextResponse.json(
       {
         success: false,

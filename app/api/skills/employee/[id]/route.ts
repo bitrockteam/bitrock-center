@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { getEmployeeWithSkillsById } from "@/app/server-actions/skills/getEmployeeWithSkillsById";
+import { logErrorSummary } from "@/lib/utils";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -23,8 +23,6 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     });
   } catch (error) {
     logErrorSummary("Error fetching employee with skills", error);
-    const summary = getErrorSummary(error);
-
     return NextResponse.json(
       {
         success: false,

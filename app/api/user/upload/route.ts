@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { uploadFile } from "@/app/server-actions/user/uploadFile";
+import { logErrorSummary } from "@/lib/utils";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +15,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     logErrorSummary("Error uploading file", error);
-    const summary = getErrorSummary(error);
     return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
   }
 }

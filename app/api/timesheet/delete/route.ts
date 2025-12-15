@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
-import { z } from "zod";
 import { deleteTimesheet } from "@/app/server-actions/timesheet/deleteTimesheet";
+import { logErrorSummary } from "@/lib/utils";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 const deleteTimesheetSchema = z.object({
   id: z.string().uuid(),
@@ -30,7 +30,6 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     logErrorSummary("Error deleting timesheet", error);
-    const summary = getErrorSummary(error);
     return NextResponse.json(
       { success: false, error: "Failed to delete timesheet" },
       { status: 500 }

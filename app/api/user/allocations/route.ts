@@ -1,5 +1,5 @@
 import { fetchUserAllocations } from "@/app/server-actions/user/fetchUserAllocations";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
+import { logErrorSummary } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -25,7 +25,6 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     logErrorSummary("Error fetching user allocations", error);
-    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,

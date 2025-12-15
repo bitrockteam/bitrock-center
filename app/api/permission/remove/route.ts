@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { removePermission } from "@/app/server-actions/permission/removePermission";
 import type { user_permission } from "@/db";
+import { logErrorSummary } from "@/lib/utils";
+import { NextResponse } from "next/server";
 
 export async function DELETE(request: Request) {
   try {
@@ -12,7 +12,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true, data }, { status: 200 });
   } catch (error) {
     logErrorSummary("[DELETE /api/permission/remove] Error", error);
-    const summary = getErrorSummary(error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }

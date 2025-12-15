@@ -1,5 +1,5 @@
 import { removeSkillFromEmployee } from "@/app/server-actions/skills/removeSkillFromEmployee";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
+import { logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -20,8 +20,6 @@ export async function DELETE(request: NextRequest) {
     });
   } catch (error) {
     logErrorSummary("Error removing skill from employee", error);
-    const summary = getErrorSummary(error);
-
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {

@@ -49,16 +49,6 @@ export default function ProjectDetail({
   const router = useRouter();
 
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editedMember, setEditedMember] = useState<{
-    user_id: string;
-    percentage?: number;
-    start_date?: Date;
-    end_date?: Date;
-  }>({
-    user_id: "",
-  });
-  const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
 
   const workItems = project?.work_items;
   const allAllocatedUsers = allocations?.flatMap((all) => all.allocation);

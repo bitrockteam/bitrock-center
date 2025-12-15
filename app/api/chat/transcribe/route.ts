@@ -1,5 +1,5 @@
+import { getErrorSummary, logErrorSummary } from "@/lib/utils";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 
 export const maxDuration = 30;
 
@@ -75,9 +75,9 @@ export async function POST(request: Request) {
 
     // Ensure file extension matches MIME type for better compatibility
     if (baseMimeType === "audio/webm" && !fileName.endsWith(".webm")) {
-      fileName = fileName.replace(/\.[^.]+$/, "") + ".webm";
+      fileName = `${fileName.replace(/\.[^.]+$/, "")}.webm`;
     } else if (baseMimeType === "audio/mp4" && !fileName.endsWith(".mp4")) {
-      fileName = fileName.replace(/\.[^.]+$/, "") + ".mp4";
+      fileName = `${fileName.replace(/\.[^.]+$/, "")}.mp4`;
     }
 
     // Create a new File with the correct name and type

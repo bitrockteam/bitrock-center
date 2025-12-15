@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { updatePermitStatus } from "@/app/server-actions/permit/updatePermitStatus";
+import { logErrorSummary } from "@/lib/utils";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -15,7 +15,6 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     logErrorSummary("Error updating permit status", error);
-    const summary = getErrorSummary(error);
     return NextResponse.json({ error: "Failed to update permit status" }, { status: 500 });
   }
 }

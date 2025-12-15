@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { findUsers } from "@/app/server-actions/user/findUsers";
+import { logErrorSummary } from "@/lib/utils";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -12,7 +12,6 @@ export async function GET() {
     });
   } catch (error) {
     logErrorSummary("Error fetching users", error);
-    const summary = getErrorSummary(error);
     return NextResponse.json(
       {
         success: false,

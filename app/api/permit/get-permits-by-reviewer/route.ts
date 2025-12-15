@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { logErrorSummary, getErrorSummary } from "@/lib/utils";
 import { getPermitsByReviewer } from "@/app/server-actions/permit/getPermitsByReviewer";
+import { logErrorSummary } from "@/lib/utils";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -8,7 +8,6 @@ export async function GET() {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     logErrorSummary("Error fetching permits by reviewer", error);
-    const summary = getErrorSummary(error);
     return NextResponse.json({ error: "Failed to fetch permits by reviewer" }, { status: 500 });
   }
 }
