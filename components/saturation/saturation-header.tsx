@@ -32,7 +32,14 @@ export default function SaturationHeader({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Tabs value={currentView} onValueChange={onViewChange}>
+        <Tabs
+          value={currentView}
+          onValueChange={(value) => {
+            if (value === "summary" || value === "timeline" || value === "projections") {
+              onViewChange(value);
+            }
+          }}
+        >
           <TabsList className="grid w-full max-w-md grid-cols-3">
             <TabsTrigger value="summary">Summary</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>

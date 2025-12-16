@@ -3,10 +3,11 @@ import { fetchProjections } from "@/app/server-actions/saturation/fetchProjectio
 import { getErrorSummary, logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const projections = await fetchProjections();
-    const projection = projections.find((p) => p.id === params.id);
+    const projection = projections.find((p) => p.id === id);
 
     if (!projection) {
       return NextResponse.json({ success: false, error: "Projection not found" }, { status: 404 });
@@ -20,7 +21,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   }
 }
 
-export async function PUT(req: NextRequest, { params: { id: _id } }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: _id } = await params;
   try {
     const { name } = await req.json();
 
@@ -43,9 +45,10 @@ export async function PUT(req: NextRequest, { params: { id: _id } }: { params: {
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await deleteProjection(params.id);
+    const { id } = await params;
+    await deleteProjection(id);
     return NextResponse.json({ success: true });
   } catch (error) {
     logErrorSummary("delete-projection", error);

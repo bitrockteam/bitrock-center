@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 
-type ApiResponse<T> = {
+export type ApiResponse<T> = {
   success: boolean;
   data?: T;
   error?: string;
@@ -23,7 +23,7 @@ export const useApi = <T = unknown>(options: UseApiOptions = {}) => {
   optionsRef.current = options;
 
   const callApi = useCallback(
-    async (url: string, config: RequestInit = {}) => {
+    async <R = T>(url: string, config: RequestInit = {}): Promise<R> => {
       setLoading(true);
       setError(null);
 
@@ -36,16 +36,16 @@ export const useApi = <T = unknown>(options: UseApiOptions = {}) => {
           ...config,
         });
 
-        const result: ApiResponse<T> = await response.json();
+        const result: ApiResponse<R> = await response.json();
 
         if (!response.ok) {
           throw new Error(result.error || "API request failed");
         }
 
         if (result.success) {
-          setData(result.data);
+          setData(result.data as T);
           optionsRef.current.onSuccess?.(result.data);
-          return result.data;
+          return result.data as R;
         } else {
           throw new Error(result.error || "API request failed");
         }

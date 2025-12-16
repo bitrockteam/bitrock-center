@@ -3,10 +3,11 @@ import { fetchProjections } from "@/app/server-actions/saturation/fetchProjectio
 import { getErrorSummary, logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const projections = await fetchProjections();
-    const projection = projections.find((p) => p.id === params.id);
+    const projection = projections.find((p) => p.id === id);
 
     if (!projection) {
       return NextResponse.json({ success: false, error: "Projection not found" }, { status: 404 });
@@ -20,8 +21,9 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const { allocations } = await req.json();
 
     if (!Array.isArray(allocations)) {
@@ -62,7 +64,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         : null,
     }));
 
-    await updateProjectionAllocations(params.id, processedAllocations);
+    await updateProjectionAllocations(id, processedAllocations);
     return NextResponse.json({ success: true });
   } catch (error) {
     logErrorSummary("update-projection-allocations", error);

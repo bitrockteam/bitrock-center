@@ -20,14 +20,7 @@ import {
 } from "@/components/ui/table";
 import { formatDisplayName } from "@/services/users/utils";
 import dayjs from "dayjs";
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  ChevronDown,
-  Edit,
-  Trash2,
-} from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -58,11 +51,9 @@ export default function AllocationsTable({
 }: AllocationsTableProps) {
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-  const [nestedSortField, setNestedSortField] = useState<"percentage" | null>(
-    null
-  );
-  const [nestedSortDirection, setNestedSortDirection] =
-    useState<SortDirection>("asc");
+  const [nestedSortField, setNestedSortField] = useState<"percentage" | null>(null);
+  const [nestedSortDirection, setNestedSortDirection] = useState<SortDirection>("asc");
+  const [openValue, setOpenValue] = useState<string | undefined>(undefined);
 
   const formatDate = (date: Date | null) => {
     if (!date) return "-";
@@ -100,19 +91,13 @@ export default function AllocationsTable({
         existing.averagePercentage += allocation.percentage;
 
         if (allocation.start_date) {
-          if (
-            !existing.earliestStartDate ||
-            allocation.start_date < existing.earliestStartDate
-          ) {
+          if (!existing.earliestStartDate || allocation.start_date < existing.earliestStartDate) {
             existing.earliestStartDate = allocation.start_date;
           }
         }
 
         if (allocation.end_date) {
-          if (
-            !existing.latestEndDate ||
-            allocation.end_date > existing.latestEndDate
-          ) {
+          if (!existing.latestEndDate || allocation.end_date > existing.latestEndDate) {
             existing.latestEndDate = allocation.end_date;
           }
         }
@@ -130,9 +115,7 @@ export default function AllocationsTable({
 
     let result = Array.from(groups.values()).map((group) => ({
       ...group,
-      averagePercentage: Math.round(
-        group.averagePercentage / group.totalAllocations
-      ),
+      averagePercentage: Math.round(group.averagePercentage / group.totalAllocations),
     }));
 
     if (sortField) {
@@ -162,13 +145,7 @@ export default function AllocationsTable({
     }
 
     return result;
-  }, [
-    allocations,
-    sortField,
-    sortDirection,
-    nestedSortField,
-    nestedSortDirection,
-  ]);
+  }, [allocations, sortField, sortDirection, nestedSortField, nestedSortDirection]);
 
   if (loading) {
     return (
@@ -186,10 +163,20 @@ export default function AllocationsTable({
     );
   }
 
+  const handleToggle = (value: string) => {
+    setOpenValue(openValue === value ? undefined : value);
+  };
+
   return (
-    <div className="rounded-md border">
-      <Accordion type="single" collapsible className="w-full">
-        <Table>
+    <div className="rounded-md border w-full">
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full"
+        value={openValue}
+        onValueChange={setOpenValue}
+      >
+        <Table className="w-full">
           <TableHeader>
             <TableRow>
               <TableHead className="min-w-[250px]">Utente</TableHead>
@@ -246,14 +233,12 @@ export default function AllocationsTable({
                 value={group.user.id}
                 className="border-0 [&[data-state=open]_svg.accordion-icon]:rotate-180"
               >
-                <TableRow className="hover:bg-muted/50">
+                <TableRow className="hover:bg-muted/50 w-full">
                   <TableCell className="min-w-[250px] p-2">
                     <AccordionTrigger className="hover:no-underline [&>svg]:hidden w-full py-0 h-auto -mx-2 px-2">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <Avatar className="h-10 w-10 shrink-0">
-                          {group.user.avatar_url && (
-                            <AvatarImage src={group.user.avatar_url} />
-                          )}
+                          {group.user.avatar_url && <AvatarImage src={group.user.avatar_url} />}
                           <AvatarFallback className="text-sm">
                             {formatDisplayName({
                               name: group.user.name,
@@ -262,9 +247,7 @@ export default function AllocationsTable({
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col text-left min-w-0 flex-1">
-                          <span className="font-medium truncate">
-                            {group.user.name}
-                          </span>
+                          <span className="font-medium truncate">{group.user.name}</span>
                           <span className="text-xs text-muted-foreground truncate">
                             {group.user.email}
                           </span>
@@ -277,9 +260,7 @@ export default function AllocationsTable({
                       <span className="text-sm font-medium whitespace-nowrap">
                         {group.totalAllocations}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        allocazioni
-                      </span>
+                      <span className="text-xs text-muted-foreground">allocazioni</span>
                     </div>
                   </TableCell>
                   <TableCell className="p-2">
@@ -287,26 +268,32 @@ export default function AllocationsTable({
                       <Badge variant="outline" className="w-fit">
                         {group.averagePercentage}%
                       </Badge>
-                      <span className="text-xs text-muted-foreground mt-1">
-                        media
-                      </span>
+                      <span className="text-xs text-muted-foreground mt-1">media</span>
                     </div>
                   </TableCell>
                   <TableCell className="p-2">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium whitespace-nowrap">
-                        {formatDate(group.earliestStartDate)} -{" "}
-                        {formatDate(group.latestEndDate)}
+                        {formatDate(group.earliestStartDate)} - {formatDate(group.latestEndDate)}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        periodo
-                      </span>
+                      <span className="text-xs text-muted-foreground">periodo</span>
                     </div>
                   </TableCell>
                   <TableCell className="p-2 text-right w-[50px]">
-                    <div className="flex items-center justify-end">
-                      <ChevronDown className="accordion-icon h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-auto w-auto p-0 hover:bg-transparent"
+                      onClick={() => handleToggle(group.user.id)}
+                      aria-label="Espandi/Dettagli"
+                      tabIndex={0}
+                    >
+                      <ChevronDown
+                        className={`accordion-icon h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
+                          openValue === group.user.id ? "rotate-180" : ""
+                        }`}
+                      />
+                    </Button>
                   </TableCell>
                 </TableRow>
                 <AccordionContent>
@@ -346,9 +333,7 @@ export default function AllocationsTable({
                         </TableHeader>
                         <TableBody>
                           {group.allocations.map((allocation) => (
-                            <TableRow
-                              key={`${allocation.user_id}-${allocation.work_item_id}`}
-                            >
+                            <TableRow key={`${allocation.user_id}-${allocation.work_item_id}`}>
                               <TableCell>
                                 <div className="flex flex-col">
                                   <span className="font-medium">
@@ -361,13 +346,9 @@ export default function AllocationsTable({
                               </TableCell>
                               <TableCell>
                                 {allocation.work_items.project ? (
-                                  <span>
-                                    {allocation.work_items.project.name}
-                                  </span>
+                                  <span>{allocation.work_items.project.name}</span>
                                 ) : (
-                                  <span className="text-muted-foreground">
-                                    -
-                                  </span>
+                                  <span className="text-muted-foreground">-</span>
                                 )}
                               </TableCell>
                               <TableCell>
@@ -378,16 +359,10 @@ export default function AllocationsTable({
                                   {allocation.work_items.title}
                                 </Link>
                               </TableCell>
+                              <TableCell>{formatDate(allocation.start_date)}</TableCell>
+                              <TableCell>{formatDate(allocation.end_date)}</TableCell>
                               <TableCell>
-                                {formatDate(allocation.start_date)}
-                              </TableCell>
-                              <TableCell>
-                                {formatDate(allocation.end_date)}
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant="outline">
-                                  {allocation.percentage}%
-                                </Badge>
+                                <Badge variant="outline">{allocation.percentage}%</Badge>
                               </TableCell>
                               <TableCell className="text-right">
                                 <div className="flex items-center justify-end gap-2">

@@ -82,14 +82,12 @@ export default function SaturationProjections({
 
   const loadProjections = useCallback(async () => {
     try {
-      const response = await callApi("/api/saturation/projections", {
+      const response = await callApi<Projection[]>("/api/saturation/projections", {
         method: "GET",
       });
-      if (response.success && response.data) {
-        setProjections(response.data);
-        if (response.data.length > 0 && !selectedProjectionId) {
-          setSelectedProjectionId(response.data[0].id);
-        }
+      setProjections(response);
+      if (response.length > 0 && !selectedProjectionId) {
+        setSelectedProjectionId(response[0].id);
       }
     } catch (error) {
       console.error("Failed to load projections:", error);
@@ -102,15 +100,13 @@ export default function SaturationProjections({
 
   const handleCreateProjection = async (name: string, description?: string) => {
     try {
-      const response = await callApi("/api/saturation/projections", {
+      const response = await callApi<Projection>("/api/saturation/projections", {
         method: "POST",
         body: JSON.stringify({ name, description }),
       });
-      if (response.success) {
-        await loadProjections();
-        if (response.data?.id) {
-          setSelectedProjectionId(response.data.id);
-        }
+      await loadProjections();
+      if (response?.id) {
+        setSelectedProjectionId(response.id);
       }
     } catch (error) {
       console.error("Failed to create projection:", error);
@@ -122,14 +118,12 @@ export default function SaturationProjections({
       return;
     }
     try {
-      const response = await callApi(`/api/saturation/projections/${projectionId}`, {
+      await callApi<unknown>(`/api/saturation/projections/${projectionId}`, {
         method: "DELETE",
       });
-      if (response.success) {
-        await loadProjections();
-        if (selectedProjectionId === projectionId) {
-          setSelectedProjectionId(null);
-        }
+      await loadProjections();
+      if (selectedProjectionId === projectionId) {
+        setSelectedProjectionId(null);
       }
     } catch (error) {
       console.error("Failed to delete projection:", error);
@@ -193,18 +187,13 @@ export default function SaturationProjections({
     });
 
     try {
-      const response = await callApi(
-        `/api/saturation/projections/${selectedProjectionId}/allocations`,
-        {
-          method: "POST",
-          body: JSON.stringify({ allocations }),
-        }
-      );
-      if (response.success) {
-        await loadProjections();
-        setSelectedCells(new Map());
-        alert("Projection allocations saved successfully");
-      }
+      await callApi<unknown>(`/api/saturation/projections/${selectedProjectionId}/allocations`, {
+        method: "POST",
+        body: JSON.stringify({ allocations }),
+      });
+      await loadProjections();
+      setSelectedCells(new Map());
+      alert("Projection allocations saved successfully");
     } catch (error) {
       console.error("Failed to save allocations:", error);
       alert("Failed to save allocations");

@@ -31,7 +31,7 @@ import { z } from "zod";
 
 const editAllocationFormSchema = z
   .object({
-    start_date: z.date({ required_error: "La data di inizio è obbligatoria" }),
+    start_date: z.date(),
     end_date: z.date().nullable().optional(),
     percentage: z.number().min(0).max(100),
   })

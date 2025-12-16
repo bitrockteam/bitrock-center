@@ -43,7 +43,7 @@ const allocationFormSchema = z
     client_id: z.string().min(1, "Il cliente è obbligatorio"),
     work_item_id: z.string().min(1, "La commessa è obbligatoria"),
     user_id: z.string().min(1, "L'utente è obbligatorio"),
-    start_date: z.date({ required_error: "La data di inizio è obbligatoria" }),
+    start_date: z.date(),
     end_date: z.date().nullable().optional(),
     percentage: z.number().min(0).max(100),
   })
