@@ -3,7 +3,7 @@ import { fetchProjections } from "@/app/server-actions/saturation/fetchProjectio
 import { getErrorSummary, logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const projections = await fetchProjections();
     const projection = projections.find((p) => p.id === params.id);
@@ -25,10 +25,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const { allocations } = await req.json();
 
     if (!Array.isArray(allocations)) {
-      return NextResponse.json(
-        { error: "allocations must be an array" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "allocations must be an array" }, { status: 400 });
     }
 
     // Validate allocations structure
@@ -56,7 +53,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     // Convert dates from strings to Date objects
     const processedAllocations = allocations.map((alloc) => ({
       ...alloc,
-      start_date: typeof alloc.start_date === "string" ? new Date(alloc.start_date) : alloc.start_date,
+      start_date:
+        typeof alloc.start_date === "string" ? new Date(alloc.start_date) : alloc.start_date,
       end_date: alloc.end_date
         ? typeof alloc.end_date === "string"
           ? new Date(alloc.end_date)
@@ -72,4 +70,3 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }
-

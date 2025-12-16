@@ -406,9 +406,7 @@ export default function UserDetailsAllocations({
                     </TableCell>
                     <TableCell>{allocation.clientName}</TableCell>
                     <TableCell>
-                      {allocation.projectStatus ? (
-                        getStatusBadge(allocation.projectStatus)
-                      ) : null}
+                      {allocation.projectStatus ? getStatusBadge(allocation.projectStatus) : null}
                     </TableCell>
                     <TableCell>{allocation.percentage}%</TableCell>
                     <TableCell>{formatDate(allocation.startDate ?? null)}</TableCell>

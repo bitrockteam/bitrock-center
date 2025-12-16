@@ -53,4 +53,3 @@ export function SaturationPageClient({ initialEmployees }: SaturationPageClientP
     </div>
   );
 }
-

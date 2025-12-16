@@ -12,14 +12,69 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAllocationColor, getAllocationBadgeColor, hasAllocationIssue } from "@/utils/saturation";
-import { AlertTriangle } from "lucide-react";
+import { getAllocationBadgeColor, hasAllocationIssue } from "@/utils/saturation";
+import { AlertTriangle, TrendingUp, Users, AlertCircle } from "lucide-react";
 import { useMemo } from "react";
 
 type SaturationSummaryProps = {
   employees: SaturationEmployee[];
   groupBy?: "team" | "seniority" | null;
   showIssuesOnly?: boolean;
+};
+
+type GroupSummary = {
+  averageAllocation: number;
+  issuesCount: number;
+  totalEmployees: number;
+  totalActiveAllocations: number;
+  earliestEndDate: Date | null;
+  latestEndDate: Date | null;
+  underAllocatedCount: number;
+  overAllocatedCount: number;
+};
+
+const calculateGroupSummary = (employees: SaturationEmployee[]): GroupSummary => {
+  if (employees.length === 0) {
+    return {
+      averageAllocation: 0,
+      issuesCount: 0,
+      totalEmployees: 0,
+      totalActiveAllocations: 0,
+      earliestEndDate: null,
+      latestEndDate: null,
+      underAllocatedCount: 0,
+      overAllocatedCount: 0,
+    };
+  }
+
+  const totalAllocation = employees.reduce((sum, emp) => sum + emp.totalAllocation, 0);
+  const averageAllocation = Math.round((totalAllocation / employees.length) * 10) / 10;
+
+  const issuesCount = employees.filter(hasAllocationIssue).length;
+  const underAllocatedCount = employees.filter((emp) => emp.totalAllocation < 50).length;
+  const overAllocatedCount = employees.filter((emp) => emp.totalAllocation > 100).length;
+
+  const totalActiveAllocations = employees.reduce((sum, emp) => sum + emp.allocations.length, 0);
+
+  const endDates = employees
+    .map((emp) => emp.latestEndDate)
+    .filter((date): date is Date => date !== null);
+
+  const earliestEndDate =
+    endDates.length > 0 ? new Date(Math.min(...endDates.map((d) => d.getTime()))) : null;
+  const latestEndDate =
+    endDates.length > 0 ? new Date(Math.max(...endDates.map((d) => d.getTime()))) : null;
+
+  return {
+    averageAllocation,
+    issuesCount,
+    totalEmployees: employees.length,
+    totalActiveAllocations,
+    earliestEndDate,
+    latestEndDate,
+    underAllocatedCount,
+    overAllocatedCount,
+  };
 };
 
 export default function SaturationSummary({
@@ -106,10 +161,7 @@ export default function SaturationSummary({
                     groupEmployees.map((employee) => {
                       const hasIssue = hasAllocationIssue(employee);
                       return (
-                        <TableRow
-                          key={employee.id}
-                          className={hasIssue ? "bg-destructive/5" : ""}
-                        >
+                        <TableRow key={employee.id} className={hasIssue ? "bg-destructive/5" : ""}>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Avatar className="h-8 w-8">
@@ -126,7 +178,9 @@ export default function SaturationSummary({
                               </Avatar>
                               <div>
                                 <div className="font-medium">{employee.name}</div>
-                                <div className="text-xs text-muted-foreground">{employee.email}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {employee.email}
+                                </div>
                               </div>
                             </div>
                           </TableCell>
@@ -139,9 +193,7 @@ export default function SaturationSummary({
                               >
                                 {employee.totalAllocation}%
                               </Badge>
-                              {hasIssue && (
-                                <AlertTriangle className="h-4 w-4 text-destructive" />
-                              )}
+                              {hasIssue && <AlertTriangle className="h-4 w-4 text-destructive" />}
                             </div>
                           </TableCell>
                           <TableCell>{employee.allocations.length}</TableCell>
@@ -167,6 +219,80 @@ export default function SaturationSummary({
                       );
                     })
                   )}
+                  {groupBy &&
+                    groupEmployees.length > 0 &&
+                    (() => {
+                      const summary = calculateGroupSummary(groupEmployees);
+                      return (
+                        <TableRow className="bg-muted/30 border-t-2 border-muted-foreground/20">
+                          <TableCell colSpan={6} className="py-4">
+                            <div className="flex items-center justify-between flex-wrap gap-4">
+                              <div className="flex items-center gap-6 flex-wrap">
+                                <div className="flex items-center gap-2">
+                                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                                  <span className="text-sm font-medium text-muted-foreground">
+                                    Avg Allocation:
+                                  </span>
+                                  <Badge
+                                    className={`${getAllocationBadgeColor(
+                                      summary.averageAllocation
+                                    )} text-white`}
+                                  >
+                                    {summary.averageAllocation}%
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-4 w-4 text-muted-foreground" />
+                                  <span className="text-sm font-medium text-muted-foreground">
+                                    Employees:
+                                  </span>
+                                  <span className="text-sm font-semibold">
+                                    {summary.totalEmployees}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-muted-foreground">
+                                    Active Allocations:
+                                  </span>
+                                  <span className="text-sm font-semibold">
+                                    {summary.totalActiveAllocations}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                {summary.issuesCount > 0 && (
+                                  <div className="flex items-center gap-2">
+                                    <AlertCircle className="h-4 w-4 text-destructive" />
+                                    <span className="text-sm font-medium text-destructive">
+                                      {summary.issuesCount} Issue
+                                      {summary.issuesCount !== 1 ? "s" : ""}
+                                    </span>
+                                    {summary.underAllocatedCount > 0 && (
+                                      <Badge variant="outline" className="text-xs">
+                                        {summary.underAllocatedCount} Under
+                                      </Badge>
+                                    )}
+                                    {summary.overAllocatedCount > 0 && (
+                                      <Badge variant="outline" className="text-xs text-destructive">
+                                        {summary.overAllocatedCount} Over
+                                      </Badge>
+                                    )}
+                                  </div>
+                                )}
+                                {summary.earliestEndDate && summary.latestEndDate && (
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <span>
+                                      Range: {formatDate(summary.earliestEndDate)} -{" "}
+                                      {formatDate(summary.latestEndDate)}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })()}
                 </TableBody>
               </Table>
             </div>
@@ -176,4 +302,3 @@ export default function SaturationSummary({
     </Card>
   );
 }
-

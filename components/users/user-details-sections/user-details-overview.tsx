@@ -67,8 +67,7 @@ export default function UserDetailsOverview({
   // Competenze disponibili per l'aggiunta (non già presenti e attive)
   const availableSkills = skillsCatalogApi.data?.filter(
     (skill: Skill) =>
-      skill.active &&
-      !user?.user_skill.some((empSkill) => empSkill.skill.id === skill.id)
+      skill.active && !user?.user_skill.some((empSkill) => empSkill.skill.id === skill.id)
   );
 
   const handleAddSkill = async () => {
@@ -308,7 +307,8 @@ export default function UserDetailsOverview({
           <DialogHeader>
             <DialogTitle>Aggiungi Competenza</DialogTitle>
             <DialogDescription>
-              Seleziona una competenza e il livello di seniority per {user?.name || "questo utente"}.
+              Seleziona una competenza e il livello di seniority per {user?.name || "questo utente"}
+              .
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

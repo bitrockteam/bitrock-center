@@ -18,4 +18,3 @@ export async function deleteProjection(projectionId: string) {
 
   return { success: true };
 }
-

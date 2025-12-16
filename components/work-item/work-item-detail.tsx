@@ -1,7 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, Briefcase, Building2, Calendar, Check, ChevronsUpDown, Clock, Edit, Euro, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Briefcase,
+  Building2,
+  Calendar,
+  Check,
+  ChevronsUpDown,
+  Clock,
+  Edit,
+  Euro,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { WorkItemById } from "@/app/server-actions/work-item/fetchWorkItemById";
@@ -84,9 +95,7 @@ export default function WorkItemDetail({
     }
 
     // Check if user is already in the team
-    const isAlreadyAdded = workItem.allocation.some(
-      (alloc) => alloc.user_id === selectedUserId
-    );
+    const isAlreadyAdded = workItem.allocation.some((alloc) => alloc.user_id === selectedUserId);
     if (isAlreadyAdded) {
       toast.error("Questo utente è già nel team");
       return;
@@ -132,9 +141,8 @@ export default function WorkItemDetail({
     }
   };
 
-  const availableUsers = users?.filter(
-    (user) => !workItem.allocation.some((alloc) => alloc.user_id === user.id)
-  ) || [];
+  const availableUsers =
+    users?.filter((user) => !workItem.allocation.some((alloc) => alloc.user_id === user.id)) || [];
 
   const filteredUsers = searchQuery
     ? availableUsers.filter(

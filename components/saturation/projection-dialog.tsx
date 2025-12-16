@@ -20,11 +20,7 @@ type ProjectionDialogProps = {
   onSave: (name: string, description?: string) => void;
 };
 
-export default function ProjectionDialog({
-  open,
-  onOpenChange,
-  onSave,
-}: ProjectionDialogProps) {
+export default function ProjectionDialog({ open, onOpenChange, onSave }: ProjectionDialogProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
@@ -85,4 +81,3 @@ export default function ProjectionDialog({
     </Dialog>
   );
 }
-

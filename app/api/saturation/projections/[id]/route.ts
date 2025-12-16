@@ -3,7 +3,7 @@ import { fetchProjections } from "@/app/server-actions/saturation/fetchProjectio
 import { getErrorSummary, logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const projections = await fetchProjections();
     const projection = projections.find((p) => p.id === params.id);
@@ -20,9 +20,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params: { id: _id } }: { params: { id: string } }) {
   try {
-    const { name, description } = await req.json();
+    const { name } = await req.json();
 
     // For now, we'll just validate - actual update can be added later if needed
     if (name && (typeof name !== "string" || name.trim().length === 0)) {
@@ -43,7 +43,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     await deleteProjection(params.id);
     return NextResponse.json({ success: true });
@@ -53,4 +53,3 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ success: false, error: summary.message }, { status: 500 });
   }
 }
-

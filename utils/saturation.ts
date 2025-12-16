@@ -1,4 +1,3 @@
-import { SeniorityLevel } from "@/db";
 import type { SaturationEmployee } from "@/app/server-actions/saturation/fetchSaturationData";
 
 export const calculateTotalAllocation = (allocations: Array<{ percentage: number }>): number => {
@@ -73,4 +72,3 @@ export const groupBySeniority = (employees: SaturationEmployee[]): GroupedEmploy
 export const filterIssues = (employees: SaturationEmployee[]): SaturationEmployee[] => {
   return employees.filter(hasAllocationIssue);
 };
-

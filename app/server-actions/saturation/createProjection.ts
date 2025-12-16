@@ -16,4 +16,3 @@ export async function createProjection(name: string, description?: string) {
 
   return projection;
 }
-

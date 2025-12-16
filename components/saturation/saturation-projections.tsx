@@ -44,7 +44,7 @@ type SaturationProjectionsProps = {
 
 export default function SaturationProjections({
   employees,
-  groupBy,
+  groupBy: _groupBy,
   showIssuesOnly = false,
 }: SaturationProjectionsProps) {
   const { callApi } = useApi();
@@ -148,9 +148,7 @@ export default function SaturationProjections({
         const key = `${employeeId}-${selectedProjectionId}`;
         const existing = newMap.get(key) ?? [];
         const cellKey = date.toISOString().split("T")[0];
-        const index = existing.findIndex(
-          (c) => c.date.toISOString().split("T")[0] === cellKey
-        );
+        const index = existing.findIndex((c) => c.date.toISOString().split("T")[0] === cellKey);
 
         if (index >= 0) {
           // Remove if already selected
@@ -195,10 +193,13 @@ export default function SaturationProjections({
     });
 
     try {
-      const response = await callApi(`/api/saturation/projections/${selectedProjectionId}/allocations`, {
-        method: "POST",
-        body: JSON.stringify({ allocations }),
-      });
+      const response = await callApi(
+        `/api/saturation/projections/${selectedProjectionId}/allocations`,
+        {
+          method: "POST",
+          body: JSON.stringify({ allocations }),
+        }
+      );
       if (response.success) {
         await loadProjections();
         setSelectedCells(new Map());
@@ -215,10 +216,7 @@ export default function SaturationProjections({
       <Card className="p-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 flex-1">
-            <Select
-              value={selectedProjectionId ?? ""}
-              onValueChange={setSelectedProjectionId}
-            >
+            <Select value={selectedProjectionId ?? ""} onValueChange={setSelectedProjectionId}>
               <SelectTrigger className="w-[300px]">
                 <SelectValue placeholder="Select a projection" />
               </SelectTrigger>
@@ -274,4 +272,3 @@ export default function SaturationProjections({
     </div>
   );
 }
-

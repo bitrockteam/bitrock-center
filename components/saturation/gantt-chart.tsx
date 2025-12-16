@@ -2,12 +2,7 @@
 
 import type { SaturationEmployee } from "@/app/server-actions/saturation/fetchSaturationData";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getAllocationBarPosition, getDefaultDateRange } from "@/utils/gantt";
 import { getAllocationBadgeColor } from "@/utils/saturation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -34,9 +29,8 @@ export default function GanttChart({
   onCellClick,
   projectionAllocations = [],
 }: GanttChartProps) {
-  const [dateRange, setDateRange] = useState(
-    initialDateRange ?? getDefaultDateRange()
-  );
+  const [dateRange, setDateRange] = useState(initialDateRange ?? getDefaultDateRange());
+  const [hoveredEmployeeId, setHoveredEmployeeId] = useState<string | null>(null);
   const employeeListRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
 
@@ -103,6 +97,8 @@ export default function GanttChart({
       percentage: number;
       workItemTitle: string;
       isProjection: boolean;
+      startDate: Date;
+      endDate: Date | null;
     }> = [];
 
     // Real allocations
@@ -120,6 +116,8 @@ export default function GanttChart({
           percentage: alloc.percentage,
           workItemTitle: alloc.work_item_title,
           isProjection: false,
+          startDate: alloc.start_date,
+          endDate: alloc.end_date,
         });
       }
     });
@@ -141,6 +139,8 @@ export default function GanttChart({
             percentage: alloc.percentage,
             workItemTitle: alloc.work_item_title ?? "Projection",
             isProjection: true,
+            startDate: alloc.start_date,
+            endDate: alloc.end_date,
           });
         }
       });
@@ -192,36 +192,41 @@ export default function GanttChart({
             Employee
           </div>
           <div ref={employeeListRef} className="flex-1 overflow-y-auto">
-            {employees.map((employee) => (
-              <div
-                key={employee.id}
-                className="flex items-center gap-2 p-2 border-b min-h-[60px]"
-              >
-                <Avatar className="h-8 w-8 shrink-0">
-                  {employee.avatar_url && (
-                    <AvatarImage
-                      src={employee.avatar_url}
-                      alt={employee.name}
-                    />
-                  )}
-                  <AvatarFallback>
-                    {employee.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate">
-                    {employee.name}
-                  </div>
-                  <div className="text-xs text-muted-foreground truncate">
-                    {employee.email}
+            {employees.map((employee) => {
+              const bars = getBarsForEmployee(employee);
+              const hasMultipleAllocations = bars.length >= 2;
+              const isHovered = hoveredEmployeeId === employee.id;
+              const shouldExpand = hasMultipleAllocations && isHovered;
+              const rowHeight = shouldExpand ? `${bars.length * 60 + 20}px` : "60px";
+
+              return (
+                <div
+                  key={employee.id}
+                  className="flex items-center gap-2 p-2 border-b"
+                  style={{
+                    minHeight: rowHeight,
+                    height: rowHeight,
+                  }}
+                >
+                  <Avatar className="h-8 w-8 shrink-0">
+                    {employee.avatar_url && (
+                      <AvatarImage src={employee.avatar_url} alt={employee.name} />
+                    )}
+                    <AvatarFallback>
+                      {employee.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate">{employee.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">{employee.email}</div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -230,10 +235,7 @@ export default function GanttChart({
           <div className="relative">
             {/* Date headers - sticky */}
             <div className="sticky top-0 bg-background border-b z-10">
-              <div
-                className="flex"
-                style={{ width: `${days.length * cellWidth}px` }}
-              >
+              <div className="flex" style={{ width: `${days.length * cellWidth}px` }}>
                 {days.map((day) => {
                   const isFirstOfMonth = day.getDate() === 1;
                   const isMonday = day.getDay() === 1;
@@ -241,9 +243,7 @@ export default function GanttChart({
                     <div
                       key={day.toISOString()}
                       className={`border-r text-xs text-center p-1 ${
-                        isFirstOfMonth || isMonday
-                          ? "font-medium bg-muted/50"
-                          : ""
+                        isFirstOfMonth || isMonday ? "font-medium bg-muted/50" : ""
                       }`}
                       style={{
                         width: `${cellWidth}px`,
@@ -265,118 +265,210 @@ export default function GanttChart({
             {/* Employee rows with allocation bars */}
             {employees.map((employee) => {
               const bars = getBarsForEmployee(employee);
+              const hasMultipleAllocations = bars.length >= 2;
+              const isHovered = hoveredEmployeeId === employee.id;
+              const shouldExpand = hasMultipleAllocations && isHovered;
+              const rowHeight = shouldExpand ? `${bars.length * 60 + 20}px` : "60px";
+
               return (
+                // biome-ignore lint/a11y/noStaticElementInteractions: Gantt chart row container with hover effects for visual feedback
                 <div
                   key={employee.id}
-                  className="relative border-b min-h-[60px] flex items-center"
-                  style={{ width: `${days.length * cellWidth}px` }}
+                  className="relative border-b flex flex-col"
+                  style={{
+                    width: `${days.length * cellWidth}px`,
+                    minHeight: rowHeight,
+                    height: rowHeight,
+                  }}
+                  onMouseEnter={() => {
+                    if (hasMultipleAllocations) {
+                      setHoveredEmployeeId(employee.id);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredEmployeeId(null);
+                  }}
                 >
                   {/* Day cells */}
-                  {days.map((day) => {
-                    const today = new Date();
-                    const isToday =
-                      day.getDate() === today.getDate() &&
-                      day.getMonth() === today.getMonth() &&
-                      day.getFullYear() === today.getFullYear();
-                    const cellLabel = `${
-                      employee.name
-                    } - ${day.toLocaleDateString("it-IT", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}`;
+                  <div className="absolute inset-0 flex">
+                    {days.map((day) => {
+                      const today = new Date();
+                      const isToday =
+                        day.getDate() === today.getDate() &&
+                        day.getMonth() === today.getMonth() &&
+                        day.getFullYear() === today.getFullYear();
+                      const cellLabel = `${employee.name} - ${day.toLocaleDateString("it-IT", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}`;
 
-                    if (isInteractive) {
+                      if (isInteractive) {
+                        return (
+                          <button
+                            key={day.toISOString()}
+                            type="button"
+                            className={`border-r h-full ${
+                              isToday ? "bg-primary/5" : ""
+                            } hover:bg-muted/50 cursor-pointer`}
+                            style={{
+                              width: `${cellWidth}px`,
+                              minWidth: `${cellWidth}px`,
+                            }}
+                            onClick={() => onCellClick?.(employee.id, day)}
+                            aria-label={cellLabel}
+                          />
+                        );
+                      }
+
                       return (
-                        <button
+                        <div
                           key={day.toISOString()}
-                          type="button"
-                          className={`border-r h-full ${
-                            isToday ? "bg-primary/5" : ""
-                          } hover:bg-muted/50 cursor-pointer`}
+                          className={`border-r h-full ${isToday ? "bg-primary/5" : ""}`}
                           style={{
                             width: `${cellWidth}px`,
                             minWidth: `${cellWidth}px`,
                           }}
-                          onClick={() => onCellClick?.(employee.id, day)}
-                          aria-label={cellLabel}
                         />
                       );
-                    }
-
-                    return (
-                      <div
-                        key={day.toISOString()}
-                        className={`border-r h-full ${
-                          isToday ? "bg-primary/5" : ""
-                        }`}
-                        style={{
-                          width: `${cellWidth}px`,
-                          minWidth: `${cellWidth}px`,
-                        }}
-                      />
-                    );
-                  })}
+                    })}
+                  </div>
 
                   {/* Allocation bars */}
-                  {bars.map((bar, index) => (
-                    <TooltipProvider key={`${employee.id}-${index}`}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
+                  {shouldExpand ? (
+                    // Expanded view: each allocation on its own line
+                    <div className="relative flex-1 flex flex-col justify-center gap-3 py-3">
+                      {bars.map((bar, index) => (
+                        <div
+                          key={`${employee.id}-${index}`}
+                          className="relative flex flex-col gap-1"
+                        >
+                          {/* Date labels for expanded view */}
                           <div
-                            className={`absolute h-8 rounded-sm ${
-                              bar.isProjection
-                                ? "border-2 border-dashed opacity-70"
-                                : "opacity-90"
-                            } ${getAllocationBadgeColor(bar.percentage)}`}
+                            className="text-[10px] text-muted-foreground whitespace-nowrap px-1"
                             style={{
-                              left: `${bar.startOffset * cellWidth}px`,
-                              width: `${bar.width * cellWidth}px`,
-                              top: "50%",
-                              transform: "translateY(-50%)",
-                              cursor: "pointer",
+                              marginLeft: `${bar.startOffset * cellWidth}px`,
                             }}
                           >
-                            <div className="h-full flex items-center justify-center text-white text-xs font-medium px-1 truncate">
-                              {bar.percentage}%
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="space-y-1">
-                            <div className="font-medium">
-                              {bar.workItemTitle}
-                            </div>
-                            <div className="text-xs">
-                              {(bar.startOffset < days.length
-                                ? days[bar.startOffset]
-                                : dateRange.start
-                              ).toLocaleDateString("it-IT", {
-                                month: "short",
-                                day: "numeric",
-                              })}{" "}
-                              -{" "}
-                              {(bar.startOffset + bar.width - 1 < days.length
-                                ? days[bar.startOffset + bar.width - 1]
-                                : dateRange.end
-                              ).toLocaleDateString("it-IT", {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </div>
-                            <div className="text-xs">
-                              Allocation: {bar.percentage}%
-                            </div>
-                            {bar.isProjection && (
-                              <div className="text-xs text-muted-foreground">
-                                (Projection)
-                              </div>
+                            {bar.startDate.toLocaleDateString("it-IT", {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                            {bar.endDate && (
+                              <>
+                                {" - "}
+                                {bar.endDate.toLocaleDateString("it-IT", {
+                                  month: "short",
+                                  day: "numeric",
+                                })}
+                              </>
                             )}
                           </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ))}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className={`h-8 rounded-sm ${
+                                    bar.isProjection
+                                      ? "border-2 border-dashed opacity-70"
+                                      : "opacity-90"
+                                  } ${getAllocationBadgeColor(bar.percentage)}`}
+                                  style={{
+                                    marginLeft: `${bar.startOffset * cellWidth}px`,
+                                    width: `${bar.width * cellWidth}px`,
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  <div className="h-full flex items-center justify-between text-white text-xs font-medium px-2">
+                                    <span className="truncate">{bar.workItemTitle}</span>
+                                    <span className="ml-2 shrink-0">{bar.percentage}%</span>
+                                  </div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <div className="space-y-1">
+                                  <div className="font-medium">{bar.workItemTitle}</div>
+                                  <div className="text-xs">
+                                    {bar.startDate.toLocaleDateString("it-IT", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })}{" "}
+                                    -{" "}
+                                    {bar.endDate
+                                      ? bar.endDate.toLocaleDateString("it-IT", {
+                                          month: "short",
+                                          day: "numeric",
+                                          year: "numeric",
+                                        })
+                                      : "Ongoing"}
+                                  </div>
+                                  <div className="text-xs">Allocation: {bar.percentage}%</div>
+                                  {bar.isProjection && (
+                                    <div className="text-xs text-muted-foreground">
+                                      (Projection)
+                                    </div>
+                                  )}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    // Collapsed view: all allocations on one line (original behavior)
+                    bars.map((bar, index) => (
+                      <TooltipProvider key={`${employee.id}-${index}`}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              className={`absolute h-8 rounded-sm ${
+                                bar.isProjection
+                                  ? "border-2 border-dashed opacity-70"
+                                  : "opacity-90"
+                              } ${getAllocationBadgeColor(bar.percentage)}`}
+                              style={{
+                                left: `${bar.startOffset * cellWidth}px`,
+                                width: `${bar.width * cellWidth}px`,
+                                top: "50%",
+                                transform: "translateY(-50%)",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <div className="h-full flex items-center justify-center text-white text-xs font-medium px-1 truncate">
+                                {bar.percentage}%
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className="space-y-1">
+                              <div className="font-medium">{bar.workItemTitle}</div>
+                              <div className="text-xs">
+                                {bar.startDate.toLocaleDateString("it-IT", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}{" "}
+                                -{" "}
+                                {bar.endDate
+                                  ? bar.endDate.toLocaleDateString("it-IT", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })
+                                  : "Ongoing"}
+                              </div>
+                              <div className="text-xs">Allocation: {bar.percentage}%</div>
+                              {bar.isProjection && (
+                                <div className="text-xs text-muted-foreground">(Projection)</div>
+                              )}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ))
+                  )}
                 </div>
               );
             })}

@@ -80,4 +80,3 @@ export const getDefaultDateRange = (): { start: Date; end: Date } => {
   end.setDate(0); // Last day of that month
   return { start, end };
 };
-

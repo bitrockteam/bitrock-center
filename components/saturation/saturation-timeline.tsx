@@ -13,7 +13,7 @@ type SaturationTimelineProps = {
 
 export default function SaturationTimeline({
   employees,
-  groupBy,
+  groupBy: _groupBy,
   showIssuesOnly = false,
 }: SaturationTimelineProps) {
   const filteredEmployees = useMemo(() => {
@@ -33,4 +33,3 @@ export default function SaturationTimeline({
     </Card>
   );
 }
-

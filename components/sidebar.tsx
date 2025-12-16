@@ -29,13 +29,16 @@ import {
   Menu,
   Settings,
   User,
+  UserCheck,
   Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+
+const SIDEBAR_COLLAPSED_KEY = "sidebar-collapsed";
 
 const navItems = [
   {
@@ -69,6 +72,12 @@ const navItems = [
     href: "/commesse",
     icon: Briefcase,
     permission: Permissions.CAN_SEE_WORK_ITEM,
+  },
+  {
+    title: "Allocazioni",
+    href: "/allocazioni",
+    icon: UserCheck,
+    permission: Permissions.CAN_ALLOCATE_RESOURCE,
   },
   {
     title: "Utenti",
@@ -109,6 +118,17 @@ export default function Sidebar({
 }>) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    const savedCollapsed = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+    if (savedCollapsed !== null) {
+      setCollapsed(savedCollapsed === "true");
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(collapsed));
+  }, [collapsed]);
 
   return (
     <div className="relative">

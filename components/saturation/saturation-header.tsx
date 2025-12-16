@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
 
 type SaturationHeaderProps = {
   currentView: "summary" | "timeline" | "projections";
@@ -48,10 +47,7 @@ export default function SaturationHeader({
               checked={showIssuesOnly}
               onCheckedChange={(checked) => onShowIssuesOnlyChange(checked === true)}
             />
-            <Label
-              htmlFor="show-issues"
-              className="text-sm font-normal cursor-pointer"
-            >
+            <Label htmlFor="show-issues" className="text-sm font-normal cursor-pointer">
               Show Issues Only
             </Label>
           </div>
@@ -74,11 +70,7 @@ export default function SaturationHeader({
                 Seniority
               </Button>
               {groupBy && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onGroupByChange(null)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => onGroupByChange(null)}>
                   Clear
                 </Button>
               )}
@@ -89,4 +81,3 @@ export default function SaturationHeader({
     </Card>
   );
 }
-
