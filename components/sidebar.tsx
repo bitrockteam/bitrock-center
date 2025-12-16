@@ -16,6 +16,7 @@ import { Permissions, type user } from "@/db";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
+  BarChart3,
   Briefcase,
   Building2,
   Calendar,
@@ -83,6 +84,11 @@ const navItems = [
     title: "Team",
     href: "/team",
     icon: HandMetal,
+  },
+  {
+    title: "Saturation",
+    href: "/saturation",
+    icon: BarChart3,
   },
   {
     title: "Permissions",

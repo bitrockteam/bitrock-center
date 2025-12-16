@@ -118,6 +118,8 @@ interface AddWorkItemDialogProps {
   onOpenChange: (open: boolean) => void;
   editData?: WorkItemFormData;
   canCreateWorkItem?: boolean;
+  presetClientId?: string;
+  onSuccess?: () => void;
 }
 
 export default function AddWorkItemDialog({
@@ -125,6 +127,8 @@ export default function AddWorkItemDialog({
   onOpenChange,
   editData,
   canCreateWorkItem = false,
+  presetClientId,
+  onSuccess,
 }: AddWorkItemDialogProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -143,7 +147,7 @@ export default function AddWorkItemDialog({
     return {
       id: editData?.id || "",
       title: editData?.title || "",
-      client_id: editData?.client_id || "",
+      client_id: editData?.client_id || presetClientId || "",
       project_id: editData?.project_id || "",
       type: editData?.type || work_item_type.time_material,
       start_date: editData?.start_date || "",
@@ -155,7 +159,7 @@ export default function AddWorkItemDialog({
       estimated_hours: editData?.estimated_hours ?? null,
       fixed_price: editData?.fixed_price ?? null,
     };
-  }, [editData]);
+  }, [editData, presetClientId]);
 
   const form = useForm<WorkItemFormData>({
     resolver: zodResolver(workItemSchema),
@@ -214,6 +218,9 @@ export default function AddWorkItemDialog({
       onOpenChange(false);
       form.reset();
       router.refresh();
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       console.error("Error saving work item:", error);
       toast.error(isEditing ? "Errore durante l'aggiornamento" : "Errore durante la creazione");
@@ -226,8 +233,11 @@ export default function AddWorkItemDialog({
     if (open) {
       fetchClients("/api/client/search");
       fetchUsers("/api/user/search");
+      if (presetClientId && !editData) {
+        form.reset(getNewFormValues());
+      }
     }
-  }, [open, fetchClients, fetchUsers]);
+  }, [open, fetchClients, fetchUsers, presetClientId, editData, form, getNewFormValues]);
 
   useEffect(() => {
     if (editData) {
@@ -341,7 +351,7 @@ export default function AddWorkItemDialog({
                           field.onChange(value);
                           form.setValue("project_id", ""); // Reset project when client changes
                         }}
-                        disabled={!canCreateWorkItem}
+                        disabled={!canCreateWorkItem || !!presetClientId}
                       >
                         <FormControl>
                           <SelectTrigger>

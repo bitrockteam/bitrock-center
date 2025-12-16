@@ -1,0 +1,388 @@
+"use client";
+
+import type { SaturationEmployee } from "@/app/server-actions/saturation/fetchSaturationData";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { getAllocationBarPosition, getDefaultDateRange } from "@/utils/gantt";
+import { getAllocationBadgeColor } from "@/utils/saturation";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+type GanttChartProps = {
+  employees: SaturationEmployee[];
+  dateRange?: { start: Date; end: Date };
+  isInteractive?: boolean;
+  onCellClick?: (employeeId: string, date: Date) => void;
+  projectionAllocations?: Array<{
+    user_id: string;
+    start_date: Date;
+    end_date: Date | null;
+    percentage: number;
+    work_item_title?: string | null;
+  }>;
+};
+
+export default function GanttChart({
+  employees,
+  dateRange: initialDateRange,
+  isInteractive = false,
+  onCellClick,
+  projectionAllocations = [],
+}: GanttChartProps) {
+  const [dateRange, setDateRange] = useState(
+    initialDateRange ?? getDefaultDateRange()
+  );
+  const employeeListRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+
+  // Sync vertical scrolling between employee list and timeline
+  useEffect(() => {
+    const employeeList = employeeListRef.current;
+    const timeline = timelineRef.current;
+    if (!employeeList || !timeline) return;
+
+    const handleTimelineScroll = () => {
+      if (employeeList) {
+        employeeList.scrollTop = timeline.scrollTop;
+      }
+    };
+
+    const handleEmployeeListScroll = () => {
+      if (timeline) {
+        timeline.scrollTop = employeeList.scrollTop;
+      }
+    };
+
+    timeline.addEventListener("scroll", handleTimelineScroll);
+    employeeList.addEventListener("scroll", handleEmployeeListScroll);
+
+    return () => {
+      timeline.removeEventListener("scroll", handleTimelineScroll);
+      employeeList.removeEventListener("scroll", handleEmployeeListScroll);
+    };
+  }, []);
+
+  const days = useMemo(() => {
+    const daysList: Date[] = [];
+    const current = new Date(dateRange.start);
+    const end = new Date(dateRange.end);
+
+    while (current <= end) {
+      daysList.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+
+    return daysList;
+  }, [dateRange]);
+
+  const handlePreviousMonth = () => {
+    const newStart = new Date(dateRange.start);
+    newStart.setMonth(newStart.getMonth() - 1);
+    const newEnd = new Date(dateRange.end);
+    newEnd.setMonth(newEnd.getMonth() - 1);
+    setDateRange({ start: newStart, end: newEnd });
+  };
+
+  const handleNextMonth = () => {
+    const newStart = new Date(dateRange.start);
+    newStart.setMonth(newStart.getMonth() + 1);
+    const newEnd = new Date(dateRange.end);
+    newEnd.setMonth(newEnd.getMonth() + 1);
+    setDateRange({ start: newStart, end: newEnd });
+  };
+
+  const getBarsForEmployee = (employee: SaturationEmployee) => {
+    const bars: Array<{
+      startOffset: number;
+      width: number;
+      percentage: number;
+      workItemTitle: string;
+      isProjection: boolean;
+    }> = [];
+
+    // Real allocations
+    employee.allocations.forEach((alloc) => {
+      const bar = getAllocationBarPosition(
+        alloc.start_date,
+        alloc.end_date,
+        dateRange.start,
+        dateRange.end
+      );
+      if (bar) {
+        bars.push({
+          startOffset: bar.startOffset,
+          width: bar.width,
+          percentage: alloc.percentage,
+          workItemTitle: alloc.work_item_title,
+          isProjection: false,
+        });
+      }
+    });
+
+    // Projection allocations
+    projectionAllocations
+      .filter((pa) => pa.user_id === employee.id)
+      .forEach((alloc) => {
+        const bar = getAllocationBarPosition(
+          alloc.start_date,
+          alloc.end_date,
+          dateRange.start,
+          dateRange.end
+        );
+        if (bar) {
+          bars.push({
+            startOffset: bar.startOffset,
+            width: bar.width,
+            percentage: alloc.percentage,
+            workItemTitle: alloc.work_item_title ?? "Projection",
+            isProjection: true,
+          });
+        }
+      });
+
+    return bars;
+  };
+
+  const cellWidth = 40; // Width of each day cell in pixels
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header with date navigation */}
+      <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handlePreviousMonth}
+            className="p-2 hover:bg-muted rounded-md transition-colors"
+            aria-label="Previous month"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <span className="font-medium min-w-[200px] text-center">
+            {dateRange.start.toLocaleDateString("it-IT", {
+              month: "short",
+              year: "numeric",
+            })}{" "}
+            -{" "}
+            {dateRange.end.toLocaleDateString("it-IT", {
+              month: "short",
+              year: "numeric",
+            })}
+          </span>
+          <button
+            type="button"
+            onClick={handleNextMonth}
+            className="p-2 hover:bg-muted rounded-md transition-colors"
+            aria-label="Next month"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Employee list (left side - fixed) */}
+        <div className="w-64 border-r bg-background flex flex-col shrink-0">
+          <div className="sticky top-0 bg-background border-b p-2 font-medium text-sm z-20">
+            Employee
+          </div>
+          <div ref={employeeListRef} className="flex-1 overflow-y-auto">
+            {employees.map((employee) => (
+              <div
+                key={employee.id}
+                className="flex items-center gap-2 p-2 border-b min-h-[60px]"
+              >
+                <Avatar className="h-8 w-8 shrink-0">
+                  {employee.avatar_url && (
+                    <AvatarImage
+                      src={employee.avatar_url}
+                      alt={employee.name}
+                    />
+                  )}
+                  <AvatarFallback>
+                    {employee.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">
+                    {employee.name}
+                  </div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {employee.email}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Gantt chart (right side - scrollable) */}
+        <div ref={timelineRef} className="flex-1 overflow-auto relative">
+          <div className="relative">
+            {/* Date headers - sticky */}
+            <div className="sticky top-0 bg-background border-b z-10">
+              <div
+                className="flex"
+                style={{ width: `${days.length * cellWidth}px` }}
+              >
+                {days.map((day) => {
+                  const isFirstOfMonth = day.getDate() === 1;
+                  const isMonday = day.getDay() === 1;
+                  return (
+                    <div
+                      key={day.toISOString()}
+                      className={`border-r text-xs text-center p-1 ${
+                        isFirstOfMonth || isMonday
+                          ? "font-medium bg-muted/50"
+                          : ""
+                      }`}
+                      style={{
+                        width: `${cellWidth}px`,
+                        minWidth: `${cellWidth}px`,
+                      }}
+                    >
+                      {isFirstOfMonth || isMonday
+                        ? day.toLocaleDateString("it-IT", {
+                            month: "short",
+                            day: "numeric",
+                          })
+                        : day.getDate()}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Employee rows with allocation bars */}
+            {employees.map((employee) => {
+              const bars = getBarsForEmployee(employee);
+              return (
+                <div
+                  key={employee.id}
+                  className="relative border-b min-h-[60px] flex items-center"
+                  style={{ width: `${days.length * cellWidth}px` }}
+                >
+                  {/* Day cells */}
+                  {days.map((day) => {
+                    const today = new Date();
+                    const isToday =
+                      day.getDate() === today.getDate() &&
+                      day.getMonth() === today.getMonth() &&
+                      day.getFullYear() === today.getFullYear();
+                    const cellLabel = `${
+                      employee.name
+                    } - ${day.toLocaleDateString("it-IT", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}`;
+
+                    if (isInteractive) {
+                      return (
+                        <button
+                          key={day.toISOString()}
+                          type="button"
+                          className={`border-r h-full ${
+                            isToday ? "bg-primary/5" : ""
+                          } hover:bg-muted/50 cursor-pointer`}
+                          style={{
+                            width: `${cellWidth}px`,
+                            minWidth: `${cellWidth}px`,
+                          }}
+                          onClick={() => onCellClick?.(employee.id, day)}
+                          aria-label={cellLabel}
+                        />
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={day.toISOString()}
+                        className={`border-r h-full ${
+                          isToday ? "bg-primary/5" : ""
+                        }`}
+                        style={{
+                          width: `${cellWidth}px`,
+                          minWidth: `${cellWidth}px`,
+                        }}
+                      />
+                    );
+                  })}
+
+                  {/* Allocation bars */}
+                  {bars.map((bar, index) => (
+                    <TooltipProvider key={`${employee.id}-${index}`}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div
+                            className={`absolute h-8 rounded-sm ${
+                              bar.isProjection
+                                ? "border-2 border-dashed opacity-70"
+                                : "opacity-90"
+                            } ${getAllocationBadgeColor(bar.percentage)}`}
+                            style={{
+                              left: `${bar.startOffset * cellWidth}px`,
+                              width: `${bar.width * cellWidth}px`,
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <div className="h-full flex items-center justify-center text-white text-xs font-medium px-1 truncate">
+                              {bar.percentage}%
+                            </div>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="space-y-1">
+                            <div className="font-medium">
+                              {bar.workItemTitle}
+                            </div>
+                            <div className="text-xs">
+                              {(bar.startOffset < days.length
+                                ? days[bar.startOffset]
+                                : dateRange.start
+                              ).toLocaleDateString("it-IT", {
+                                month: "short",
+                                day: "numeric",
+                              })}{" "}
+                              -{" "}
+                              {(bar.startOffset + bar.width - 1 < days.length
+                                ? days[bar.startOffset + bar.width - 1]
+                                : dateRange.end
+                              ).toLocaleDateString("it-IT", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </div>
+                            <div className="text-xs">
+                              Allocation: {bar.percentage}%
+                            </div>
+                            {bar.isProjection && (
+                              <div className="text-xs text-muted-foreground">
+                                (Projection)
+                              </div>
+                            )}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,5 +1,8 @@
-import { Award, Calendar, Mail, MapPin, Phone, Target } from "lucide-react";
+"use client";
+
+import { Award, Calendar, Mail, MapPin, Phone, Plus, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { GetLatestEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getLatestEmployeeDevelopmentPlan";
 import type { FindUserById } from "@/app/server-actions/user/findUserById";
 import { getPlanProgress } from "@/components/development-plan/utils";
@@ -11,7 +14,29 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import type { SeniorityLevel } from "@/db";
+import {
+  type Skill,
+  skillsApi,
+  useAddSkillToEmployee,
+  useSkillsCatalog,
+} from "@/hooks/useSkillsApi";
 
 export default function UserDetailsOverview({
   user,
@@ -21,6 +46,15 @@ export default function UserDetailsOverview({
   plan?: GetLatestEmployeeDevelopmentPlan;
 }) {
   const router = useRouter();
+  const skillsCatalogApi = useSkillsCatalog();
+  const addSkillApi = useAddSkillToEmployee();
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newSkillId, setNewSkillId] = useState("");
+  const [newSkillLevel, setNewSkillLevel] = useState<SeniorityLevel>("junior");
+
+  useEffect(() => {
+    skillsApi.fetchSkillsCatalog(skillsCatalogApi);
+  }, [skillsCatalogApi]);
 
   // Raggruppa le competenze per categoria
   const hardSkills =
@@ -29,6 +63,44 @@ export default function UserDetailsOverview({
     user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ?? [];
 
   const planProgress = activePlan ? getPlanProgress(activePlan) : null;
+
+  // Competenze disponibili per l'aggiunta (non già presenti e attive)
+  const availableSkills = skillsCatalogApi.data?.filter(
+    (skill: Skill) =>
+      skill.active &&
+      !user?.user_skill.some((empSkill) => empSkill.skill.id === skill.id)
+  );
+
+  const handleAddSkill = async () => {
+    if (!newSkillId || !user?.id) return;
+    await skillsApi.addSkillToEmployee(addSkillApi, {
+      employeeId: user.id,
+      skillId: newSkillId,
+      seniorityLevel: newSkillLevel,
+    });
+    router.refresh();
+    setShowAddDialog(false);
+    setNewSkillId("");
+    setNewSkillLevel("junior");
+  };
+
+  const handleOpenDialog = () => {
+    setShowAddDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setShowAddDialog(false);
+    setNewSkillId("");
+    setNewSkillLevel("junior");
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    if (!open) {
+      handleCloseDialog();
+    } else {
+      setShowAddDialog(true);
+    }
+  };
 
   return (
     <>
@@ -147,8 +219,21 @@ export default function UserDetailsOverview({
       {/* Competenze principali */}
       <Card>
         <CardHeader>
-          <CardTitle>Competenze Principali</CardTitle>
-          <CardDescription>Le competenze più rilevanti del dipendente</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Competenze Principali</CardTitle>
+              <CardDescription>Le competenze più rilevanti del dipendente</CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOpenDialog}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Aggiungi skill
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -216,6 +301,79 @@ export default function UserDetailsOverview({
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog per aggiungere nuova competenza */}
+      <Dialog open={showAddDialog} onOpenChange={handleDialogChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Aggiungi Competenza</DialogTitle>
+            <DialogDescription>
+              Seleziona una competenza e il livello di seniority per {user?.name || "questo utente"}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="newSkillId" className="text-sm font-medium">
+                Competenza
+              </label>
+              <Select value={newSkillId} onValueChange={setNewSkillId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona una competenza" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableSkills && availableSkills.length > 0 ? (
+                    availableSkills.map((skill) => {
+                      const SkillIcon = getSkillIcon(skill.icon);
+                      return (
+                        <SelectItem key={skill.id} value={skill.id}>
+                          <div className="flex items-center space-x-2">
+                            <SkillIcon className="h-4 w-4" />
+                            <span>{skill.name}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {skill.category === "hard" ? "Hard" : "Soft"}
+                            </Badge>
+                          </div>
+                        </SelectItem>
+                      );
+                    })
+                  ) : (
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                      Nessuna competenza disponibile
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="newSkillLevel" className="text-sm font-medium">
+                Livello di Seniority
+              </label>
+              <Select
+                value={newSkillLevel}
+                onValueChange={(value: SeniorityLevel) => setNewSkillLevel(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="junior">Junior</SelectItem>
+                  <SelectItem value="mid">Mid</SelectItem>
+                  <SelectItem value="senior">Senior</SelectItem>
+                  <SelectItem value="lead">Lead</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCloseDialog}>
+              Annulla
+            </Button>
+            <Button onClick={handleAddSkill} disabled={!newSkillId || addSkillApi.loading}>
+              {addSkillApi.loading ? "Aggiunta..." : "Aggiungi"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
