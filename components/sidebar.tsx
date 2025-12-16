@@ -167,20 +167,33 @@ export default function Sidebar({
               )
               .map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href}>
-                    <Button
-                      variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
-                      className={cn(
-                        "w-full",
-                        collapsed ? "px-2 justify-center" : "px-4 justify-start"
-                      )}
-                    >
-                      <item.icon
-                        className={cn("h-5 w-5", collapsed ? "flex justify-center" : "mr-2")}
-                      />
-                      {!collapsed && <span>{item.title}</span>}
-                    </Button>
-                  </Link>
+                  {collapsed ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link href={item.href}>
+                          <Button
+                            variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
+                            className="w-full px-2 justify-center"
+                          >
+                            <item.icon className="h-5 w-5 flex justify-center" />
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <span>{item.title}</span>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Link href={item.href}>
+                      <Button
+                        variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
+                        className="w-full px-4 justify-start"
+                      >
+                        <item.icon className="h-5 w-5 mr-2" />
+                        <span>{item.title}</span>
+                      </Button>
+                    </Link>
+                  )}
                 </li>
               ))}
           </ul>
