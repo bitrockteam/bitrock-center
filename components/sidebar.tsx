@@ -2,6 +2,7 @@
 
 import { logout } from "@/app/login/actions";
 import { ModeToggle } from "@/components/mode-toggle";
+import { RightSidebar } from "@/components/right-sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -117,6 +118,8 @@ export default function Sidebar({
   version: string;
 }>) {
   const [collapsed, setCollapsed] = useState(false);
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<"profile" | "settings">("profile");
   const pathname = usePathname();
 
   useEffect(() => {
@@ -225,11 +228,21 @@ export default function Sidebar({
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>Il mio account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setActiveSection("profile");
+                    setRightSidebarOpen(true);
+                  }}
+                >
                   <User className="mr-2 h-4 w-4" />
                   <span>Profilo</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setActiveSection("settings");
+                    setRightSidebarOpen(true);
+                  }}
+                >
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Impostazioni</span>
                 </DropdownMenuItem>
@@ -251,6 +264,13 @@ export default function Sidebar({
           </div>
         </div>
       </motion.div>
+      <RightSidebar
+        isOpen={rightSidebarOpen}
+        onClose={() => setRightSidebarOpen(false)}
+        user={user}
+        activeSection={activeSection}
+        version={version}
+      />
     </div>
   );
 }
