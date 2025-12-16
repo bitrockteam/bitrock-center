@@ -20,7 +20,14 @@ import {
 } from "@/components/ui/table";
 import { formatDisplayName } from "@/services/users/utils";
 import dayjs from "dayjs";
-import { ArrowDown, ArrowUp, ArrowUpDown, Edit, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronDown,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -185,12 +192,12 @@ export default function AllocationsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[300px]">Utente</TableHead>
-              <TableHead>
+              <TableHead className="min-w-[250px]">Utente</TableHead>
+              <TableHead className="whitespace-nowrap">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 data-[state=open]:bg-accent -ml-2"
+                  className="h-8 px-0 data-[state=open]:bg-accent font-medium"
                   onClick={() => handleSort("totalAllocations")}
                   aria-label="Ordina per numero di allocazioni"
                   tabIndex={0}
@@ -207,11 +214,11 @@ export default function AllocationsTable({
                   )}
                 </Button>
               </TableHead>
-              <TableHead>
+              <TableHead className="whitespace-nowrap">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 data-[state=open]:bg-accent -ml-2"
+                  className="h-8 px-0 data-[state=open]:bg-accent font-medium"
                   onClick={() => handleSort("averagePercentage")}
                   aria-label="Ordina per percentuale media"
                   tabIndex={0}
@@ -228,7 +235,8 @@ export default function AllocationsTable({
                   )}
                 </Button>
               </TableHead>
-              <TableHead>Periodo</TableHead>
+              <TableHead className="whitespace-nowrap">Periodo</TableHead>
+              <TableHead className="w-[50px] text-right"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -236,12 +244,12 @@ export default function AllocationsTable({
               <AccordionItem
                 key={group.user.id}
                 value={group.user.id}
-                className="border-0"
+                className="border-0 [&[data-state=open]_svg.accordion-icon]:rotate-180"
               >
                 <TableRow className="hover:bg-muted/50">
-                  <TableCell className="w-[300px]">
-                    <AccordionTrigger className="hover:no-underline [&>svg]:shrink-0 w-full">
-                      <div className="flex items-center gap-3">
+                  <TableCell className="min-w-[250px] p-2">
+                    <AccordionTrigger className="hover:no-underline [&>svg]:hidden w-full py-0 h-auto -mx-2 px-2">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
                         <Avatar className="h-10 w-10 shrink-0">
                           {group.user.avatar_url && (
                             <AvatarImage src={group.user.avatar_url} />
@@ -253,7 +261,7 @@ export default function AllocationsTable({
                             })}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex flex-col text-left min-w-0">
+                        <div className="flex flex-col text-left min-w-0 flex-1">
                           <span className="font-medium truncate">
                             {group.user.name}
                           </span>
@@ -264,9 +272,9 @@ export default function AllocationsTable({
                       </div>
                     </AccordionTrigger>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="p-2">
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">
+                      <span className="text-sm font-medium whitespace-nowrap">
                         {group.totalAllocations}
                       </span>
                       <span className="text-xs text-muted-foreground">
@@ -274,7 +282,7 @@ export default function AllocationsTable({
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="p-2">
                     <div className="flex flex-col">
                       <Badge variant="outline" className="w-fit">
                         {group.averagePercentage}%
@@ -284,15 +292,20 @@ export default function AllocationsTable({
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="p-2">
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">
+                      <span className="text-sm font-medium whitespace-nowrap">
                         {formatDate(group.earliestStartDate)} -{" "}
                         {formatDate(group.latestEndDate)}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         periodo
                       </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="p-2 text-right w-[50px]">
+                    <div className="flex items-center justify-end">
+                      <ChevronDown className="accordion-icon h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -311,7 +324,7 @@ export default function AllocationsTable({
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-8 data-[state=open]:bg-accent -ml-2"
+                                className="h-8 px-0 data-[state=open]:bg-accent font-medium"
                                 onClick={() => handleNestedSort("percentage")}
                                 aria-label="Ordina per percentuale"
                                 tabIndex={0}

@@ -29,23 +29,24 @@ export default function AllocationsHeader({
   };
 
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Allocazioni</h1>
         <p className="text-muted-foreground">Gestisci le allocazioni degli utenti alle commesse</p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         <Input
           placeholder="Cerca per utente, cliente o commessa..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-64"
+          className="w-full sm:w-64"
         />
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" size="default" className="relative">
               <Filter className="mr-2 h-4 w-4" />
-              Filtra Percentuale
+              <span className="hidden sm:inline">Filtra Percentuale</span>
+              <span className="sm:hidden">Filtra</span>
               {isFilterActive && (
                 <Badge
                   variant="secondary"
@@ -85,9 +86,10 @@ export default function AllocationsHeader({
             </div>
           </PopoverContent>
         </Popover>
-        <Button onClick={onAddClick} size="default">
+        <Button onClick={onAddClick} size="default" className="whitespace-nowrap">
           <Plus className="mr-2 h-4 w-4" />
-          Nuova Allocazione
+          <span className="hidden sm:inline">Nuova Allocazione</span>
+          <span className="sm:hidden">Nuova</span>
         </Button>
       </div>
     </div>
