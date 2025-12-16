@@ -58,6 +58,7 @@ export default function AddUserDialog({
   open,
   onComplete,
   editData,
+  onRefetch,
   user,
 }: Readonly<AddUserDialogProps>) {
   const { data: users, callApi: fetchUsers, loading: loadingUsers } = useApi<FindUsers[]>();
@@ -92,11 +93,15 @@ export default function AddUserDialog({
   }, [editData, form]);
 
   const handleUpdateUser = async (avatar_url?: string) => {
+    if (!editData?.id || !editData?.email) {
+      throw new Error("User ID and email are required");
+    }
     await updateUserApi("/api/user/update", {
       method: "PUT",
       body: JSON.stringify({
-        id: editData?.id,
+        id: editData.id,
         name: `${form.getValues().name} ${form.getValues().surname}`,
+        email: editData.email,
         ...(avatar_url ? { avatar_url } : {}),
         role: form.getValues().role,
         referent_id: form.getValues().referent_id ?? undefined,
@@ -108,6 +113,7 @@ export default function AddUserDialog({
     onComplete(open, { shouldRefetch: true });
     form.reset();
     fetchUsers("/api/user/search");
+    onRefetch?.();
   };
 
   const onSubmit = async () => {
