@@ -43,6 +43,8 @@ interface AddProjectDialogProps {
   onOpenChange: (open: boolean) => void;
   editData?: Project;
   projectId?: string;
+  presetClientId?: string;
+  onSuccess?: () => void;
 }
 
 export default function AddProjectDialog({
@@ -50,6 +52,8 @@ export default function AddProjectDialog({
   onOpenChange,
   editData,
   projectId,
+  presetClientId,
+  onSuccess,
 }: AddProjectDialogProps) {
   const [clients, fetchAllClients] = useServerAction(getAllClients);
 
@@ -60,7 +64,7 @@ export default function AddProjectDialog({
   const form = useForm<z.infer<typeof addProjectSchema>>({
     defaultValues: {
       name: "",
-      client: "",
+      client: presetClientId || "",
       description: "",
       status: ProjectStatus.PLANNED,
       start_date: new Date().toISOString().split("T")[0],
@@ -68,7 +72,7 @@ export default function AddProjectDialog({
     },
   });
 
-  // Update form when editing a project
+  // Update form when editing a project or when presetClientId changes
   useEffect(() => {
     console.log(editData?.start_date);
     if (editData) {
@@ -81,8 +85,16 @@ export default function AddProjectDialog({
         end_date: editData.end_date ? String(editData.end_date).slice(0, 10) : "",
         // team: editData.team.map((member: any) => member.id),
       });
+    } else if (presetClientId && open) {
+      form.reset({
+        name: "",
+        client: presetClientId,
+        description: "",
+        status: ProjectStatus.PLANNED,
+        start_date: new Date().toISOString().split("T")[0],
+      });
     }
-  }, [editData, form]);
+  }, [editData, presetClientId, open, form]);
 
   const onSubmit = async (data: z.infer<typeof addProjectSchema>) => {
     const formattedData: Omit<project, "id" | "created_at"> = {
@@ -101,6 +113,9 @@ export default function AddProjectDialog({
         .then(() => {
           onOpenChange(false);
           form.reset();
+          if (onSuccess) {
+            onSuccess();
+          }
         })
         .catch((error) => {
           console.error("Failed to create project:", error);
@@ -111,6 +126,9 @@ export default function AddProjectDialog({
       .then(() => {
         onOpenChange(false);
         form.reset();
+        if (onSuccess) {
+          onSuccess();
+        }
       })
       .catch((error) => {
         console.error("Failed to create project:", error);
@@ -160,7 +178,12 @@ export default function AddProjectDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cliente</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      value={field.value}
+                      disabled={!!presetClientId}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleziona il cliente" />

@@ -15,6 +15,7 @@ export async function updateUser(user: Partial<Omit<user, "created_at">>) {
       email: user.email,
       avatar_url: user.avatar_url ?? undefined,
       role: user.role,
+      referent_id: user.referent_id ?? null,
     },
   });
 }

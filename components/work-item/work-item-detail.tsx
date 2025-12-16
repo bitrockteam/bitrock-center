@@ -1,14 +1,35 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, Briefcase, Building2, Calendar, Clock, Edit, Euro } from "lucide-react";
+import {
+  ArrowLeft,
+  Briefcase,
+  Building2,
+  Calendar,
+  Check,
+  ChevronsUpDown,
+  Clock,
+  Edit,
+  Euro,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { WorkItemById } from "@/app/server-actions/work-item/fetchWorkItemById";
+import type { FindUsers } from "@/app/server-actions/user/findUsers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Table,
   TableBody,
@@ -19,11 +40,14 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { work_item_status, work_item_type } from "@/db";
+import { useApi } from "@/hooks/useApi";
+import { cn } from "@/lib/utils";
 import { formatDisplayName } from "@/services/users/utils";
+import { toast } from "sonner";
 import AddWorkItemDialog from "./add-work-item-dialog";
 
 export default function WorkItemDetail({
-  workItem,
+  workItem: initialWorkItem,
   canEditWorkItem = false,
 }: {
   workItem: NonNullable<WorkItemById>;
@@ -31,6 +55,102 @@ export default function WorkItemDetail({
 }) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [workItem, setWorkItem] = useState<NonNullable<WorkItemById>>(initialWorkItem);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: users, loading: usersLoading, callApi: fetchUsers } = useApi<FindUsers[]>();
+  const { callApi: addAllocationApi, loading: addingAllocation } = useApi();
+  const { callApi: removeAllocationApi, loading: removingAllocation } = useApi();
+
+  // Sync local state with prop changes
+  useEffect(() => {
+    setWorkItem(initialWorkItem);
+  }, [initialWorkItem]);
+
+  useEffect(() => {
+    if (isPopoverOpen) {
+      fetchUsers("/api/user/search");
+    }
+  }, [isPopoverOpen, fetchUsers]);
+
+  const handleRefresh = async () => {
+    // Fetch fresh data
+    const response = await fetch(`/api/work-item/${workItem.id}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.data) {
+        setWorkItem(data.data);
+      }
+    }
+    // Refresh server component data
+    router.refresh();
+  };
+
+  const handleAddEmployee = async () => {
+    if (!selectedUserId) {
+      toast.error("Seleziona un utente");
+      return;
+    }
+
+    // Check if user is already in the team
+    const isAlreadyAdded = workItem.allocation.some((alloc) => alloc.user_id === selectedUserId);
+    if (isAlreadyAdded) {
+      toast.error("Questo utente è già nel team");
+      return;
+    }
+
+    try {
+      await addAllocationApi("/api/work-item/add-allocation", {
+        method: "POST",
+        body: JSON.stringify({
+          work_item_id: workItem.id,
+          user_id: selectedUserId,
+          percentage: 100, // Default percentage
+        }),
+      });
+
+      // If we get here, the API call was successful (useApi throws on error)
+      toast.success("Utente aggiunto al team");
+      setSelectedUserId(undefined);
+      setSearchQuery("");
+      setIsPopoverOpen(false);
+      await handleRefresh();
+    } catch (error) {
+      toast.error("Errore nell'aggiunta dell'utente");
+      console.error("Error adding allocation:", error);
+    }
+  };
+
+  const handleRemoveEmployee = async (userId: string) => {
+    try {
+      await removeAllocationApi(
+        `/api/work-item/remove-allocation?work_item_id=${workItem.id}&user_id=${userId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      // If we get here, the API call was successful (useApi throws on error)
+      toast.success("Utente rimosso dal team");
+      await handleRefresh();
+    } catch (error) {
+      toast.error("Errore nella rimozione dell'utente");
+      console.error("Error removing allocation:", error);
+    }
+  };
+
+  const availableUsers =
+    users?.filter((user) => !workItem.allocation.some((alloc) => alloc.user_id === user.id)) || [];
+
+  const filteredUsers = searchQuery
+    ? availableUsers.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.email?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : availableUsers;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -75,8 +195,6 @@ export default function WorkItemDetail({
   const client = workItem.client;
 
   const totalHours = workItem.timesheet.reduce((sum, entry) => sum + entry.hours, 0);
-
-  const enabledUsers = workItem.allocation;
   const timeEntries = workItem?.timesheet;
 
   return (
@@ -215,22 +333,111 @@ export default function WorkItemDetail({
           <CardTitle className="text-sm font-medium">Team</CardTitle>
           <CardDescription>Utenti abilitati a registrare ore su questa commessa</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {canEditWorkItem && (
+            <div className="flex items-center gap-2">
+              <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={isPopoverOpen}
+                    className="flex-1 justify-between"
+                    disabled={usersLoading || addingAllocation}
+                  >
+                    {selectedUserId
+                      ? users?.find((user) => user.id === selectedUserId)?.name
+                      : "Aggiungi utente..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[400px] p-0" align="start">
+                  <Command>
+                    <CommandInput
+                      placeholder="Cerca utente..."
+                      value={searchQuery}
+                      onValueChange={setSearchQuery}
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>
+                        {availableUsers.length === 0
+                          ? "Tutti gli utenti sono già nel team"
+                          : "Nessun utente trovato"}
+                      </CommandEmpty>
+                      <CommandGroup>
+                        {filteredUsers.map((user) => (
+                          <CommandItem
+                            key={user.id}
+                            value={user.name}
+                            onSelect={() => {
+                              setSelectedUserId(user.id);
+                            }}
+                          >
+                            <div className="flex items-center space-x-2 flex-1">
+                              <Avatar className="h-6 w-6">
+                                {user.avatar_url && <AvatarImage src={user.avatar_url} />}
+                                <AvatarFallback className="text-xs">
+                                  {formatDisplayName({ name: user.name, initials: true })}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span>{user.name}</span>
+                            </div>
+                            <Check
+                              className={cn(
+                                "ml-auto h-4 w-4",
+                                selectedUserId === user.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <Button
+                onClick={handleAddEmployee}
+                disabled={!selectedUserId || addingAllocation}
+                size="default"
+                className="shrink-0"
+              >
+                {addingAllocation ? "Aggiunta..." : "Aggiungi"}
+              </Button>
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
-            {enabledUsers?.map((alloc) => (
+            {workItem.allocation?.map((alloc) => (
               <div
                 key={alloc.user.id}
-                className="flex items-center space-x-2 bg-muted/50 rounded-lg px-3 py-2"
+                className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2 group hover:bg-muted/70 transition-colors"
               >
-                <Avatar className="h-6 w-6">
+                <Avatar className="h-6 w-6 shrink-0">
                   {alloc.user.avatar_url && <AvatarImage src={alloc.user.avatar_url} />}
                   <AvatarFallback className="text-xs">
                     {formatDisplayName({ name: alloc.user.name, initials: true })}
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm font-medium">{alloc.user.name}</span>
+                <span className="text-xs text-muted-foreground">({alloc.percentage}%)</span>
+                {canEditWorkItem && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity ml-auto shrink-0"
+                    onClick={() => handleRemoveEmployee(alloc.user_id)}
+                    disabled={removingAllocation}
+                    aria-label={`Rimuovi ${alloc.user.name} dal team`}
+                    tabIndex={0}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
               </div>
             ))}
+            {workItem.allocation?.length === 0 && (
+              <p className="text-sm text-muted-foreground">Nessun utente nel team</p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -311,7 +518,7 @@ export default function WorkItemDetail({
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Membri del Team</p>
-                  <p className="text-2xl font-bold">{enabledUsers?.length || 0}</p>
+                  <p className="text-2xl font-bold">{workItem.allocation?.length || 0}</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Stato</p>

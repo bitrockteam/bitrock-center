@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, Edit, Mail, MapPin, Phone, User } from "lucide-react";
+import { ArrowLeft, Edit, Mail, MapPin, Phone, PlusCircle, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { findClientById } from "@/app/server-actions/client/findClientById";
@@ -20,6 +20,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectStatus } from "@/db";
 import { useServerAction } from "@/hooks/useServerAction";
 import AddClientDialog from "./add-client-dialog";
+import AddWorkItemDialog from "@/components/work-item/add-work-item-dialog";
+import AddProjectDialog from "@/components/projects/add-project-dialog";
 
 export default function ClientDetail({
   id,
@@ -30,6 +32,8 @@ export default function ClientDetail({
 }) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showAddWorkItemDialog, setShowAddWorkItemDialog] = useState(false);
+  const [showAddProjectDialog, setShowAddProjectDialog] = useState(false);
   const [client, getClient] = useServerAction(findClientById);
 
   const projects = client?.project;
@@ -199,8 +203,16 @@ export default function ClientDetail({
         <TabsContent value="projects">
           <Card>
             <CardHeader>
-              <CardTitle>Progetti del Cliente</CardTitle>
-              <CardDescription>Progetti associati a questo cliente</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Progetti del Cliente</CardTitle>
+                  <CardDescription>Progetti associati a questo cliente</CardDescription>
+                </div>
+                <Button onClick={() => setShowAddProjectDialog(true)}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Nuovo Progetto
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -262,8 +274,16 @@ export default function ClientDetail({
         <TabsContent value="workitems">
           <Card>
             <CardHeader>
-              <CardTitle>Commesse del Cliente</CardTitle>
-              <CardDescription>Attività lavorative associate a questo cliente</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Commesse del Cliente</CardTitle>
+                  <CardDescription>Attività lavorative associate a questo cliente</CardDescription>
+                </div>
+                <Button onClick={() => setShowAddWorkItemDialog(true)}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Nuova Commessa
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -325,6 +345,27 @@ export default function ClientDetail({
 
       {/* Dialog per modificare il cliente */}
       <AddClientDialog open={showEditDialog} onOpenChange={setShowEditDialog} editData={client} />
+
+      {/* Dialog per creare nuova commessa */}
+      <AddWorkItemDialog
+        open={showAddWorkItemDialog}
+        onOpenChange={setShowAddWorkItemDialog}
+        presetClientId={client?.id}
+        onSuccess={() => {
+          getClient(id);
+        }}
+        canCreateWorkItem={true}
+      />
+
+      {/* Dialog per creare nuovo progetto */}
+      <AddProjectDialog
+        open={showAddProjectDialog}
+        onOpenChange={setShowAddProjectDialog}
+        presetClientId={client?.id}
+        onSuccess={() => {
+          getClient(id);
+        }}
+      />
     </motion.div>
   );
 }

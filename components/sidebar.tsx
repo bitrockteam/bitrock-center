@@ -2,6 +2,7 @@
 
 import { logout } from "@/app/login/actions";
 import { ModeToggle } from "@/components/mode-toggle";
+import { RightSidebar } from "@/components/right-sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,7 @@ import { Permissions, type user } from "@/db";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
+  BarChart3,
   Briefcase,
   Building2,
   Calendar,
@@ -28,13 +30,16 @@ import {
   Menu,
   Settings,
   User,
+  UserCheck,
   Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+
+const SIDEBAR_COLLAPSED_KEY = "sidebar-collapsed";
 
 const navItems = [
   {
@@ -70,6 +75,12 @@ const navItems = [
     permission: Permissions.CAN_SEE_WORK_ITEM,
   },
   {
+    title: "Allocazioni",
+    href: "/allocazioni",
+    icon: UserCheck,
+    permission: Permissions.CAN_ALLOCATE_RESOURCE,
+  },
+  {
     title: "Utenti",
     href: "/utenti",
     icon: Users,
@@ -83,6 +94,11 @@ const navItems = [
     title: "Team",
     href: "/team",
     icon: HandMetal,
+  },
+  {
+    title: "Saturation",
+    href: "/saturation",
+    icon: BarChart3,
   },
   {
     title: "Permissions",
@@ -102,7 +118,20 @@ export default function Sidebar({
   version: string;
 }>) {
   const [collapsed, setCollapsed] = useState(false);
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<"profile" | "settings">("profile");
   const pathname = usePathname();
+
+  useEffect(() => {
+    const savedCollapsed = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+    if (savedCollapsed !== null) {
+      setCollapsed(savedCollapsed === "true");
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(collapsed));
+  }, [collapsed]);
 
   return (
     <div className="relative">
@@ -141,20 +170,33 @@ export default function Sidebar({
               )
               .map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href}>
-                    <Button
-                      variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
-                      className={cn(
-                        "w-full",
-                        collapsed ? "px-2 justify-center" : "px-4 justify-start"
-                      )}
-                    >
-                      <item.icon
-                        className={cn("h-5 w-5", collapsed ? "flex justify-center" : "mr-2")}
-                      />
-                      {!collapsed && <span>{item.title}</span>}
-                    </Button>
-                  </Link>
+                  {collapsed ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link href={item.href}>
+                          <Button
+                            variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
+                            className="w-full px-2 justify-center"
+                          >
+                            <item.icon className="h-5 w-5 flex justify-center" />
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <span>{item.title}</span>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Link href={item.href}>
+                      <Button
+                        variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
+                        className="w-full px-4 justify-start"
+                      >
+                        <item.icon className="h-5 w-5 mr-2" />
+                        <span>{item.title}</span>
+                      </Button>
+                    </Link>
+                  )}
                 </li>
               ))}
           </ul>
@@ -186,11 +228,21 @@ export default function Sidebar({
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>Il mio account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setActiveSection("profile");
+                    setRightSidebarOpen(true);
+                  }}
+                >
                   <User className="mr-2 h-4 w-4" />
                   <span>Profilo</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setActiveSection("settings");
+                    setRightSidebarOpen(true);
+                  }}
+                >
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Impostazioni</span>
                 </DropdownMenuItem>
@@ -212,6 +264,13 @@ export default function Sidebar({
           </div>
         </div>
       </motion.div>
+      <RightSidebar
+        isOpen={rightSidebarOpen}
+        onClose={() => setRightSidebarOpen(false)}
+        user={user}
+        activeSection={activeSection}
+        version={version}
+      />
     </div>
   );
 }

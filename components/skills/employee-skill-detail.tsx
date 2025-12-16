@@ -61,7 +61,8 @@ export default function EmployeeSkillDetail({ employee }: { employee: EmployeeSk
 
   useEffect(() => {
     skillsApi.fetchSkillsCatalog(skillsCatalogApi);
-  }, [skillsCatalogApi]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!employee) {
     return (
