@@ -1,12 +1,6 @@
 "use client";
 
 import type { AllocationWithDetails } from "@/app/server-actions/allocation/fetchAllAllocations";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,7 +16,7 @@ import { formatDisplayName } from "@/services/users/utils";
 import dayjs from "dayjs";
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 interface AllocationsTableProps {
   allocations: AllocationWithDetails[];
@@ -169,91 +163,80 @@ export default function AllocationsTable({
 
   return (
     <div className="rounded-md border w-full">
-      <Accordion
-        type="single"
-        collapsible
-        className="w-full"
-        value={openValue}
-        onValueChange={setOpenValue}
-      >
-        <Table className="w-full">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="min-w-[250px]">Utente</TableHead>
-              <TableHead className="whitespace-nowrap">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 px-0 data-[state=open]:bg-accent font-medium"
-                  onClick={() => handleSort("totalAllocations")}
-                  aria-label="Ordina per numero di allocazioni"
-                  tabIndex={0}
-                >
-                  Allocazioni
-                  {sortField === "totalAllocations" ? (
-                    sortDirection === "asc" ? (
-                      <ArrowUp className="ml-2 h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="ml-2 h-4 w-4" />
-                    )
-                  ) : (
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                  )}
-                </Button>
-              </TableHead>
-              <TableHead className="whitespace-nowrap">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 px-0 data-[state=open]:bg-accent font-medium"
-                  onClick={() => handleSort("averagePercentage")}
-                  aria-label="Ordina per percentuale media"
-                  tabIndex={0}
-                >
-                  Percentuale Media
-                  {sortField === "averagePercentage" ? (
-                    sortDirection === "asc" ? (
-                      <ArrowUp className="ml-2 h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="ml-2 h-4 w-4" />
-                    )
-                  ) : (
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                  )}
-                </Button>
-              </TableHead>
-              <TableHead className="whitespace-nowrap">Periodo</TableHead>
-              <TableHead className="w-[50px] text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {groupedByUser.map((group) => (
-              <AccordionItem
-                key={group.user.id}
-                value={group.user.id}
-                className="border-0 [&[data-state=open]_svg.accordion-icon]:rotate-180"
+      <Table className="w-full">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="min-w-[250px]">Utente</TableHead>
+            <TableHead className="whitespace-nowrap">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-0 data-[state=open]:bg-accent font-medium"
+                onClick={() => handleSort("totalAllocations")}
+                aria-label="Ordina per numero di allocazioni"
+                tabIndex={0}
               >
+                Allocazioni
+                {sortField === "totalAllocations" ? (
+                  sortDirection === "asc" ? (
+                    <ArrowUp className="ml-2 h-4 w-4" />
+                  ) : (
+                    <ArrowDown className="ml-2 h-4 w-4" />
+                  )
+                ) : (
+                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                )}
+              </Button>
+            </TableHead>
+            <TableHead className="whitespace-nowrap">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-0 data-[state=open]:bg-accent font-medium"
+                onClick={() => handleSort("averagePercentage")}
+                aria-label="Ordina per percentuale media"
+                tabIndex={0}
+              >
+                Percentuale Media
+                {sortField === "averagePercentage" ? (
+                  sortDirection === "asc" ? (
+                    <ArrowUp className="ml-2 h-4 w-4" />
+                  ) : (
+                    <ArrowDown className="ml-2 h-4 w-4" />
+                  )
+                ) : (
+                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                )}
+              </Button>
+            </TableHead>
+            <TableHead className="whitespace-nowrap">Periodo</TableHead>
+            <TableHead className="w-[50px] text-right"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {groupedByUser.map((group) => {
+            const isOpen = openValue === group.user.id;
+            return (
+              <React.Fragment key={group.user.id}>
                 <TableRow className="hover:bg-muted/50 w-full">
                   <TableCell className="min-w-[250px] p-2">
-                    <AccordionTrigger className="hover:no-underline [&>svg]:hidden w-full py-0 h-auto -mx-2 px-2">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <Avatar className="h-10 w-10 shrink-0">
-                          {group.user.avatar_url && <AvatarImage src={group.user.avatar_url} />}
-                          <AvatarFallback className="text-sm">
-                            {formatDisplayName({
-                              name: group.user.name,
-                              initials: true,
-                            })}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col text-left min-w-0 flex-1">
-                          <span className="font-medium truncate">{group.user.name}</span>
-                          <span className="text-xs text-muted-foreground truncate">
-                            {group.user.email}
-                          </span>
-                        </div>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <Avatar className="h-10 w-10 shrink-0">
+                        {group.user.avatar_url && <AvatarImage src={group.user.avatar_url} />}
+                        <AvatarFallback className="text-sm">
+                          {formatDisplayName({
+                            name: group.user.name,
+                            initials: true,
+                          })}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col text-left min-w-0 flex-1">
+                        <span className="font-medium truncate">{group.user.name}</span>
+                        <span className="text-xs text-muted-foreground truncate">
+                          {group.user.email}
+                        </span>
                       </div>
-                    </AccordionTrigger>
+                    </div>
                   </TableCell>
                   <TableCell className="p-2">
                     <div className="flex flex-col">
@@ -290,114 +273,118 @@ export default function AllocationsTable({
                     >
                       <ChevronDown
                         className={`accordion-icon h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
-                          openValue === group.user.id ? "rotate-180" : ""
+                          isOpen ? "rotate-180" : ""
                         }`}
                       />
                     </Button>
                   </TableCell>
                 </TableRow>
-                <AccordionContent>
-                  <div className="px-4 pb-4 pt-2">
-                    <div className="rounded-md border">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Cliente</TableHead>
-                            <TableHead>Progetto</TableHead>
-                            <TableHead>Commessa</TableHead>
-                            <TableHead>Data Inizio</TableHead>
-                            <TableHead>Data Fine</TableHead>
-                            <TableHead>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 px-0 data-[state=open]:bg-accent font-medium"
-                                onClick={() => handleNestedSort("percentage")}
-                                aria-label="Ordina per percentuale"
-                                tabIndex={0}
-                              >
-                                Percentuale
-                                {nestedSortField === "percentage" ? (
-                                  nestedSortDirection === "asc" ? (
-                                    <ArrowUp className="ml-2 h-4 w-4" />
-                                  ) : (
-                                    <ArrowDown className="ml-2 h-4 w-4" />
-                                  )
-                                ) : (
-                                  <ArrowUpDown className="ml-2 h-4 w-4" />
-                                )}
-                              </Button>
-                            </TableHead>
-                            <TableHead className="text-right">Azioni</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {group.allocations.map((allocation) => (
-                            <TableRow key={`${allocation.user_id}-${allocation.work_item_id}`}>
-                              <TableCell>
-                                <div className="flex flex-col">
-                                  <span className="font-medium">
-                                    {allocation.work_items.client.name}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground">
-                                    {allocation.work_items.client.code}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                {allocation.work_items.project ? (
-                                  <span>{allocation.work_items.project.name}</span>
-                                ) : (
-                                  <span className="text-muted-foreground">-</span>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <Link
-                                  href={`/commesse/${allocation.work_item_id}`}
-                                  className="text-primary hover:underline"
-                                >
-                                  {allocation.work_items.title}
-                                </Link>
-                              </TableCell>
-                              <TableCell>{formatDate(allocation.start_date)}</TableCell>
-                              <TableCell>{formatDate(allocation.end_date)}</TableCell>
-                              <TableCell>
-                                <Badge variant="outline">{allocation.percentage}%</Badge>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex items-center justify-end gap-2">
+                {isOpen && (
+                  <TableRow className="bg-muted/30">
+                    <TableCell colSpan={5} className="p-0 border-0">
+                      <div className="px-4 pb-4 pt-2">
+                        <div className="rounded-md border">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Cliente</TableHead>
+                                <TableHead>Progetto</TableHead>
+                                <TableHead>Commessa</TableHead>
+                                <TableHead>Data Inizio</TableHead>
+                                <TableHead>Data Fine</TableHead>
+                                <TableHead>
                                   <Button
                                     variant="ghost"
-                                    size="icon"
-                                    onClick={() => onEdit(allocation)}
-                                    aria-label={`Modifica allocazione di ${allocation.user.name}`}
+                                    size="sm"
+                                    className="h-8 px-0 data-[state=open]:bg-accent font-medium"
+                                    onClick={() => handleNestedSort("percentage")}
+                                    aria-label="Ordina per percentuale"
                                     tabIndex={0}
                                   >
-                                    <Edit className="h-4 w-4" />
+                                    Percentuale
+                                    {nestedSortField === "percentage" ? (
+                                      nestedSortDirection === "asc" ? (
+                                        <ArrowUp className="ml-2 h-4 w-4" />
+                                      ) : (
+                                        <ArrowDown className="ml-2 h-4 w-4" />
+                                      )
+                                    ) : (
+                                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                                    )}
                                   </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => onDelete(allocation)}
-                                    aria-label={`Elimina allocazione di ${allocation.user.name}`}
-                                    tabIndex={0}
-                                  >
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </TableBody>
-        </Table>
-      </Accordion>
+                                </TableHead>
+                                <TableHead className="text-right">Azioni</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {group.allocations.map((allocation) => (
+                                <TableRow key={`${allocation.user_id}-${allocation.work_item_id}`}>
+                                  <TableCell>
+                                    <div className="flex flex-col">
+                                      <span className="font-medium">
+                                        {allocation.work_items.client.name}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {allocation.work_items.client.code}
+                                      </span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    {allocation.work_items.project ? (
+                                      <span>{allocation.work_items.project.name}</span>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Link
+                                      href={`/commesse/${allocation.work_item_id}`}
+                                      className="text-primary hover:underline"
+                                    >
+                                      {allocation.work_items.title}
+                                    </Link>
+                                  </TableCell>
+                                  <TableCell>{formatDate(allocation.start_date)}</TableCell>
+                                  <TableCell>{formatDate(allocation.end_date)}</TableCell>
+                                  <TableCell>
+                                    <Badge variant="outline">{allocation.percentage}%</Badge>
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    <div className="flex items-center justify-end gap-2">
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => onEdit(allocation)}
+                                        aria-label={`Modifica allocazione di ${allocation.user.name}`}
+                                        tabIndex={0}
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => onDelete(allocation)}
+                                        aria-label={`Elimina allocazione di ${allocation.user.name}`}
+                                        tabIndex={0}
+                                      >
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }
