@@ -17,6 +17,7 @@ interface AllocationsPageClientProps {
 export default function AllocationsPageClient({ initialAllocations }: AllocationsPageClientProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [percentageRange, setPercentageRange] = useState<[number, number]>([0, 100]);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedAllocation, setSelectedAllocation] = useState<AllocationWithDetails | null>(null);
@@ -31,27 +32,37 @@ export default function AllocationsPageClient({ initialAllocations }: Allocation
   const currentAllocations = allocations || initialAllocations;
 
   const filteredAllocations = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return currentAllocations;
+    let filtered = currentAllocations;
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((allocation) => {
+        const userName = allocation.user.name.toLowerCase();
+        const userEmail = allocation.user.email?.toLowerCase() || "";
+        const clientName = allocation.work_items.client.name.toLowerCase();
+        const workItemTitle = allocation.work_items.title.toLowerCase();
+        const projectName = allocation.work_items.project?.name.toLowerCase() || "";
+
+        return (
+          userName.includes(query) ||
+          userEmail.includes(query) ||
+          clientName.includes(query) ||
+          workItemTitle.includes(query) ||
+          projectName.includes(query)
+        );
+      });
     }
 
-    const query = searchQuery.toLowerCase();
-    return currentAllocations.filter((allocation) => {
-      const userName = allocation.user.name.toLowerCase();
-      const userEmail = allocation.user.email?.toLowerCase() || "";
-      const clientName = allocation.work_items.client.name.toLowerCase();
-      const workItemTitle = allocation.work_items.title.toLowerCase();
-      const projectName = allocation.work_items.project?.name.toLowerCase() || "";
+    if (percentageRange[0] > 0 || percentageRange[1] < 100) {
+      filtered = filtered.filter((allocation) => {
+        return (
+          allocation.percentage >= percentageRange[0] && allocation.percentage <= percentageRange[1]
+        );
+      });
+    }
 
-      return (
-        userName.includes(query) ||
-        userEmail.includes(query) ||
-        clientName.includes(query) ||
-        workItemTitle.includes(query) ||
-        projectName.includes(query)
-      );
-    });
-  }, [currentAllocations, searchQuery]);
+    return filtered;
+  }, [currentAllocations, searchQuery, percentageRange]);
 
   const handleRefresh = async () => {
     try {
@@ -108,6 +119,8 @@ export default function AllocationsPageClient({ initialAllocations }: Allocation
         onAddClick={() => setShowAddDialog(true)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        percentageRange={percentageRange}
+        onPercentageRangeChange={setPercentageRange}
       />
 
       <AllocationsTable
