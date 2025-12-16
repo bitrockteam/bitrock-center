@@ -36,11 +36,18 @@ export const useApi = <T = unknown>(options: UseApiOptions = {}) => {
           ...config,
         });
 
-        const result: ApiResponse<R> = await response.json();
-
         if (!response.ok) {
-          throw new Error(result.error || "API request failed");
+          let errorMessage = "API request failed";
+          try {
+            const errorResult: ApiResponse<R> = await response.json();
+            errorMessage = errorResult.error || errorMessage;
+          } catch {
+            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+          }
+          throw new Error(errorMessage);
         }
+
+        const result: ApiResponse<R> = await response.json();
 
         if (result.success) {
           setData(result.data as T);
@@ -50,7 +57,12 @@ export const useApi = <T = unknown>(options: UseApiOptions = {}) => {
           throw new Error(result.error || "API request failed");
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : err instanceof TypeError && err.message === "Failed to fetch"
+              ? "Network error: Unable to connect to the server. Please check your connection."
+              : "Unknown error";
         setError(errorMessage);
         optionsRef.current.onError?.(errorMessage);
         throw err;

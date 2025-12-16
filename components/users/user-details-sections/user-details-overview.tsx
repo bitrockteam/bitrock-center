@@ -54,7 +54,8 @@ export default function UserDetailsOverview({
 
   useEffect(() => {
     skillsApi.fetchSkillsCatalog(skillsCatalogApi);
-  }, [skillsCatalogApi]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Raggruppa le competenze per categoria
   const hardSkills =
