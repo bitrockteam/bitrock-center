@@ -3,13 +3,28 @@ import { db } from "@/config/prisma";
 import type { skill } from "@/db";
 
 export async function createNewSkill(skill: Omit<skill, "id" | "created_at" | "updated_at">) {
-  return db.skill.create({
-    data: {
-      name: skill.name,
-      description: skill.description,
-      category: skill.category,
-      icon: skill.icon,
-      active: skill.active,
-    },
-  });
+  try {
+    return await db.skill.create({
+      data: {
+        name: skill.name,
+        description: skill.description,
+        category: skill.category,
+        icon: skill.icon,
+        color: skill.color ?? null,
+        active: skill.active,
+      },
+    });
+  } catch (error) {
+    // Provide more helpful error message if column doesn't exist
+    if (
+      error instanceof Error &&
+      error.message.includes("column") &&
+      error.message.includes("color")
+    ) {
+      throw new Error(
+        "Database migration not applied. Please run: supabase migration up or supabase db reset"
+      );
+    }
+    throw error;
+  }
 }

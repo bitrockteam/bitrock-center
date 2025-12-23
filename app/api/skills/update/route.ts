@@ -9,6 +9,7 @@ const updateSkillSchema = z.object({
   category: z.enum(["hard", "soft"]),
   description: z.string().optional(),
   icon: z.string().min(1, "Icon is required"),
+  color: z.string().nullable().optional(),
   active: z.boolean(),
 });
 
@@ -17,9 +18,14 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const validatedData = updateSkillSchema.parse(body);
 
+    // Handle color: convert empty string to null, keep null as null
+    const colorValue =
+      validatedData.color === "" || validatedData.color === undefined ? null : validatedData.color;
+
     const skill = await updateSkill({
       ...validatedData,
       description: validatedData.description || null,
+      color: colorValue,
     });
 
     return NextResponse.json({
@@ -40,10 +46,14 @@ export async function PUT(request: NextRequest) {
 
     logErrorSummary("update-skill", error);
     const summary = getErrorSummary(error);
+
+    // Include more details in error response for debugging
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {
         success: false,
         error: summary.message,
+        details: errorMessage,
       },
       { status: 500 }
     );

@@ -10,6 +10,7 @@ export interface Skill {
   description: string | null;
   category: "hard" | "soft";
   icon: string;
+  color: string | null;
   active: boolean;
   created_at: Date;
   updated_at: Date;
@@ -41,6 +42,7 @@ export interface EmployeeWithSkills {
       category: "hard" | "soft";
       description: string | null;
       icon: string;
+      color: string | null;
       active: boolean;
       created_at: Date;
       updated_at: Date;
@@ -123,6 +125,7 @@ export const skillsApi = {
       category: "hard" | "soft";
       description?: string;
       icon: string;
+      color?: string | null;
       active: boolean;
     }
   ) => {
@@ -141,6 +144,7 @@ export const skillsApi = {
       category: "hard" | "soft";
       description?: string;
       icon: string;
+      color?: string | null;
       active: boolean;
     }
   ) => {

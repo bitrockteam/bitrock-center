@@ -15,6 +15,7 @@ export async function getSkillsCatalog() {
       description: true,
       category: true,
       icon: true,
+      color: true,
       active: true,
       created_at: true,
       updated_at: true,

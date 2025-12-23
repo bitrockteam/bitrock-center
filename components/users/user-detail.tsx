@@ -5,10 +5,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
-import { ArrowLeft, Edit, Target } from "lucide-react";
+import { ArrowLeft, Edit, Settings, Target } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddUserDialog from "./add-user-dialog";
+import SkillsManagementModal from "./skills-management-modal";
 import UserDetailsSections from "./user-details-sections";
 
 export default function UserDetail({
@@ -24,6 +25,7 @@ export default function UserDetail({
 }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showSkillsModal, setShowSkillsModal] = useState(false);
 
   if (!user) {
     return (
@@ -49,11 +51,7 @@ export default function UserDetail({
     >
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push("/utenti")}
-          >
+          <Button variant="outline" size="icon" onClick={() => router.push("/utenti")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Avatar className="h-16 w-16">
@@ -66,9 +64,7 @@ export default function UserDetail({
             <h1 className="text-3xl font-bold tracking-tight">
               {formatDisplayName({ name: user.name })}
             </h1>
-            {user.role && (
-              <div className="flex items-center space-x-2">{user.role}</div>
-            )}
+            {user.role && <div className="flex items-center space-x-2">{user.role}</div>}
           </div>
         </div>
 
@@ -80,11 +76,18 @@ export default function UserDetail({
             <Target className="mr-2 h-4 w-4" />
             Development Plan
           </Button>
-          {
+          {canManageSkills && (
             <Button
-              className="cursor-pointer"
-              onClick={() => setShowEditDialog(true)}
+              variant="outline"
+              onClick={() => setShowSkillsModal(true)}
+              aria-label="Gestisci competenze"
             >
+              <Settings className="mr-2 h-4 w-4" />
+              Gestisci Competenze
+            </Button>
+          )}
+          {
+            <Button className="cursor-pointer" onClick={() => setShowEditDialog(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Modifica Utente
             </Button>
@@ -109,6 +112,13 @@ export default function UserDetail({
           user={user}
         />
       )}
+      {/* Skills Management Modal */}
+      <SkillsManagementModal
+        open={showSkillsModal}
+        onOpenChange={setShowSkillsModal}
+        user={user}
+        canManageSkills={canManageSkills}
+      />
     </motion.div>
   );
 }

@@ -8,6 +8,7 @@ const createSkillSchema = z.object({
   category: z.enum(["hard", "soft"]),
   description: z.string().optional(),
   icon: z.string().min(1, "Icon is required"),
+  color: z.string().nullable().optional(),
   active: z.boolean(),
 });
 
@@ -16,9 +17,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createSkillSchema.parse(body);
 
+    // Handle color: convert empty string to null, keep null as null
+    const colorValue =
+      validatedData.color === "" || validatedData.color === undefined ? null : validatedData.color;
+
     const skill = await createNewSkill({
       ...validatedData,
       description: validatedData.description || null,
+      color: colorValue,
     });
 
     return NextResponse.json({

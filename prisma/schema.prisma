@@ -129,6 +129,7 @@ model skill {
   category    SkillCategory
   description String?
   icon        String
+  color       String?
   active      Boolean       @default(true)
   created_at  DateTime      @default(now()) @db.Timestamptz(6)
   updated_at  DateTime      @default(now()) @db.Timestamptz(6)

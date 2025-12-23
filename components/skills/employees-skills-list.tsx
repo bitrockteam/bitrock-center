@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { SeniorityLevel } from "@/db";
 import {
   type EmployeeWithSkills,
@@ -15,22 +16,34 @@ import {
   useEmployeesWithSkills,
   useSkillsCatalog,
 } from "@/hooks/useSkillsApi";
+import type { FindUserById } from "@/app/server-actions/user/findUserById";
+import SkillsManagementModal from "@/components/users/skills-management-modal";
+import { useApi } from "@/hooks/useApi";
 import { formatDisplayName } from "@/services/users/utils";
 import { motion } from "framer-motion";
-import { Eye, Filter, Search, X } from "lucide-react";
+import { Eye, Filter, Search, Settings, Star, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { getSeniorityLevelColor, getSeniorityLevelLabel, getSkillIcon } from "./utils";
+import { getSeniorityLevelLabel, getSkillIcon } from "@/components/skills/utils";
+import { getSkillColor } from "@/components/skills/color-palette";
 
-export default function EmployeesSkillsList() {
+export default function EmployeesSkillsList({
+  canManageSkills = false,
+}: {
+  canManageSkills?: boolean;
+}) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedSeniorityLevels, setSelectedSeniorityLevels] = useState<SeniorityLevel[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const [showSkillsModal, setShowSkillsModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<FindUserById | null>(null);
 
   const employeesApi = useEmployeesWithSkills();
   const skillsCatalogApi = useSkillsCatalog();
+  const userApi = useApi<FindUserById>();
 
   // Filtra i dipendenti in base ai criteri
   const filteredEmployees = useMemo(() => {
@@ -89,6 +102,40 @@ export default function EmployeesSkillsList() {
   useEffect(() => {
     skillsApi.fetchEmployeesWithSkills(employeesApi);
   }, []);
+
+  const handleOpenSkillsModal = async (employeeId: string) => {
+    setSelectedEmployeeId(employeeId);
+    // Fetch user data for the modal
+    try {
+      const userData = await userApi.callApi<FindUserById>(`/api/user/${employeeId}`);
+      setSelectedUser(userData);
+      setShowSkillsModal(true);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setSelectedUser(null);
+    }
+  };
+
+  const handleCloseSkillsModal = () => {
+    setShowSkillsModal(false);
+    setSelectedEmployeeId(null);
+    setSelectedUser(null);
+  };
+
+  const handleUserUpdate = async () => {
+    if (selectedEmployeeId) {
+      try {
+        const userData = await userApi.callApi<FindUserById>(`/api/user/${selectedEmployeeId}`);
+        if (userData) {
+          setSelectedUser(userData);
+        }
+      } catch (error) {
+        console.error("Error refreshing user data:", error);
+      }
+    }
+    // Also refresh the employees list
+    await skillsApi.fetchEmployeesWithSkills(employeesApi);
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -282,15 +329,29 @@ export default function EmployeesSkillsList() {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => router.push(`/utenti/${employee.id}?tab=skills`)}
-                      className="transition-all duration-300 hover:scale-105"
-                    >
-                      <Eye className="mr-2 h-4 w-4" />
-                      Dettagli
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      {canManageSkills && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenSkillsModal(employee.id)}
+                          className="transition-all duration-300 hover:scale-105"
+                          aria-label={`Gestisci competenze di ${employee.name}`}
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          Competenze
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/utenti/${employee.id}?tab=skills`)}
+                        className="transition-all duration-300 hover:scale-105"
+                      >
+                        <Eye className="mr-2 h-4 w-4" />
+                        Dettagli
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Lista competenze con nome + seniority integrati */}
@@ -300,25 +361,48 @@ export default function EmployeesSkillsList() {
                         .filter((empSkill) => empSkill.skill.active)
                         .map((empSkill) => {
                           const LucideIcon = getSkillIcon(empSkill.skill.icon);
+                          const skillColor = getSkillColor(
+                            empSkill.skill.color,
+                            empSkill.skill.category
+                          );
+                          const getStarCount = (level: SeniorityLevel): number => {
+                            switch (level) {
+                              case "junior":
+                                return 1;
+                              case "middle":
+                                return 2;
+                              case "senior":
+                                return 3;
+                              default:
+                                return 1;
+                            }
+                          };
+                          const starCount = getStarCount(empSkill.seniorityLevel);
                           return empSkill.skill ? (
-                            <div key={empSkill.skill.id} className="flex items-center">
-                              <Badge
-                                variant="outline"
-                                className={`text-xs flex items-center gap-1 rounded-r-none border-r-0 ${getSeniorityLevelColor(
-                                  empSkill.seniorityLevel
-                                )} text-white border-transparent`}
-                              >
-                                <LucideIcon className="h-3 w-3" />
-                                {empSkill.skill.name}
-                              </Badge>
-                              <Badge
-                                className={`text-xs rounded-l-none ${getSeniorityLevelColor(
-                                  empSkill.seniorityLevel
-                                )} text-white opacity-80`}
-                              >
-                                {getSeniorityLevelLabel(empSkill.seniorityLevel)}
-                              </Badge>
-                            </div>
+                            <Tooltip key={empSkill.skill.id}>
+                              <TooltipTrigger asChild>
+                                <Badge
+                                  className="text-xs flex items-center gap-1.5 text-white border-0 cursor-default"
+                                  style={{
+                                    backgroundColor: skillColor,
+                                  }}
+                                >
+                                  <LucideIcon className="h-3 w-3" />
+                                  <span>{empSkill.skill.name}</span>
+                                  <div className="flex items-center gap-0.5 ml-1">
+                                    {Array.from({ length: starCount }).map((_, index) => (
+                                      <Star
+                                        key={`star-${empSkill.skill.id}-${index}`}
+                                        className="h-2.5 w-2.5 fill-white text-white"
+                                      />
+                                    ))}
+                                  </div>
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{getSeniorityLevelLabel(empSkill.seniorityLevel)}</p>
+                              </TooltipContent>
+                            </Tooltip>
                           ) : null;
                         })}
                     </div>
@@ -329,6 +413,20 @@ export default function EmployeesSkillsList() {
           </div>
         </CardContent>
       </Card>
+      {/* Skills Management Modal */}
+      <SkillsManagementModal
+        open={showSkillsModal}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseSkillsModal();
+          } else {
+            setShowSkillsModal(true);
+          }
+        }}
+        user={selectedUser}
+        canManageSkills={canManageSkills}
+        onUserUpdate={handleUserUpdate}
+      />
     </motion.div>
   );
 }

@@ -14,6 +14,7 @@ export async function getEmployeesWithSkills() {
               category: true,
               description: true,
               icon: true,
+              color: true,
               active: true,
               created_at: true,
               updated_at: true,

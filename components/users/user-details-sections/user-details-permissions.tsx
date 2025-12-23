@@ -62,15 +62,9 @@ const item = {
   show: { opacity: 1, y: 0, scale: 1 },
 };
 
-export default function UserDetailsPermissions({
-  user,
-}: {
-  user: FindUserById;
-}) {
+export default function UserDetailsPermissions({ user }: { user: FindUserById }) {
   const router = useRouter();
-  const [selectedPermission, setSelectedPermission] = useState<
-    Permissions | undefined
-  >(undefined);
+  const [selectedPermission, setSelectedPermission] = useState<Permissions | undefined>(undefined);
   const { loading, error, reset } = useApi();
   const { removePermission } = useRemovePermission();
   const { assignPermission } = useAssignPermission();
@@ -89,9 +83,7 @@ export default function UserDetailsPermissions({
     return (
       <Card>
         <CardContent className="py-8">
-          <p className="text-center text-muted-foreground">
-            Nessun utente trovato
-          </p>
+          <p className="text-center text-muted-foreground">Nessun utente trovato</p>
         </CardContent>
       </Card>
     );
@@ -106,23 +98,23 @@ export default function UserDetailsPermissions({
         {user.user_permission && user.user_permission.length > 0 ? (
           <div className="space-y-4">
             {(() => {
-              const grouped = user.user_permission.reduce((acc, p) => {
-                const category = getPermissionCategory(p.permission_id);
-                if (!acc[category]) {
-                  acc[category] = [];
-                }
-                acc[category].push(p);
-                return acc;
-              }, {} as Record<string, typeof user.user_permission>);
+              const grouped = user.user_permission.reduce(
+                (acc, p) => {
+                  const category = getPermissionCategory(p.permission_id);
+                  if (!acc[category]) {
+                    acc[category] = [];
+                  }
+                  acc[category].push(p);
+                  return acc;
+                },
+                {} as Record<string, typeof user.user_permission>
+              );
 
               return Object.entries(grouped).map(([category, permissions]) => (
                 <div key={category} className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-border" />
-                    <Badge
-                      variant="secondary"
-                      className="text-[10px] px-2 py-0.5 font-medium"
-                    >
+                    <Badge variant="secondary" className="text-[10px] px-2 py-0.5 font-medium">
                       {category}
                     </Badge>
                     <div className="h-px flex-1 bg-border" />
@@ -145,9 +137,7 @@ export default function UserDetailsPermissions({
                         <Card
                           className="group relative aspect-square overflow-hidden border-2 transition-all duration-300 hover:border-primary/50 hover:shadow-md"
                           tabIndex={0}
-                          aria-label={`Permission: ${formatPermissionId(
-                            p.permission_id
-                          )}`}
+                          aria-label={`Permission: ${formatPermissionId(p.permission_id)}`}
                           role="article"
                         >
                           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -222,10 +212,7 @@ export default function UserDetailsPermissions({
               onValueChange={(v) => setSelectedPermission(v as Permissions)}
               disabled={!hasAvailablePermissions}
             >
-              <SelectTrigger
-                className="w-[280px]"
-                aria-label="Select permission to assign"
-              >
+              <SelectTrigger className="w-[280px]" aria-label="Select permission to assign">
                 <SelectValue placeholder="Select a permission" />
               </SelectTrigger>
               <SelectContent>
@@ -237,9 +224,7 @@ export default function UserDetailsPermissions({
               </SelectContent>
             </Select>
             <Button
-              disabled={
-                !selectedPermission || !hasAvailablePermissions || loading
-              }
+              disabled={!selectedPermission || !hasAvailablePermissions || loading}
               onClick={async () => {
                 if (!user || !selectedPermission) return;
                 try {
@@ -284,8 +269,7 @@ export default function UserDetailsPermissions({
           </div>
           {!hasAvailablePermissions && (
             <p className="text-sm text-muted-foreground">
-              Tutti i permessi disponibili sono già stati assegnati a questo
-              utente.
+              Tutti i permessi disponibili sono già stati assegnati a questo utente.
             </p>
           )}
           {error && (

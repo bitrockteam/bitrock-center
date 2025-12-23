@@ -8,15 +8,8 @@ export async function addSkillToEmployee(
   skillId: string,
   level: SeniorityLevel
 ) {
-  // Convert API values to database enum values
-  // API uses "mid" and "lead", but database enum uses "middle" and doesn't have "lead"
-  let dbLevel: SeniorityLevel = level;
-  if (level === "mid") {
-    dbLevel = "middle" as SeniorityLevel;
-  } else if (level === "lead") {
-    // If "lead" is not in the enum, default to "senior"
-    dbLevel = "senior" as SeniorityLevel;
-  }
+  // Level is already a valid SeniorityLevel type
+  const dbLevel: SeniorityLevel = level;
 
   return db.user_skill.create({
     data: {

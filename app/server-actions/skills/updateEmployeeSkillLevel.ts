@@ -8,15 +8,8 @@ export async function updateEmployeeSkillLevel(
   skillId: string,
   newLevel: SeniorityLevel
 ) {
-  // Convert API values to database enum values
-  // API uses "mid" and "lead", but database enum uses "middle" and doesn't have "lead"
-  let dbLevel: SeniorityLevel = newLevel;
-  if (newLevel === "mid") {
-    dbLevel = "middle" as SeniorityLevel;
-  } else if (newLevel === "lead") {
-    // If "lead" is not in the enum, default to "senior"
-    dbLevel = "senior" as SeniorityLevel;
-  }
+  // newLevel is already a valid SeniorityLevel type
+  const dbLevel: SeniorityLevel = newLevel;
 
   return db.user_skill.update({
     where: {

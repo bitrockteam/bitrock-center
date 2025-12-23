@@ -8,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { getReferentName } from "@/app/server-actions/user/getReferentName";
 import { getLLMConfig } from "@/app/server-actions/user/getLLMConfig";
 import type { user } from "@/db";
-import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,

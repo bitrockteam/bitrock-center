@@ -6,6 +6,7 @@ import {
   getSeniorityLevelLabel,
   getSkillIcon,
 } from "@/components/skills/utils";
+import { getSkillColor } from "@/components/skills/color-palette";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,8 +56,7 @@ export default function UserDetailsSkills({
 
   useEffect(() => {
     skillsApi.fetchSkillsCatalog(skillsCatalogApi);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [skillsCatalogApi]);
 
   const hardSkills =
     user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ?? [];
@@ -200,8 +200,24 @@ export default function UserDetailsSkills({
                         <div className="p-2 rounded-md bg-primary/10">
                           <SkillIcon className="h-4 w-4 text-primary" />
                         </div>
-                        <div>
-                          <h4 className="font-medium">{empSkill.skill.name}</h4>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium">{empSkill.skill.name}</h4>
+                            <div
+                              className="h-3 w-3 rounded-md border border-border/50 flex-shrink-0"
+                              style={{
+                                backgroundColor: getSkillColor(
+                                  empSkill.skill.color,
+                                  empSkill.skill.category
+                                ),
+                              }}
+                              title={
+                                empSkill.skill.color
+                                  ? "Colore personalizzato"
+                                  : `Colore predefinito (${empSkill.skill.category === "hard" ? "Blu" : "Arancione"})`
+                              }
+                            />
+                          </div>
                           {empSkill.skill.description && (
                             <p className="text-sm text-muted-foreground">
                               {empSkill.skill.description}
@@ -303,8 +319,24 @@ export default function UserDetailsSkills({
                         <div className="p-2 rounded-md bg-primary/10">
                           <SkillIcon className="h-4 w-4 text-primary" />
                         </div>
-                        <div>
-                          <h4 className="font-medium">{empSkill.skill.name}</h4>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium">{empSkill.skill.name}</h4>
+                            <div
+                              className="h-3 w-3 rounded-md border border-border/50 flex-shrink-0"
+                              style={{
+                                backgroundColor: getSkillColor(
+                                  empSkill.skill.color,
+                                  empSkill.skill.category
+                                ),
+                              }}
+                              title={
+                                empSkill.skill.color
+                                  ? "Colore personalizzato"
+                                  : `Colore predefinito (${empSkill.skill.category === "hard" ? "Blu" : "Arancione"})`
+                              }
+                            />
+                          </div>
                           {empSkill.skill.description && (
                             <p className="text-sm text-muted-foreground">
                               {empSkill.skill.description}

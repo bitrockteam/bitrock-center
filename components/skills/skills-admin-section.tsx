@@ -54,6 +54,7 @@ import { motion } from "framer-motion";
 import { Edit, Eye, EyeOff, MoreHorizontal, Plus, Search, Settings, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getAvailableIcons, getSkillIcon } from "./utils";
+import { getAvailableColors, getSkillColor, defaultCategoryColors } from "./color-palette";
 
 export default function SkillsAdminSection() {
   const skillsCatalogApi = useSkillsCatalog();
@@ -76,6 +77,7 @@ export default function SkillsAdminSection() {
     category: "hard" as SkillCategory,
     description: "",
     icon: "Code",
+    color: null as string | null,
     active: true,
   });
 
@@ -92,6 +94,7 @@ export default function SkillsAdminSection() {
       category: "hard",
       description: "",
       icon: "Code",
+      color: null,
       active: true,
     });
   };
@@ -104,6 +107,7 @@ export default function SkillsAdminSection() {
       category: formData.category,
       description: formData.description,
       icon: formData.icon,
+      color: formData.color || null,
       active: formData.active,
     });
     await skillsApi.fetchSkillsCatalog(skillsCatalogApi);
@@ -115,12 +119,17 @@ export default function SkillsAdminSection() {
     if (!selectedSkill) return;
     const selectedIcon = availableIcons.find((icon) => icon.name === formData.icon)?.icon;
     if (!selectedIcon) return;
+
+    // Ensure color is null if not set, not undefined
+    const colorValue = formData.color ?? null;
+
     await skillsApi.updateSkill(updateSkillApi, {
       id: selectedSkill.id,
       name: formData.name,
       category: formData.category,
       description: formData.description,
       icon: formData.icon,
+      color: colorValue,
       active: formData.active,
     });
     await skillsApi.fetchSkillsCatalog(skillsCatalogApi);
@@ -152,6 +161,7 @@ export default function SkillsAdminSection() {
       category: skill.category,
       description: skill.description || "",
       icon: iconName,
+      color: skill.color ?? null, // Use ?? to preserve empty string, only convert undefined to null
       active: skill.active,
     });
     setShowEditDialog(true);
@@ -166,6 +176,18 @@ export default function SkillsAdminSection() {
   useEffect(() => {
     skillsApi.fetchSkillsCatalog(skillsCatalogApi);
   }, []);
+
+  // When category changes, check if current color is still valid for the new category
+  useEffect(() => {
+    if (formData.color) {
+      const availableColors = getAvailableColors(formData.category);
+      const isColorInCategory = availableColors.includes(formData.color);
+      if (!isColorInCategory) {
+        // Color doesn't belong to the new category, clear it
+        setFormData((prev) => ({ ...prev, color: null }));
+      }
+    }
+  }, [formData.category, formData.color]);
 
   // For tab counts and filters
   const allSkills = skillsCatalogApi.data || [];
@@ -290,6 +312,17 @@ export default function SkillsAdminSection() {
                                 >
                                   {skill.name}
                                 </h4>
+                                <div
+                                  className="h-4 w-4 rounded-md border border-border/50 transition-all duration-200"
+                                  style={{
+                                    backgroundColor: getSkillColor(skill.color, skill.category),
+                                  }}
+                                  title={
+                                    skill.color
+                                      ? "Colore personalizzato"
+                                      : `Colore predefinito (${skill.category === "hard" ? "Blu" : "Arancione"})`
+                                  }
+                                />
                                 <Badge
                                   variant={skill.category === "hard" ? "default" : "secondary"}
                                   className="text-xs"
@@ -383,7 +416,9 @@ export default function SkillsAdminSection() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">Nome</Label>
+              <Label htmlFor="name" className="mb-2 block">
+                Nome
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -392,7 +427,9 @@ export default function SkillsAdminSection() {
               />
             </div>
             <div>
-              <Label htmlFor="category">Categoria</Label>
+              <Label htmlFor="category" className="mb-2 block">
+                Categoria
+              </Label>
               <Select
                 value={formData.category}
                 onValueChange={(value: SkillCategory) =>
@@ -409,7 +446,9 @@ export default function SkillsAdminSection() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="icon">Icona</Label>
+              <Label htmlFor="icon" className="mb-2 block">
+                Icona
+              </Label>
               <Select
                 value={formData.icon}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, icon: value }))}
@@ -430,7 +469,71 @@ export default function SkillsAdminSection() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="description">Descrizione</Label>
+              <Label htmlFor="color" className="mb-2 block">
+                Colore
+              </Label>
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  {getAvailableColors(formData.category).map((color) => {
+                    const isSelected = formData.color === color;
+                    return (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            color: isSelected ? null : color,
+                          }))
+                        }
+                        className={`h-8 w-8 rounded-md border-2 transition-all ${
+                          isSelected
+                            ? "border-foreground scale-110 ring-2 ring-primary"
+                            : "border-border hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: color }}
+                        aria-label={`Select color ${color}`}
+                        title={isSelected ? "Click to remove color" : "Click to select color"}
+                      />
+                    );
+                  })}
+                </div>
+                {formData.color ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div
+                      className="h-4 w-4 rounded border"
+                      style={{ backgroundColor: formData.color }}
+                    />
+                    <span>Colore selezionato</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setFormData((prev) => ({ ...prev, color: null }))}
+                      className="h-6 text-xs"
+                    >
+                      Rimuovi
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div
+                      className="h-4 w-4 rounded border"
+                      style={{
+                        backgroundColor: defaultCategoryColors[formData.category],
+                      }}
+                    />
+                    <span>
+                      Usa colore predefinito ({formData.category === "hard" ? "Blu" : "Arancione"})
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="description" className="mb-2 block">
+                Descrizione
+              </Label>
               <Textarea
                 id="description"
                 value={formData.description}
@@ -465,7 +568,9 @@ export default function SkillsAdminSection() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-name">Nome</Label>
+              <Label htmlFor="edit-name" className="mb-2 block">
+                Nome
+              </Label>
               <Input
                 id="edit-name"
                 value={formData.name}
@@ -474,7 +579,9 @@ export default function SkillsAdminSection() {
               />
             </div>
             <div>
-              <Label htmlFor="edit-category">Categoria</Label>
+              <Label htmlFor="edit-category" className="mb-2 block">
+                Categoria
+              </Label>
               <Select
                 value={formData.category}
                 onValueChange={(value: SkillCategory) =>
@@ -491,7 +598,9 @@ export default function SkillsAdminSection() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="edit-icon">Icona</Label>
+              <Label htmlFor="edit-icon" className="mb-2 block">
+                Icona
+              </Label>
               <Select
                 value={formData.icon}
                 onValueChange={(value) => setFormData((prev) => ({ ...prev, icon: value }))}
@@ -512,7 +621,71 @@ export default function SkillsAdminSection() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="edit-description">Descrizione</Label>
+              <Label htmlFor="edit-color" className="mb-2 block">
+                Colore
+              </Label>
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  {getAvailableColors(formData.category).map((color) => {
+                    const isSelected = formData.color === color;
+                    return (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            color: isSelected ? null : color,
+                          }))
+                        }
+                        className={`h-8 w-8 rounded-md border-2 transition-all ${
+                          isSelected
+                            ? "border-foreground scale-110 ring-2 ring-primary"
+                            : "border-border hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: color }}
+                        aria-label={`Select color ${color}`}
+                        title={isSelected ? "Click to remove color" : "Click to select color"}
+                      />
+                    );
+                  })}
+                </div>
+                {formData.color ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div
+                      className="h-4 w-4 rounded border"
+                      style={{ backgroundColor: formData.color }}
+                    />
+                    <span>Colore selezionato</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setFormData((prev) => ({ ...prev, color: null }))}
+                      className="h-6 text-xs"
+                    >
+                      Rimuovi
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div
+                      className="h-4 w-4 rounded border"
+                      style={{
+                        backgroundColor: defaultCategoryColors[formData.category],
+                      }}
+                    />
+                    <span>
+                      Usa colore predefinito ({formData.category === "hard" ? "Blu" : "Arancione"})
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="edit-description" className="mb-2 block">
+                Descrizione
+              </Label>
               <Textarea
                 id="edit-description"
                 value={formData.description}

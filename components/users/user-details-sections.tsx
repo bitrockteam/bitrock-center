@@ -30,7 +30,15 @@ export default function UserDetailsSections({
 }) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const validTabs = ["overview", "allocations", "skills", "development", "activity", "contract", "permissions"];
+  const validTabs = [
+    "overview",
+    "allocations",
+    "skills",
+    "development",
+    "activity",
+    "contract",
+    "permissions",
+  ];
   const defaultTab = tabParam && validTabs.includes(tabParam) ? tabParam : "overview";
 
   const { data: activePlan, callApi: fetchDevelopmentPlan } =
@@ -64,9 +72,7 @@ export default function UserDetailsSections({
         <TabsTrigger value="development">Sviluppo</TabsTrigger>
         <TabsTrigger value="activity">Attività</TabsTrigger>
         <TabsTrigger value="contract">Contratto</TabsTrigger>
-        {canDealPermissions && (
-          <TabsTrigger value="permissions">Permissions</TabsTrigger>
-        )}
+        {canDealPermissions && <TabsTrigger value="permissions">Permissions</TabsTrigger>}
       </TabsList>
 
       <TabsContent value="overview" className="space-y-6">

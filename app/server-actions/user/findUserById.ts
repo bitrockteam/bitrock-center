@@ -40,6 +40,7 @@ export async function findUserById(userId: string) {
               name: true,
               description: true,
               icon: true,
+              color: true,
               category: true,
             },
           },

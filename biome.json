@@ -24,6 +24,9 @@
       "suspicious": {
         "noExplicitAny": "warn"
       },
+      "security": {
+        "noDangerouslySetInnerHtml": "warn"
+      },
       "style": {
         "useImportType": "error",
         "noNonNullAssertion": "warn"

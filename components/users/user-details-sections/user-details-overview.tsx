@@ -11,6 +11,7 @@ import {
   getSeniorityLevelLabel,
   getSkillIcon,
 } from "@/components/skills/utils";
+import { getSkillColor } from "@/components/skills/color-palette";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,8 +55,7 @@ export default function UserDetailsOverview({
 
   useEffect(() => {
     skillsApi.fetchSkillsCatalog(skillsCatalogApi);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [skillsCatalogApi]);
 
   // Raggruppa le competenze per categoria
   const hardSkills =
@@ -251,6 +251,15 @@ export default function UserDetailsOverview({
                       <div className="flex items-center space-x-2">
                         <SkillIcon className="h-4 w-4" />
                         <span className="text-sm font-medium">{empSkill.skill.name}</span>
+                        <div
+                          className="h-2.5 w-2.5 rounded-sm border border-border/50 flex-shrink-0"
+                          style={{
+                            backgroundColor: getSkillColor(
+                              empSkill.skill.color,
+                              empSkill.skill.category
+                            ),
+                          }}
+                        />
                       </div>
                       <Badge
                         className={`text-white text-xs ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
@@ -282,6 +291,15 @@ export default function UserDetailsOverview({
                       <div className="flex items-center space-x-2">
                         <SkillIcon className="h-4 w-4" />
                         <span className="text-sm font-medium">{empSkill.skill.name}</span>
+                        <div
+                          className="h-2.5 w-2.5 rounded-sm border border-border/50 flex-shrink-0"
+                          style={{
+                            backgroundColor: getSkillColor(
+                              empSkill.skill.color,
+                              empSkill.skill.category
+                            ),
+                          }}
+                        />
                       </div>
                       <Badge
                         className={`text-white text-xs ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}

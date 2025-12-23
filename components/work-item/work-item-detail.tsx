@@ -283,27 +283,23 @@ export default function WorkItemDetail({
                     : "Prezzo Fisso"}
                 </p>
               </div>
-              {workItem.type === work_item_type.time_material ? (
-                <>
-                  {workItem.hourly_rate && (
+              {workItem.type === work_item_type.time_material
+                ? workItem.hourly_rate && (
                     <div className="space-y-2">
                       <p className="text-sm font-medium">Tariffa Oraria:</p>
                       <p className="text-sm text-muted-foreground ml-6">
                         €{workItem.hourly_rate}/ora
                       </p>
                     </div>
+                  )
+                : workItem.fixed_price && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Prezzo Fisso:</p>
+                      <p className="text-sm text-muted-foreground ml-6">
+                        €{workItem.fixed_price.toLocaleString("it-IT")}
+                      </p>
+                    </div>
                   )}
-                </>
-              ) : (
-                workItem.fixed_price && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Prezzo Fisso:</p>
-                    <p className="text-sm text-muted-foreground ml-6">
-                      €{workItem.fixed_price.toLocaleString("it-IT")}
-                    </p>
-                  </div>
-                )
-              )}
             </div>
           </CardContent>
         </Card>
