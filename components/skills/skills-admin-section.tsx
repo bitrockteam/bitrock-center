@@ -12,7 +12,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -51,10 +57,23 @@ import {
 } from "@/hooks/useSkillsApi";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
-import { Edit, Eye, EyeOff, MoreHorizontal, Plus, Search, Settings, Trash2 } from "lucide-react";
+import {
+  Edit,
+  Eye,
+  EyeOff,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Settings,
+  Trash2,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getAvailableIcons, getSkillIcon } from "./utils";
-import { getAvailableColors, getSkillColor, defaultCategoryColors } from "./color-palette";
+import {
+  getAvailableColors,
+  getSkillColor,
+  defaultCategoryColors,
+} from "./color-palette";
 
 export default function SkillsAdminSection() {
   const skillsCatalogApi = useSkillsCatalog();
@@ -63,7 +82,9 @@ export default function SkillsAdminSection() {
   const deleteSkillApi = useDeleteSkill();
   const toggleSkillActiveApi = useToggleSkillActive();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<SkillCategory | "all">("all");
+  const [selectedCategory, setSelectedCategory] = useState<
+    SkillCategory | "all"
+  >("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -82,11 +103,18 @@ export default function SkillsAdminSection() {
   });
 
   // Filtra le skills
-  const filteredSkills = skillsCatalogApi.data?.filter((skill: Skill) => {
-    const matchesSearch = skill.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || skill.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredSkills = useMemo(
+    () =>
+      skillsCatalogApi.data?.filter((skill: Skill) => {
+        const matchesSearch = skill.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+        const matchesCategory =
+          selectedCategory === "all" || skill.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+      }),
+    [skillsCatalogApi.data, searchTerm, selectedCategory]
+  );
 
   const resetForm = () => {
     setFormData({
@@ -100,7 +128,9 @@ export default function SkillsAdminSection() {
   };
 
   const handleCreate = async () => {
-    const selectedIcon = availableIcons.find((icon) => icon.name === formData.icon)?.icon;
+    const selectedIcon = availableIcons.find(
+      (icon) => icon.name === formData.icon
+    )?.icon;
     if (!selectedIcon) return;
     await skillsApi.createSkill(createSkillApi, {
       name: formData.name,
@@ -117,7 +147,9 @@ export default function SkillsAdminSection() {
 
   const handleEdit = async () => {
     if (!selectedSkill) return;
-    const selectedIcon = availableIcons.find((icon) => icon.name === formData.icon)?.icon;
+    const selectedIcon = availableIcons.find(
+      (icon) => icon.name === formData.icon
+    )?.icon;
     if (!selectedIcon) return;
 
     // Ensure color is null if not set, not undefined
@@ -139,7 +171,11 @@ export default function SkillsAdminSection() {
   };
 
   const handleToggleActive = async (skill: skill) => {
-    await skillsApi.toggleSkillActive(toggleSkillActiveApi, skill.id, !skill.active);
+    await skillsApi.toggleSkillActive(
+      toggleSkillActiveApi,
+      skill.id,
+      !skill.active
+    );
     await skillsApi.fetchSkillsCatalog(skillsCatalogApi);
   };
 
@@ -154,8 +190,9 @@ export default function SkillsAdminSection() {
   const openEditDialog = (skill: skill) => {
     setSelectedSkill(skill);
     const iconName =
-      availableIcons.find((icon) => (icon.icon as unknown as string) === skill.icon)?.name ||
-      "Code";
+      availableIcons.find(
+        (icon) => (icon.icon as unknown as string) === skill.icon
+      )?.name || "Code";
     setFormData({
       name: skill.name,
       category: skill.category,
@@ -190,7 +227,10 @@ export default function SkillsAdminSection() {
   }, [formData.category, formData.color]);
 
   // For tab counts and filters
-  const allSkills = skillsCatalogApi.data || [];
+  const allSkills = useMemo(
+    () => skillsCatalogApi.data || [],
+    [skillsCatalogApi.data]
+  );
   const hardSkills = allSkills.filter((s: Skill) => s.category === "hard");
   const softSkills = allSkills.filter((s: Skill) => s.category === "soft");
 
@@ -212,7 +252,9 @@ export default function SkillsAdminSection() {
                 </div>
                 Gestione Competenze
               </CardTitle>
-              <CardDescription>Amministra il catalogo delle competenze aziendali</CardDescription>
+              <CardDescription>
+                Amministra il catalogo delle competenze aziendali
+              </CardDescription>
             </div>
             <Button
               onClick={() => setShowCreateDialog(true)}
@@ -237,7 +279,9 @@ export default function SkillsAdminSection() {
             </div>
             <Select
               value={selectedCategory}
-              onValueChange={(value: SkillCategory | "all") => setSelectedCategory(value)}
+              onValueChange={(value: SkillCategory | "all") =>
+                setSelectedCategory(value)
+              }
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue />
@@ -254,7 +298,9 @@ export default function SkillsAdminSection() {
         <CardContent className="relative">
           <Tabs
             value={selectedCategory}
-            onValueChange={(value) => setSelectedCategory(value as SkillCategory | "all")}
+            onValueChange={(value) =>
+              setSelectedCategory(value as SkillCategory | "all")
+            }
           >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="all" className="transition-all duration-300">
@@ -299,7 +345,9 @@ export default function SkillsAdminSection() {
                             >
                               <LucideIcon
                                 className={`h-4 w-4 ${
-                                  skill.active ? "text-primary" : "text-muted-foreground"
+                                  skill.active
+                                    ? "text-primary"
+                                    : "text-muted-foreground"
                                 }`}
                               />
                             </div>
@@ -315,16 +363,27 @@ export default function SkillsAdminSection() {
                                 <div
                                   className="h-4 w-4 rounded-md border border-border/50 transition-all duration-200"
                                   style={{
-                                    backgroundColor: getSkillColor(skill.color, skill.category),
+                                    backgroundColor: getSkillColor(
+                                      skill.color,
+                                      skill.category
+                                    ),
                                   }}
                                   title={
                                     skill.color
                                       ? "Colore personalizzato"
-                                      : `Colore predefinito (${skill.category === "hard" ? "Blu" : "Arancione"})`
+                                      : `Colore predefinito (${
+                                          skill.category === "hard"
+                                            ? "Blu"
+                                            : "Arancione"
+                                        })`
                                   }
                                 />
                                 <Badge
-                                  variant={skill.category === "hard" ? "default" : "secondary"}
+                                  variant={
+                                    skill.category === "hard"
+                                      ? "default"
+                                      : "secondary"
+                                  }
                                   className="text-xs"
                                 >
                                   {skill.category === "hard" ? "Hard" : "Soft"}
@@ -348,9 +407,13 @@ export default function SkillsAdminSection() {
                                 </p>
                               )}
                               <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
-                                <span>Creata: {dayjs(skill.created_at).format("DD/MM/YYYY")}</span>
                                 <span>
-                                  Aggiornata: {dayjs(skill.updated_at).format("DD/MM/YYYY")}
+                                  Creata:{" "}
+                                  {dayjs(skill.created_at).format("DD/MM/YYYY")}
+                                </span>
+                                <span>
+                                  Aggiornata:{" "}
+                                  {dayjs(skill.updated_at).format("DD/MM/YYYY")}
                                 </span>
                               </div>
                             </div>
@@ -367,11 +430,15 @@ export default function SkillsAdminSection() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => openEditDialog(skill)}>
+                              <DropdownMenuItem
+                                onClick={() => openEditDialog(skill)}
+                              >
                                 <Edit className="mr-2 h-4 w-4" />
                                 Modifica
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleToggleActive(skill)}>
+                              <DropdownMenuItem
+                                onClick={() => handleToggleActive(skill)}
+                              >
                                 {skill.active ? (
                                   <>
                                     <EyeOff className="mr-2 h-4 w-4" />
@@ -422,7 +489,9 @@ export default function SkillsAdminSection() {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="Nome della competenza"
               />
             </div>
@@ -451,7 +520,9 @@ export default function SkillsAdminSection() {
               </Label>
               <Select
                 value={formData.icon}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, icon: value }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, icon: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -493,7 +564,11 @@ export default function SkillsAdminSection() {
                         }`}
                         style={{ backgroundColor: color }}
                         aria-label={`Select color ${color}`}
-                        title={isSelected ? "Click to remove color" : "Click to select color"}
+                        title={
+                          isSelected
+                            ? "Click to remove color"
+                            : "Click to select color"
+                        }
                       />
                     );
                   })}
@@ -509,7 +584,9 @@ export default function SkillsAdminSection() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => setFormData((prev) => ({ ...prev, color: null }))}
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, color: null }))
+                      }
                       className="h-6 text-xs"
                     >
                       Rimuovi
@@ -520,11 +597,13 @@ export default function SkillsAdminSection() {
                     <div
                       className="h-4 w-4 rounded border"
                       style={{
-                        backgroundColor: defaultCategoryColors[formData.category],
+                        backgroundColor:
+                          defaultCategoryColors[formData.category],
                       }}
                     />
                     <span>
-                      Usa colore predefinito ({formData.category === "hard" ? "Blu" : "Arancione"})
+                      Usa colore predefinito (
+                      {formData.category === "hard" ? "Blu" : "Arancione"})
                     </span>
                   </div>
                 )}
@@ -549,7 +628,10 @@ export default function SkillsAdminSection() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateDialog(false)}
+            >
               Annulla
             </Button>
             <Button onClick={handleCreate} disabled={!formData.name.trim()}>
@@ -564,7 +646,9 @@ export default function SkillsAdminSection() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Modifica Competenza</DialogTitle>
-            <DialogDescription>Modifica i dettagli della competenza selezionata.</DialogDescription>
+            <DialogDescription>
+              Modifica i dettagli della competenza selezionata.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -574,7 +658,9 @@ export default function SkillsAdminSection() {
               <Input
                 id="edit-name"
                 value={formData.name}
-                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="Nome della competenza"
               />
             </div>
@@ -603,7 +689,9 @@ export default function SkillsAdminSection() {
               </Label>
               <Select
                 value={formData.icon}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, icon: value }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, icon: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -645,7 +733,11 @@ export default function SkillsAdminSection() {
                         }`}
                         style={{ backgroundColor: color }}
                         aria-label={`Select color ${color}`}
-                        title={isSelected ? "Click to remove color" : "Click to select color"}
+                        title={
+                          isSelected
+                            ? "Click to remove color"
+                            : "Click to select color"
+                        }
                       />
                     );
                   })}
@@ -661,7 +753,9 @@ export default function SkillsAdminSection() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => setFormData((prev) => ({ ...prev, color: null }))}
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, color: null }))
+                      }
                       className="h-6 text-xs"
                     >
                       Rimuovi
@@ -672,11 +766,13 @@ export default function SkillsAdminSection() {
                     <div
                       className="h-4 w-4 rounded border"
                       style={{
-                        backgroundColor: defaultCategoryColors[formData.category],
+                        backgroundColor:
+                          defaultCategoryColors[formData.category],
                       }}
                     />
                     <span>
-                      Usa colore predefinito ({formData.category === "hard" ? "Blu" : "Arancione"})
+                      Usa colore predefinito (
+                      {formData.category === "hard" ? "Blu" : "Arancione"})
                     </span>
                   </div>
                 )}
@@ -719,8 +815,8 @@ export default function SkillsAdminSection() {
             <AlertDialogDescription>
               Sei sicuro di voler eliminare la competenza \&quot;
               {selectedSkill?.name}
-              \&quot;? Questa azione rimuoverà la competenza da tutti i dipendenti e non può essere
-              annullata.
+              \&quot;? Questa azione rimuoverà la competenza da tutti i
+              dipendenti e non può essere annullata.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -1,8 +1,16 @@
 "use client";
 
-import { Award, Calendar, Mail, MapPin, Phone, Plus, Target } from "lucide-react";
+import {
+  Award,
+  Calendar,
+  Mail,
+  MapPin,
+  Phone,
+  Plus,
+  Target,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { GetLatestEmployeeDevelopmentPlan } from "@/app/server-actions/development-plan/getLatestEmployeeDevelopmentPlan";
 import type { FindUserById } from "@/app/server-actions/user/findUserById";
 import { getPlanProgress } from "@/components/development-plan/utils";
@@ -14,7 +22,13 @@ import {
 import { getSkillColor } from "@/components/skills/color-palette";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -53,22 +67,30 @@ export default function UserDetailsOverview({
   const [newSkillId, setNewSkillId] = useState("");
   const [newSkillLevel, setNewSkillLevel] = useState<SeniorityLevel>("junior");
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we intentionally fetch the catalog only on mount
   useEffect(() => {
     skillsApi.fetchSkillsCatalog(skillsCatalogApi);
-  }, [skillsCatalogApi]);
+  }, []);
 
   // Raggruppa le competenze per categoria
   const hardSkills =
-    user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ?? [];
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ??
+    [];
   const softSkills =
-    user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ?? [];
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ??
+    [];
 
   const planProgress = activePlan ? getPlanProgress(activePlan) : null;
 
   // Competenze disponibili per l'aggiunta (non già presenti e attive)
-  const availableSkills = skillsCatalogApi.data?.filter(
-    (skill: Skill) =>
-      skill.active && !user?.user_skill.some((empSkill) => empSkill.skill.id === skill.id)
+  const availableSkills = useMemo(
+    () =>
+      skillsCatalogApi.data?.filter(
+        (skill: Skill) =>
+          skill.active &&
+          !user?.user_skill.some((empSkill) => empSkill.skill.id === skill.id)
+      ),
+    [skillsCatalogApi.data, user?.user_skill]
   );
 
   const handleAddSkill = async () => {
@@ -139,7 +161,9 @@ export default function UserDetailsOverview({
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Totale competenze</span>
-              <span className="text-2xl font-bold">{user?.user_skill.length}</span>
+              <span className="text-2xl font-bold">
+                {user?.user_skill.length}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Hard Skills</span>
@@ -174,7 +198,9 @@ export default function UserDetailsOverview({
               <>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Progress</span>
-                  <span className="text-lg font-semibold">{planProgress.percentage}%</span>
+                  <span className="text-lg font-semibold">
+                    {planProgress.percentage}%
+                  </span>
                 </div>
                 <Progress value={planProgress.percentage} className="h-2" />
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -188,7 +214,9 @@ export default function UserDetailsOverview({
                     variant="outline"
                     size="sm"
                     className="w-full bg-transparent"
-                    onClick={() => router.push(`/utenti/${user?.id}/development-plan`)}
+                    onClick={() =>
+                      router.push(`/utenti/${user?.id}/development-plan`)
+                    }
                   >
                     <Target className="mr-2 h-4 w-4" />
                     Visualizza Piano
@@ -199,13 +227,17 @@ export default function UserDetailsOverview({
               <>
                 <div className="text-center py-4">
                   <Target className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Nessun piano attivo</p>
+                  <p className="text-sm text-muted-foreground">
+                    Nessun piano attivo
+                  </p>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
                   className="w-full bg-transparent"
-                  onClick={() => router.push(`/utenti/${user?.id}/development-plan`)}
+                  onClick={() =>
+                    router.push(`/utenti/${user?.id}/development-plan`)
+                  }
                 >
                   <Target className="mr-2 h-4 w-4" />
                   Crea Piano
@@ -222,7 +254,9 @@ export default function UserDetailsOverview({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Competenze Principali</CardTitle>
-              <CardDescription>Le competenze più rilevanti del dipendente</CardDescription>
+              <CardDescription>
+                Le competenze più rilevanti del dipendente
+              </CardDescription>
             </div>
             <Button
               variant="outline"
@@ -250,7 +284,9 @@ export default function UserDetailsOverview({
                     >
                       <div className="flex items-center space-x-2">
                         <SkillIcon className="h-4 w-4" />
-                        <span className="text-sm font-medium">{empSkill.skill.name}</span>
+                        <span className="text-sm font-medium">
+                          {empSkill.skill.name}
+                        </span>
                         <div
                           className="h-2.5 w-2.5 rounded-sm border border-border/50 flex-shrink-0"
                           style={{
@@ -262,7 +298,9 @@ export default function UserDetailsOverview({
                         />
                       </div>
                       <Badge
-                        className={`text-white text-xs ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                        className={`text-white text-xs ${getSeniorityLevelColor(
+                          empSkill.seniorityLevel
+                        )}`}
                       >
                         {getSeniorityLevelLabel(empSkill.seniorityLevel)}
                       </Badge>
@@ -290,7 +328,9 @@ export default function UserDetailsOverview({
                     >
                       <div className="flex items-center space-x-2">
                         <SkillIcon className="h-4 w-4" />
-                        <span className="text-sm font-medium">{empSkill.skill.name}</span>
+                        <span className="text-sm font-medium">
+                          {empSkill.skill.name}
+                        </span>
                         <div
                           className="h-2.5 w-2.5 rounded-sm border border-border/50 flex-shrink-0"
                           style={{
@@ -302,7 +342,9 @@ export default function UserDetailsOverview({
                         />
                       </div>
                       <Badge
-                        className={`text-white text-xs ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                        className={`text-white text-xs ${getSeniorityLevelColor(
+                          empSkill.seniorityLevel
+                        )}`}
                       >
                         {getSeniorityLevelLabel(empSkill.seniorityLevel)}
                       </Badge>
@@ -326,8 +368,8 @@ export default function UserDetailsOverview({
           <DialogHeader>
             <DialogTitle>Aggiungi Competenza</DialogTitle>
             <DialogDescription>
-              Seleziona una competenza e il livello di seniority per {user?.name || "questo utente"}
-              .
+              Seleziona una competenza e il livello di seniority per{" "}
+              {user?.name || "questo utente"}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -369,7 +411,9 @@ export default function UserDetailsOverview({
               </label>
               <Select
                 value={newSkillLevel}
-                onValueChange={(value: SeniorityLevel) => setNewSkillLevel(value)}
+                onValueChange={(value: SeniorityLevel) =>
+                  setNewSkillLevel(value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -387,7 +431,10 @@ export default function UserDetailsOverview({
             <Button variant="outline" onClick={handleCloseDialog}>
               Annulla
             </Button>
-            <Button onClick={handleAddSkill} disabled={!newSkillId || addSkillApi.loading}>
+            <Button
+              onClick={handleAddSkill}
+              disabled={!newSkillId || addSkillApi.loading}
+            >
               {addSkillApi.loading ? "Aggiunta..." : "Aggiungi"}
             </Button>
           </DialogFooter>

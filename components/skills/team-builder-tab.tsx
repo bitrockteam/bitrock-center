@@ -14,7 +14,9 @@ export default function TeamBuilderTab() {
   const [employees, setEmployees] = useState<EmployeeWithAvailability[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [matchedEmployees, setMatchedEmployees] = useState<MatchedEmployee[]>([]);
+  const [matchedEmployees, setMatchedEmployees] = useState<MatchedEmployee[]>(
+    []
+  );
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [hasGenerated, setHasGenerated] = useState(false);
   const [formData, setFormData] = useState<TeamBuilderFormData | null>(null);
@@ -34,9 +36,9 @@ export default function TeamBuilderTab() {
       }
     };
 
-    fetchData();
-    skillsApi.fetchSkillsCatalog(skillsCatalogApi);
-  }, [skillsCatalogApi]);
+    void fetchData();
+    void skillsApi.fetchSkillsCatalog(skillsCatalogApi);
+  }, []);
 
   const handleGenerateTeam = async (data: TeamBuilderFormData) => {
     setGenerating(true);
@@ -64,7 +66,9 @@ export default function TeamBuilderTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading team builder data...</div>
+        <div className="text-muted-foreground">
+          Loading team builder data...
+        </div>
       </div>
     );
   }
@@ -90,7 +94,8 @@ export default function TeamBuilderTab() {
       {hasGenerated && matchedEmployees.length === 0 && (
         <div className="rounded-lg border border-dashed p-8 text-center">
           <p className="text-muted-foreground">
-            No employees match the specified criteria. Try adjusting your requirements.
+            No employees match the specified criteria. Try adjusting your
+            requirements.
           </p>
         </div>
       )}

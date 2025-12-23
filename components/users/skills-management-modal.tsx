@@ -9,7 +9,13 @@ import {
 import { getSkillColor } from "@/components/skills/color-palette";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -63,17 +69,21 @@ export default function SkillsManagementModal({
   const [showAddHardSkillDialog, setShowAddHardSkillDialog] = useState(false);
   const [showAddSoftSkillDialog, setShowAddSoftSkillDialog] = useState(false);
   const [newSkillId, setNewSkillId] = useState("");
-  const [newSkillLevel, setNewSkillLevel] = useState<SeniorityLevel>("junior" as SeniorityLevel);
+  const [newSkillLevel, setNewSkillLevel] = useState<SeniorityLevel>(
+    "junior" as SeniorityLevel
+  );
   const [editingSkillId, setEditingSkillId] = useState<string | null>(null);
   const [updatedSkillId, setUpdatedSkillId] = useState<string | null>(null);
-  const [deletingSkillIds, setDeletingSkillIds] = useState<Set<string>>(new Set());
+  const [deletingSkillIds, setDeletingSkillIds] = useState<Set<string>>(
+    new Set()
+  );
   const [addingSkillIds, setAddingSkillIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (open) {
-      skillsApi.fetchSkillsCatalog(skillsCatalogApi);
-    }
-  }, [open, skillsCatalogApi]);
+    if (!open) return;
+
+    void skillsApi.fetchSkillsCatalog(skillsCatalogApi);
+  }, [open]);
 
   useEffect(() => {
     if (updatedSkillId) {
@@ -112,9 +122,11 @@ export default function SkillsManagementModal({
   }
 
   const hardSkills =
-    user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ?? [];
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ??
+    [];
   const softSkills =
-    user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ?? [];
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ??
+    [];
 
   // Competenze disponibili per l'aggiunta (non già presenti e attive)
   const availableHardSkills = skillsCatalogApi.data?.filter(
@@ -170,7 +182,10 @@ export default function SkillsManagementModal({
     }
   };
 
-  const handleUpdateSkillLevel = async (skillId: string, newLevel: SeniorityLevel) => {
+  const handleUpdateSkillLevel = async (
+    skillId: string,
+    newLevel: SeniorityLevel
+  ) => {
     if (!user?.id) return;
     await skillsApi.updateEmployeeSkillLevel(updateSkillLevelApi, {
       employeeId: user.id,
@@ -256,7 +271,10 @@ export default function SkillsManagementModal({
     }
   };
 
-  const renderSkillItem = (empSkill: (typeof hardSkills)[0], _category: "hard" | "soft") => {
+  const renderSkillItem = (
+    empSkill: (typeof hardSkills)[0],
+    _category: "hard" | "soft"
+  ) => {
     const SkillIcon = getSkillIcon(empSkill.skill.icon);
     const isEditing = editingSkillId === empSkill.skill.id;
     const isDeleting = deletingSkillIds.has(empSkill.skill.id);
@@ -270,7 +288,11 @@ export default function SkillsManagementModal({
     return (
       <motion.div
         key={empSkill.skill.id}
-        initial={isAdding ? { opacity: 0, scale: 0.8, x: 20 } : { opacity: 1, scale: 1, x: 0 }}
+        initial={
+          isAdding
+            ? { opacity: 0, scale: 0.8, x: 20 }
+            : { opacity: 1, scale: 1, x: 0 }
+        }
         animate={{ opacity: 1, scale: 1, x: 0 }}
         exit={{ opacity: 0, scale: 0.8, x: -20 }}
         transition={{ duration: 0.3 }}
@@ -282,16 +304,23 @@ export default function SkillsManagementModal({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h4 className="font-medium text-sm sm:text-base truncate">{empSkill.skill.name}</h4>
+              <h4 className="font-medium text-sm sm:text-base truncate">
+                {empSkill.skill.name}
+              </h4>
               <div
                 className="h-3 w-3 rounded-md border border-border/50 flex-shrink-0"
                 style={{
-                  backgroundColor: getSkillColor(empSkill.skill.color, empSkill.skill.category),
+                  backgroundColor: getSkillColor(
+                    empSkill.skill.color,
+                    empSkill.skill.category
+                  ),
                 }}
                 title={
                   empSkill.skill.color
                     ? "Colore personalizzato"
-                    : `Colore predefinito (${empSkill.skill.category === "hard" ? "Blu" : "Arancione"})`
+                    : `Colore predefinito (${
+                        empSkill.skill.category === "hard" ? "Blu" : "Arancione"
+                      })`
                 }
               />
             </div>
@@ -378,7 +407,9 @@ export default function SkillsManagementModal({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="w-[95vw] max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader className="pb-4">
-            <DialogTitle className="text-lg sm:text-xl">Gestisci Competenze</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">
+              Gestisci Competenze
+            </DialogTitle>
             <DialogDescription className="text-sm sm:text-base">
               Gestisci le competenze di {user?.name || "questo utente"}
             </DialogDescription>
@@ -389,7 +420,9 @@ export default function SkillsManagementModal({
               <CardHeader className="pb-3 sm:pb-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   <div>
-                    <CardTitle className="text-base sm:text-lg">Hard Skills</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">
+                      Hard Skills
+                    </CardTitle>
                     <CardDescription className="text-xs sm:text-sm">
                       Competenze tecniche e strumenti
                     </CardDescription>
@@ -417,7 +450,9 @@ export default function SkillsManagementModal({
                   ) : (
                     <AnimatePresence>
                       {hardSkills
-                        .filter((empSkill) => !deletingSkillIds.has(empSkill.skill.id))
+                        .filter(
+                          (empSkill) => !deletingSkillIds.has(empSkill.skill.id)
+                        )
                         .map((empSkill) => renderSkillItem(empSkill, "hard"))}
                     </AnimatePresence>
                   )}
@@ -430,7 +465,9 @@ export default function SkillsManagementModal({
               <CardHeader className="pb-3 sm:pb-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   <div>
-                    <CardTitle className="text-base sm:text-lg">Soft Skills</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">
+                      Soft Skills
+                    </CardTitle>
                     <CardDescription className="text-xs sm:text-sm">
                       Competenze trasversali e relazionali
                     </CardDescription>
@@ -458,7 +495,9 @@ export default function SkillsManagementModal({
                   ) : (
                     <AnimatePresence>
                       {softSkills
-                        .filter((empSkill) => !deletingSkillIds.has(empSkill.skill.id))
+                        .filter(
+                          (empSkill) => !deletingSkillIds.has(empSkill.skill.id)
+                        )
                         .map((empSkill) => renderSkillItem(empSkill, "soft"))}
                     </AnimatePresence>
                   )}
@@ -470,13 +509,18 @@ export default function SkillsManagementModal({
       </Dialog>
 
       {/* Dialog per aggiungere Hard Skill */}
-      <Dialog open={showAddHardSkillDialog} onOpenChange={handleHardSkillDialogChange}>
+      <Dialog
+        open={showAddHardSkillDialog}
+        onOpenChange={handleHardSkillDialogChange}
+      >
         <DialogContent className="w-[95vw] max-w-md p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-lg sm:text-xl">Aggiungi Hard Skill</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">
+              Aggiungi Hard Skill
+            </DialogTitle>
             <DialogDescription className="text-sm sm:text-base">
-              Seleziona una hard skill e il livello di seniority per {user?.name || "questo utente"}
-              .
+              Seleziona una hard skill e il livello di seniority per{" "}
+              {user?.name || "questo utente"}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -510,12 +554,17 @@ export default function SkillsManagementModal({
               </Select>
             </div>
             <div>
-              <label htmlFor="newHardSkillLevel" className="text-sm font-medium">
+              <label
+                htmlFor="newHardSkillLevel"
+                className="text-sm font-medium"
+              >
                 Livello di Seniority
               </label>
               <Select
                 value={newSkillLevel}
-                onValueChange={(value: SeniorityLevel) => setNewSkillLevel(value)}
+                onValueChange={(value: SeniorityLevel) =>
+                  setNewSkillLevel(value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -549,13 +598,18 @@ export default function SkillsManagementModal({
       </Dialog>
 
       {/* Dialog per aggiungere Soft Skill */}
-      <Dialog open={showAddSoftSkillDialog} onOpenChange={handleSoftSkillDialogChange}>
+      <Dialog
+        open={showAddSoftSkillDialog}
+        onOpenChange={handleSoftSkillDialogChange}
+      >
         <DialogContent className="w-[95vw] max-w-md p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-lg sm:text-xl">Aggiungi Soft Skill</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">
+              Aggiungi Soft Skill
+            </DialogTitle>
             <DialogDescription className="text-sm sm:text-base">
-              Seleziona una soft skill e il livello di seniority per {user?.name || "questo utente"}
-              .
+              Seleziona una soft skill e il livello di seniority per{" "}
+              {user?.name || "questo utente"}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -589,12 +643,17 @@ export default function SkillsManagementModal({
               </Select>
             </div>
             <div>
-              <label htmlFor="newSoftSkillLevel" className="text-sm font-medium">
+              <label
+                htmlFor="newSoftSkillLevel"
+                className="text-sm font-medium"
+              >
                 Livello di Seniority
               </label>
               <Select
                 value={newSkillLevel}
-                onValueChange={(value: SeniorityLevel) => setNewSkillLevel(value)}
+                onValueChange={(value: SeniorityLevel) =>
+                  setNewSkillLevel(value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
