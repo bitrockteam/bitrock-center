@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import ClientsHeader from "@/components/client/clients-header";
-import ClientsTable from "@/components/client/clients-table";
+import ClientsPageClient from "./clients-page-client";
 import { Permissions } from "@/db";
 import { hasPermission } from "@/services/users/server.utils";
 
@@ -21,10 +20,5 @@ export default async function ClientsPage() {
     redirect("/dashboard");
   }
 
-  return (
-    <div className="space-y-6">
-      <ClientsHeader canCreateClient={CAN_CREATE_CLIENT} />
-      <ClientsTable canEditClient={CAN_EDIT_CLIENT} />
-    </div>
-  );
+  return <ClientsPageClient canCreateClient={CAN_CREATE_CLIENT} canEditClient={CAN_EDIT_CLIENT} />;
 }

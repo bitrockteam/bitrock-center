@@ -19,9 +19,11 @@ type ContractResponse = Awaited<ReturnType<typeof getContractByEmployeeId>>;
 export default function UserDetailsSections({
   user,
   currentUserId,
+  canManageSkills = false,
 }: {
   user: FindUserById;
   currentUserId?: string;
+  canManageSkills?: boolean;
 }) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
@@ -68,7 +70,7 @@ export default function UserDetailsSections({
         <UserDetailsAllocations userId={user.id} currentUserId={currentUserId} />
       </TabsContent>
       <TabsContent value="skills" className="space-y-6">
-        <UserDetailsSkills user={user} />
+        <UserDetailsSkills user={user} canManageSkills={canManageSkills} />
       </TabsContent>
       <TabsContent value="development" className="space-y-6">
         <UserDetailsDevelopment plan={activePlan} />

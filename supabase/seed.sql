@@ -53,8 +53,8 @@ INSERT INTO "public"."user" ("id", "created_at", "email", "name", "avatar_url", 
 -- Data for Name: work_items; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."work_items" ("id", "title", "client_id", "project_id", "type", "start_date", "end_date", "status", "description", "hourly_rate", "estimated_hours", "fixed_price", "created_at") VALUES
-	('9869bf5d-bdef-4439-93f1-f497759fd76b', 'NBS Test Commessa', '767baaa4-5ce7-4792-b1e2-fc354f495f2f', 'b536e876-9f5e-4f24-9901-98169b72313d', 'time-material', '2025-12-17', '2026-01-02', 'active', 'test c', 100, 100, NULL, '2025-12-12 16:24:04.29+00');
+INSERT INTO "public"."work_items" ("id", "title", "client_id", "project_id", "type", "start_date", "end_date", "status", "description", "hourly_rate", "fixed_price", "created_at") VALUES
+	('9869bf5d-bdef-4439-93f1-f497759fd76b', 'NBS Test Commessa', '767baaa4-5ce7-4792-b1e2-fc354f495f2f', 'b536e876-9f5e-4f24-9901-98169b72313d', 'time-material', '2025-12-17', '2026-01-02', 'active', 'test c', 100, NULL, '2025-12-12 16:24:04.29+00');
 
 
 --

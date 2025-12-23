@@ -4,11 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { Building2, PlusCircle, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddClientDialog from "./add-client-dialog";
 
-export default function ClientsHeader({ canCreateClient }: { canCreateClient: boolean }) {
+export default function ClientsHeader({
+  canCreateClient,
+  onSuccess,
+}: {
+  canCreateClient: boolean;
+  onSuccess?: () => void | Promise<void>;
+}) {
+  const router = useRouter();
   const [showAddDialog, setShowAddDialog] = useState(false);
+
+  const handleSuccess = async () => {
+    router.refresh();
+    if (onSuccess) {
+      await onSuccess();
+    }
+  };
 
   return (
     <motion.div
@@ -45,7 +60,11 @@ export default function ClientsHeader({ canCreateClient }: { canCreateClient: bo
         )}
       </div>
 
-      <AddClientDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
+      <AddClientDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onSuccess={handleSuccess}
+      />
     </motion.div>
   );
 }

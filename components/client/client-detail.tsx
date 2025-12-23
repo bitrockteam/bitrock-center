@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, Edit, Mail, MapPin, Phone, PlusCircle, User } from "lucide-react";
+import { ArrowLeft, Edit, Mail, MapPin, Phone, PlusCircle, User, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { findClientById } from "@/app/server-actions/client/findClientById";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectStatus } from "@/db";
+import { Loader } from "@/components/custom/loader/Loader";
 import { useServerAction } from "@/hooks/useServerAction";
 import AddClientDialog from "./add-client-dialog";
 import AddWorkItemDialog from "@/components/work-item/add-work-item-dialog";
@@ -34,15 +35,27 @@ export default function ClientDetail({
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddWorkItemDialog, setShowAddWorkItemDialog] = useState(false);
   const [showAddProjectDialog, setShowAddProjectDialog] = useState(false);
-  const [client, getClient] = useServerAction(findClientById);
+  const [hasStartedLoading, setHasStartedLoading] = useState(false);
+  const [client, getClient, isPending] = useServerAction(findClientById);
 
   const projects = client?.project;
   const workItems = client?.work_items;
 
   useEffect(() => {
+    setHasStartedLoading(true);
     getClient(id);
   }, [getClient, id]);
 
+  // Mostra il loader durante il caricamento (isPending è true) o prima di iniziare il caricamento
+  if (isPending || !hasStartedLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <Loader />
+      </div>
+    );
+  }
+
+  // Solo dopo che il caricamento è completato (isPending è false e abbiamo iniziato), controlla se il cliente esiste
   if (!client) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh]">
@@ -184,16 +197,27 @@ export default function ClientDetail({
                 <p className="text-sm font-medium">Data Creazione:</p>
                 <p className="text-sm text-muted-foreground">{client.created_at.toDateString()}</p>
               </div>
-              {client.notes && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Note:</p>
-                  <p className="text-sm text-muted-foreground">{client.notes}</p>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {client.notes && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center">
+              <FileText className="mr-2 h-4 w-4" />
+              Note
+            </CardTitle>
+            <CardDescription>Note aggiuntive sul cliente</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{client.notes}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="projects" className="w-full">
         <TabsList>
@@ -344,7 +368,14 @@ export default function ClientDetail({
       </Tabs>
 
       {/* Dialog per modificare il cliente */}
-      <AddClientDialog open={showEditDialog} onOpenChange={setShowEditDialog} editData={client} />
+      <AddClientDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        editData={client}
+        onSuccess={() => {
+          getClient(id);
+        }}
+      />
 
       {/* Dialog per creare nuova commessa */}
       <AddWorkItemDialog

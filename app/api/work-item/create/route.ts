@@ -65,18 +65,9 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
-      if (!workItem.estimated_hours || workItem.estimated_hours <= 0) {
-        return NextResponse.json(
-          {
-            error: "Time & Material work items require valid estimated_hours > 0",
-          },
-          { status: 400 }
-        );
-      }
       // Ensure fixed_price is null for time-material and convert to integer
       workItem.fixed_price = null;
       workItem.hourly_rate = Math.round(workItem.hourly_rate);
-      workItem.estimated_hours = Math.round(workItem.estimated_hours);
     } else if (workItem.type === work_item_type.fixed_price) {
       if (!workItem.fixed_price || workItem.fixed_price <= 0) {
         return NextResponse.json(
@@ -84,9 +75,8 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
-      // Ensure hourly_rate and estimated_hours are null for fixed-price and convert to integer
+      // Ensure hourly_rate is null for fixed-price and convert to integer
       workItem.hourly_rate = null;
-      workItem.estimated_hours = null;
       workItem.fixed_price = Math.round(workItem.fixed_price);
     }
 

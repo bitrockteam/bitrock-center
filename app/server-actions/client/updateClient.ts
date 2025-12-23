@@ -12,6 +12,13 @@ export async function updateClient(
     data: {
       name: data.name,
       code: data.code,
+      email: data.email,
+      phone: data.phone,
+      address: data.address,
+      vat_number: data.vat_number,
+      contact_person: data.contact_person,
+      status: data.status,
+      notes: data.notes,
     },
   });
 }

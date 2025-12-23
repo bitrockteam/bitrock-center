@@ -175,7 +175,6 @@ model work_items {
   status          work_item_status @default(active)
   description     String?
   hourly_rate     Int?
-  estimated_hours Int?
   fixed_price     Int?
   created_at      DateTime?        @default(now()) @db.Timestamptz(6)
   allocation      allocation[]

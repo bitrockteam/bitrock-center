@@ -30,19 +30,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useApi } from "@/hooks/useApi";
 import { useServerAction } from "@/hooks/useServerAction";
 import { motion } from "framer-motion";
 import { Building2, Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useEffect, useState } from "react";
+import { toast } from "sonner";
 import AddClientDialog from "./add-client-dialog";
 
-export default function ClientsTable({ canEditClient }: { canEditClient: boolean }) {
+export interface ClientsTableRef {
+  refresh: () => Promise<void>;
+}
+
+interface ClientsTableProps {
+  canEditClient: boolean;
+}
+
+const ClientsTable = forwardRef<ClientsTableRef, ClientsTableProps>(({ canEditClient }, ref) => {
   const router = useRouter();
   const [editClient, setEditClient] = useState<string>();
-  const [deleteClient, setDeleteClient] = useState<string>();
+  const [deleteClientId, setDeleteClientId] = useState<string>();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [clients, getClients] = useServerAction(getAllClients);
+  const { callApi: deleteClientApi } = useApi();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -58,6 +70,41 @@ export default function ClientsTable({ canEditClient }: { canEditClient: boolean
   const handleViewClient = (id: string) => {
     router.push(`/clienti/${id}`);
   };
+
+  const handleDeleteClient = async () => {
+    if (!deleteClientId) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteClientApi(`/api/client/delete?id=${deleteClientId}`, {
+        method: "DELETE",
+      });
+      toast.success("Cliente eliminato con successo");
+      setDeleteClientId(undefined);
+      await getClients();
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      toast.error("Errore durante l'eliminazione del cliente");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleClientSuccess = async () => {
+    await getClients();
+  };
+
+  const refreshClients = useCallback(async () => {
+    await getClients();
+  }, [getClients]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      refresh: refreshClients,
+    }),
+    [refreshClients]
+  );
 
   useEffect(() => {
     getClients();
@@ -163,7 +210,7 @@ export default function ClientsTable({ canEditClient }: { canEditClient: boolean
                                 className="text-destructive focus:text-destructive"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setDeleteClient(client.id);
+                                  setDeleteClientId(client.id);
                                 }}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
@@ -188,13 +235,14 @@ export default function ClientsTable({ canEditClient }: { canEditClient: boolean
           open={!!editClient}
           onOpenChange={(open) => !open && setEditClient(undefined)}
           editData={clients?.find((c) => c.id === editClient)}
+          onSuccess={handleClientSuccess}
         />
       )}
 
       {/* Dialog di conferma eliminazione */}
       <AlertDialog
-        open={!!deleteClient}
-        onOpenChange={(open) => !open && setDeleteClient(undefined)}
+        open={!!deleteClientId}
+        onOpenChange={(open) => !open && setDeleteClientId(undefined)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -205,13 +253,21 @@ export default function ClientsTable({ canEditClient }: { canEditClient: boolean
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground">
-              Elimina
+            <AlertDialogCancel disabled={isDeleting}>Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground"
+              onClick={handleDeleteClient}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Eliminazione..." : "Elimina"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </motion.div>
   );
-}
+});
+
+ClientsTable.displayName = "ClientsTable";
+
+export default ClientsTable;

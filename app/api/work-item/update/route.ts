@@ -1,4 +1,5 @@
 import { updateWorkItem } from "@/app/server-actions/work-item/updateWorkItem";
+import { fetchWorkItemById } from "@/app/server-actions/work-item/fetchWorkItemById";
 import { work_item_type } from "@/db";
 import { getErrorSummary, logErrorSummary } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
@@ -68,10 +69,33 @@ export async function PUT(req: NextRequest) {
       }
     }
 
-    // Validate work item type constraints only if type is being updated
-    if (normalizedUpdates.type !== undefined) {
-      if (normalizedUpdates.type === work_item_type.time_material) {
-        if (!normalizedUpdates.hourly_rate || normalizedUpdates.hourly_rate <= 0) {
+    // Get current work item to determine type if not being updated
+    const currentWorkItem = await fetchWorkItemById({ workItemId: id });
+    if (!currentWorkItem) {
+      return NextResponse.json({ error: "Work item not found" }, { status: 404 });
+    }
+
+    // Determine the work item type (use updated type if provided, otherwise use current type)
+    const workItemType = normalizedUpdates.type ?? currentWorkItem.type;
+
+    // Validate work item type constraints
+    if (workItemType === work_item_type.time_material) {
+      // If type is being changed to time_material, hourly_rate must be provided
+      if (
+        normalizedUpdates.type === work_item_type.time_material &&
+        normalizedUpdates.hourly_rate === undefined
+      ) {
+        return NextResponse.json(
+          {
+            error: "Time & Material work items require a valid hourly_rate > 0",
+          },
+          { status: 400 }
+        );
+      }
+
+      // If hourly_rate is being updated (including when it's explicitly set), validate it
+      if (normalizedUpdates.hourly_rate !== undefined) {
+        if (normalizedUpdates.hourly_rate === null || normalizedUpdates.hourly_rate <= 0) {
           return NextResponse.json(
             {
               error: "Time & Material work items require a valid hourly_rate > 0",
@@ -79,27 +103,56 @@ export async function PUT(req: NextRequest) {
             { status: 400 }
           );
         }
-        if (!normalizedUpdates.estimated_hours || normalizedUpdates.estimated_hours <= 0) {
+        // Convert to integer
+        normalizedUpdates.hourly_rate = Math.round(normalizedUpdates.hourly_rate);
+      } else {
+        // If hourly_rate is not being updated, ensure current value is valid
+        if (!currentWorkItem.hourly_rate || currentWorkItem.hourly_rate <= 0) {
           return NextResponse.json(
             {
-              error: "Time & Material work items require valid estimated_hours > 0",
+              error: "Time & Material work items require a valid hourly_rate > 0",
             },
             { status: 400 }
           );
         }
-        // Ensure fixed_price is null for time-material
-        normalizedUpdates.fixed_price = null;
-      } else if (normalizedUpdates.type === work_item_type.fixed_price) {
-        if (!normalizedUpdates.fixed_price || normalizedUpdates.fixed_price <= 0) {
+      }
+
+      // Ensure fixed_price is null for time-material
+      normalizedUpdates.fixed_price = null;
+    } else if (workItemType === work_item_type.fixed_price) {
+      // If type is being changed to fixed_price, fixed_price must be provided
+      if (
+        normalizedUpdates.type === work_item_type.fixed_price &&
+        normalizedUpdates.fixed_price === undefined
+      ) {
+        return NextResponse.json(
+          { error: "Fixed Price work items require a valid fixed_price > 0" },
+          { status: 400 }
+        );
+      }
+
+      // If fixed_price is being updated (including when it's explicitly set), validate it
+      if (normalizedUpdates.fixed_price !== undefined) {
+        if (normalizedUpdates.fixed_price === null || normalizedUpdates.fixed_price <= 0) {
           return NextResponse.json(
             { error: "Fixed Price work items require a valid fixed_price > 0" },
             { status: 400 }
           );
         }
-        // Ensure hourly_rate and estimated_hours are null for fixed-price
-        normalizedUpdates.hourly_rate = null;
-        normalizedUpdates.estimated_hours = null;
+        // Convert to integer
+        normalizedUpdates.fixed_price = Math.round(normalizedUpdates.fixed_price);
+      } else {
+        // If fixed_price is not being updated, ensure current value is valid
+        if (!currentWorkItem.fixed_price || currentWorkItem.fixed_price <= 0) {
+          return NextResponse.json(
+            { error: "Fixed Price work items require a valid fixed_price > 0" },
+            { status: 400 }
+          );
+        }
       }
+
+      // Ensure hourly_rate is null for fixed-price
+      normalizedUpdates.hourly_rate = null;
     }
 
     const result = await updateWorkItem(id, normalizedUpdates, allocations);

@@ -56,7 +56,6 @@ const workItemSchema = z
     status: z.enum([work_item_status.active, work_item_status.completed, work_item_status.on_hold]),
     description: z.string().optional(),
     hourly_rate: z.number().nullable().optional(),
-    estimated_hours: z.number().nullable().optional(),
     fixed_price: z.number().nullable().optional(),
     allocations: z.array(allocationSchema).min(1, "Seleziona almeno un utente"),
     start_date: z.string().optional(),
@@ -69,13 +68,6 @@ const workItemSchema = z
           code: "custom",
           message: "La tariffa oraria deve essere maggiore di 0",
           path: ["hourly_rate"],
-        });
-      }
-      if (!data.estimated_hours || data.estimated_hours <= 0) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Le ore stimate devono essere maggiori di 0",
-          path: ["estimated_hours"],
         });
       }
       if (data.fixed_price && data.fixed_price > 0) {
@@ -99,13 +91,6 @@ const workItemSchema = z
           code: "custom",
           message: "La tariffa oraria deve essere vuota per Prezzo Fisso",
           path: ["hourly_rate"],
-        });
-      }
-      if (data.estimated_hours && data.estimated_hours > 0) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Le ore stimate devono essere vuote per Prezzo Fisso",
-          path: ["estimated_hours"],
         });
       }
     }
@@ -156,7 +141,6 @@ export default function AddWorkItemDialog({
       status: editData?.status || work_item_status.active,
       description: editData?.description || "",
       hourly_rate: editData?.hourly_rate ?? null,
-      estimated_hours: editData?.estimated_hours ?? null,
       fixed_price: editData?.fixed_price ?? null,
     };
   }, [editData, presetClientId]);
@@ -188,7 +172,6 @@ export default function AddWorkItemDialog({
         end_date: data.end_date || null,
         // Set fields based on type to match database constraints
         hourly_rate: data.type === work_item_type.time_material ? data.hourly_rate : null,
-        estimated_hours: data.type === work_item_type.time_material ? data.estimated_hours : null,
         fixed_price: data.type === work_item_type.fixed_price ? data.fixed_price : null,
       };
 
@@ -223,7 +206,12 @@ export default function AddWorkItemDialog({
       }
     } catch (error) {
       console.error("Error saving work item:", error);
-      toast.error(isEditing ? "Errore durante l'aggiornamento" : "Errore durante la creazione");
+      const errorMessage = error instanceof Error ? error.message : "Errore sconosciuto";
+      toast.error(
+        isEditing
+          ? `Errore durante l'aggiornamento: ${errorMessage}`
+          : `Errore durante la creazione: ${errorMessage}`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -439,53 +427,28 @@ export default function AddWorkItemDialog({
             </div>
 
             {watchedType === work_item_type.time_material && (
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="hourly_rate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tariffa Oraria (€)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          disabled={!canCreateWorkItem}
-                          placeholder="0.00"
-                          value={field.value?.toString() || ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.value ? parseFloat(e.target.value) : null)
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="estimated_hours"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ore Stimate</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.5"
-                          disabled={!canCreateWorkItem}
-                          placeholder="0"
-                          value={field.value?.toString() || ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.value ? parseFloat(e.target.value) : null)
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="hourly_rate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tariffa Oraria (€)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        disabled={!canCreateWorkItem}
+                        placeholder="0.00"
+                        value={field.value?.toString() || ""}
+                        onChange={(e) =>
+                          field.onChange(e.target.value ? parseFloat(e.target.value) : null)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
 
             {watchedType === work_item_type.fixed_price && (

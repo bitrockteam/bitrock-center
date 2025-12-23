@@ -378,6 +378,7 @@ export default function UserDetailsAllocations({
               <TableRow>
                 <TableHead>Progetto</TableHead>
                 <TableHead>Cliente</TableHead>
+                <TableHead>Commessa</TableHead>
                 <TableHead>Stato Progetto</TableHead>
                 <TableHead>% Allocazione</TableHead>
                 <TableHead>Data Inizio</TableHead>
@@ -388,23 +389,36 @@ export default function UserDetailsAllocations({
             <TableBody>
               {allocationsData.allocations.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
                     Nessuna allocazione trovata
                   </TableCell>
                 </TableRow>
               ) : (
                 allocationsData.allocations.map((allocation) => (
-                  <TableRow key={allocation.projectId}>
+                  <TableRow key={allocation.projectId || allocation.workItemId}>
                     <TableCell>
-                      <Link
-                        href={`/progetti/${allocation.projectId}`}
-                        className="font-medium hover:underline text-primary"
-                        aria-label={`Visualizza progetto ${allocation.projectName}`}
-                      >
-                        {allocation.projectName}
-                      </Link>
+                      {allocation.projectId ? (
+                        <Link
+                          href={`/progetti/${allocation.projectId}`}
+                          className="font-medium hover:underline text-primary"
+                          aria-label={`Visualizza progetto ${allocation.projectName}`}
+                        >
+                          {allocation.projectName}
+                        </Link>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell>{allocation.clientName}</TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/commesse/${allocation.workItemId}`}
+                        className="font-medium hover:underline text-primary"
+                        aria-label={`Visualizza commessa ${allocation.workItemName}`}
+                      >
+                        {allocation.workItemName}
+                      </Link>
+                    </TableCell>
                     <TableCell>
                       {allocation.projectStatus ? getStatusBadge(allocation.projectStatus) : null}
                     </TableCell>

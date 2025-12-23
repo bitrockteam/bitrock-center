@@ -8,6 +8,8 @@ export type UserAllocationDetail = {
   projectName: string | undefined;
   projectStatus: string | undefined;
   clientName: string | undefined;
+  workItemId: string;
+  workItemName: string;
   startDate: Date | undefined;
   endDate: Date | null | undefined;
   percentage: number;
@@ -44,6 +46,11 @@ export async function fetchUserAllocations(userId: string): Promise<UserAllocati
     include: {
       work_items: {
         include: {
+          client: {
+            select: {
+              name: true,
+            },
+          },
           project: {
             include: {
               client: {
@@ -98,7 +105,9 @@ export async function fetchUserAllocations(userId: string): Promise<UserAllocati
     projectId: alloc.work_items.project?.id,
     projectName: alloc.work_items.project?.name,
     projectStatus: alloc.work_items.project?.status,
-    clientName: alloc.work_items.project?.client.name,
+    clientName: alloc.work_items.client.name,
+    workItemId: alloc.work_items.id,
+    workItemName: alloc.work_items.title,
     startDate: alloc.start_date,
     endDate: alloc.end_date ?? alloc.work_items.project?.end_date,
     percentage: alloc.percentage,

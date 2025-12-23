@@ -307,7 +307,6 @@ export default function WorkItemsTable({
                     project_id: editWorkItem.project_id ?? "",
                     description: editWorkItem.description ?? "",
                     hourly_rate: editWorkItem.hourly_rate,
-                    estimated_hours: editWorkItem.estimated_hours,
                     fixed_price: editWorkItem.fixed_price,
                   }
                 : undefined

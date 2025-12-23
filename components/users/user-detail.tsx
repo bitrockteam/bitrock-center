@@ -29,10 +29,12 @@ export default function UserDetail({
   user,
   canDealPermissions = false,
   currentUserId,
+  canManageSkills = false,
 }: Readonly<{
   user: FindUserById;
   canDealPermissions: boolean;
   currentUserId?: string;
+  canManageSkills?: boolean;
 }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -108,7 +110,11 @@ export default function UserDetail({
         </div>
       </div>
 
-      <UserDetailsSections user={user} currentUserId={currentUserId} />
+      <UserDetailsSections
+        user={user}
+        currentUserId={currentUserId}
+        canManageSkills={canManageSkills}
+      />
 
       {canDealPermissions && (
         <Card>

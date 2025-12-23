@@ -8,7 +8,6 @@ import {
   Calendar,
   Check,
   ChevronsUpDown,
-  Clock,
   Edit,
   Euro,
   X,
@@ -194,7 +193,6 @@ export default function WorkItemDetail({
   const project = workItem.project;
   const client = workItem.client;
 
-  const totalHours = workItem.timesheet.reduce((sum, entry) => sum + entry.hours, 0);
   const timeEntries = workItem?.timesheet;
 
   return (
@@ -295,14 +293,6 @@ export default function WorkItemDetail({
                       </p>
                     </div>
                   )}
-                  {workItem.estimated_hours && (
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium">Ore Stimate:</p>
-                      <p className="text-sm text-muted-foreground ml-6">
-                        {workItem.estimated_hours} ore
-                      </p>
-                    </div>
-                  )}
                 </>
               ) : (
                 workItem.fixed_price && (
@@ -313,15 +303,6 @@ export default function WorkItemDetail({
                     </p>
                   </div>
                 )
-              )}
-              {totalHours !== undefined && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium flex items-center">
-                    <Clock className="mr-2 h-4 w-4" />
-                    Ore Totali:
-                  </p>
-                  <p className="text-sm text-muted-foreground ml-6">{totalHours} ore</p>
-                </div>
               )}
             </div>
           </CardContent>
@@ -511,11 +492,7 @@ export default function WorkItemDetail({
               <CardDescription>Statistiche e analisi della commessa</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Ore Totali</p>
-                  <p className="text-2xl font-bold">{totalHours || 0}</p>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Membri del Team</p>
                   <p className="text-2xl font-bold">{workItem.allocation?.length || 0}</p>
@@ -550,7 +527,6 @@ export default function WorkItemDetail({
             status: workItem.status,
             hourly_rate: workItem.hourly_rate || 0,
             fixed_price: workItem.fixed_price || 0,
-            estimated_hours: workItem.estimated_hours || 0,
             allocations: workItem.allocation.map((alloc) => ({
               user_id: alloc.user_id,
               percentage: alloc.percentage,

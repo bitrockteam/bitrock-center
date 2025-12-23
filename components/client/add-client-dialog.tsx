@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { createClient } from "@/app/server-actions/client/createClient";
@@ -57,9 +57,15 @@ interface AddClientDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editData?: FindClientByIdResponse;
+  onSuccess?: () => void | Promise<void>;
 }
 
-export default function AddClientDialog({ open, onOpenChange, editData }: AddClientDialogProps) {
+export default function AddClientDialog({
+  open,
+  onOpenChange,
+  editData,
+  onSuccess,
+}: AddClientDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!editData;
 
@@ -77,6 +83,34 @@ export default function AddClientDialog({ open, onOpenChange, editData }: AddCli
       notes: editData?.notes || "",
     },
   });
+
+  useEffect(() => {
+    if (editData) {
+      form.reset({
+        name: editData.name || "",
+        code: editData.code || "",
+        email: editData.email || "",
+        phone: editData.phone || "",
+        address: editData.address || "",
+        vatNumber: editData.vat_number || "",
+        contactPerson: editData.contact_person || "",
+        status: editData.status || "active",
+        notes: editData.notes || "",
+      });
+    } else {
+      form.reset({
+        name: "",
+        code: "",
+        email: "",
+        phone: "",
+        address: "",
+        vatNumber: "",
+        contactPerson: "",
+        status: "active",
+        notes: "",
+      });
+    }
+  }, [editData, form]);
 
   const onSubmit = async (data: ClientFormData) => {
     setIsLoading(true);
@@ -108,6 +142,9 @@ export default function AddClientDialog({ open, onOpenChange, editData }: AddCli
       }
       onOpenChange(false);
       form.reset();
+      if (onSuccess) {
+        await onSuccess();
+      }
     } catch (error) {
       console.error("Errore durante il salvataggio:", error);
     } finally {
@@ -239,7 +276,7 @@ export default function AddClientDialog({ open, onOpenChange, editData }: AddCli
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Stato</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona lo stato" />
