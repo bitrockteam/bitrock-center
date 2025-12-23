@@ -12,6 +12,7 @@ import UserDetailsActivity from "./user-details-sections/user-details-activity";
 import UserDetailsAllocations from "./user-details-sections/user-details-allocations";
 import UserDetailsDevelopment from "./user-details-sections/user-details-development";
 import UserDetailsOverview from "./user-details-sections/user-details-overview";
+import UserDetailsPermissions from "./user-details-sections/user-details-permissions";
 import UserDetailsSkills from "./user-details-sections/user-details-skills";
 
 type ContractResponse = Awaited<ReturnType<typeof getContractByEmployeeId>>;
@@ -20,14 +21,16 @@ export default function UserDetailsSections({
   user,
   currentUserId,
   canManageSkills = false,
+  canDealPermissions = false,
 }: {
   user: FindUserById;
   currentUserId?: string;
   canManageSkills?: boolean;
+  canDealPermissions?: boolean;
 }) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const validTabs = ["overview", "allocations", "skills", "development", "activity", "contract"];
+  const validTabs = ["overview", "allocations", "skills", "development", "activity", "contract", "permissions"];
   const defaultTab = tabParam && validTabs.includes(tabParam) ? tabParam : "overview";
 
   const { data: activePlan, callApi: fetchDevelopmentPlan } =
@@ -54,13 +57,16 @@ export default function UserDetailsSections({
 
   return (
     <Tabs defaultValue={defaultTab} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-6">
+      <TabsList className={`grid w-full ${canDealPermissions ? "grid-cols-7" : "grid-cols-6"}`}>
         <TabsTrigger value="overview">Panoramica</TabsTrigger>
         <TabsTrigger value="allocations">Allocazione</TabsTrigger>
         <TabsTrigger value="skills">Competenze</TabsTrigger>
         <TabsTrigger value="development">Sviluppo</TabsTrigger>
         <TabsTrigger value="activity">Attività</TabsTrigger>
         <TabsTrigger value="contract">Contratto</TabsTrigger>
+        {canDealPermissions && (
+          <TabsTrigger value="permissions">Permissions</TabsTrigger>
+        )}
       </TabsList>
 
       <TabsContent value="overview" className="space-y-6">
@@ -81,6 +87,11 @@ export default function UserDetailsSections({
       <TabsContent value="contract">
         <ContractDetail contract={contract} canEdit canView employeeId={user.id} />
       </TabsContent>
+      {canDealPermissions && (
+        <TabsContent value="permissions" className="space-y-6">
+          <UserDetailsPermissions user={user} />
+        </TabsContent>
+      )}
     </Tabs>
   );
 }

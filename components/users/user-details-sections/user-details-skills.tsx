@@ -30,8 +30,9 @@ import {
   skillsApi,
   useAddSkillToEmployee,
   useSkillsCatalog,
+  useUpdateEmployeeSkillLevel,
 } from "@/hooks/useSkillsApi";
-import { Plus } from "lucide-react";
+import { Edit2, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -45,10 +46,12 @@ export default function UserDetailsSkills({
   const router = useRouter();
   const skillsCatalogApi = useSkillsCatalog();
   const addSkillApi = useAddSkillToEmployee();
+  const updateSkillLevelApi = useUpdateEmployeeSkillLevel();
   const [showAddHardSkillDialog, setShowAddHardSkillDialog] = useState(false);
   const [showAddSoftSkillDialog, setShowAddSoftSkillDialog] = useState(false);
   const [newSkillId, setNewSkillId] = useState("");
-  const [newSkillLevel, setNewSkillLevel] = useState<SeniorityLevel>("junior");
+  const [newSkillLevel, setNewSkillLevel] = useState<SeniorityLevel>("junior" as SeniorityLevel);
+  const [editingSkillId, setEditingSkillId] = useState<string | null>(null);
 
   useEffect(() => {
     skillsApi.fetchSkillsCatalog(skillsCatalogApi);
@@ -89,7 +92,7 @@ export default function UserDetailsSkills({
       setShowAddSoftSkillDialog(false);
     }
     setNewSkillId("");
-    setNewSkillLevel("junior");
+    setNewSkillLevel("junior" as SeniorityLevel);
   };
 
   const handleOpenHardSkillDialog = () => {
@@ -103,13 +106,13 @@ export default function UserDetailsSkills({
   const handleCloseHardSkillDialog = () => {
     setShowAddHardSkillDialog(false);
     setNewSkillId("");
-    setNewSkillLevel("junior");
+    setNewSkillLevel("junior" as SeniorityLevel);
   };
 
   const handleCloseSoftSkillDialog = () => {
     setShowAddSoftSkillDialog(false);
     setNewSkillId("");
-    setNewSkillLevel("junior");
+    setNewSkillLevel("junior" as SeniorityLevel);
   };
 
   const handleHardSkillDialogChange = (open: boolean) => {
@@ -126,6 +129,31 @@ export default function UserDetailsSkills({
     } else {
       setShowAddSoftSkillDialog(true);
     }
+  };
+
+  const handleUpdateSkillLevel = async (skillId: string, newLevel: SeniorityLevel) => {
+    if (!user?.id) return;
+    await skillsApi.updateEmployeeSkillLevel(updateSkillLevelApi, {
+      employeeId: user.id,
+      skillId,
+      seniorityLevel: newLevel,
+    });
+    router.refresh();
+    setEditingSkillId(null);
+  };
+
+  const handleStartEditing = (skillId: string) => {
+    setEditingSkillId(skillId);
+  };
+
+  const handleCancelEditing = () => {
+    setEditingSkillId(null);
+  };
+
+  // Normalize seniority level: convert "middle" from DB to "mid" for API/Select
+  const normalizeSeniorityLevel = (level: string): string => {
+    if (level === "middle") return "mid";
+    return level;
   };
 
   return (
@@ -162,6 +190,7 @@ export default function UserDetailsSkills({
               ) : (
                 hardSkills.map((empSkill) => {
                   const SkillIcon = getSkillIcon(empSkill.skill.icon);
+                  const isEditing = editingSkillId === empSkill.skill.id;
                   return (
                     <div
                       key={empSkill.skill.id}
@@ -180,11 +209,51 @@ export default function UserDetailsSkills({
                           )}
                         </div>
                       </div>
-                      <Badge
-                        className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
-                      >
-                        {getSeniorityLevelLabel(empSkill.seniorityLevel)}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        {isEditing && canManageSkills ? (
+                          <Select
+                            value={normalizeSeniorityLevel(empSkill.seniorityLevel)}
+                            onValueChange={(value: SeniorityLevel) => {
+                              handleUpdateSkillLevel(empSkill.skill.id, value);
+                            }}
+                            onOpenChange={(open) => {
+                              if (!open) {
+                                handleCancelEditing();
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="w-[120px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="junior">Junior</SelectItem>
+                              <SelectItem value="mid">Mid</SelectItem>
+                              <SelectItem value="senior">Senior</SelectItem>
+                              <SelectItem value="lead">Lead</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <>
+                            <Badge
+                              className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                            >
+                              {getSeniorityLevelLabel(empSkill.seniorityLevel)}
+                            </Badge>
+                            {canManageSkills && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => handleStartEditing(empSkill.skill.id)}
+                                aria-label={`Modifica livello di ${empSkill.skill.name}`}
+                                tabIndex={0}
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   );
                 })
@@ -224,6 +293,7 @@ export default function UserDetailsSkills({
               ) : (
                 softSkills.map((empSkill) => {
                   const SkillIcon = getSkillIcon(empSkill.skill.icon);
+                  const isEditing = editingSkillId === empSkill.skill.id;
                   return (
                     <div
                       key={empSkill.skill.id}
@@ -242,11 +312,51 @@ export default function UserDetailsSkills({
                           )}
                         </div>
                       </div>
-                      <Badge
-                        className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
-                      >
-                        {getSeniorityLevelLabel(empSkill.seniorityLevel)}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        {isEditing && canManageSkills ? (
+                          <Select
+                            value={normalizeSeniorityLevel(empSkill.seniorityLevel)}
+                            onValueChange={(value: SeniorityLevel) => {
+                              handleUpdateSkillLevel(empSkill.skill.id, value);
+                            }}
+                            onOpenChange={(open) => {
+                              if (!open) {
+                                handleCancelEditing();
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="w-[120px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="junior">Junior</SelectItem>
+                              <SelectItem value="mid">Mid</SelectItem>
+                              <SelectItem value="senior">Senior</SelectItem>
+                              <SelectItem value="lead">Lead</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <>
+                            <Badge
+                              className={`text-white ${getSeniorityLevelColor(empSkill.seniorityLevel)}`}
+                            >
+                              {getSeniorityLevelLabel(empSkill.seniorityLevel)}
+                            </Badge>
+                            {canManageSkills && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => handleStartEditing(empSkill.skill.id)}
+                                aria-label={`Modifica livello di ${empSkill.skill.name}`}
+                                tabIndex={0}
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   );
                 })
@@ -309,8 +419,9 @@ export default function UserDetailsSkills({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="junior">Junior</SelectItem>
-                  <SelectItem value="middle">Middle</SelectItem>
+                  <SelectItem value="mid">Mid</SelectItem>
                   <SelectItem value="senior">Senior</SelectItem>
+                  <SelectItem value="lead">Lead</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -382,8 +493,9 @@ export default function UserDetailsSkills({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="junior">Junior</SelectItem>
-                  <SelectItem value="middle">Middle</SelectItem>
+                  <SelectItem value="mid">Mid</SelectItem>
                   <SelectItem value="senior">Senior</SelectItem>
+                  <SelectItem value="lead">Lead</SelectItem>
                 </SelectContent>
               </Select>
             </div>
