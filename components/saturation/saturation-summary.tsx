@@ -84,7 +84,7 @@ export default function SaturationSummary({
 }: SaturationSummaryProps) {
   const filteredEmployees = useMemo(() => {
     if (showIssuesOnly) {
-      return employees.filter(hasAllocationIssue);
+      return employees.filter((emp) => emp.totalAllocation < 50);
     }
     return employees;
   }, [employees, showIssuesOnly]);

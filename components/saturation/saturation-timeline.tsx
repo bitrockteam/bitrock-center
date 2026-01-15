@@ -20,7 +20,7 @@ export default function SaturationTimeline({
     let filtered = employees;
 
     if (showIssuesOnly) {
-      filtered = filtered.filter((emp) => emp.totalAllocation < 50 || emp.totalAllocation > 100);
+      filtered = filtered.filter((emp) => emp.totalAllocation < 50);
     }
 
     // Sort by name for consistent display

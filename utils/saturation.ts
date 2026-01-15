@@ -70,5 +70,5 @@ export const groupBySeniority = (employees: SaturationEmployee[]): GroupedEmploy
 };
 
 export const filterIssues = (employees: SaturationEmployee[]): SaturationEmployee[] => {
-  return employees.filter(hasAllocationIssue);
+  return employees.filter((employee) => employee.totalAllocation < 50);
 };

@@ -55,7 +55,7 @@ export default function SaturationHeader({
               onCheckedChange={(checked) => onShowIssuesOnlyChange(checked === true)}
             />
             <Label htmlFor="show-issues" className="text-sm font-normal cursor-pointer">
-              Show Issues Only
+              Mostra solo allocazioni &lt; 50%
             </Label>
           </div>
 

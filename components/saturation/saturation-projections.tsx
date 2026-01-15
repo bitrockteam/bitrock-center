@@ -59,7 +59,7 @@ export default function SaturationProjections({
     let filtered = employees;
 
     if (showIssuesOnly) {
-      filtered = filtered.filter((emp) => emp.totalAllocation < 50 || emp.totalAllocation > 100);
+      filtered = filtered.filter((emp) => emp.totalAllocation < 50);
     }
 
     return filtered.sort((a, b) => a.name.localeCompare(b.name));

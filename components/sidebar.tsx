@@ -96,12 +96,12 @@ const navItems = [
     icon: HandMetal,
   },
   {
-    title: "Saturation",
+    title: "Saturazione",
     href: "/saturation",
     icon: BarChart3,
   },
   {
-    title: "Permissions",
+    title: "Permessi",
     href: "/permissions",
     icon: Settings,
     permission: Permissions.CAN_SEE_PERMISSIONS,
@@ -119,7 +119,9 @@ export default function Sidebar({
 }>) {
   const [collapsed, setCollapsed] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<"profile" | "settings">("profile");
+  const [activeSection, setActiveSection] = useState<"profile" | "settings">(
+    "profile"
+  );
   const pathname = usePathname();
 
   useEffect(() => {
@@ -136,7 +138,10 @@ export default function Sidebar({
   return (
     <div className="relative">
       <motion.div
-        className={cn("h-screen bg-background border-r flex flex-col", collapsed ? "w-16" : "w-64")}
+        className={cn(
+          "h-screen bg-background border-r flex flex-col",
+          collapsed ? "w-16" : "w-64"
+        )}
         animate={{ width: collapsed ? 64 : 256 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
@@ -157,7 +162,11 @@ export default function Sidebar({
               Bitrock Hours
             </motion.div>
           )}
-          <Button variant="ghost" size="icon" onClick={() => setCollapsed(!collapsed)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCollapsed(!collapsed)}
+          >
             <Menu className="h-5 w-5" />
           </Button>
         </div>
@@ -166,7 +175,9 @@ export default function Sidebar({
           <ul className="space-y-2">
             {navItems
               .filter(
-                (el) => !el.permission || (el.permission && permissions.includes(el.permission))
+                (el) =>
+                  !el.permission ||
+                  (el.permission && permissions.includes(el.permission))
               )
               .map((item) => (
                 <li key={item.href}>
@@ -175,7 +186,11 @@ export default function Sidebar({
                       <TooltipTrigger asChild>
                         <Link href={item.href}>
                           <Button
-                            variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
+                            variant={
+                              pathname.startsWith(item.href)
+                                ? "secondary"
+                                : "ghost"
+                            }
                             className="w-full px-2 justify-center"
                           >
                             <item.icon className="h-5 w-5 flex justify-center" />
@@ -189,7 +204,9 @@ export default function Sidebar({
                   ) : (
                     <Link href={item.href}>
                       <Button
-                        variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
+                        variant={
+                          pathname.startsWith(item.href) ? "secondary" : "ghost"
+                        }
                         className="w-full px-4 justify-start"
                       >
                         <item.icon className="h-5 w-5 mr-2" />
@@ -204,12 +221,20 @@ export default function Sidebar({
         <div className={cn("border-t", collapsed ? "py-4" : "p-4")}>
           <div className="flex items-center justify-between">
             <DropdownMenu>
-              <DropdownMenuTrigger className={!collapsed ? "p-0" : "p-auto"} asChild>
+              <DropdownMenuTrigger
+                className={!collapsed ? "p-0" : "p-auto"}
+                asChild
+              >
                 <Button variant="ghost">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Avatar className="h-8 w-8">
-                        {user.avatar_url && <AvatarImage src={user.avatar_url} alt="user avatar" />}
+                        {user.avatar_url && (
+                          <AvatarImage
+                            src={user.avatar_url}
+                            alt="user avatar"
+                          />
+                        )}
                         <AvatarFallback>
                           {user.name
                             .trim()
@@ -220,7 +245,9 @@ export default function Sidebar({
                       </Avatar>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <span className="ml-2 text-sm font-medium">{user.name || "Utente"}</span>
+                      <span className="ml-2 text-sm font-medium">
+                        {user.name || "Utente"}
+                      </span>
                     </TooltipContent>
                   </Tooltip>
                 </Button>
@@ -246,8 +273,13 @@ export default function Sidebar({
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Impostazioni</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem disabled className="opacity-100 cursor-default">
-                  <span className="text-xs text-muted-foreground">Versione {version}</span>
+                <DropdownMenuItem
+                  disabled
+                  className="opacity-100 cursor-default"
+                >
+                  <span className="text-xs text-muted-foreground">
+                    Versione {version}
+                  </span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
