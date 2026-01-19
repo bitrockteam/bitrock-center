@@ -81,6 +81,7 @@ model user {
   role                                Role                    @default(Employee)
   custom_days_off_left                Int?                    @db.SmallInt
   custom_days_off_planned             Int?                    @db.SmallInt
+  area                                Area                    @default(OTHER)
   allocation                          allocation[]
   chat_session                        chat_session[]
   contract_contract_employee_idTouser contract[]              @relation("contract_employee_idTouser")
@@ -381,4 +382,10 @@ enum Permissions {
   CAN_SEE_WORK_ITEM
   CAN_SEE_PERMISSIONS
   CAN_DEAL_PERMISSIONS
+}
+
+enum Area {
+  FRONT_END
+  BACK_END
+  OTHER
 }

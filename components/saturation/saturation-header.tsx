@@ -1,10 +1,27 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Area } from "@/db";
+import { Filter } from "lucide-react";
 
 type SaturationHeaderProps = {
   currentView: "summary" | "timeline" | "projections";
@@ -13,6 +30,9 @@ type SaturationHeaderProps = {
   onShowIssuesOnlyChange: (value: boolean) => void;
   groupBy: "team" | "seniority" | null;
   onGroupByChange: (value: "team" | "seniority" | null) => void;
+  areaOptions: readonly Area[];
+  selectedAreas: Area[];
+  onSelectedAreasChange: (areas: Area[]) => void;
 };
 
 export default function SaturationHeader({
@@ -22,7 +42,29 @@ export default function SaturationHeader({
   onShowIssuesOnlyChange,
   groupBy,
   onGroupByChange,
+  areaOptions,
+  selectedAreas,
+  onSelectedAreasChange,
 }: SaturationHeaderProps) {
+  const handleToggleArea = (area: Area) => {
+    const isSelected = selectedAreas.includes(area);
+    if (isSelected) {
+      onSelectedAreasChange(selectedAreas.filter((a) => a !== area));
+      return;
+    }
+    onSelectedAreasChange([...selectedAreas, area]);
+  };
+
+  const handleClearAreas = () => {
+    onSelectedAreasChange([]);
+  };
+
+  const formatAreaLabel = (area: Area) => {
+    if (area === "FRONT_END") return "Front End";
+    if (area === "BACK_END") return "Back End";
+    return "Other";
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -35,7 +77,11 @@ export default function SaturationHeader({
         <Tabs
           value={currentView}
           onValueChange={(value) => {
-            if (value === "summary" || value === "timeline" || value === "projections") {
+            if (
+              value === "summary" ||
+              value === "timeline" ||
+              value === "projections"
+            ) {
               onViewChange(value);
             }
           }}
@@ -52,11 +98,63 @@ export default function SaturationHeader({
             <Checkbox
               id="show-issues"
               checked={showIssuesOnly}
-              onCheckedChange={(checked) => onShowIssuesOnlyChange(checked === true)}
+              onCheckedChange={(checked) =>
+                onShowIssuesOnlyChange(checked === true)
+              }
             />
-            <Label htmlFor="show-issues" className="text-sm font-normal cursor-pointer">
+            <Label
+              htmlFor="show-issues"
+              className="text-sm font-normal cursor-pointer"
+            >
               Mostra solo allocazioni &lt; 50%
             </Label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label className="text-sm">Area:</Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  aria-label="Filtra per area"
+                  className="gap-2"
+                >
+                  <Filter className="h-4 w-4" />
+                  Area
+                  {selectedAreas.length > 0 && (
+                    <Badge variant="secondary" className="px-2">
+                      {selectedAreas.length}
+                    </Badge>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel>Filtra utenti per area</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {areaOptions.map((area) => (
+                  <DropdownMenuCheckboxItem
+                    key={area}
+                    checked={selectedAreas.includes(area)}
+                    onCheckedChange={() => handleToggleArea(area)}
+                  >
+                    {formatAreaLabel(area)}
+                  </DropdownMenuCheckboxItem>
+                ))}
+                <DropdownMenuSeparator />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearAreas}
+                  className="w-full justify-start px-2"
+                  aria-label="Rimuovi filtro area"
+                >
+                  Mostra tutti
+                </Button>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div className="flex items-center gap-4">
@@ -65,19 +163,27 @@ export default function SaturationHeader({
               <Button
                 variant={groupBy === "team" ? "default" : "outline"}
                 size="sm"
-                onClick={() => onGroupByChange(groupBy === "team" ? null : "team")}
+                onClick={() =>
+                  onGroupByChange(groupBy === "team" ? null : "team")
+                }
               >
                 Teams
               </Button>
               <Button
                 variant={groupBy === "seniority" ? "default" : "outline"}
                 size="sm"
-                onClick={() => onGroupByChange(groupBy === "seniority" ? null : "seniority")}
+                onClick={() =>
+                  onGroupByChange(groupBy === "seniority" ? null : "seniority")
+                }
               >
                 Seniority
               </Button>
               {groupBy && (
-                <Button variant="ghost" size="sm" onClick={() => onGroupByChange(null)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onGroupByChange(null)}
+                >
                   Clear
                 </Button>
               )}

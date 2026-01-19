@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/config/prisma";
-import { SeniorityLevel } from "@/db";
+import { SeniorityLevel, type Area } from "@/db";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 
 export type SaturationAllocation = {
@@ -17,6 +17,7 @@ export type SaturationEmployee = {
   name: string;
   email: string;
   avatar_url: string | null;
+  area: Area;
   team: { id: string; name: string } | null;
   seniority: SeniorityLevel | null;
   totalAllocation: number;
@@ -113,6 +114,7 @@ export async function fetchSaturationData(): Promise<SaturationEmployee[]> {
       name: user.name,
       email: user.email,
       avatar_url: user.avatar_url,
+      area: user.area,
       team,
       seniority,
       totalAllocation,

@@ -2,10 +2,9 @@
 
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/server";
+import { getUserInfo } from "./getUserInfo";
 
 export async function createUserInfo(userInfo?: User) {
-  console.log(userInfo);
-
   const supabase = await createClient();
   try {
     const res = await supabase.from("user").insert({
@@ -17,7 +16,8 @@ export async function createUserInfo(userInfo?: User) {
     if (res.error) {
       throw new Error(`Error fetching user info: ${res.error.message}`);
     }
-    return res.data;
+
+    return await getUserInfo(userInfo?.email);
   } catch (error) {
     console.error("Error in getUserInfo:", error);
     throw error;

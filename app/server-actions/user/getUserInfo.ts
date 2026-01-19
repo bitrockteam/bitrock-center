@@ -1,6 +1,6 @@
 "use server";
 
-import type { Permissions, Role } from "@/db";
+import type { Area, Permissions, Role } from "@/db";
 import { createClient } from "@/utils/supabase/server";
 
 export interface UserInfo {
@@ -14,6 +14,7 @@ export interface UserInfo {
   permissions: Permissions[];
   custom_days_off_left: number | null;
   custom_days_off_planned: number | null;
+  area: Area;
 }
 
 export async function getUserInfo(email?: string) {
@@ -41,6 +42,7 @@ export async function getUserInfo(email?: string) {
       permissions: permissions?.map((permission) => permission.permission_id) || [],
       custom_days_off_left: res?.custom_days_off_left ?? null,
       custom_days_off_planned: res?.custom_days_off_planned ?? null,
+      area: (res?.area ?? "OTHER") as Area,
     } as UserInfo;
   } catch (error) {
     console.error("Error in getUserInfo:", error);
