@@ -90,6 +90,7 @@ export async function fetchOwnerTeamAllocationsRecap(): Promise<TeamMemberAlloca
         userEmail: member.email,
         userAvatarUrl: member.avatar_url,
         userRole: member.role,
+        userNote: member.note ?? null,
         currentProject: activeAllocation
           ? {
               id: activeAllocation.work_items.project?.id,

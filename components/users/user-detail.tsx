@@ -17,11 +17,13 @@ export default function UserDetail({
   canDealPermissions = false,
   currentUserId,
   canManageSkills = false,
+  canEditUserNote = false,
 }: Readonly<{
   user: FindUserById;
   canDealPermissions: boolean;
   currentUserId?: string;
   canManageSkills?: boolean;
+  canEditUserNote?: boolean;
 }>) {
   const router = useRouter();
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -100,6 +102,7 @@ export default function UserDetail({
         currentUserId={currentUserId}
         canManageSkills={canManageSkills}
         canDealPermissions={canDealPermissions}
+        canEditUserNote={canEditUserNote}
       />
       {/* Dialog per modificare l'utente */}
       {user && (

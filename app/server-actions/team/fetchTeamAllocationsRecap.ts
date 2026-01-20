@@ -10,6 +10,7 @@ export type TeamMemberAllocationRecap = {
   userEmail: string;
   userAvatarUrl: string | null;
   userRole: string;
+  userNote: string | null;
   currentProject: {
     id?: string;
     name?: string;
@@ -112,6 +113,7 @@ export async function fetchTeamAllocationsRecap(): Promise<TeamMemberAllocationR
         userEmail: member.email,
         userAvatarUrl: member.avatar_url,
         userRole: member.role,
+        userNote: member.note ?? null,
         currentProject: activeAllocation
           ? {
               id: activeAllocation.work_items.project?.id,

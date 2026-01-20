@@ -82,6 +82,7 @@ model user {
   custom_days_off_left                Int?                    @db.SmallInt
   custom_days_off_planned             Int?                    @db.SmallInt
   area                                Area                    @default(OTHER)
+  note                                String?
   allocation                          allocation[]
   chat_session                        chat_session[]
   contract_contract_employee_idTouser contract[]              @relation("contract_employee_idTouser")

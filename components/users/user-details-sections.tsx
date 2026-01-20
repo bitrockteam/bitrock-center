@@ -22,11 +22,13 @@ export default function UserDetailsSections({
   currentUserId,
   canManageSkills = false,
   canDealPermissions = false,
+  canEditUserNote = false,
 }: {
   user: FindUserById;
   currentUserId?: string;
   canManageSkills?: boolean;
   canDealPermissions?: boolean;
+  canEditUserNote?: boolean;
 }) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
@@ -79,7 +81,11 @@ export default function UserDetailsSections({
         <UserDetailsOverview user={user} plan={activePlan} />
       </TabsContent>
       <TabsContent value="allocations" className="space-y-6">
-        <UserDetailsAllocations userId={user.id} currentUserId={currentUserId} />
+        <UserDetailsAllocations
+          userId={user.id}
+          currentUserId={currentUserId}
+          canEditUserNote={canEditUserNote}
+        />
       </TabsContent>
       <TabsContent value="skills" className="space-y-6">
         <UserDetailsSkills user={user} canManageSkills={canManageSkills} />

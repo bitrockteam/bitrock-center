@@ -41,9 +41,9 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
       className="mt-8"
     >
       <Card className="overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-primary/5 to-purple-500/5 border-b">
+        <CardHeader className="bg-linear-to-r from-primary/5 to-purple-500/5 border-b">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-primary/20 to-purple-500/20">
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -62,6 +62,7 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                 <TableRow className="bg-muted/50">
                   <TableHead className="font-semibold">Utente</TableHead>
                   <TableHead className="font-semibold">Ruolo</TableHead>
+                  <TableHead className="font-semibold">Note</TableHead>
                   <TableHead className="font-semibold">Progetto Corrente</TableHead>
                   <TableHead className="font-semibold">% Allocazione</TableHead>
                   <TableHead className="font-semibold">Fine Allocazione</TableHead>
@@ -109,6 +110,22 @@ export function TeamAllocationsRecap({ allocationsRecap }: TeamAllocationsRecapP
                       </Link>
                     </TableCell>
                     <TableCell>{getRoleBadge(member.userRole as Role)}</TableCell>
+                    <TableCell>
+                      {member.userNote?.trim() ? (
+                        <>
+                          <span className="sr-only">{`Note: ${member.userNote}`}</span>
+                          <span
+                            aria-hidden="true"
+                            className="block max-w-[260px] truncate text-sm text-muted-foreground"
+                            title={member.userNote}
+                          >
+                            {member.userNote}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       {member.currentProject ? (
                         <Link

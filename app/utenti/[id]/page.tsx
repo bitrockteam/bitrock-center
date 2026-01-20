@@ -18,6 +18,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
   const currentUser = await getUserInfoFromCookie();
   const CAN_DEAL_PERMISSIONS = await hasPermission(Permissions.CAN_DEAL_PERMISSIONS);
   const canManageSkills = currentUser.role === "Admin" || currentUser.role === "Manager";
+  const canEditUserNote = currentUser.id === id || canManageSkills || CAN_DEAL_PERMISSIONS;
 
   return (
     <div className="space-y-6 h-full w-full">
@@ -26,6 +27,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
         canDealPermissions={CAN_DEAL_PERMISSIONS}
         currentUserId={currentUser.id}
         canManageSkills={canManageSkills}
+        canEditUserNote={canEditUserNote}
       />
     </div>
   );

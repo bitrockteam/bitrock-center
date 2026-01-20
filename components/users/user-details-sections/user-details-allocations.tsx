@@ -1,6 +1,7 @@
 "use client";
 
 import type { UserAllocationRecap } from "@/app/server-actions/user/fetchUserAllocations";
+import type { FindUserById } from "@/app/server-actions/user/findUserById";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { useApi } from "@/hooks/useApi";
 import dayjs from "dayjs";
 import { Edit2, RotateCcw, Save, X } from "lucide-react";
@@ -23,14 +25,18 @@ import { toast } from "sonner";
 interface UserDetailsAllocationsProps {
   userId: string;
   currentUserId?: string;
+  canEditUserNote?: boolean;
 }
 
 export default function UserDetailsAllocations({
   userId,
   currentUserId,
+  canEditUserNote = false,
 }: UserDetailsAllocationsProps) {
   const { data: allocationsData, callApi: fetchAllocations } = useApi<UserAllocationRecap>();
+  const { data: userData, callApi: fetchUser } = useApi<FindUserById>();
   const { callApi: updateDaysOff } = useApi();
+  const { callApi: updateNote } = useApi();
 
   const userIdRef = useRef<string | null>(null);
   const isOwnProfile = currentUserId === userId;
@@ -40,13 +46,17 @@ export default function UserDetailsAllocations({
   const [daysOffPlanned, setDaysOffPlanned] = useState<number | null>(null);
   const [isSavingLeft, setIsSavingLeft] = useState(false);
   const [isSavingPlanned, setIsSavingPlanned] = useState(false);
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [noteDraft, setNoteDraft] = useState("");
+  const [isSavingNote, setIsSavingNote] = useState(false);
 
   useEffect(() => {
     if (userId && userIdRef.current !== userId) {
       userIdRef.current = userId;
       fetchAllocations(`/api/user/allocations?userId=${userId}`);
+      fetchUser(`/api/user/${userId}`);
     }
-  }, [userId, fetchAllocations]);
+  }, [userId, fetchAllocations, fetchUser]);
 
   useEffect(() => {
     if (allocationsData) {
@@ -55,12 +65,23 @@ export default function UserDetailsAllocations({
     }
   }, [allocationsData]);
 
+  useEffect(() => {
+    if (!userData) return;
+    if (isEditingNote) return;
+    setNoteDraft(userData.note ?? "");
+  }, [userData, isEditingNote]);
+
   const handleEditLeft = () => {
     setIsEditingLeft(true);
   };
 
   const handleEditPlanned = () => {
     setIsEditingPlanned(true);
+  };
+
+  const handleEditNote = () => {
+    if (!canEditUserNote) return;
+    setIsEditingNote(true);
   };
 
   const handleCancelLeft = () => {
@@ -75,6 +96,11 @@ export default function UserDetailsAllocations({
       setDaysOffPlanned(allocationsData.daysOffPlanned);
     }
     setIsEditingPlanned(false);
+  };
+
+  const handleCancelNote = () => {
+    setNoteDraft(userData?.note ?? "");
+    setIsEditingNote(false);
   };
 
   const handleSaveLeft = async () => {
@@ -120,6 +146,29 @@ export default function UserDetailsAllocations({
       console.error("Error updating days off planned:", error);
     } finally {
       setIsSavingPlanned(false);
+    }
+  };
+
+  const handleSaveNote = async () => {
+    if (!canEditUserNote) return;
+    const normalizedNote = noteDraft.trim() ? noteDraft : null;
+    setIsSavingNote(true);
+    try {
+      await updateNote("/api/user/note", {
+        method: "PATCH",
+        body: JSON.stringify({
+          userId,
+          note: normalizedNote,
+        }),
+      });
+      toast.success("Note aggiornate con successo");
+      setIsEditingNote(false);
+      await fetchUser(`/api/user/${userId}`);
+    } catch (error) {
+      toast.error("Errore nell'aggiornamento delle note");
+      console.error("Error updating user note:", error);
+    } finally {
+      setIsSavingNote(false);
     }
   };
 
@@ -175,6 +224,8 @@ export default function UserDetailsAllocations({
       </div>
     );
   }
+
+  const isNoteTooLong = noteDraft.length > 5000;
 
   return (
     <div className="space-y-6">
@@ -366,6 +417,78 @@ export default function UserDetailsAllocations({
           </CardHeader>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <CardTitle className="text-base">Note</CardTitle>
+              <CardDescription>Note interne sull&apos;utente</CardDescription>
+            </div>
+            {canEditUserNote && !isEditingNote && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleEditNote}
+                className="h-8 w-8"
+                aria-label="Modifica note utente"
+              >
+                <Edit2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isEditingNote ? (
+            <div className="space-y-2">
+              <Textarea
+                value={noteDraft}
+                onChange={(e) => setNoteDraft(e.target.value)}
+                placeholder="Scrivi una nota..."
+                aria-label="Note utente"
+                disabled={isSavingNote}
+                className="min-h-28"
+              />
+              <div className="flex items-center justify-between gap-3">
+                <p className={`text-xs ${isNoteTooLong ? "text-destructive" : "text-muted-foreground"}`}>
+                  {noteDraft.length}/5000
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleSaveNote}
+                    disabled={isSavingNote || isNoteTooLong}
+                    className="h-7"
+                    aria-label="Salva note utente"
+                  >
+                    <Save className="h-3 w-3 mr-1" />
+                    Salva
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelNote}
+                    disabled={isSavingNote}
+                    className="h-7"
+                    aria-label="Annulla modifica note utente"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Annulla
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm whitespace-pre-wrap wrap-break-word">
+              {userData?.note?.trim()
+                ? userData.note
+                : userData
+                  ? "Nessuna nota presente."
+                  : "Caricamento note..."}
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
