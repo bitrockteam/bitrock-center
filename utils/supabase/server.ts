@@ -53,7 +53,11 @@ export async function getUserInfoFromCookie() {
 
   const cookie = cookieStore.get("x-user-info")?.value;
   if (!cookie) throw new Error("No user info cookie found");
-  return JSON.parse(cookie) as UserInfo;
+  const parsed = JSON.parse(cookie) as Partial<UserInfo>;
+  return {
+    ...parsed,
+    note: parsed.note ?? null,
+  } as UserInfo;
 }
 
 export async function tryGetUserInfoFromCookie() {

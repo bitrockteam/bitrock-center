@@ -7,6 +7,7 @@ export interface UserInfo {
   id: string;
   email: string;
   name: string;
+  note: string | null;
   avatar_url: string | null;
   created_at: Date;
   referent_id: string | null;
@@ -35,6 +36,7 @@ export async function getUserInfo(email?: string) {
       id: res?.id,
       email: res?.email,
       name: res?.name,
+      note: res?.note ?? null,
       avatar_url: res?.avatar_url ?? null,
       created_at: res?.created_at,
       referent_id: res?.referent_id ?? null,
