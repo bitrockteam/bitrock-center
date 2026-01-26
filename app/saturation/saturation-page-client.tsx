@@ -6,19 +6,38 @@ import SaturationProjections from "@/components/saturation/saturation-projection
 import SaturationSummary from "@/components/saturation/saturation-summary";
 import SaturationTimeline from "@/components/saturation/saturation-timeline";
 import type { Area } from "@/db";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type SaturationPageClientProps = {
   initialEmployees: SaturationEmployee[];
 };
 
 const AREA_OPTIONS = ["FRONT_END", "BACK_END", "OTHER"] as const satisfies readonly Area[];
+const SELECTED_AREAS_STORAGE_KEY = "bitrock-center:saturation:selectedAreas";
 
 export function SaturationPageClient({ initialEmployees }: SaturationPageClientProps) {
   const [currentView, setCurrentView] = useState<"summary" | "timeline" | "projections">("summary");
   const [showIssuesOnly, setShowIssuesOnly] = useState(false);
   const [groupBy, setGroupBy] = useState<"team" | "seniority" | null>(null);
   const [selectedAreas, setSelectedAreas] = useState<Area[]>([]);
+
+
+  useEffect(() => {
+    const rawSelectedAreas = localStorage.getItem(SELECTED_AREAS_STORAGE_KEY);
+
+    if (!rawSelectedAreas) return;
+
+    const parsed = JSON.parse(rawSelectedAreas) as unknown;
+    console.log(parsed);
+    if (!Array.isArray(parsed)) return;
+
+    const allowedAreas = new Set<Area>(AREA_OPTIONS);
+    const persistedAreas = parsed
+      .filter((area): area is Area => typeof area === "string" && allowedAreas.has(area as Area));
+
+    setSelectedAreas(persistedAreas);
+  },[])
+
 
   const filteredEmployees = useMemo(() => {
     if (selectedAreas.length === 0) return initialEmployees;
@@ -37,7 +56,10 @@ export function SaturationPageClient({ initialEmployees }: SaturationPageClientP
         onGroupByChange={setGroupBy}
         areaOptions={AREA_OPTIONS}
         selectedAreas={selectedAreas}
-        onSelectedAreasChange={setSelectedAreas}
+        onSelectedAreasChange={(areas) => {
+          setSelectedAreas(areas);
+          localStorage.setItem(SELECTED_AREAS_STORAGE_KEY, JSON.stringify(areas));
+        }}
       />
 
       {currentView === "summary" && (
