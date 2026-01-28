@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -18,10 +18,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Area } from "@/db";
-import { Filter } from "lucide-react";
+import { Filter, Plus } from "lucide-react";
 
 type SaturationHeaderProps = {
   currentView: "summary" | "timeline" | "projections";
@@ -33,6 +34,10 @@ type SaturationHeaderProps = {
   areaOptions: readonly Area[];
   selectedAreas: Area[];
   onSelectedAreasChange: (areas: Area[]) => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  onAddAllocationClick: () => void;
+  canAllocate: boolean;
 };
 
 export default function SaturationHeader({
@@ -45,6 +50,10 @@ export default function SaturationHeader({
   areaOptions,
   selectedAreas,
   onSelectedAreasChange,
+  searchQuery,
+  onSearchChange,
+  onAddAllocationClick,
+  canAllocate,
 }: SaturationHeaderProps) {
   const handleToggleArea = (area: Area) => {
     const isSelected = selectedAreas.includes(area);
@@ -67,11 +76,28 @@ export default function SaturationHeader({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Saturation Dashboard</CardTitle>
-        <CardDescription>
-          View and manage employee allocation percentages across work items
-        </CardDescription>
+      <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <CardTitle>Saturation Dashboard</CardTitle>
+          <CardDescription>
+            View and manage employee allocation percentages across work items
+          </CardDescription>
+        </div>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <Input
+            placeholder="Cerca per nome utente..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="w-full sm:w-64"
+          />
+          {canAllocate && (
+            <Button onClick={onAddAllocationClick} size="default" className="whitespace-nowrap">
+              <Plus className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Nuova Allocazione</span>
+              <span className="sm:hidden">Nuova</span>
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs

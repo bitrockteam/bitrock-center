@@ -30,7 +30,6 @@ import {
   Menu,
   Settings,
   User,
-  UserCheck,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -75,12 +74,6 @@ const navItems = [
     permission: Permissions.CAN_SEE_WORK_ITEM,
   },
   {
-    title: "Allocazioni",
-    href: "/allocazioni",
-    icon: UserCheck,
-    permission: Permissions.CAN_ALLOCATE_RESOURCE,
-  },
-  {
     title: "Utenti",
     href: "/utenti",
     icon: Users,
@@ -99,6 +92,7 @@ const navItems = [
     title: "Saturazione",
     href: "/saturation",
     icon: BarChart3,
+    permission: Permissions.CAN_SEE_SATURATION,
   },
   {
     title: "Permessi",

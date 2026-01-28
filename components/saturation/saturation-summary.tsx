@@ -1,8 +1,12 @@
 "use client";
 
-import type { SaturationEmployee } from "@/app/server-actions/saturation/fetchSaturationData";
+import type {
+  SaturationAllocation,
+  SaturationEmployee,
+} from "@/app/server-actions/saturation/fetchSaturationData";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -13,13 +17,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getAllocationBadgeColor, hasAllocationIssue } from "@/utils/saturation";
-import { AlertTriangle, TrendingUp, Users, AlertCircle } from "lucide-react";
-import { useMemo } from "react";
+import dayjs from "dayjs";
+import {
+  AlertCircle,
+  AlertTriangle,
+  ChevronDown,
+  Edit,
+  TrendingUp,
+  Trash2,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import React, { useMemo, useState } from "react";
 
 type SaturationSummaryProps = {
   employees: SaturationEmployee[];
   groupBy?: "team" | "seniority" | null;
   showIssuesOnly?: boolean;
+  onEditAllocation?: (employeeId: string, allocation: SaturationAllocation) => void;
+  onDeleteAllocation?: (employeeId: string, allocation: SaturationAllocation) => void;
 };
 
 type GroupSummary = {
@@ -81,13 +97,26 @@ export default function SaturationSummary({
   employees,
   groupBy,
   showIssuesOnly = false,
+  onEditAllocation,
+  onDeleteAllocation,
 }: SaturationSummaryProps) {
+  const [expandedEmployeeId, setExpandedEmployeeId] = useState<string | null>(null);
+
   const filteredEmployees = useMemo(() => {
     if (showIssuesOnly) {
       return employees.filter((emp) => emp.totalAllocation < 50);
     }
     return employees;
   }, [employees, showIssuesOnly]);
+
+  const handleToggleExpand = (employeeId: string) => {
+    setExpandedEmployeeId(expandedEmployeeId === employeeId ? null : employeeId);
+  };
+
+  const formatAllocationDate = (date: Date | null) => {
+    if (!date) return "-";
+    return dayjs(date).format("DD/MM/YYYY");
+  };
 
   const groupedData = useMemo(() => {
     if (!groupBy) {
@@ -148,74 +177,195 @@ export default function SaturationSummary({
                     <TableHead>Latest End Date</TableHead>
                     <TableHead>Team</TableHead>
                     <TableHead>Seniority</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {groupEmployees.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                      <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                         No employees found
                       </TableCell>
                     </TableRow>
                   ) : (
                     groupEmployees.map((employee) => {
                       const hasIssue = hasAllocationIssue(employee);
+                      const isExpanded = expandedEmployeeId === employee.id;
                       return (
-                        <TableRow key={employee.id} className={hasIssue ? "bg-destructive/5" : ""}>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Avatar className="h-8 w-8">
-                                {employee.avatar_url && (
-                                  <AvatarImage src={employee.avatar_url} alt={employee.name} />
-                                )}
-                                <AvatarFallback>
-                                  {employee.name
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                    .toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="font-medium">{employee.name}</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {employee.email}
+                        <React.Fragment key={employee.id}>
+                          <TableRow
+                            className={`${hasIssue ? "bg-destructive/5" : ""} hover:bg-muted/50`}
+                          >
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Avatar className="h-8 w-8">
+                                  {employee.avatar_url && (
+                                    <AvatarImage src={employee.avatar_url} alt={employee.name} />
+                                  )}
+                                  <AvatarFallback>
+                                    {employee.name
+                                      .split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className="font-medium">{employee.name}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {employee.email}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                className={`${getAllocationBadgeColor(
-                                  employee.totalAllocation
-                                )} text-white`}
-                              >
-                                {employee.totalAllocation}%
-                              </Badge>
-                              {hasIssue && <AlertTriangle className="h-4 w-4 text-destructive" />}
-                            </div>
-                          </TableCell>
-                          <TableCell>{employee.allocations.length}</TableCell>
-                          <TableCell>{formatDate(employee.latestEndDate)}</TableCell>
-                          <TableCell>
-                            {employee.team ? (
-                              <Badge variant="outline">{employee.team.name}</Badge>
-                            ) : (
-                              <span className="text-muted-foreground text-sm">No Team</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {employee.seniority ? (
-                              <Badge variant="secondary">
-                                {employee.seniority.charAt(0).toUpperCase() +
-                                  employee.seniority.slice(1)}
-                              </Badge>
-                            ) : (
-                              <span className="text-muted-foreground text-sm">No Seniority</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  className={`${getAllocationBadgeColor(
+                                    employee.totalAllocation
+                                  )} text-white`}
+                                >
+                                  {employee.totalAllocation}%
+                                </Badge>
+                                {hasIssue && <AlertTriangle className="h-4 w-4 text-destructive" />}
+                              </div>
+                            </TableCell>
+                            <TableCell>{employee.allocations.length}</TableCell>
+                            <TableCell>{formatDate(employee.latestEndDate)}</TableCell>
+                            <TableCell>
+                              {employee.team ? (
+                                <Badge variant="outline">{employee.team.name}</Badge>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">No Team</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {employee.seniority ? (
+                                <Badge variant="secondary">
+                                  {employee.seniority.charAt(0).toUpperCase() +
+                                    employee.seniority.slice(1)}
+                                </Badge>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">No Seniority</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {employee.allocations.length > 0 && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-auto w-auto p-0 hover:bg-transparent"
+                                  onClick={() => handleToggleExpand(employee.id)}
+                                  aria-label="Espandi/Comprimi dettagli allocazioni"
+                                  tabIndex={0}
+                                >
+                                  <ChevronDown
+                                    className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
+                                      isExpanded ? "rotate-180" : ""
+                                    }`}
+                                  />
+                                </Button>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                          {isExpanded && employee.allocations.length > 0 && (
+                            <TableRow className="bg-muted/30">
+                              <TableCell colSpan={7} className="p-0 border-0">
+                                <div className="px-4 pb-4 pt-2">
+                                  <div className="rounded-md border">
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow>
+                                          <TableHead>Cliente</TableHead>
+                                          <TableHead>Progetto</TableHead>
+                                          <TableHead>Commessa</TableHead>
+                                          <TableHead>Data Inizio</TableHead>
+                                          <TableHead>Data Fine</TableHead>
+                                          <TableHead>Percentuale</TableHead>
+                                          {(onEditAllocation || onDeleteAllocation) && (
+                                            <TableHead className="text-right">Azioni</TableHead>
+                                          )}
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {employee.allocations.map((allocation) => (
+                                          <TableRow key={allocation.work_item_id}>
+                                            <TableCell>
+                                              <div className="flex flex-col">
+                                                <span className="font-medium">
+                                                  {allocation.client.name}
+                                                </span>
+                                                <span className="text-xs text-muted-foreground">
+                                                  {allocation.client.code}
+                                                </span>
+                                              </div>
+                                            </TableCell>
+                                            <TableCell>
+                                              {allocation.project ? (
+                                                <span>{allocation.project.name}</span>
+                                              ) : (
+                                                <span className="text-muted-foreground">-</span>
+                                              )}
+                                            </TableCell>
+                                            <TableCell>
+                                              <Link
+                                                href={`/commesse/${allocation.work_item_id}`}
+                                                className="text-primary hover:underline"
+                                              >
+                                                {allocation.work_item_title}
+                                              </Link>
+                                            </TableCell>
+                                            <TableCell>
+                                              {formatAllocationDate(allocation.start_date)}
+                                            </TableCell>
+                                            <TableCell>
+                                              {formatAllocationDate(allocation.end_date)}
+                                            </TableCell>
+                                            <TableCell>
+                                              <Badge variant="outline">{allocation.percentage}%</Badge>
+                                            </TableCell>
+                                            {(onEditAllocation || onDeleteAllocation) && (
+                                              <TableCell className="text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                  {onEditAllocation && (
+                                                    <Button
+                                                      variant="ghost"
+                                                      size="icon"
+                                                      onClick={() =>
+                                                        onEditAllocation(employee.id, allocation)
+                                                      }
+                                                      aria-label={`Modifica allocazione di ${employee.name}`}
+                                                      tabIndex={0}
+                                                    >
+                                                      <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                  )}
+                                                  {onDeleteAllocation && (
+                                                    <Button
+                                                      variant="ghost"
+                                                      size="icon"
+                                                      onClick={() =>
+                                                        onDeleteAllocation(employee.id, allocation)
+                                                      }
+                                                      aria-label={`Elimina allocazione di ${employee.name}`}
+                                                      tabIndex={0}
+                                                    >
+                                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </Button>
+                                                  )}
+                                                </div>
+                                              </TableCell>
+                                            )}
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
                       );
                     })
                   )}
@@ -225,7 +375,7 @@ export default function SaturationSummary({
                       const summary = calculateGroupSummary(groupEmployees);
                       return (
                         <TableRow className="bg-muted/30 border-t-2 border-muted-foreground/20">
-                          <TableCell colSpan={6} className="py-4">
+                          <TableCell colSpan={7} className="py-4">
                             <div className="flex items-center justify-between flex-wrap gap-4">
                               <div className="flex items-center gap-6 flex-wrap">
                                 <div className="flex items-center gap-2">

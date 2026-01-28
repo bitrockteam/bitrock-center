@@ -10,6 +10,15 @@ export type SaturationAllocation = {
   percentage: number;
   start_date: Date;
   end_date: Date | null;
+  client: {
+    id: string;
+    name: string;
+    code: string;
+  };
+  project: {
+    id: string;
+    name: string;
+  } | null;
 };
 
 export type SaturationEmployee = {
@@ -39,6 +48,19 @@ export async function fetchSaturationData(): Promise<SaturationEmployee[]> {
               id: true,
               title: true,
               end_date: true,
+              client: {
+                select: {
+                  id: true,
+                  name: true,
+                  code: true,
+                },
+              },
+              project: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -107,6 +129,17 @@ export async function fetchSaturationData(): Promise<SaturationEmployee[]> {
       percentage: alloc.percentage,
       start_date: alloc.start_date,
       end_date: alloc.end_date ?? alloc.work_items.end_date,
+      client: {
+        id: alloc.work_items.client.id,
+        name: alloc.work_items.client.name,
+        code: alloc.work_items.client.code,
+      },
+      project: alloc.work_items.project
+        ? {
+            id: alloc.work_items.project.id,
+            name: alloc.work_items.project.name,
+          }
+        : null,
     }));
 
     return {
