@@ -1,6 +1,6 @@
 "use client";
 
-import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 
 type NodeData = {
@@ -36,7 +36,7 @@ const getNodeSize = (level: number): { width: string; minHeight: string } => {
   return { width: "180px", minHeight: "80px" };
 };
 
-export const OrgNode = ({ data }: NodeProps<NodeData>) => {
+export const OrgNode = ({ data }: NodeProps<Node<NodeData>>) => {
   const { nome, ruolo, area, societa, altri_ruoli, level } = data;
   const nodeStyle = getNodeStyle(level);
   const nodeSize = getNodeSize(level);

@@ -3,8 +3,10 @@ import { fetchTeamAllocationsRecap } from "@/app/server-actions/team/fetchTeamAl
 import { fetchTeam } from "@/app/server-actions/user/fetchMyTeam";
 import { fetchMyTeam } from "@/app/server-actions/user/fetchTeam";
 import { TeamMemberContainer } from "@/components/team/team-member-container";
+import { db } from "@/config/prisma";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +17,13 @@ export const metadata: Metadata = {
 
 export default async function TeamPage() {
   try {
-    const user = await getUserInfoFromCookie();
+    const userInfo = await getUserInfoFromCookie();
+    const user = await db.user.findUnique({
+      where: { id: userInfo.id },
+    });
+    if (!user) {
+      redirect("/login");
+    }
     const teamMembers = await fetchTeam();
     const myTeamData = await fetchMyTeam();
     const allocationsRecap = await fetchTeamAllocationsRecap();

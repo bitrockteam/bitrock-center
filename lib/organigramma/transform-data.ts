@@ -9,7 +9,7 @@ type OrgData = {
       ruolo: string;
       nome: string;
       altri_ruoli?: string[];
-      riporta_a: string | null;
+      riporta_a?: string | null;
       riporti?: OrgData["gruppo"]["organigramma"][];
       aree?: Array<{
         nome_area: string;
@@ -376,7 +376,7 @@ const processPerson = (
         level: level + 1,
       };
       const teamNodeId = generateNodeId(teamMember.nome, teamNodeData.ruolo, currentParentId);
-      const teamNode = createNode(teamNodeId, teamNodeData, currentParentId);
+      const teamNode = createNode(teamNodeId, teamNodeData);
       nodes.push(teamNode);
 
       edges.push({
@@ -1042,10 +1042,12 @@ export const orgData: OrgData = {
                     {
                       ruolo: "Senior Manager",
                       nome: "Simone Esposito",
+                      riporta_a: "Head of Engineering",
                     },
                     {
                       ruolo: "Manager Software Quality Assurance",
                       nome: "Manuele Salvador",
+                      riporta_a: "Head of Engineering",
                       team: [
                         {
                           nome: "Ilaria Stasuzzo",

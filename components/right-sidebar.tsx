@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { getReferentName } from "@/app/server-actions/user/getReferentName";
 import { getLLMConfig } from "@/app/server-actions/user/getLLMConfig";
-import type { user } from "@/db";
+import type { Role, user } from "@/db";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -22,10 +22,15 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+export type RightSidebarUser = Pick<
+  user,
+  "name" | "avatar_url" | "role" | "email" | "referent_id" | "created_at" | "custom_days_off_left"
+>;
+
 interface RightSidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  user: user;
+  user: RightSidebarUser;
   activeSection: "profile" | "settings";
   version: string;
 }
@@ -106,7 +111,7 @@ export const RightSidebar = ({
   );
 };
 
-const ProfileSection = ({ user }: { user: user }) => {
+const ProfileSection = ({ user }: { user: RightSidebarUser }) => {
   const [referentName, setReferentName] = useState<string | null>(null);
   const [loadingReferent, setLoadingReferent] = useState(false);
 

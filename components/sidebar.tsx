@@ -13,7 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Permissions, type user } from "@/db";
+import { Permissions } from "@/db";
+import type { RightSidebarUser } from "./right-sidebar";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
@@ -107,7 +108,7 @@ export default function Sidebar({
   permissions,
   version,
 }: Readonly<{
-  user: user;
+  user: RightSidebarUser;
   permissions: Permissions[];
   version: string;
 }>) {

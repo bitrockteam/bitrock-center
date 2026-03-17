@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import type { user } from "@/db";
+import type { UserInfo } from "@/app/server-actions/user/getUserInfo";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import { useUserPermissions } from "./useUserPermissions";
 
 export const useUser = () => {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<user | null>(null);
+  const [user, setUser] = useState<UserInfo | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
