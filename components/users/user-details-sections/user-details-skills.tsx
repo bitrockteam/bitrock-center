@@ -9,13 +9,7 @@ import {
 import { getSkillColor } from "@/components/skills/color-palette";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -57,9 +51,7 @@ export default function UserDetailsSkills({
   const [showAddHardSkillDialog, setShowAddHardSkillDialog] = useState(false);
   const [showAddSoftSkillDialog, setShowAddSoftSkillDialog] = useState(false);
   const [newSkillId, setNewSkillId] = useState("");
-  const [newSkillLevel, setNewSkillLevel] = useState<SeniorityLevel>(
-    "junior" as SeniorityLevel
-  );
+  const [newSkillLevel, setNewSkillLevel] = useState<SeniorityLevel>("junior" as SeniorityLevel);
   const [editingSkillId, setEditingSkillId] = useState<string | null>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we intentionally fetch the catalog only on mount
@@ -68,11 +60,9 @@ export default function UserDetailsSkills({
   }, []);
 
   const hardSkills =
-    user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ??
-    [];
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "hard") ?? [];
   const softSkills =
-    user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ??
-    [];
+    user?.user_skill.filter((empSkill) => empSkill.skill.category === "soft") ?? [];
 
   // Competenze disponibili per l'aggiunta (non già presenti e attive)
   const availableHardSkills = useMemo(
@@ -150,10 +140,7 @@ export default function UserDetailsSkills({
     }
   };
 
-  const handleUpdateSkillLevel = async (
-    skillId: string,
-    newLevel: SeniorityLevel
-  ) => {
+  const handleUpdateSkillLevel = async (skillId: string, newLevel: SeniorityLevel) => {
     if (!user?.id) return;
     await skillsApi.updateEmployeeSkillLevel(updateSkillLevelApi, {
       employeeId: user.id,
@@ -187,9 +174,7 @@ export default function UserDetailsSkills({
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Hard Skills</CardTitle>
-                <CardDescription>
-                  Competenze tecniche e strumenti
-                </CardDescription>
+                <CardDescription>Competenze tecniche e strumenti</CardDescription>
               </div>
               {canManageSkills && (
                 <Button
@@ -226,9 +211,7 @@ export default function UserDetailsSkills({
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-medium">
-                              {empSkill.skill.name}
-                            </h4>
+                            <h4 className="font-medium">{empSkill.skill.name}</h4>
                             <div
                               className="h-3 w-3 rounded-md border border-border/50 flex-shrink-0"
                               style={{
@@ -241,9 +224,7 @@ export default function UserDetailsSkills({
                                 empSkill.skill.color
                                   ? "Colore personalizzato"
                                   : `Colore predefinito (${
-                                      empSkill.skill.category === "hard"
-                                        ? "Blu"
-                                        : "Arancione"
+                                      empSkill.skill.category === "hard" ? "Blu" : "Arancione"
                                     })`
                               }
                             />
@@ -258,9 +239,7 @@ export default function UserDetailsSkills({
                       <div className="flex items-center gap-2">
                         {isEditing && canManageSkills ? (
                           <Select
-                            value={normalizeSeniorityLevel(
-                              empSkill.seniorityLevel
-                            )}
+                            value={normalizeSeniorityLevel(empSkill.seniorityLevel)}
                             onValueChange={(value: SeniorityLevel) => {
                               handleUpdateSkillLevel(empSkill.skill.id, value);
                             }}
@@ -294,9 +273,7 @@ export default function UserDetailsSkills({
                                 variant="ghost"
                                 size="icon"
                                 className="h-6 w-6"
-                                onClick={() =>
-                                  handleStartEditing(empSkill.skill.id)
-                                }
+                                onClick={() => handleStartEditing(empSkill.skill.id)}
                                 aria-label={`Modifica livello di ${empSkill.skill.name}`}
                                 tabIndex={0}
                               >
@@ -320,9 +297,7 @@ export default function UserDetailsSkills({
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Soft Skills</CardTitle>
-                <CardDescription>
-                  Competenze trasversali e relazionali
-                </CardDescription>
+                <CardDescription>Competenze trasversali e relazionali</CardDescription>
               </div>
               {canManageSkills && (
                 <Button
@@ -359,9 +334,7 @@ export default function UserDetailsSkills({
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-medium">
-                              {empSkill.skill.name}
-                            </h4>
+                            <h4 className="font-medium">{empSkill.skill.name}</h4>
                             <div
                               className="h-3 w-3 rounded-md border border-border/50 flex-shrink-0"
                               style={{
@@ -374,9 +347,7 @@ export default function UserDetailsSkills({
                                 empSkill.skill.color
                                   ? "Colore personalizzato"
                                   : `Colore predefinito (${
-                                      empSkill.skill.category === "hard"
-                                        ? "Blu"
-                                        : "Arancione"
+                                      empSkill.skill.category === "hard" ? "Blu" : "Arancione"
                                     })`
                               }
                             />
@@ -391,9 +362,7 @@ export default function UserDetailsSkills({
                       <div className="flex items-center gap-2">
                         {isEditing && canManageSkills ? (
                           <Select
-                            value={normalizeSeniorityLevel(
-                              empSkill.seniorityLevel
-                            )}
+                            value={normalizeSeniorityLevel(empSkill.seniorityLevel)}
                             onValueChange={(value: SeniorityLevel) => {
                               handleUpdateSkillLevel(empSkill.skill.id, value);
                             }}
@@ -427,9 +396,7 @@ export default function UserDetailsSkills({
                                 variant="ghost"
                                 size="icon"
                                 className="h-6 w-6"
-                                onClick={() =>
-                                  handleStartEditing(empSkill.skill.id)
-                                }
+                                onClick={() => handleStartEditing(empSkill.skill.id)}
                                 aria-label={`Modifica livello di ${empSkill.skill.name}`}
                                 tabIndex={0}
                               >
@@ -449,16 +416,13 @@ export default function UserDetailsSkills({
       </div>
 
       {/* Dialog per aggiungere Hard Skill */}
-      <Dialog
-        open={showAddHardSkillDialog}
-        onOpenChange={handleHardSkillDialogChange}
-      >
+      <Dialog open={showAddHardSkillDialog} onOpenChange={handleHardSkillDialogChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Aggiungi Hard Skill</DialogTitle>
             <DialogDescription>
-              Seleziona una hard skill e il livello di seniority per{" "}
-              {user?.name || "questo utente"}.
+              Seleziona una hard skill e il livello di seniority per {user?.name || "questo utente"}
+              .
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -492,17 +456,12 @@ export default function UserDetailsSkills({
               </Select>
             </div>
             <div>
-              <label
-                htmlFor="newHardSkillLevel"
-                className="text-sm font-medium"
-              >
+              <label htmlFor="newHardSkillLevel" className="text-sm font-medium">
                 Livello di Seniority
               </label>
               <Select
                 value={newSkillLevel}
-                onValueChange={(value: SeniorityLevel) =>
-                  setNewSkillLevel(value)
-                }
+                onValueChange={(value: SeniorityLevel) => setNewSkillLevel(value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -531,16 +490,13 @@ export default function UserDetailsSkills({
       </Dialog>
 
       {/* Dialog per aggiungere Soft Skill */}
-      <Dialog
-        open={showAddSoftSkillDialog}
-        onOpenChange={handleSoftSkillDialogChange}
-      >
+      <Dialog open={showAddSoftSkillDialog} onOpenChange={handleSoftSkillDialogChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Aggiungi Soft Skill</DialogTitle>
             <DialogDescription>
-              Seleziona una soft skill e il livello di seniority per{" "}
-              {user?.name || "questo utente"}.
+              Seleziona una soft skill e il livello di seniority per {user?.name || "questo utente"}
+              .
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -574,17 +530,12 @@ export default function UserDetailsSkills({
               </Select>
             </div>
             <div>
-              <label
-                htmlFor="newSoftSkillLevel"
-                className="text-sm font-medium"
-              >
+              <label htmlFor="newSoftSkillLevel" className="text-sm font-medium">
                 Livello di Seniority
               </label>
               <Select
                 value={newSkillLevel}
-                onValueChange={(value: SeniorityLevel) =>
-                  setNewSkillLevel(value)
-                }
+                onValueChange={(value: SeniorityLevel) => setNewSkillLevel(value)}
               >
                 <SelectTrigger>
                   <SelectValue />

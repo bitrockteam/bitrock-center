@@ -41,6 +41,11 @@ export async function fetchSaturationData(): Promise<SaturationEmployee[]> {
 
   const users = await db.user.findMany({
     include: {
+      area: {
+        select: {
+          name: true,
+        },
+      },
       allocation: {
         include: {
           work_items: {
@@ -142,12 +147,18 @@ export async function fetchSaturationData(): Promise<SaturationEmployee[]> {
         : null,
     }));
 
+    const areaName = user.area?.name;
+    const area: Area =
+      areaName === "FRONT_END" || areaName === "BACK_END" || areaName === "OTHER"
+        ? areaName
+        : "OTHER";
+
     return {
       id: user.id,
       name: user.name,
       email: user.email,
       avatar_url: user.avatar_url,
-      area: user.area,
+      area,
       team,
       seniority,
       totalAllocation,

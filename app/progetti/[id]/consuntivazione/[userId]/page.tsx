@@ -5,7 +5,9 @@ import TimeTrackingCalendar from "@/components/time-tracking/time-tracking-calen
 import TimeTrackingHeader from "@/components/time-tracking/time-tracking-header";
 import TimeTrackingTable from "@/components/time-tracking/time-tracking-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { db } from "@/config/prisma";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +18,13 @@ export const metadata: Metadata = {
 
 export default async function UserTimesheet({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
-  const user = await getUserInfoFromCookie();
+  const userInfo = await getUserInfoFromCookie();
+  const user = await db.user.findUnique({
+    where: { id: userInfo.id },
+  });
+  if (!user) {
+    redirect("/login");
+  }
   const userTimesheet = await fetchUserTimesheetById(userId);
   const work_items = await fetchAllWorkItems();
 

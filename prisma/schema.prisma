@@ -71,6 +71,20 @@ model timesheet {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model area {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  name       String   @unique
+  user       user[]
+}
+
+model societa {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  name       String   @unique
+  user       user[]
+}
+
 model user {
   id                                  String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   created_at                          DateTime                @default(now()) @db.Timestamptz(6)
@@ -81,9 +95,13 @@ model user {
   role                                Role                    @default(Employee)
   custom_days_off_left                Int?                    @db.SmallInt
   custom_days_off_planned             Int?                    @db.SmallInt
-  area                                Area                    @default(OTHER)
-  note                                String?
+  title                               String?
+  posizione                           String?
+  area_id                             String?                 @db.Uuid
+  societa_id                          String?                 @db.Uuid
+  altri_ruoli                         String[]                @default([])
   allocation                          allocation[]
+  area                                area?                   @relation(fields: [area_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
   chat_session                        chat_session[]
   contract_contract_employee_idTouser contract[]              @relation("contract_employee_idTouser")
   contract_contract_modified_byTouser contract[]              @relation("contract_modified_byTouser")
@@ -92,6 +110,7 @@ model user {
   permit_permit_user_idTouser         permit[]                @relation("permit_user_idTouser")
   projection                          projection[]            @relation("projection_created_byTouser")
   projection_allocation               projection_allocation[]
+  societa                             societa?                @relation(fields: [societa_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
   timesheet                           timesheet[]
   user                                user?                   @relation("userTouser", fields: [referent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   other_user                          user[]                  @relation("userTouser")

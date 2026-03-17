@@ -8,8 +8,10 @@ import DashboardSummary from "@/components/dashboard/dashboard-summary";
 import HoursChart from "@/components/dashboard/hours-chart";
 import NotificationsCard from "@/components/dashboard/notifications-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { db } from "@/config/prisma";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +21,13 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const user = getUserInfoFromCookie();
+  const userInfo = await getUserInfoFromCookie();
+  const user = await db.user.findUnique({
+    where: { id: userInfo.id },
+  });
+  if (!user) {
+    redirect("/login");
+  }
   const summary = fetchUserStats();
   const latestNotifications = fetchLatestNotifications();
 
@@ -27,7 +35,7 @@ export default async function DashboardPage() {
   const permits = fetchUserPermits();
   return (
     <div className="space-y-6">
-      <DashboardHeader userData={user} />
+      <DashboardHeader userData={Promise.resolve(user)} />
       <DashboardSummary summaryData={summary} />
 
       <Tabs defaultValue="chart" className="w-full">

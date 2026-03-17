@@ -211,3 +211,36 @@ kbd {
     animation-delay: 4s;
   }
 }
+
+/* React Flow Controls - Improved Contrast */
+.react-flow__controls {
+  background: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+}
+
+.react-flow__controls button {
+  background: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.react-flow__controls button:hover {
+  background: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+.react-flow__controls button:active {
+  background: hsl(var(--muted)) !important;
+}
+
+.react-flow__controls button svg {
+  fill: white !important;
+}
+
+.react-flow__controls button:hover svg {
+  fill: white !important;
+}

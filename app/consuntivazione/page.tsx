@@ -4,10 +4,12 @@ import TimeTrackingHeader from "@/components/time-tracking/time-tracking-header"
 import TimeTrackingTable from "@/components/time-tracking/time-tracking-table";
 import WorkingDaysConfig from "@/components/time-tracking/working-days-config";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { db } from "@/config/prisma";
 import { Permissions } from "@/db";
 import { hasPermission } from "@/services/users/server.utils";
 import { getUserInfoFromCookie } from "@/utils/supabase/server";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { fetchAllWorkItems } from "../server-actions/work-item/fetchAllWorkItems";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +20,13 @@ export const metadata: Metadata = {
 };
 
 export default async function TimeTrackingPage() {
-  const user = await getUserInfoFromCookie();
+  const userInfo = await getUserInfoFromCookie();
+  const user = await db.user.findUnique({
+    where: { id: userInfo.id },
+  });
+  if (!user) {
+    redirect("/login");
+  }
   const workItems = await fetchAllWorkItems();
   const timesheets = await fetchUserTimesheet();
   const CAN_EDIT_WORKING_DAY = await hasPermission(Permissions.CAN_EDIT_WORKING_DAY);
